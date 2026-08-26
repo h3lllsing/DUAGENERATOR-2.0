@@ -1,0 +1,801 @@
+"""
+Scene Engine (VISUAL Phase 2).
+
+Deterministic procedural SceneEngine that produces visual variety for
+1080x1920 @ 24 FPS dua Shorts WITHOUT requiring any background image
+assets. Everything is generated procedurally from a seed (dua_id) so the
+same dua always looks the same and different duas can look different.
+
+Architecture (approved):
+  - MotionSpec  : deterministic background motion (static / zoom / pan)
+  - TextLayer   : a single text element (title, arabic, urdu)
+  - Transition  : scene fade-in / fade-out
+  - Scene       : a timed segment (palette + motion + decorations + layers)
+  - Timeline    : ordered scenes over a total duration (VIDEO-002 final_duration)
+  - SceneRenderer: renders a Timeline to the existing List[Image] contract
+                   consumed by VideoBuilder.
+
+Content safety (HARD requirement):
+  - Formal safe rectangle for critical content (SAFE_RECT).
+  - Explicit reserved rectangles for decorative zones (top/bottom bands,
+    side strips, watermark area) - decoration NEVER overlaps text.
+  - Text is laid out with measured bounding boxes; if content does not fit,
+    the cascade is: wrap -> shrink fonts -> reduce spacing -> alternate
+    layout. Before rendering, every text bbox is verified to lie inside
+    SAFE_RECT and to be disjoint from every reserved rect.
+
+Motion safety: background motion (Ken Burns / pan / zoom) applies to the
+BACKGROUND ONLY. Critical text is composited from pre-rendered surfaces at
+fixed positions, so it is geometrically stable regardless of motion.
+
+Duration: the renderer fills exactly the caller-supplied final duration
+(VIDEO-002). Speech is never stretched, duplicated, or cut.
+
+No packages are installed; no external images are downloaded.
+"""
+
+import os
+import random
+import sys
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+# Ensure project root is in path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.project_info import PROJECT
+from core.arabic_renderer import (ArabicRenderer, _is_arabic,
+                                  apply_vertical_gradient as _apply_gradient)
+
+# Shared HarfBuzz renderer (proper Arabic/Urdu shaping with harakat).
+_AR_RENDERER = ArabicRenderer()
+
+try:
+    import config
+except Exception:
+    config = None
+
+
+# ----------------------------------------------------------------------
+# Canvas + content-safety geometry
+# ----------------------------------------------------------------------
+CANVAS_WIDTH = 1080
+CANVAS_HEIGHT = 1920
+DEFAULT_FPS = 24
+
+# Formal content safe rectangle (x0, y0, x1, y1). Critical Arabic/Urdu/title
+# text must ALWAYS lie fully inside this rectangle.
+SAFE_RECT: Tuple[int, int, int, int] = (60, 110, 1020, 1810)
+
+# Explicit reserved rectangles for decorative zones. Decoration lives ONLY
+# inside these; text NEVER enters them (enforced before rendering).
+RESERVED_RECTS: List[Tuple[int, int, int, int]] = [
+    (0, 0, 1080, 110),       # top decorative band
+    (0, 1810, 1080, 1920),   # bottom decorative band + future watermark area
+    (0, 110, 60, 1810),      # left decorative strip
+    (1020, 110, 1080, 1810), # right decorative strip
+]
+
+MIN_FONT_SIZE = 26
+TEXT_OUTLINE_WIDTH = 4
+
+# Premium look: Arabic lines fade from the layer color into warm gold.
+_AR_GRADIENT_BOTTOM = (255, 222, 140)
+
+# Calm, readable palettes approved for Islamic dua Shorts.
+PALETTES: List[dict] = [
+    {"name": "midnight", "top": (18, 20, 42), "bottom": (9, 11, 27),
+     "accent": (212, 175, 55), "text": (255, 255, 255),
+     "title": (255, 215, 0), "outline": (10, 12, 20)},
+    {"name": "twilight", "top": (40, 12, 55), "bottom": (22, 7, 34),
+     "accent": (212, 175, 55), "text": (245, 240, 255),
+     "title": (255, 215, 0), "outline": (16, 6, 24)},
+    {"name": "emerald", "top": (13, 76, 63), "bottom": (7, 44, 38),
+     "accent": (212, 175, 55), "text": (255, 255, 255),
+     "title": (255, 215, 0), "outline": (4, 22, 18)},
+    {"name": "navy", "top": (16, 32, 70), "bottom": (8, 17, 43),
+     "accent": (203, 172, 96), "text": (255, 255, 255),
+     "title": (255, 215, 0), "outline": (6, 10, 24)},
+    {"name": "mist", "top": (236, 237, 246), "bottom": (208, 212, 231),
+     "accent": (45, 90, 160), "text": (28, 33, 58),
+     "title": (60, 80, 140), "outline": (250, 250, 250)},
+    {"name": "sand", "top": (248, 244, 236), "bottom": (228, 220, 206),
+     "accent": (122, 92, 52), "text": (40, 35, 28),
+     "title": (122, 92, 52), "outline": (255, 255, 255)},
+]
+
+MOTION_KINDS: Tuple[str, ...] = (
+    "static", "zoom_in", "zoom_out",
+    "pan_left", "pan_right", "pan_up", "pan_down",
+)
+
+TEXT_STYLES: Tuple[str, ...] = ("solid", "outline", "gold")
+CORNER_STYLES: Tuple[str, ...] = ("classic", "double", "dot")
+
+
+def _resolve_font_path() -> str:
+    candidates = [
+        os.path.join(PROJECT.FONTS_DIR, "Amiri-Bold.ttf"),
+        os.path.join(PROJECT.FONTS_DIR, "NotoNaskhArabic-Regular.ttf"),
+        getattr(config, "ARABIC_FONT", None),
+        getattr(config, "ARABIC_FONT_BOLD", None),
+    ]
+    for c in candidates:
+        if c and os.path.exists(c):
+            return c
+    raise FileNotFoundError(
+        "No Arabic font found. Checked: " + ", ".join(str(c) for c in candidates))
+
+
+FONT_PATH = _resolve_font_path()
+
+
+def rect_intersect(a: Tuple[int, int, int, int],
+                   b: Tuple[int, int, int, int]) -> bool:
+    """True when two axis-aligned rects strictly overlap (touch == no)."""
+    ix = min(a[2], b[2]) - max(a[0], b[0])
+    iy = min(a[3], b[3]) - max(a[1], b[1])
+    return ix > 0 and iy > 0
+
+
+def rect_within(inner: Tuple[int, int, int, int],
+                outer: Tuple[int, int, int, int]) -> bool:
+    """True when inner rect is completely inside outer rect."""
+    return (inner[0] >= outer[0] and inner[1] >= outer[1]
+            and inner[2] <= outer[2] and inner[3] <= outer[3])
+
+
+def _smoothstep(t: float) -> float:
+    t = max(0.0, min(1.0, t))
+    return t * t * (3 - 2 * t)
+
+
+# ----------------------------------------------------------------------
+# Architecture dataclasses
+# ----------------------------------------------------------------------
+@dataclass
+class MotionSpec:
+    """Deterministic background motion. Background only - never text."""
+
+    kind: str = "static"
+    zoom: float = 0.05   # subtle max zoom delta (5%)
+    pan: float = 0.04    # subtle max pan offset (4% of a dimension)
+
+    def crop(self, p: float, width: int, height: int) -> Tuple[int, int, int, int]:
+        """Return the source crop rect (x0,y0,x1,y1) for progress p in [0,1]."""
+        p = max(0.0, min(1.0, p))
+        bg_w, bg_h = int(width * 1.12), int(height * 1.12)
+        margin = 10
+
+        if self.kind == "static":
+            w, h = width, height
+            x0, y0 = (bg_w - w) // 2, (bg_h - h) // 2
+        elif self.kind in ("zoom_in", "zoom_out"):
+            z = self.zoom * (p if self.kind == "zoom_in" else (1 - p))
+            w, h = int(width * (1 - z)), int(height * (1 - z))
+            x0, y0 = (bg_w - w) // 2, (bg_h - h) // 2
+        elif self.kind in ("pan_left", "pan_right"):
+            w, h = int(width * 0.94), int(height * 0.94)
+            span = (bg_w - w) - 2 * margin
+            if self.kind == "pan_left":
+                x0 = margin + int(span * (1 - p))
+            else:
+                x0 = margin + int(span * p)
+            y0 = (bg_h - h) // 2
+        elif self.kind in ("pan_up", "pan_down"):
+            w, h = int(width * 0.94), int(height * 0.94)
+            span = (bg_h - h) - 2 * margin
+            if self.kind == "pan_up":
+                y0 = margin + int(span * (1 - p))
+            else:
+                y0 = margin + int(span * p)
+            x0 = (bg_w - w) // 2
+        else:
+            w, h, x0, y0 = width, height, (bg_w - width) // 2, (bg_h - height) // 2
+
+        w, h = max(16, w), max(16, h)
+        x0 = min(max(0, x0), bg_w - w)
+        y0 = min(max(0, y0), bg_h - h)
+        return (x0, y0, x0 + w, y0 + h)
+
+    def key(self) -> str:
+        return self.kind
+
+
+@dataclass
+class TextLayer:
+    """A single critical text element. Text is NEVER altered by the engine."""
+
+    role: str                       # "title" | "arabic" | "urdu"
+    text: str
+    language: str = "title"         # "ar" | "ur" | "title"
+    font_size: int = 0              # 0 => auto by role
+    color: Tuple[int, int, int] = (255, 255, 255)
+    outline: bool = False
+    outline_color: Tuple[int, int, int] = (10, 12, 20)
+
+
+@dataclass
+class Transition:
+    """Scene transition (fade through black, or none)."""
+
+    kind: str = "fade"              # "fade" | "none"
+    duration: float = 0.4
+
+
+@dataclass
+class Scene:
+    """One timed visual segment."""
+
+    duration: float = 15.0
+    palette: dict = field(default_factory=dict)
+    motion: MotionSpec = field(default_factory=MotionSpec)
+    layers: List[TextLayer] = field(default_factory=list)
+    particle_count: int = 40
+    corner_style: str = "classic"
+    text_style: str = "solid"
+    transition_in: Transition = field(default_factory=Transition)
+    transition_out: Transition = field(default_factory=Transition)
+    # VISUAL Phase 4: optional WordBoundary events per role ("arabic"/"urdu"),
+    # scene-relative seconds. None => legacy rendering (no highlighting).
+    word_events: Optional[Dict[str, List[dict]]] = None
+
+    def palette_name(self) -> str:
+        return self.palette.get("name", "midnight")
+
+
+@dataclass
+class Timeline:
+    """Ordered scenes filling a total duration. Frames follow fps exactly."""
+
+    fps: int = DEFAULT_FPS
+    scenes: List[Scene] = field(default_factory=list)
+
+    @property
+    def total_duration(self) -> float:
+        return sum(s.duration for s in self.scenes)
+
+    @property
+    def total_frames(self) -> int:
+        return int(round(self.total_duration * self.fps))
+
+    def frames_for_scene(self, index: int) -> int:
+        """Per-scene frame counts; last scene absorbs rounding to match total."""
+        counts = [int(round(s.duration * self.fps)) for s in self.scenes]
+        diff = self.total_frames - sum(counts)
+        counts[-1] += diff
+        return counts[index]
+
+
+# ----------------------------------------------------------------------
+# SceneRenderer
+# ----------------------------------------------------------------------
+class SceneRenderer:
+    """
+    Renders a Timeline into the existing List[Image] contract consumed by
+    VideoBuilder (unchanged). Fully deterministic from `seed`.
+    """
+
+    def __init__(self, width: int = CANVAS_WIDTH, height: int = CANVAS_HEIGHT,
+                 fps: int = DEFAULT_FPS):
+        self.width = width
+        self.height = height
+        self.fps = fps
+        self._font_cache: Dict[int, ImageFont.FreeTypeFont] = {}
+
+    # -- fonts / reshaping --------------------------------------------
+    def _font(self, size: int) -> ImageFont.FreeTypeFont:
+        if size not in self._font_cache:
+            self._font_cache[size] = ImageFont.truetype(FONT_PATH, size)
+        return self._font_cache[size]
+
+    @staticmethod
+    def _text_w(font, text: str) -> int:
+        bb = font.getbbox(text)
+        return bb[2] - bb[0]
+
+    @staticmethod
+    def _measure(font, text: str, language: str) -> int:
+        """Width of a line/word in px. Arabic-script text is measured through
+        the HarfBuzz renderer (logical text, correct shaped width); LTR text
+        through the PIL font."""
+        if language in ("ar", "ur") and _is_arabic(text):
+            return int(round(_AR_RENDERER.measure_width(text, font.size)))
+        return SceneRenderer._text_w(font, text)
+
+    def _wrap(self, text: str, font, max_w: int, language: str) -> List[str]:
+        """Wrap LOGICAL text (NOT bidi-reordered) so multi-line RTL content
+        keeps start->top / end->bottom order. Widths are measured with the
+        HarfBuzz shaper for Arabic/Urdu."""
+        lines: List[str] = []
+        current = ""
+        for word in text.split():
+            test = (current + " " + word) if current else word
+            if self._measure(font, test, language) <= max_w:
+                current = test
+                continue
+            if current:
+                lines.append(current)
+            current = ""
+            # hard-break an over-long unbroken word by measured chunks
+            while word and self._measure(font, word, language) > max_w:
+                i = 1
+                while i < len(word) and self._measure(font, word[:i],
+                                                      language) <= max_w:
+                    i += 1
+                cut = i - 1 if i > 1 else 1
+                lines.append(word[:cut])
+                word = word[cut:]
+            current = word
+        if current:
+            lines.append(current)
+        return lines or [text]
+
+    # -- layout --------------------------------------------------------
+    def compute_layout(self, scene: Scene) -> dict:
+        """
+        Lay out all critical text inside SAFE_RECT using measured bounding
+        boxes. Fallback cascade: wrap -> shrink fonts -> reduce spacing ->
+        alternate layout (tighter gaps). Returns a layout dict with per-line
+        pixel bboxes, or raises if content physically cannot fit.
+        """
+        sx0, sy0, sx1, sy1 = SAFE_RECT
+        pad = 24
+        wrap_w = (sx1 - sx0) - 2 * pad
+        avail_h = (sy1 - sy0) - 2 * pad
+        layers = list(scene.layers)
+
+        base_sizes = {"title": 60, "arabic": 72, "urdu": 54}
+        sizes = {l.role: (l.font_size or base_sizes.get(l.role, 54))
+                 for l in layers}
+        spacing = 1.30
+        gap = 26
+        fallback = "primary"
+
+        def build_blocks():
+            blocks = []
+            total = 0
+            for layer in layers:
+                size = sizes[layer.role]
+                font = self._font(size)
+                lines = self._wrap(layer.text, font, wrap_w, layer.language)
+                line_h = max(int(size * spacing), size + 8)
+                block_h = len(lines) * line_h
+                blocks.append((layer, lines, size, line_h, block_h))
+                total += block_h
+            return blocks, total + gap * (len(layers) - 1)
+
+        for _attempt in range(40):
+            blocks, total_h = build_blocks()
+            if total_h <= avail_h:
+                break
+            if any(sizes[r] > MIN_FONT_SIZE for r in sizes):
+                shrink = avail_h / total_h
+                for role in sizes:
+                    sizes[role] = max(MIN_FONT_SIZE,
+                                      int(sizes[role] * shrink))
+                fallback = "shrunk"
+            elif spacing > 1.10:
+                spacing = max(1.10, spacing - 0.05)
+                fallback = "spacing"
+            elif pad > 12:
+                # alternate layout: tighter inter-block gap + padding
+                gap = 12
+                pad = 12
+                wrap_w = (sx1 - sx0) - 2 * pad
+                avail_h = (sy1 - sy0) - 2 * pad
+                fallback = "alternate"
+            else:
+                raise ValueError(
+                    f"Content cannot fit in SAFE_RECT {SAFE_RECT} "
+                    f"(needs {total_h}px, has {avail_h}px).")
+
+        blocks, total_h = build_blocks()
+        if total_h > avail_h:
+            raise ValueError(
+                f"Content cannot fit in SAFE_RECT {SAFE_RECT} "
+                f"(needs {total_h}px, has {avail_h}px).")
+
+        start_y = sy0 + pad + max(0, (avail_h - total_h) // 2)
+        cursor = start_y
+        laid: List[dict] = []
+        for layer, lines, size, line_h, _bh in blocks:
+            font = self._font(size)
+            layer_lines = []
+            for line in lines:
+                w = self._measure(font, line, layer.language) \
+                    + 2 * TEXT_OUTLINE_WIDTH
+                x = sx0 + (wrap_w - w) // 2 + pad
+                bbox = (x, cursor, x + w, cursor + line_h)
+                layer_lines.append({
+                    "text": line,
+                    "font_size": size,
+                    "x": x, "y": cursor,
+                    "w": w, "h": line_h,
+                    "bbox": bbox,
+                })
+                cursor += line_h
+            laid.append({
+                "role": layer.role,
+                "lines": layer_lines,
+                "block_h": len(lines) * line_h,
+            })
+            cursor += gap
+
+        return {
+            "layers": laid,
+            "total_h": total_h,
+            "spacing": spacing,
+            "gap": gap,
+            "font_fallback": fallback,
+            "fits": True,
+        }
+
+    def verify_layout(self, scene: Scene, layout: dict) -> List[str]:
+        """
+        Mathematically verify every critical text bbox is inside SAFE_RECT
+        and disjoint from every reserved rect. Returns a list of issues
+        (empty == clean).
+        """
+        issues: List[str] = []
+        for layer in layout["layers"]:
+            for line in layer["lines"]:
+                b = line["bbox"]
+                if not rect_within(b, SAFE_RECT):
+                    issues.append(
+                        f"{layer['role']} line '{line['text'][:20]}' bbox {b} "
+                        f"not inside SAFE_RECT {SAFE_RECT}")
+                for r in RESERVED_RECTS:
+                    if rect_intersect(b, r):
+                        issues.append(
+                            f"{layer['role']} line '{line['text'][:20]}' bbox "
+                            f"{b} intersects reserved rect {r}")
+        return issues
+
+    def _build_text_surfaces(self, scene: Scene, layout: dict) -> List[dict]:
+        """Pre-render each text line to an RGBA surface (fixed position)."""
+        surfaces = []
+        layer_by_role = {l.role: l for l in scene.layers}
+        for layer in layout["layers"]:
+            spec = layer_by_role[layer["role"]]
+            is_ar = layer["role"] in ("arabic", "urdu", "title") and \
+                _is_arabic("".join(ln["text"] for ln in layer["lines"]))
+            for line in layer["lines"]:
+                if is_ar:
+                    surf = _AR_RENDERER.render_line(
+                        line["text"], line["font_size"],
+                        color=tuple(spec.color),
+                        outline_color=(tuple(spec.outline_color)
+                                       if spec.outline else None),
+                        outline_width=TEXT_OUTLINE_WIDTH if spec.outline else 0)
+                    if layer["role"] == "arabic":
+                        surf = _apply_gradient(surf,
+                                               tuple(spec.color),
+                                               _AR_GRADIENT_BOTTOM)
+                    # Ink-tight surface can exceed the nominal line box
+                    # (stacked harakat overflow font metrics). Expand the
+                    # canvas instead of cropping, anchored at box center.
+                    cw = max(line["w"], surf.width)
+                    ch = max(line["h"], surf.height)
+                    img = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+                    off_x = (cw - surf.width) // 2
+                    img.paste(surf, (off_x, (ch - surf.height) // 2), surf)
+                    # Per-word visual x spans (canvas-relative) keyed by
+                    # logical token index -> exact word-highlight geometry.
+                    spans = _AR_RENDERER.word_spans(line["text"],
+                                                    line["font_size"])
+                    words = [(w["i"], off_x + w["x0"], off_x + w["x1"])
+                             for w in spans["words"]]
+                    surfaces.append({
+                        "surface": img,
+                        "x": max(0, line["x"] - (cw - line["w"]) // 2),
+                        "y": max(0, line["y"] - (ch - line["h"]) // 2),
+                        "words": words,
+                    })
+                    continue
+                img = Image.new("RGBA", (line["w"], line["h"]), (0, 0, 0, 0))
+                d = ImageDraw.Draw(img)
+                font = self._font(line["font_size"])
+                bb = d.textbbox((0, 0), line["text"], font=font,
+                                stroke_width=TEXT_OUTLINE_WIDTH)
+                dx = -bb[0]
+                dy = -bb[1]
+                if spec.outline:
+                    d.text((dx, dy), line["text"], font=font,
+                           fill=tuple(spec.color) + (255,),
+                           stroke_width=TEXT_OUTLINE_WIDTH,
+                           stroke_fill=tuple(spec.outline_color) + (255,))
+                else:
+                    d.text((dx, dy), line["text"], font=font,
+                           fill=tuple(spec.color) + (255,))
+                surfaces.append({
+                    "surface": img,
+                    "x": line["x"],
+                    "y": line["y"],
+                })
+        return surfaces
+
+    # -- background / decorations --------------------------------------
+    @staticmethod
+    def _build_gradient(palette: dict, bg_w: int, bg_h: int) -> Image.Image:
+        top = np.array(palette["top"], dtype=np.float64)
+        bottom = np.array(palette["bottom"], dtype=np.float64)
+        rows = np.linspace(0.0, 1.0, bg_h)[:, None]
+        grad = (top * (1 - rows) + bottom * rows).astype(np.uint8)
+        img = np.repeat(grad[:, None, :], bg_w, axis=1)
+        return Image.fromarray(img)
+
+    @staticmethod
+    def _draw_particles(frame, particles, frame_i, drift):
+        d = ImageDraw.Draw(frame)
+        for (x, y, r, phase, alpha) in particles:
+            if drift:
+                dx = int(3 * np.sin(2 * np.pi * frame_i * 0.02 + phase))
+                dy = int(3 * np.cos(2 * np.pi * frame_i * 0.02 + phase))
+            else:
+                dx = dy = 0
+            d.ellipse([(x + dx - r, y + dy - r), (x + dx + r, y + dy + r)],
+                      fill=(255, 245, 210, alpha))
+
+    @staticmethod
+    def _draw_decorations(frame, scene, accent, text_style):
+        """Draw decorations ONLY inside RESERVED_RECTS."""
+        d = ImageDraw.Draw(frame)
+        W, H = frame.size
+        alpha_line = 170
+
+        # Top band ornament (y in 0..110)
+        ty = 55
+        d.line([(90, ty), (W - 90, ty)], fill=accent + (alpha_line,), width=2)
+        d.line([(90, ty - 8), (W - 90, ty - 8)],
+               fill=accent + (alpha_line // 2,), width=1)
+        # center diamond
+        d.polygon([(W // 2, ty - 8), (W // 2 + 8, ty), (W // 2, ty + 8),
+                   (W // 2 - 8, ty)], fill=accent + (alpha_line,))
+
+        # Bottom band ornament (y in 1810..1920)
+        by = H - 55
+        d.line([(90, by), (W - 90, by)], fill=accent + (alpha_line,), width=2)
+        d.line([(90, by + 8), (W - 90, by + 8)],
+               fill=accent + (alpha_line // 2,), width=1)
+        d.polygon([(W // 2, by - 8), (W // 2 + 8, by), (W // 2, by + 8),
+                   (W // 2 - 8, by)], fill=accent + (alpha_line,))
+
+        # Side strips (x in 0..60 and 1020..1080, y in 110..1810)
+        sx = 30
+        d.line([(sx, 150), (sx, H - 150)], fill=accent + (alpha_line // 2,),
+               width=2)
+        d.line([(W - sx, 150), (W - sx, H - 150)],
+               fill=accent + (alpha_line // 2,), width=2)
+
+        # Corner brackets (inside reserved corners)
+        c = 46
+        m = 14
+        style = scene.corner_style
+        for (cx, cy, dx, dy) in [(m, m, 1, 1), (W - m, m, -1, 1),
+                                 (m, H - m, 1, -1), (W - m, H - m, -1, -1)]:
+            if style == "double":
+                d.line([(cx, cy), (cx + dx * c, cy)], fill=accent + (255,), width=3)
+                d.line([(cx, cy), (cx, cy + dy * c)], fill=accent + (255,), width=3)
+                d.line([(cx + dx * 12, cy + dy * 4), (cx + dx * c, cy + dy * 4)],
+                       fill=accent + (200,), width=2)
+                d.line([(cx + dx * 4, cy + dy * 12), (cx + dx * 4, cy + dy * c)],
+                       fill=accent + (200,), width=2)
+            elif style == "dot":
+                d.line([(cx, cy), (cx + dx * c, cy)], fill=accent + (255,), width=3)
+                d.line([(cx, cy), (cx, cy + dy * c)], fill=accent + (255,), width=3)
+                r = 4
+                xa = cx + dx * (c - 2 * r)
+                ya = cy + dy * (c - 2 * r)
+                xb = cx + dx * c
+                yb = cy + dy * c
+                d.ellipse([(min(xa, xb), min(ya, yb)),
+                           (max(xa, xb), max(ya, yb))],
+                          fill=accent + (255,))
+            else:  # classic
+                d.line([(cx, cy), (cx + dx * c, cy)], fill=accent + (255,), width=3)
+                d.line([(cx, cy), (cx, cy + dy * c)], fill=accent + (255,), width=3)
+
+    @staticmethod
+    def _apply_transition(frame, scene, frame_i, frame_count, fps):
+        d = ImageDraw.Draw(frame)
+        tin = min(scene.transition_in.duration, scene.duration / 2) if \
+            scene.transition_in.kind == "fade" else 0.0
+        tout = min(scene.transition_out.duration, scene.duration / 2) if \
+            scene.transition_out.kind == "fade" else 0.0
+        n_in = int(round(tin * fps))
+        n_out = int(round(tout * fps))
+        alpha = 0
+        if n_in > 0 and frame_i < n_in:
+            t = _smoothstep(frame_i / n_in)
+            alpha = int(255 * (1 - t))
+        elif n_out > 0 and frame_i >= frame_count - n_out:
+            denom = max(1, n_out - 1)
+            prog = (frame_i - (frame_count - n_out)) / denom
+            alpha = int(255 * _smoothstep(prog))
+        if alpha > 0:
+            d.rectangle([0, 0, frame.size[0], frame.size[1]],
+                        fill=(0, 0, 0, alpha))
+
+    # -- word highlighting (VISUAL Phase 4, additive) ---------------------
+    def _build_highlight(self, scene: Scene, layout: dict,
+                         surfaces: Optional[List[dict]] = None):
+        """
+        Build per-role highlight data once per scene: normalized events,
+        word geometry, accent. Returns None when there is nothing to draw.
+        Missing/corrupt events for a role simply disable that role's
+        highlight; the video renders normally.
+
+        ``surfaces`` (from _build_text_surfaces, same layer/line order)
+        supplies exact per-word pixel spans; without them the geometry
+        falls back to line-level boxes.
+        """
+        from core.word_highlight import build_word_geometry, normalize_events
+
+        layer_by_role = {l.role: l for l in scene.layers}
+        surf_iter = iter(surfaces) if surfaces is not None else None
+        hl = {}
+        for layer in layout["layers"]:
+            role = layer["role"]
+            lines = layer["lines"]
+            # Consume one surface per line to stay in sync with the flat
+            # surfaces list, regardless of early skips below.
+            line_spans: Optional[List[list]] = []
+            for line in lines:
+                s = next(surf_iter, None) if surf_iter is not None else None
+                ws = (s or {}).get("words") if s is not None else None
+                if ws:
+                    fx = s["x"]
+                    line_spans.append(
+                        [(i, fx + a, fx + b) for (i, a, b) in ws])
+                else:
+                    line_spans = None
+            events = (scene.word_events or {}).get(role)
+            spec = layer_by_role.get(role)
+            if not events or lines is None or not lines:
+                continue
+            if spec is None or spec.language not in ("ar", "ur"):
+                continue
+            # Geometry and timing MUST see the same event list: normalize
+            # first, then count, so a dropped junk entry can't cause a
+            # spurious word/token mismatch fallback.
+            clean_events = normalize_events(events)
+            font = self._font(lines[0]["font_size"])
+            geometry = build_word_geometry(
+                spec.language, spec.text, lines, len(clean_events),
+                lambda s_, f=font: self._text_w(f, s_),
+                outline_pad=TEXT_OUTLINE_WIDTH,
+                line_spans=(line_spans or None))
+            hl[role] = {
+                "events": clean_events,
+                "geometry": geometry,
+                "accent": scene.palette["accent"],
+            }
+        return hl or None
+
+    def _apply_highlight(self, frame: Image.Image, highlight: dict,
+                         t: float):
+        """Draw the active word's overlay on the frame at scene time ``t``."""
+        from core.word_highlight import highlight_targets, make_word_overlay
+
+        for role, info in highlight.items():
+            rect = highlight_targets(info["events"], info["geometry"], t)
+            if rect is None:
+                continue
+            overlay = make_word_overlay(rect, info["accent"])
+            frame.paste(overlay, (int(rect[0]), int(rect[1])), overlay)
+
+    # -- scene construction ---------------------------------------------
+    def build_single_scene(self, seed: str, arabic: str, urdu: str,
+                           title: str = "", duration: float = None,
+                           palette: Optional[dict] = None,
+                           motion: Optional[MotionSpec] = None) -> Scene:
+        """
+        Deterministically build one procedural Scene from content + seed.
+        This is NOT TimelineBuilder (Phase 3); it renders a single timed
+        segment filling `duration` seconds exactly.
+        """
+        rng = random.Random(f"{seed}:style")
+        if duration is None:
+            duration = float(getattr(config, "VIDEO_MIN_DURATION", 15))
+        pal = palette or dict(rng.choice(PALETTES))
+        mot = motion or MotionSpec(kind=rng.choice(list(MOTION_KINDS)))
+        density = rng.randint(24, 60)
+        corner = rng.choice(list(CORNER_STYLES))
+        text_style = rng.choice(list(TEXT_STYLES))
+
+        layers = [
+            TextLayer(role="title", text=title, language="title",
+                      color=pal["title"]),
+        ]
+        if text_style == "solid":
+            layers.append(TextLayer(role="arabic", text=arabic, language="ar",
+                                    color=pal["text"]))
+            layers.append(TextLayer(role="urdu", text=urdu, language="ur",
+                                    color=pal["text"]))
+        elif text_style == "gold":
+            layers.append(TextLayer(role="arabic", text=arabic, language="ar",
+                                    color=pal["accent"], outline=True,
+                                    outline_color=pal["outline"]))
+            layers.append(TextLayer(role="urdu", text=urdu, language="ur",
+                                    color=pal["text"], outline=True,
+                                    outline_color=pal["outline"]))
+        else:  # outline
+            layers.append(TextLayer(role="arabic", text=arabic, language="ar",
+                                    color=pal["text"], outline=True,
+                                    outline_color=pal["outline"]))
+            layers.append(TextLayer(role="urdu", text=urdu, language="ur",
+                                    color=pal["text"], outline=True,
+                                    outline_color=pal["outline"]))
+
+        return Scene(
+            duration=duration,
+            palette=pal,
+            motion=mot,
+            layers=layers,
+            particle_count=density,
+            corner_style=corner,
+            text_style=text_style,
+        )
+
+    # -- rendering -------------------------------------------------------
+    def render_scene(self, scene: Scene, frame_count: int, seed: str,
+                     scene_index: int = 0) -> List[Image.Image]:
+        """Render one scene into `frame_count` deterministic frames."""
+        layout = self.compute_layout(scene)
+        issues = self.verify_layout(scene, layout)
+        if issues:
+            raise RuntimeError("Layout safety verification failed:\n" +
+                               "\n".join(issues))
+
+        surfaces = self._build_text_surfaces(scene, layout)
+        highlight = self._build_highlight(scene, layout, surfaces) \
+            if scene.word_events else None
+        bg_w, bg_h = int(self.width * 1.12), int(self.height * 1.12)
+        gradient = self._build_gradient(scene.palette, bg_w, bg_h)
+
+        particle_rng = random.Random(f"{seed}:particles:{scene_index}")
+        particles = []
+        reserved = RESERVED_RECTS + [SAFE_RECT]  # particles only outside safe
+        for _ in range(scene.particle_count):
+            rx0, ry0, rx1, ry1 = particle_rng.choice(
+                [r for r in reserved if r != SAFE_RECT])
+            x = particle_rng.randint(rx0, rx1)
+            y = particle_rng.randint(ry0, ry1)
+            r = particle_rng.randint(1, 2)
+            phase = particle_rng.uniform(0, 2 * np.pi)
+            alpha = particle_rng.randint(90, 150)
+            particles.append((x, y, r, phase, alpha))
+
+        accent = scene.palette["accent"]
+        frames: List[Image.Image] = []
+        for i in range(frame_count):
+            p = 0.0 if frame_count <= 1 else i / (frame_count - 1)
+            crop = scene.motion.crop(p, self.width, self.height)
+            frame = gradient.crop(crop).resize(
+                (self.width, self.height), Image.Resampling.LANCZOS)
+            if frame.mode != "RGBA":
+                frame = frame.convert("RGBA")
+            self._draw_particles(frame, particles, i,
+                                 scene.motion.kind != "static")
+            self._draw_decorations(frame, scene, accent, scene.text_style)
+            for surf in surfaces:
+                frame.paste(surf["surface"], (surf["x"], surf["y"]),
+                            surf["surface"])
+            if highlight is not None:
+                t = i / self.fps
+                self._apply_highlight(frame, highlight, t)
+            self._apply_transition(frame, scene, i, frame_count, self.fps)
+            frames.append(frame.convert("RGB"))
+        return frames
+
+    def render(self, timeline: Timeline, seed: str = "default") -> List[Image.Image]:
+        """Render a full Timeline into the VideoBuilder List[Image] contract."""
+        frames: List[Image.Image] = []
+        for idx, scene in enumerate(timeline.scenes):
+            frames.extend(self.render_scene(scene, timeline.frames_for_scene(idx),
+                                            seed, idx))
+        return frames

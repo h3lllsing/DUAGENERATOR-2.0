@@ -1,0 +1,59 @@
+# --- YouTube / OAuth credentials ---
+client_secret.json
+client_secret*.json
+tokens.json
+tokens*.json
+yt_token.json
+yt_token_*.json
+data/yt_token.json
+data/yt_token_*.json
+remotion/client_secret*.json
+security/secrets*.json
+
+# --- temp/atomic-write leftovers ---
+*.tmp
+*.tmp.json
+data/*.tmp
+
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# --- pytest ---
+.pytest_cache/
+
+# --- IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Node ---
+remotion/node_modules/
+remotion/.cache/
+remotion/out/
+
+# --- Output / logs ---
+output/
+logs/
+temp/
+samples/
+backups/
+fx_proof/
+
+# --- Secrets / keys ---
+*.pem
+*.key
+data/gemini_api_key.txt
+security/

@@ -1,0 +1,482 @@
+{
+  "sleep_exit": {
+    "pass": true,
+    "ts": 1787484330299,
+    "reason": null
+  },
+  "salah_start": {
+    "pass": true,
+    "ts": 1787500439542,
+    "reason": null
+  },
+  "food_start": {
+    "pass": true,
+    "ts": 1787500599582,
+    "reason": null
+  },
+  "travel_start": {
+    "pass": true,
+    "ts": 1787484628398,
+    "reason": null
+  },
+  "morning_ashbahna": {
+    "pass": true,
+    "ts": 1787484752883,
+    "reason": null
+  },
+  "salah_end": {
+    "pass": true,
+    "ts": 1787557034709,
+    "reason": null
+  },
+  "bathroom_exit": {
+    "pass": true,
+    "ts": 1787484841397,
+    "reason": null
+  },
+  "food_end": {
+    "pass": true,
+    "ts": 1787493367982,
+    "reason": null
+  },
+  "travel_end": {
+    "pass": true,
+    "ts": 1787493445783,
+    "reason": null
+  },
+  "wudu_end": {
+    "pass": true,
+    "ts": 1787493546747,
+    "reason": null
+  },
+  "tashahhud_audhu": {
+    "pass": true,
+    "ts": 1787493654336,
+    "reason": null
+  },
+  "morning_mulk": {
+    "pass": true,
+    "ts": 1787493754795,
+    "reason": null
+  },
+  "morning_afiyah": {
+    "pass": true,
+    "ts": 1787493833990,
+    "reason": null
+  },
+  "morning_hasbiya": {
+    "pass": true,
+    "ts": 1787493922841,
+    "reason": null
+  },
+  "evening_amsayna": {
+    "pass": true,
+    "ts": 1787494024030,
+    "reason": null
+  },
+  "evening_mulk": {
+    "pass": true,
+    "ts": 1787494125794,
+    "reason": null
+  },
+  "evening_audhu": {
+    "pass": true,
+    "ts": 1787494200103,
+    "reason": null
+  },
+  "evening_isum": {
+    "pass": true,
+    "ts": 1787494278032,
+    "reason": null
+  },
+  "rabbana_hasanah": {
+    "pass": true,
+    "ts": 1787494371223,
+    "reason": null
+  },
+  "rabbi_shrah": {
+    "pass": true,
+    "ts": 1787494445059,
+    "reason": null
+  },
+  "yunus_dua": {
+    "pass": true,
+    "ts": 1787494525899,
+    "reason": null
+  },
+  "rabbi_zidni": {
+    "pass": true,
+    "ts": 1787494598428,
+    "reason": null
+  },
+  "hasbunallah": {
+    "pass": true,
+    "ts": 1787494670198,
+    "reason": null
+  },
+  "rabbi_ghfir": {
+    "pass": true,
+    "ts": 1787494756329,
+    "reason": null
+  },
+  "ham_o_gham": {
+    "pass": true,
+    "ts": 1787494886753,
+    "reason": null
+  },
+  "home_enter": {
+    "pass": true,
+    "ts": 1787494956282,
+    "reason": null
+  },
+  "rabbana_latuzigh": {
+    "pass": true,
+    "ts": 1787495054185,
+    "reason": null
+  },
+  "subah_o_shaam_ki_hifazat_ki_jami_dua_part1": {
+    "pass": true,
+    "ts": 1787495178299,
+    "reason": null
+  },
+  "subah_o_shaam_ki_hifazat_ki_jami_dua_part2": {
+    "pass": true,
+    "ts": 1787495292912,
+    "reason": null
+  },
+  "ayyub_as_ki_bimarion_aur_takaleef_se_shifa_ki_dua": {
+    "pass": true,
+    "ts": 1787495391166,
+    "reason": null
+  },
+  "karz_aur_pareshani_se_nijat_ki_dua": {
+    "pass": true,
+    "ts": 1787495514754,
+    "reason": null
+  },
+  "jahannam_se_azadi_aur_maghfirat_ki_dua": {
+    "pass": true,
+    "ts": 1787495605179,
+    "reason": null
+  },
+  "masjid_me_dakhil_hote_waqt": {
+    "pass": true,
+    "ts": 1787495674743,
+    "reason": null
+  },
+  "masjid_se_nikalte_waqt": {
+    "pass": true,
+    "ts": 1787495744683,
+    "reason": null
+  },
+  "sajde_ki_dua": {
+    "pass": true,
+    "ts": 1787495826638,
+    "reason": null
+  },
+  "deen_par_sabit_qadmi_ki_dua": {
+    "pass": true,
+    "ts": 1787495899471,
+    "reason": null
+  },
+  "roza_kholne_ki_dua": {
+    "pass": true,
+    "ts": 1787495979570,
+    "reason": null
+  },
+  "doodh_peene_ki_dua": {
+    "pass": true,
+    "ts": 1787496057718,
+    "reason": null
+  },
+  "mehmaan_ke_liye_dua": {
+    "pass": true,
+    "ts": 1787496139118,
+    "reason": null
+  },
+  "ghar_se_nikalne_ki_dua": {
+    "pass": true,
+    "ts": 1787496210289,
+    "reason": null
+  },
+  "shehar_me_dakhil_hote_waqt": {
+    "pass": true,
+    "ts": 1787496321881,
+    "reason": null
+  },
+  "talbiyah_hajj_umrah": {
+    "pass": true,
+    "ts": 1787496408280,
+    "reason": null
+  },
+  "naye_kapde_pehanne_ki_dua": {
+    "pass": true,
+    "ts": 1787496499087,
+    "reason": null
+  },
+  "aaine_me_dekhne_ki_dua": {
+    "pass": true,
+    "ts": 1787496579520,
+    "reason": null
+  },
+  "gusse_me_panah_ki_dua": {
+    "pass": true,
+    "ts": 1787496645964,
+    "reason": null
+  },
+  "dard_me_shifa_ki_dua": {
+    "pass": true,
+    "ts": 1787496724600,
+    "reason": null
+  },
+  "qabristan_ki_dua": {
+    "pass": true,
+    "ts": 1787496835992,
+    "reason": null
+  },
+  "barish_ki_dua": {
+    "pass": true,
+    "ts": 1787496910028,
+    "reason": null
+  },
+  "bijli_aur_toofan_ki_dua": {
+    "pass": true,
+    "ts": 1787496994943,
+    "reason": null
+  },
+  "naya_chand_dekhne_ki_dua": {
+    "pass": true,
+    "ts": 1787497089172,
+    "reason": null
+  },
+  "rizq_aur_ilm_ki_barkat": {
+    "pass": true,
+    "ts": 1787497178245,
+    "reason": null
+  },
+  "aulad_ki_hifazat_ki_dua": {
+    "pass": true,
+    "ts": 1787497270586,
+    "reason": null
+  },
+  "nazar_e_bad_se_hifazat": {
+    "pass": true,
+    "ts": 1787497346546,
+    "reason": null
+  },
+  "susti_aur_pareshani_se_panah": {
+    "pass": true,
+    "ts": 1787497447666,
+    "reason": null
+  },
+  "shukar_aur_zikr_ki_madad": {
+    "pass": true,
+    "ts": 1787497536391,
+    "reason": null
+  },
+  "chhoti_istighfar": {
+    "pass": true,
+    "ts": 1787497624878,
+    "reason": null
+  },
+  "cheenk_ki_sunnat_jawab": {
+    "pass": true,
+    "ts": 1787497729870,
+    "reason": null
+  },
+  "dushman_se_hifazat": {
+    "pass": true,
+    "ts": 1787497817874,
+    "reason": null
+  },
+  "aulad_ke_liye_dua": {
+    "pass": true,
+    "ts": 1787497905180,
+    "reason": null
+  },
+  "miyan_biwi_aur_aulad_ki_bhalai": {
+    "pass": true,
+    "ts": 1787497999219,
+    "reason": null
+  },
+  "waswase_se_panah": {
+    "pass": true,
+    "ts": 1787498077662,
+    "reason": null
+  },
+  "bathroom_me_dakhil_hone_ki_dua": {
+    "pass": true,
+    "ts": 1787498157792,
+    "reason": null
+  },
+  "surah_ikhlas": {
+    "pass": true,
+    "ts": 1787498258325,
+    "reason": null
+  },
+  "surah_falaq": {
+    "pass": true,
+    "ts": 1787498370280,
+    "reason": null
+  },
+  "surah_naas": {
+    "pass": true,
+    "ts": 1787498480603,
+    "reason": null
+  },
+  "surah_kausar": {
+    "pass": true,
+    "ts": 1787498571515,
+    "reason": null
+  },
+  "surah_asr": {
+    "pass": true,
+    "ts": 1787498678548,
+    "reason": null
+  },
+  "surah_feel": {
+    "pass": true,
+    "ts": 1787498814989,
+    "reason": null
+  },
+  "surah_quraysh": {
+    "pass": true,
+    "ts": 1787498924019,
+    "reason": null
+  },
+  "takbeer_e_tashreeq": {
+    "pass": true,
+    "ts": 1787499022889,
+    "reason": null
+  },
+  "qadr_ki_raat_ki_dua": {
+    "pass": true,
+    "ts": 1787499105930,
+    "reason": null
+  },
+  "kisi_aur_ke_yahan_iftar_ki_dua": {
+    "pass": true,
+    "ts": 1787499194435,
+    "reason": null
+  },
+  "main_roza_daar_hoon": {
+    "pass": true,
+    "ts": 1787499271711,
+    "reason": null
+  },
+  "arafa_ke_din_ki_dua": {
+    "pass": true,
+    "ts": 1787499372118,
+    "reason": null
+  },
+  "surah_kaferoon": {
+    "pass": true,
+    "ts": 1787499502092,
+    "reason": null
+  },
+  "surah_maun": {
+    "pass": true,
+    "ts": 1787499639226,
+    "reason": null
+  },
+  "ilm_zidni": {
+    "pass": true,
+    "ts": 1787551538995,
+    "reason": null
+  },
+  "rizq_kifaya": {
+    "pass": true,
+    "ts": 1787551682187,
+    "reason": null
+  },
+  "shifa_mariz": {
+    "pass": true,
+    "ts": 1787551864295,
+    "reason": null
+  },
+  "maghfirat_tawba": {
+    "pass": true,
+    "ts": 1787552056049,
+    "reason": null
+  },
+  "aafiyat_dunya_akhirat": {
+    "pass": true,
+    "ts": 1787552203932,
+    "reason": null
+  },
+  "hasbi_allah_wakil": {
+    "pass": true,
+    "ts": 1787552323513,
+    "reason": null
+  },
+  "ham_gham_panaah": {
+    "pass": true,
+    "ts": 1787552499839,
+    "reason": null
+  },
+  "walidain_raham": {
+    "pass": true,
+    "ts": 1787552638536,
+    "reason": null
+  },
+  "dunya_akhirat_hasanah": {
+    "pass": true,
+    "ts": 1787552763455,
+    "reason": null
+  },
+  "nur_qalb_qabr": {
+    "pass": true,
+    "ts": 1787552902866,
+    "reason": null
+  },
+  "adhan_ke_baad": {
+    "pass": true,
+    "ts": 1787558711857,
+    "reason": null
+  },
+  "rabbana_zalamna": {
+    "pass": true,
+    "ts": 1787558834771,
+    "reason": null
+  },
+  "bazaar_dakhil": {
+    "pass": true,
+    "ts": 1787562524314,
+    "reason": null
+  },
+  "bimar_ki_iyadat": {
+    "pass": true,
+    "ts": 1787562714332,
+    "reason": null
+  },
+  "namaz_qaim_ibrahim": {
+    "pass": true,
+    "ts": 1787559309205,
+    "reason": null
+  },
+  "aakhri_do_ayaat": {
+    "pass": true,
+    "ts": 1787563031041,
+    "reason": null
+  },
+  "la_hawla_kanz": {
+    "pass": true,
+    "ts": 1787567831046,
+    "reason": null
+  },
+  "sayyidul_istighfar": {
+    "pass": true,
+    "ts": 1787566290667,
+    "reason": null
+  },
+  "qunut_witr": {
+    "pass": true,
+    "ts": 1787560512693,
+    "reason": null
+  },
+  "azkaar_bad_namaz": {
+    "pass": true,
+    "ts": 1787560616983,
+    "reason": null
+  }
+}

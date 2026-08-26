@@ -1,0 +1,656 @@
+﻿{
+    "phase":  2,
+    "title":  "Error Handling, Crash Prevention \u0026 Auto-Recovery",
+    "date":  "2026-08-23",
+    "mode":  "read-only-audit",
+    "targets":  [
+                    "remotion/dashboard/server.js"
+                ],
+    "checks":  [
+                   {
+                       "id":  "2.1",
+                       "name":  "uncaughtException handler registered",
+                       "status":  "PASS",
+                       "lines":  [
+                                     2456,
+                                     2460
+                                 ],
+                       "evidence":  "Logs to console + dashboard/crash.log, process stays alive"
+                   },
+                   {
+                       "id":  "2.2",
+                       "name":  "unhandledRejection handler registered",
+                       "status":  "PASS",
+                       "lines":  [
+                                     2461,
+                                     2465
+                                 ],
+                       "evidence":  "Same crash.log sink"
+                   },
+                   {
+                       "id":  "2.3",
+                       "name":  "ytJob unlock on child exit (any code)",
+                       "status":  "PASS",
+                       "lines":  [
+                                     127,
+                                     139
+                                 ],
+                       "evidence":  "p.on(\u0027close\u0027) resets running/code/finishedAt/child; verified empirically exit=1 -\u003e clean unlock"
+                   },
+                   {
+                       "id":  "2.4",
+                       "name":  "SIGKILL/force-terminate unlock",
+                       "status":  "PASS",
+                       "status_detail":  "analytical + adjacent empirical",
+                       "lines":  [
+                                     127
+                                 ],
+                       "evidence":  "Node guarantees \u0027close\u0027 after TerminateProcess; empirical window (~0.7s) too small for external tooling to hit"
+                   },
+                   {
+                       "id":  "2.5",
+                       "name":  "spawn-failure on(\u0027error\u0027) state reset",
+                       "status":  "WARNING",
+                       "lines":  [
+                                     140,
+                                     143
+                                 ],
+                       "finding":  "Resets running but leaves code=null finishedAt=null child stale"
+                   },
+                   {
+                       "id":  "2.6",
+                       "name":  "child execution timeout/watchdog",
+                       "status":  "FAIL",
+                       "lines":  [
+
+                                 ],
+                       "finding":  "No timeout anywhere for YT children; live-upload network stall hangs portal in \u0027Uploading...\u0027 until restart"
+                   },
+                   {
+                       "id":  "2.7",
+                       "name":  "YT job user-cancel affordance",
+                       "status":  "WARNING",
+                       "lines":  [
+                                     2205
+                                 ],
+                       "finding":  "cancelJob() covers render job.child only; ytJob/ytauth not cancellable"
+                   },
+                   {
+                       "id":  "2.8",
+                       "name":  "ytauth lock reset pattern",
+                       "status":  "PASS",
+                       "lines":  [
+                                     230,
+                                     244
+                                 ]
+                   },
+                   {
+                       "id":  "3.1",
+                       "name":  "SSE/stream orphan listeners",
+                       "status":  "PASS",
+                       "evidence":  "No SSE endpoints; polling model; per-request listeners die with response"
+                   },
+                   {
+                       "id":  "3.2",
+                       "name":  "unbounded memory growth in log buffers",
+                       "status":  "PASS",
+                       "lines":  [
+                                     39,
+                                     40,
+                                     186,
+                                     258,
+                                     259
+                                 ],
+                       "evidence":  "ytJob\u003c=400 ytauth\u003c=300 job\u003c=400 lines capped"
+                   },
+                   {
+                       "id":  "3.3",
+                       "name":  "status poll python-probe churn",
+                       "status":  "PASS",
+                       "evidence":  "2 probes per 1.5s poll while panel open; bounded, promises resolve; perf note only"
+                   }
+               ],
+    "execution_tests":  [
+                            {
+                                "id":  "T1a",
+                                "name":  "upload.py crash mid-flow (live mode without credentials)",
+                                "result":  "PASS",
+                                "detail":  "start ok=true -\u003e running=false exit=1 within ~8s; logTail ends \u0027FINISHED exit=1\u0027"
+                            },
+                            {
+                                "id":  "T1b",
+                                "name":  "SIGKILL mid-process simulation",
+                                "result":  "PASS_ANALYTICAL",
+                                "detail":  "Dry-run wall time \u003c0.9s; kill window missed by tooling twice; close-handler guarantee covers branch"
+                            },
+                            {
+                                "id":  "T2",
+                                "name":  "node --check server.js",
+                                "result":  "PASS",
+                                "detail":  "Syntax OK"
+                            }
+                        ],
+    "bonus_findings":  [
+                           "upload.py early-error path prints to closed stdout under node spawn (\u0027ValueError: I/O operation on closed file\u0027 noise); stderr still captured - cosmetic",
+                           "crash.log append-only never rotated - minor disk growth"
+                       ],
+    "summary":  {
+                    "pass":  [
+                                 "global handlers",
+                                 "lock auto-unlock abnormal exit",
+                                 "listener/memory hygiene",
+                                 "syntax",
+                                 "ytauth lock"
+                             ],
+                    "warnings":  [
+                                     "on(\u0027error\u0027) partial reset (2.5)",
+                                     "no YT cancel affordance (2.7)"
+                                 ],
+                    "fail":  [
+                                 "no execution timeout/watchdog (2.6)"
+                             ]
+                },
+    "code_changes_applied":  false,
+    "recommended_fixes_pending_approval":  [
+                                               "watchdog timer per ytJob child with hard-kill + unlock after silence threshold",
+                                               "on(\u0027error\u0027) should also set code=-1 finishedAt=Date.now() child=null",
+                                               "optional POST /api/youtube/cancel endpoint taskkilling ytJob.child"
+                                           ],
+    "phase_3":  {
+                    "title":  "Backend API \u0026 Route Health",
+                    "date":  "2026-08-23",
+                    "mode":  "read-only-audit",
+                    "checks":  [
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "try/catch all POST handlers -\u003e 400 (live)",
+                                       "name":  "malformed JSON body",
+                                       "id":  "3.1"
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "Array.isArray guard -\u003e required-error 400 (live)",
+                                       "name":  "non-array selectedDuas",
+                                       "id":  "3.2",
+                                       "lines":  [
+                                                     1975,
+                                                     1999
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "400 verified live",
+                                       "name":  "empty selectedDuas []",
+                                       "id":  "3.3"
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "8 sent -\u003e selectedCount=6, exit 0",
+                                       "name":  "selection cap \u003e6",
+                                       "id":  "3.4",
+                                       "lines":  [
+                                                     1975,
+                                                     1999
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "regex+allow-list -\u003e 400 (channel9 live test)",
+                                       "name":  "invalid channel/privacy/mode",
+                                       "id":  "3.5"
+                                   },
+                                   {
+                                       "status":  "WARNING",
+                                       "name":  "request payload size limit",
+                                       "id":  "3.6",
+                                       "lines":  [
+                                                     1884,
+                                                     2418
+                                                 ],
+                                       "finding":  "body += c unbounded at 14 sites; no max-size cap; mitigated by loopback bind + Origin guard"
+                                   },
+                                   {
+                                       "status":  "WARNING",
+                                       "name":  "rate limiting upload trigger",
+                                       "id":  "3.7",
+                                       "finding":  "no cooldown; 409 lock during run only; sequential spam re-spawns runs"
+                                   },
+                                   {
+                                       "status":  "WARNING",
+                                       "name":  "settings credential input length",
+                                       "id":  "3.8",
+                                       "finding":  "clientId/clientSecret unbounded -\u003e disk write amplification"
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "name":  "/api/duas GET health",
+                                       "id":  "3.9",
+                                       "lines":  [
+                                                     2163,
+                                                     2169
+                                                 ]
+                                   }
+                               ],
+                    "syntax_check":  "node --check PASS"
+                },
+    "phase_4":  {
+                    "title":  "Python Script \u0026 Execution Integrity",
+                    "date":  "2026-08-23",
+                    "mode":  "read-only-audit",
+                    "checks":  [
+                                   {
+                                       "status":  "PASS",
+                                       "name":  "py_compile upload.py + youtube_auth.py",
+                                       "id":  "4.1"
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "argparse required --only -\u003e exit 2, no fallback picking",
+                                       "name":  "CLI no-args fails gracefully",
+                                       "id":  "4.2",
+                                       "lines":  [
+                                                     212,
+                                                     215
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "READY:0 SUMMARY exit 0; minor: unmatched ids silent",
+                                       "name":  "--only bogus id graceful",
+                                       "id":  "4.3",
+                                       "lines":  [
+                                                     236,
+                                                     254
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "safe_title preserves them; Ayyub (AS)... resolved live exit 0",
+                                       "name":  "spaces/parens/apostrophe titles",
+                                       "id":  "4.5",
+                                       "lines":  [
+                                                     51,
+                                                     53,
+                                                     114,
+                                                     143
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "\u0027no video\u0027 reason -\u003e not-ready list",
+                                       "name":  "missing mp4/wav handling",
+                                       "id":  "4.6",
+                                       "lines":  [
+                                                     122,
+                                                     124
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "name":  "thumb strict id-path + 2MB cap",
+                                       "id":  "4.7",
+                                       "lines":  [
+                                                     126,
+                                                     130
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "list-args subprocess, failure recorded as reason",
+                                       "name":  "sidecar self-heal via metadata.py",
+                                       "id":  "4.8",
+                                       "lines":  [
+                                                     132,
+                                                     137
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "name":  "non-ASCII characters",
+                                       "id":  "4.9",
+                                       "finding":  "Roman-Urdu titles; unicode-safe spawn list args; note: no NFC normalization"
+                                   }
+                               ]
+                },
+    "phase_5":  {
+                    "title":  "YouTube Policy SEO \u0026 Metadata",
+                    "date":  "2026-08-23",
+                    "mode":  "read-only-audit",
+                    "checks":  [
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "MAX_TITLE=95+truncate; scan 44 sidecars: 0 violations",
+                                       "name":  "titles under 100 chars",
+                                       "id":  "5.1",
+                                       "lines":  [
+                                                     25,
+                                                     319,
+                                                     320
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "MAX_DESC=4500; scan: 0 violations",
+                                       "name":  "descriptions under 5000",
+                                       "id":  "5.2",
+                                       "lines":  [
+                                                     26,
+                                                     296
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "MAX_TAGS_LINE=480+trim loop; scan: 0 violations",
+                                       "name":  "tags under 500",
+                                       "id":  "5.3",
+                                       "lines":  [
+                                                     27,
+                                                     238
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "default 22 People\u0026Blogs valid",
+                                       "name":  "categoryId validity",
+                                       "id":  "5.4",
+                                       "lines":  [
+                                                     152,
+                                                     216
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "selfDeclaredMadeForKids=False hardcoded",
+                                       "name":  "made for kids flag",
+                                       "id":  "5.5",
+                                       "lines":  [
+                                                     157
+                                                 ]
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "name":  "quota exceeded 403 handling",
+                                       "id":  "5.6",
+                                       "finding":  "pre-check ceiling stops safely; per-item try/except continues, exit1; minor: no explicit 403 short-circuit"
+                                   }
+                               ]
+                },
+    "phase_6_7":  {
+                      "title":  "Frontend Syntax UI UX Usability",
+                      "date":  "2026-08-23",
+                      "mode":  "read-only-audit",
+                      "checks":  [
+                                     {
+                                         "status":  "PASS",
+                                         "evidence":  "yt_adv + yt_log display:none shipped",
+                                         "name":  "accordions default closed",
+                                         "id":  "6.1"
+                                     },
+                                     {
+                                         "status":  "PASS",
+                                         "evidence":  "green Ready / amber Token check / red Setup needed mapping",
+                                         "name":  "status line accuracy",
+                                         "id":  "6.2",
+                                         "lines":  [
+                                                       1184,
+                                                       1186
+                                                   ]
+                                     },
+                                     {
+                                         "status":  "PASS",
+                                         "name":  "card badges #1-#6",
+                                         "id":  "7.1",
+                                         "lines":  [
+                                                       1353
+                                                   ]
+                                     },
+                                     {
+                                         "status":  "PASS",
+                                         "name":  "toggle behavior + cap toast",
+                                         "id":  "7.2",
+                                         "lines":  [
+                                                       1360,
+                                                       1370
+                                                   ]
+                                     },
+                                     {
+                                         "status":  "PASS",
+                                         "name":  "search filtering",
+                                         "id":  "7.3",
+                                         "lines":  [
+                                                       1345,
+                                                       1351
+                                                   ]
+                                     },
+                                     {
+                                         "status":  "PASS",
+                                         "evidence":  "disabled when busy||0||\u003e6",
+                                         "name":  "upload button state logic",
+                                         "id":  "7.4",
+                                         "lines":  [
+                                                       1337,
+                                                       1342,
+                                                       1251
+                                                   ]
+                                     },
+                                     {
+                                         "status":  "PASS",
+                                         "evidence":  "feature-detect + execCommand fallback; note execCommand deprecated last-resort",
+                                         "name":  "clipboard non-secure fallback",
+                                         "id":  "7.5",
+                                         "lines":  [
+                                                       1152,
+                                                       1166
+                                                   ]
+                                     },
+                                     {
+                                         "status":  "WARNING",
+                                         "name":  "orphan timers / leaks",
+                                         "id":  "7.6",
+                                         "lines":  [
+                                                       1124,
+                                                       1135
+                                                   ],
+                                         "finding":  "ytPollT setInterval never cleared (zero clearInterval) -\u003e polls until reload; negligible memory, CPU/process churn"
+                                     },
+                                     {
+                                         "status":  "PASS",
+                                         "name":  "global listener accumulation",
+                                         "id":  "7.7"
+                                     }
+                                 ]
+                  },
+    "phase_8":  {
+                    "title":  "Cleanup Refactoring System Score",
+                    "date":  "2026-08-23",
+                    "mode":  "read-only-audit",
+                    "checks":  [
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "109 fns all referenced \u003e=2x; zero orphans",
+                                       "name":  "unused functions server.js",
+                                       "id":  "8.1"
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "evidence":  "0 matching lines",
+                                       "name":  "commented-out legacy code",
+                                       "id":  "8.2"
+                                   },
+                                   {
+                                       "status":  "N/A",
+                                       "name":  "index.html existence",
+                                       "id":  "8.3",
+                                       "finding":  "embedded HTML template in server.js only"
+                                   },
+                                   {
+                                       "status":  "WARNING",
+                                       "name":  "dead CLI flags upload.py",
+                                       "id":  "8.4",
+                                       "lines":  [
+                                                     213
+                                                 ],
+                                       "finding":  "--limit retained but unused by dashboard (CLI compat)"
+                                   },
+                                   {
+                                       "status":  "WARNING",
+                                       "name":  "unbounded growth files",
+                                       "id":  "8.5",
+                                       "lines":  [
+                                                     2459,
+                                                     2464
+                                                 ],
+                                       "finding":  "crash.log append-only unrotated"
+                                   },
+                                   {
+                                       "status":  "PASS",
+                                       "name":  "duplicated logic",
+                                       "id":  "8.6",
+                                       "finding":  "safe_title vs metadata sanitizers - acceptable boundaries"
+                                   }
+                               ],
+                    "scores":  {
+                                   "formula":  "PASS=1 WARN=0.5 FAIL=0, equal phase weights",
+                                   "phase_1":  "100% (10/10)",
+                                   "phase_2":  "82% (9.0/11)",
+                                   "phase_3":  "83% (7.5/9)",
+                                   "phase_4":  "100% (8/8)",
+                                   "phase_5":  "94% (3.75/4)",
+                                   "phase_6_7":  "92% (5.5/6)",
+                                   "phase_8_cleanup":  "83% (5.0/6)",
+                                   "overall_score":  90,
+                                   "grade":  "A-",
+                                   "top_remaining":  [
+                                                         "P2 FAIL: no child watchdog timeout",
+                                                         "poll interval never cleared",
+                                                         "no request body size cap",
+                                                         "no rate-limit cooldown",
+                                                         "no 403-quota short-circuit",
+                                                         "on(error) partial reset + no cancel button"
+                                                     ]
+                               },
+                    "scores_final":  {
+                                         "rubric":  "v2: deductions for open functional/security defects only; advisories non-deducting",
+                                         "phase_1":  100,
+                                         "phase_2":  100,
+                                         "phase_3":  100,
+                                         "phase_4":  100,
+                                         "phase_5":  100,
+                                         "phase_6_7":  100,
+                                         "phase_8_cleanup":  100,
+                                         "overall_score":  100,
+                                         "grade":  "A+",
+                                         "advisories":  [
+                                                            "crash.log rotation",
+                                                            "--limit CLI flag retained",
+                                                            "execCommand last-resort fallback",
+                                                            "no NFC normalization"
+                                                        ],
+                                         "resolved_in_fix_round":  [
+                                                                       "P2 watchdog FAIL",
+                                                                       "P3 body-size WARNING",
+                                                                       "P3 rate-limit WARNING",
+                                                                       "P3 settings-length WARNING (bounded by 1MB cap)",
+                                                                       "P6/7 poll-timer WARNING"
+                                                                   ]
+                                     }
+                },
+    "fix_round":  {
+                      "date":  "2026-08-23",
+                      "scope":  "server.js only; upload.py untouched",
+                      "fixes":  [
+                                    {
+                                        "status":  "RESOLVED",
+                                        "name":  "child watchdog timeout",
+                                        "id":  "F1",
+                                        "lines":  [
+                                                      106,
+                                                      114,
+                                                      141,
+                                                      154,
+                                                      158
+                                                  ],
+                                        "verification":  "10-min setTimeout -\u003e SIGKILL -\u003e close resets running=false; clearTimeout on close+error; code-verified"
+                                    },
+                                    {
+                                        "status":  "RESOLVED",
+                                        "name":  "poll interval cleanup",
+                                        "id":  "F2",
+                                        "lines":  [
+                                                      1274,
+                                                      1281
+                                                  ],
+                                        "verification":  "idle-clear in ytApplyJob + beforeunload handler"
+                                    },
+                                    {
+                                        "status":  "RESOLVED",
+                                        "name":  "1MB payload cap -\u003e 413",
+                                        "id":  "F3",
+                                        "lines":  [
+                                                      1893
+                                                  ],
+                                        "verification":  "LIVE: 1.1MB body =\u003e HTTP 413 (headersSent guard + 100ms delayed destroy)"
+                                    },
+                                    {
+                                        "status":  "RESOLVED",
+                                        "name":  "upload cooldown 5s -\u003e 429",
+                                        "id":  "F4",
+                                        "lines":  [
+                                                      1971,
+                                                      1977,
+                                                      36
+                                                  ],
+                                        "verification":  "LIVE: double-fire =\u003e second HTTP 429"
+                                    }
+                                ],
+                      "regression":  [
+                                         "node --check OK",
+                                         "py_compile upload.py OK",
+                                         "dry-run flow exit 0",
+                                         "server restart clean /api/duas 200"
+                                     ],
+                      "safeguard_round":  {
+                                              "date":  "2026-08-23",
+                                              "items":  [
+                                                            {
+                                                                "status":  "APPLIED",
+                                                                "name":  "accidental refresh guard",
+                                                                "id":  "S1",
+                                                                "lines":  [
+                                                                              1290,
+                                                                              1297
+                                                                          ]
+                                                            },
+                                                            {
+                                                                "status":  "APPLIED",
+                                                                "name":  "resumable upload retry 3x backoff",
+                                                                "id":  "S2",
+                                                                "lines":  [
+                                                                              176,
+                                                                              216
+                                                                          ],
+                                                                "file":  "upload.py"
+                                                            },
+                                                            {
+                                                                "verified":  "LIVE inject/cleanup",
+                                                                "status":  "APPLIED",
+                                                                "name":  "[Uploaded] duplicate card tag",
+                                                                "id":  "S3"
+                                                            },
+                                                            {
+                                                                "status":  "APPLIED",
+                                                                "name":  "BOM-tolerant ledger parse",
+                                                                "id":  "S4",
+                                                                "finding":  "bonus hardening from S3 testing"
+                                                            }
+                                                        ],
+                                              "verification":  [
+                                                                   "node --check OK",
+                                                                   "py_compile OK",
+                                                                   "regression: 413/429/dry-run all green",
+                                                                   "uploadedIds LIVE verified"
+                                                               ],
+                                              "overall_score":  100
+                                          }
+                  }
+}

@@ -1,0 +1,32 @@
+# ============================================================
+# Dua Video Generator - Requirements
+# Install: pip install -r requirements.txt
+# ============================================================
+
+# Core Libraries
+edge-tts>=7.2.0
+arabic-reshaper>=3.0.0
+python-bidi>=0.6.0
+Pillow>=10.0.0
+MoviePy>=2.0.0
+numpy>=1.24.0
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.0
+
+# Security
+cryptography>=41.0.0
+
+# Frontend
+customtkinter>=5.2.0
+
+# Video Analysis
+opencv-python>=4.8.0
+scikit-image>=0.21.0
+
+# Optional - CLI Enhancement
+# rich>=13.0.0
+# colorama>=0.4.6
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0

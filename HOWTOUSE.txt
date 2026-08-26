@@ -1,0 +1,53 @@
+# Dua Video Generator - Quick Start
+
+## How to Use (One Click!)
+
+### Option 1: Video Banao - Simple GUI (Recommended, No Password)
+```
+Double-click: DuaVideo.bat   (ya)   Start.bat
+```
+- Bahut simple window khulti hai - NO password, NO typing
+- Left me category chunein (Washroom, Sone, Khana, Safar, Namaz, Subah, Shaam, Aam)
+- Beech me dua chunein - "Sirf nayi" tick ho to sirf wohi duas dikhti hain jo abhi tak nahi bani
+- "Video Banao" button dabaein - video ban jati hai
+- "Output Folder Kholo" - video dekhne ke liye
+- "Nayi Dua Add Karo" - nayi dua apne library me add karne ke liye (bina coding ke)
+
+### Option 2: Main Menu (CLI)
+```
+Double-click: MainMenu.bat
+```
+- Opens main menu directly
+- All features available
+
+### Option 3: Generate ALL Duas (Batch)
+```
+Double-click: BatchAll.bat
+```
+- Generates all duas automatically
+- Videos saved in output folder
+
+### Option 4: Custom Dua
+```
+Double-click: CustomDua.bat
+```
+- Enter your own Arabic/Urdu text
+- Generates custom video
+
+---
+
+## Features
+- 31+ authentic duas (Bathroom, Sleep, Food, Travel, Prayer, Morning, Evening, General)
+- Har video me har dua ki apni alag design
+- YouTube Shorts format (1080x1920, 24fps)
+- Auto-generates YouTube metadata
+
+## Output Location
+All videos saved in: `H:\DuaVideoGenerator\output\`
+
+## Note
+- Video banane ke liye internet chahiye (TTS ke liye)
+
+## Support
+- YouTube: @bushranasir1075
+- Author: MASOOD NASIR

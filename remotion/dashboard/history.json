@@ -1,0 +1,906 @@
+[
+  {
+    "ts": "2026-08-24T10:37:15.799Z",
+    "duaId": "la_hawla_kanz",
+    "title": "Jannat Ka Khazana Zikr",
+    "result": "PASS",
+    "look": "auroranova / birds / fog / none / rosette / m:rehal / g:dreamy / c:panx / i:crescentfade / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T10:11:35.858Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "PASS",
+    "look": "cinemafocus / none / none / sitare / rosette / t:blurin / m:tasbih / g:coolnight / c:panx / o:lanternjhumka"
+  },
+  {
+    "ts": "2026-08-24T09:29:25.884Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "PASS",
+    "look": "raytrace / birds / none / vines / rosette / t:typewriter / m:kaaba / c:driftbreathe / o:geostar"
+  },
+  {
+    "ts": "2026-08-24T09:23:29.616Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "FAIL",
+    "error": "Duration policy: speech >40s (video not allowed)"
+  },
+  {
+    "ts": "2026-08-24T09:19:40.309Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "FAIL",
+    "error": "Duration policy: speech >40s (video not allowed)"
+  },
+  {
+    "ts": "2026-08-24T09:17:48.083Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "FAIL",
+    "error": "Duration policy: speech >40s (video not allowed)"
+  },
+  {
+    "ts": "2026-08-24T09:17:15.791Z",
+    "duaId": "aakhri_do_ayaat",
+    "title": "Aakhri Do Ayaat Ki Barkat",
+    "result": "PASS",
+    "look": "cinematic / birds / none / rosette / rosette / t:popwave / m:tasbih / g:dreamy / c:zoomin / i:patternwipe"
+  },
+  {
+    "ts": "2026-08-24T09:11:58.668Z",
+    "duaId": "bimar_ki_iyadat",
+    "title": "Bimar Ki Iyadat Ki Dua",
+    "result": "PASS",
+    "look": "masterpiece / none / fireflies / sitare / classic / t:popwave / m:tasbih / g:dreamy / c:driftbreathe / i:crescentfade / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T09:08:49.476Z",
+    "duaId": "bazaar_dakhil",
+    "title": "Bazaar Me Dakhil Hone Ki Dua",
+    "result": "PASS",
+    "look": "silkmarble / birds / smoke / palms / deco / t:blurin / m:star8 / g:dreamy / c:kenburns / i:crescentfade / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T09:03:07.003Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "FAIL",
+    "error": "Duration policy: speech >40s (video not allowed)"
+  },
+  {
+    "ts": "2026-08-24T08:37:01.082Z",
+    "duaId": "azkaar_bad_namaz",
+    "title": "Namaz Ke Baad Ke Azkaar",
+    "result": "PASS",
+    "look": "volumetric / none / none / vines / rosette / t:typewriter / m:kaaba / c:zoomin / o:geostar"
+  },
+  {
+    "ts": "2026-08-24T08:35:16.334Z",
+    "duaId": "qunut_witr",
+    "title": "Dua E Qunoot (Witr)",
+    "result": "PASS",
+    "look": "desertmirage / none / smoke / none / deco / t:popwave / m:rehal / c:driftbreathe / i:patternwipe / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T08:30:56.484Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "PASS",
+    "look": "auroranova / birds / none / rosette / arch / t:blurin / m:tasbih / c:driftbreathe / o:geostar"
+  },
+  {
+    "ts": "2026-08-24T08:22:04.613Z",
+    "duaId": "la_hawla_kanz",
+    "title": "Jannat Ka Khazana Zikr",
+    "result": "PASS",
+    "look": "classic / none / none / rosette / rosette / m:star8 / i:crescentfade / o:geostar"
+  },
+  {
+    "ts": "2026-08-24T08:20:31.498Z",
+    "duaId": "aakhri_do_ayaat",
+    "title": "Aakhri Do Ayaat Ki Barkat",
+    "result": "PASS",
+    "look": "volumetric / birds / rain / rosette / rosette / t:blurin / m:star8 / c:zoomin / i:crescentfade / o:geostar"
+  },
+  {
+    "ts": "2026-08-24T08:15:12.610Z",
+    "duaId": "namaz_qaim_ibrahim",
+    "title": "Namaz Qaim Karne Ki Dua",
+    "result": "PASS",
+    "look": "qadrtilt / flags / storm / none / deco / t:typewriter / m:rehal / c:kenburns / o:geostar"
+  },
+  {
+    "ts": "2026-08-24T08:12:58.446Z",
+    "duaId": "bimar_ki_iyadat",
+    "title": "Bimar Ki Iyadat Ki Dua",
+    "result": "PASS",
+    "look": "minimal / none / fireflies / vines / deco / t:blurin / g:coolnight / c:panx / i:patternwipe / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T08:10:31.920Z",
+    "duaId": "bazaar_dakhil",
+    "title": "Bazaar Me Dakhil Hone Ki Dua",
+    "result": "PASS",
+    "look": "silkmarble / none / smoke / caravan / arch / t:blurin / m:star8 / c:panx / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T08:07:18.031Z",
+    "duaId": "rabbana_zalamna",
+    "title": "Adam (AS) Ki Maghfirat Ki Dua",
+    "result": "PASS",
+    "look": "embernight / flags / petals / lanterns / arch / t:popwave / m:star8 / c:driftbreathe / i:crescentfade / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T08:05:26.150Z",
+    "duaId": "qunut_witr",
+    "title": "Dua E Qunoot (Witr)",
+    "result": "FAIL",
+    "error": "Duration policy: speech >40s (video not allowed)"
+  },
+  {
+    "ts": "2026-08-24T08:05:15.615Z",
+    "duaId": "adhan_ke_baad",
+    "title": "Adhan Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "cinemafocus / none / smoke / sitare / arch / m:kaaba / g:dreamy / c:kenburns / i:patternwipe"
+  },
+  {
+    "ts": "2026-08-24T08:02:03.517Z",
+    "duaId": "sayyidul_istighfar",
+    "title": "Sayyidul Istighfar",
+    "result": "FAIL",
+    "error": "Duration policy: speech >40s (video not allowed)"
+  },
+  {
+    "ts": "2026-08-24T07:37:21.589Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "cinemafocus / none / petals / vines / deco / t:typewriter / m:rehal / g:sepia / c:panx / i:crescentfade / o:medallion"
+  },
+  {
+    "ts": "2026-08-24T07:35:12.111Z",
+    "duaId": "undefined",
+    "title": "undefined",
+    "result": "FAIL",
+    "error": "prepare failed (exit 1)"
+  },
+  {
+    "ts": "2026-08-24T06:28:26.959Z",
+    "duaId": "nur_qalb_qabr",
+    "title": "Noor Ki Dua",
+    "result": "PASS",
+    "look": "qadrtilt / birds / petals / sitare"
+  },
+  {
+    "ts": "2026-08-24T06:26:08.243Z",
+    "duaId": "dunya_akhirat_hasanah",
+    "title": "Dunya O Akhirat Ki Bhalai Ki Dua",
+    "result": "PASS",
+    "look": "classic / none / fireflies / sitare"
+  },
+  {
+    "ts": "2026-08-24T06:24:02.167Z",
+    "duaId": "walidain_raham",
+    "title": "Walidain Ke Liye Reham Ki Dua",
+    "result": "PASS",
+    "look": "cinemafocus / none / rain / lanterns"
+  },
+  {
+    "ts": "2026-08-24T06:21:44.932Z",
+    "duaId": "ham_gham_panaah",
+    "title": "Fikr O Gham Se Panaah Ki Dua",
+    "result": "PASS",
+    "look": "cinematic / clouds / snow / rosette"
+  },
+  {
+    "ts": "2026-08-24T06:18:47.011Z",
+    "duaId": "hasbi_allah_wakil",
+    "title": "Hasbi Allah Ki Dua",
+    "result": "PASS",
+    "look": "waterripple / clouds / smoke / none"
+  },
+  {
+    "ts": "2026-08-24T06:16:48.794Z",
+    "duaId": "aafiyat_dunya_akhirat",
+    "title": "Aafiyat Dunya O Akhirat Ki Dua",
+    "result": "PASS",
+    "look": "royal / birds / smoke / none"
+  },
+  {
+    "ts": "2026-08-24T06:14:21.651Z",
+    "duaId": "maghfirat_tawba",
+    "title": "Maghfirat Aur Tawba Ki Dua",
+    "result": "PASS",
+    "look": "desertmirage / birds / snow / rosette"
+  },
+  {
+    "ts": "2026-08-24T06:11:10.067Z",
+    "duaId": "shifa_mariz",
+    "title": "Bimari Se Shifa Ki Dua",
+    "result": "PASS",
+    "look": "auroranova / birds / none / none"
+  },
+  {
+    "ts": "2026-08-24T06:08:07.450Z",
+    "duaId": "rizq_kifaya",
+    "title": "Halal Rizq Ki Dua",
+    "result": "PASS",
+    "look": "cinematic / birds / none / rosette"
+  },
+  {
+    "ts": "2026-08-24T06:05:44.076Z",
+    "duaId": "ilm_zidni",
+    "title": "Ilm Me Izafa Ki Dua",
+    "result": "PASS",
+    "look": "desertmirage / none / petals / vines"
+  },
+  {
+    "ts": "2026-08-24T05:55:40.937Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "glitterroyal / birds / storm / none"
+  },
+  {
+    "ts": "2026-08-24T05:29:46.505Z",
+    "duaId": "aafiyat_dunya_akhirat",
+    "title": "Aafiyat Dunya O Akhirat Ki Dua",
+    "result": "PASS",
+    "look": "silkmarble / none / rain / vines"
+  },
+  {
+    "ts": "2026-08-24T05:23:20.210Z",
+    "duaId": "nur_qalb_qabr",
+    "title": "Noor Ki Dua",
+    "result": "PASS",
+    "look": "auroranova / birds / smoke / sitare"
+  },
+  {
+    "ts": "2026-08-24T05:21:54.327Z",
+    "duaId": "dunya_akhirat_hasanah",
+    "title": "Dunya O Akhirat Ki Bhalai Ki Dua",
+    "result": "PASS",
+    "look": "glitterroyal / birds / smoke / lanterns"
+  },
+  {
+    "ts": "2026-08-24T05:19:26.085Z",
+    "duaId": "walidain_raham",
+    "title": "Walidain Ke Liye Reham Ki Dua",
+    "result": "PASS",
+    "look": "qadrtilt / clouds / none / sitare"
+  },
+  {
+    "ts": "2026-08-24T05:16:50.161Z",
+    "duaId": "ham_gham_panaah",
+    "title": "Fikr O Gham Se Panaah Ki Dua",
+    "result": "PASS",
+    "look": "cinemafocus / none / fog / lanterns"
+  },
+  {
+    "ts": "2026-08-24T05:14:11.473Z",
+    "duaId": "hasbi_allah_wakil",
+    "title": "Hasbi Allah Ki Dua",
+    "result": "PASS",
+    "look": "desertmirage / wind / smoke / none"
+  },
+  {
+    "ts": "2026-08-24T05:11:39.031Z",
+    "duaId": "aafiyat_dunya_akhirat",
+    "title": "Aafiyat Ki Dua",
+    "result": "PASS",
+    "look": "silkmarble / wind / petals / palms"
+  },
+  {
+    "ts": "2026-08-24T05:08:33.773Z",
+    "duaId": "maghfirat_tawba",
+    "title": "Maghfirat Aur Tawba Ki Dua",
+    "result": "PASS",
+    "look": "embernight / birds / storm / sitare"
+  },
+  {
+    "ts": "2026-08-24T05:06:05.422Z",
+    "duaId": "shifa_mariz",
+    "title": "Bimari Se Shifa Ki Dua",
+    "result": "PASS",
+    "look": "waterripple / birds / smoke / vines"
+  },
+  {
+    "ts": "2026-08-24T05:03:39.728Z",
+    "duaId": "rizq_kifaya",
+    "title": "Halal Rizq Ki Dua",
+    "result": "PASS",
+    "look": "raytrace / none / fog / rosette"
+  },
+  {
+    "ts": "2026-08-24T05:00:53.302Z",
+    "duaId": "ilm_zidni",
+    "title": "Ilm Me Izafa Ki Dua",
+    "result": "PASS",
+    "look": "volumetric / none / smoke / none"
+  },
+  {
+    "ts": "2026-08-24T03:44:01.484Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "glitterroyal / birds / storm / rosette"
+  },
+  {
+    "ts": "2026-08-23T17:13:46.236Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "masterpiece / none / none / lanterns"
+  },
+  {
+    "ts": "2026-08-23T17:02:36.696Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T17:00:47.974Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "waterripple / none / none / none"
+  },
+  {
+    "ts": "2026-08-23T16:58:37.754Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "cinematic / none / none / none"
+  },
+  {
+    "ts": "2026-08-23T16:56:28.140Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS",
+    "look": "cinematic / none / none / none"
+  },
+  {
+    "ts": "2026-08-23T15:56:42.485Z",
+    "duaId": "food_start",
+    "title": "Khana Khane Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:54:02.612Z",
+    "duaId": "salah_start",
+    "title": "Namaz Shuru Karne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:51:54.041Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:40:42.125Z",
+    "duaId": "surah_maun",
+    "title": "Surah Maun",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:38:24.950Z",
+    "duaId": "surah_kaferoon",
+    "title": "Surah Kaferoon",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:36:16.949Z",
+    "duaId": "arafa_ke_din_ki_dua",
+    "title": "Arafa Ke Din Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:34:34.832Z",
+    "duaId": "main_roza_daar_hoon",
+    "title": "Main Roza Daar Hoon",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:33:17.342Z",
+    "duaId": "kisi_aur_ke_yahan_iftar_ki_dua",
+    "title": "Kisi Aur Ke Yahan Iftar Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:31:49.154Z",
+    "duaId": "qadr_ki_raat_ki_dua",
+    "title": "Qadr Ki Raat Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:30:25.613Z",
+    "duaId": "takbeer_e_tashreeq",
+    "title": "Takbeer E Tashreeq",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:28:46.834Z",
+    "duaId": "surah_quraysh",
+    "title": "Surah Quraysh",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:26:58.082Z",
+    "duaId": "surah_feel",
+    "title": "Surah Feel",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:24:41.617Z",
+    "duaId": "surah_asr",
+    "title": "Surah Asr",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:22:55.989Z",
+    "duaId": "surah_kausar",
+    "title": "Surah Kausar",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:21:23.782Z",
+    "duaId": "surah_naas",
+    "title": "Surah Naas",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:19:33.016Z",
+    "duaId": "surah_falaq",
+    "title": "Surah Falaq",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:17:41.363Z",
+    "duaId": "surah_ikhlas",
+    "title": "Surah Ikhlas",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:16:00.977Z",
+    "duaId": "bathroom_me_dakhil_hone_ki_dua",
+    "title": "Bathroom Me Dakhil Hone Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:14:40.937Z",
+    "duaId": "waswase_se_panah",
+    "title": "Waswase Se Panah",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:13:21.974Z",
+    "duaId": "miyan_biwi_aur_aulad_ki_bhalai",
+    "title": "Miyan Biwi Aur Aulad Ki Bhalai",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:11:48.310Z",
+    "duaId": "aulad_ke_liye_dua",
+    "title": "Aulad Ke Liye Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:10:21.226Z",
+    "duaId": "dushman_se_hifazat",
+    "title": "Dushman Se Hifazat",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:08:53.299Z",
+    "duaId": "cheenk_ki_sunnat_jawab",
+    "title": "Cheenk Ki Sunnat Jawab",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:07:07.697Z",
+    "duaId": "chhoti_istighfar",
+    "title": "Chhoti Istighfar",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:05:39.374Z",
+    "duaId": "shukar_aur_zikr_ki_madad",
+    "title": "Shukar Aur Zikr Ki Madad",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:04:10.681Z",
+    "duaId": "susti_aur_pareshani_se_panah",
+    "title": "Susti Aur Pareshani Se Panah",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:02:29.671Z",
+    "duaId": "nazar_e_bad_se_hifazat",
+    "title": "Nazar E Bad Se Hifazat",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T15:01:13.615Z",
+    "duaId": "aulad_ki_hifazat_ki_dua",
+    "title": "Aulad Ki Hifazat Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:59:41.394Z",
+    "duaId": "rizq_aur_ilm_ki_barkat",
+    "title": "Rizq Aur Ilm Ki Barkat",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:58:12.225Z",
+    "duaId": "naya_chand_dekhne_ki_dua",
+    "title": "Naya Chand Dekhne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:56:37.952Z",
+    "duaId": "bijli_aur_toofan_ki_dua",
+    "title": "Bijli Aur Toofan Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:55:13.156Z",
+    "duaId": "barish_ki_dua",
+    "title": "Barish Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:53:59.123Z",
+    "duaId": "qabristan_ki_dua",
+    "title": "Qabristan Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:52:07.814Z",
+    "duaId": "dard_me_shifa_ki_dua",
+    "title": "Dard Me Shifa Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:50:48.900Z",
+    "duaId": "gusse_me_panah_ki_dua",
+    "title": "Gusse Me Panah Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:49:42.681Z",
+    "duaId": "aaine_me_dekhne_ki_dua",
+    "title": "Aaine Me Dekhne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:48:22.081Z",
+    "duaId": "naye_kapde_pehanne_ki_dua",
+    "title": "Naye Kapde Pehanne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:46:51.586Z",
+    "duaId": "talbiyah_hajj_umrah",
+    "title": "Talbiyah Hajj Umrah",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:45:24.815Z",
+    "duaId": "shehar_me_dakhil_hote_waqt",
+    "title": "Shehar Me Dakhil Hote Waqt",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:43:33.355Z",
+    "duaId": "ghar_se_nikalne_ki_dua",
+    "title": "Ghar Se Nikalne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:42:22.132Z",
+    "duaId": "mehmaan_ke_liye_dua",
+    "title": "Mehmaan Ke Liye Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:41:00.780Z",
+    "duaId": "doodh_peene_ki_dua",
+    "title": "Doodh Peene Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:39:42.618Z",
+    "duaId": "roza_kholne_ki_dua",
+    "title": "Roza Kholne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:38:22.502Z",
+    "duaId": "deen_par_sabit_qadmi_ki_dua",
+    "title": "Deen Par Sabit Qadmi Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:37:09.517Z",
+    "duaId": "sajde_ki_dua",
+    "title": "Sajde Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:35:47.528Z",
+    "duaId": "masjid_se_nikalte_waqt",
+    "title": "Masjid Se Nikalte Waqt",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:34:37.745Z",
+    "duaId": "masjid_me_dakhil_hote_waqt",
+    "title": "Masjid Me Dakhil Hote Waqt",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:33:28.167Z",
+    "duaId": "jahannam_se_azadi_aur_maghfirat_ki_dua",
+    "title": "Jahannam Se Azadi Aur Maghfirat Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:31:58.004Z",
+    "duaId": "karz_aur_pareshani_se_nijat_ki_dua",
+    "title": "Karz Aur Pareshani Se Nijat Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:29:54.226Z",
+    "duaId": "ayyub_as_ki_bimarion_aur_takaleef_se_shifa_ki_dua",
+    "title": "Ayyub (AS) Ki Bimarion Aur Takaleef Se Shifa Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:28:15.993Z",
+    "duaId": "subah_o_shaam_ki_hifazat_ki_jami_dua_part2",
+    "title": "Subah O Shaam Ki Hifazat Ki Jami Dua Part 2",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:26:21.516Z",
+    "duaId": "subah_o_shaam_ki_hifazat_ki_jami_dua_part1",
+    "title": "Subah O Shaam Ki Hifazat Ki Jami Dua Part 1",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:24:26.417Z",
+    "duaId": "subah_o_shaam_ki_hifazat_ki_jami_dua",
+    "title": "Subah O Shaam Ki Hifazat Ki Jami Dua",
+    "result": "FAIL",
+    "error": "Duration policy: speech >40s (video not allowed)"
+  },
+  {
+    "ts": "2026-08-23T14:24:17.154Z",
+    "duaId": "rabbana_latuzigh",
+    "title": "Sidha Raste Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:22:39.321Z",
+    "duaId": "home_enter",
+    "title": "Ghar Me Dakhil Hote Waqt",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:21:29.850Z",
+    "duaId": "ham_o_gham",
+    "title": "Gham Se Nijat Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:19:19.200Z",
+    "duaId": "rabbi_ghfir",
+    "title": "Maa Baap Ke Liye Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:17:53.143Z",
+    "duaId": "hasbunallah",
+    "title": "Allah Kafi Hai",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:16:41.554Z",
+    "duaId": "rabbi_zidni",
+    "title": "Ilm Barhane Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:15:29.953Z",
+    "duaId": "yunus_dua",
+    "title": "Yunus (AS) Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:14:08.087Z",
+    "duaId": "rabbi_shrah",
+    "title": "Kaam Aasan Karne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:12:54.353Z",
+    "duaId": "rabbana_hasanah",
+    "title": "Duniya Aur Aakhirat Ki Bhalai",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:11:21.122Z",
+    "duaId": "evening_isum",
+    "title": "Hifazat Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:10:03.116Z",
+    "duaId": "evening_audhu",
+    "title": "Makhlooq Ke Shar Se Panaah",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:08:48.861Z",
+    "duaId": "evening_mulk",
+    "title": "Shaam Ki Dua (2)",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:07:06.877Z",
+    "duaId": "evening_amsayna",
+    "title": "Shaam Ki Dua (1)",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:05:25.895Z",
+    "duaId": "morning_hasbiya",
+    "title": "Allah Par Bharosa",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:03:56.920Z",
+    "duaId": "morning_afiyah",
+    "title": "Aafiyat Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:02:37.780Z",
+    "duaId": "morning_mulk",
+    "title": "Subah Ki Dua (2)",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T14:00:57.162Z",
+    "duaId": "tashahhud_audhu",
+    "title": "Tashahhud Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T13:59:13.396Z",
+    "duaId": "wudu_end",
+    "title": "Wudu Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T13:57:28.664Z",
+    "duaId": "travel_end",
+    "title": "Wapas Aanay Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T13:56:10.879Z",
+    "duaId": "food_end",
+    "title": "Khana Khatam Karne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:54:00.037Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:34:03.982Z",
+    "duaId": "bathroom_exit",
+    "title": "Bathroom Se Bahar Aanay Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:32:35.290Z",
+    "duaId": "morning_ashbahna",
+    "title": "Subah Ki Dua (1)",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:30:30.804Z",
+    "duaId": "travel_start",
+    "title": "Safar Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:28:44.642Z",
+    "duaId": "food_start",
+    "title": "Khana Khane Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:27:25.024Z",
+    "duaId": "salah_start",
+    "title": "Namaz Shuru Karne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:25:32.800Z",
+    "duaId": "sleep_exit",
+    "title": "Uthne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:16:27.287Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:11:52.602Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:07:18.114Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T11:00:00.698Z",
+    "duaId": "bathroom_exit",
+    "title": "Bathroom Se Bahar Aanay Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T10:57:54.890Z",
+    "duaId": "salah_end",
+    "title": "Namaz Ke Baad Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T10:56:14.507Z",
+    "duaId": "morning_ashbahna",
+    "title": "Subah Ki Dua (1)",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T10:54:28.695Z",
+    "duaId": "travel_start",
+    "title": "Safar Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T10:52:45.646Z",
+    "duaId": "food_start",
+    "title": "Khana Khane Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T10:51:26.549Z",
+    "duaId": "salah_start",
+    "title": "Namaz Shuru Karne Ki Dua",
+    "result": "PASS"
+  },
+  {
+    "ts": "2026-08-23T10:49:37.286Z",
+    "duaId": "sleep_exit",
+    "title": "Uthne Ki Dua",
+    "result": "PASS"
+  }
+]

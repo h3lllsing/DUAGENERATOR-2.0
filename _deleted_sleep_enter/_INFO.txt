@@ -1,0 +1,18 @@
+Deleted 2026-08-23 on user request (duplicate hadith Bukhari 6324 - wife channel pe already uploaded).
+[
+  {
+    "id": "sleep_enter",
+    "category": "sleep",
+    "title": "Sone Ki Dua",
+    "title_en": "Dua Before Sleeping",
+    "arabic": "اللَّهُمَّ بِاسْمِكَ أَمُوتُ وَأَحْيَا",
+    "urdu": "اے اللہ! تیرے نام سے مرتا ہوں اور جیتا ہوں۔",
+    "explanation": "اس دعا کا مطلب ہے: جب ہم سونے جاتے ہیں تو ہم اللہ کے نام سے اپنی زندگی کا اختیار اسے دیتے ہیں۔",
+    "reference": "Sahih Bukhari 6324",
+    "voice_arabic": "ar-SA-HamedNeural",
+    "voice_urdu": "ur-PK-AsadNeural",
+    "template": "ramadan",
+    "duration": 15,
+    "bismillah": true
+  }
+]

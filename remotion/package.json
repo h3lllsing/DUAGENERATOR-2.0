@@ -1,0 +1,26 @@
+{
+  "name": "dua-videos-remotion",
+  "version": "0.10.0",
+  "private": true,
+  "description": "Premium Islamic dua video generator - Remotion rendering layer",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render DuaVideo out/video.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.370",
+    "@remotion/fonts": "4.0.370",
+    "@remotion/layout-utils": "4.0.370",
+    "@remotion/lottie": "4.0.370",
+    "@remotion/noise": "4.0.370",
+    "@remotion/transitions": "4.0.370",
+    "lottie-web": "5.12.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.370",
+    "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12"
+  }
+}

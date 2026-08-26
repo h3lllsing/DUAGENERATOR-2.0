@@ -1,0 +1,153 @@
+{
+ "dua_id": "shifa_mariz",
+ "title": "Bimari Se Shifa Ki Dua",
+ "reference": "Tirmizi 2083",
+ "fps": 24,
+ "width": 1080,
+ "height": 1920,
+ "totalDuration": 15.0,
+ "audioFile": "audio/shifa_mariz.mp3",
+ "template": "ocean",
+ "arabicWords": [
+  {
+   "t": "أَسْأَلُ",
+   "start": 0.06,
+   "end": 0.495
+  },
+  {
+   "t": "اللَّهَ",
+   "start": 0.509,
+   "end": 0.848
+  },
+  {
+   "t": "الْعَظِيْمَ",
+   "start": 0.862,
+   "end": 1.405
+  },
+  {
+   "t": "رَبَّ",
+   "start": 1.419,
+   "end": 1.664
+  },
+  {
+   "t": "الْعَرْشِ",
+   "start": 1.677,
+   "end": 2.085
+  },
+  {
+   "t": "الْعَظِيْمِ",
+   "start": 2.098,
+   "end": 2.696
+  },
+  {
+   "t": "أَنْ",
+   "start": 2.71,
+   "end": 2.859
+  },
+  {
+   "t": "يَشْفِيَكَ",
+   "start": 2.873,
+   "end": 3.647
+  }
+ ],
+ "urduWords": [
+  {
+   "t": "میں",
+   "start": 5.12,
+   "end": 5.186
+  },
+  {
+   "t": "عظیمت",
+   "start": 5.318,
+   "end": 5.673
+  },
+  {
+   "t": "والے",
+   "start": 5.712,
+   "end": 6.002
+  },
+  {
+   "t": "اللہ",
+   "start": 6.041,
+   "end": 6.357
+  },
+  {
+   "t": "سے",
+   "start": 6.436,
+   "end": 6.633
+  },
+  {
+   "t": "عرش",
+   "start": 6.699,
+   "end": 6.923
+  },
+  {
+   "t": "کے",
+   "start": 6.962,
+   "end": 7.054
+  },
+  {
+   "t": "مالک",
+   "start": 7.094,
+   "end": 7.396
+  },
+  {
+   "t": "سے",
+   "start": 7.475,
+   "end": 7.568
+  },
+  {
+   "t": "دعا",
+   "start": 7.633,
+   "end": 7.844
+  },
+  {
+   "t": "کرتا",
+   "start": 7.897,
+   "end": 8.186
+  },
+  {
+   "t": "ہوں",
+   "start": 8.199,
+   "end": 8.344
+  },
+  {
+   "t": "کہ",
+   "start": 8.41,
+   "end": 8.489
+  },
+  {
+   "t": "وہ",
+   "start": 8.528,
+   "end": 8.633
+  },
+  {
+   "t": "تمہیں",
+   "start": 8.712,
+   "end": 8.962
+  },
+  {
+   "t": "شفا",
+   "start": 8.975,
+   "end": 9.331
+  },
+  {
+   "t": "دے٤",
+   "start": 9.383,
+   "end": 9.515
+  }
+ ],
+ "sections": {
+  "arabicEnd": 3.647,
+  "urduStart": 5.07
+ },
+ "channel": {
+  "name": "Noor-e-Iman",
+  "handle": "@bushranasir1075"
+ },
+ "sfx": {
+  "whoosh": "sfx/whoosh.mp3",
+  "riser": "sfx/riser.mp3",
+  "tick": "sfx/tick.mp3"
+ }
+}

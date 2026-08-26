@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dua Video Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%95%8C%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<header>
+<h1>Dua Video <span class="gold">Studio</span> <sup style="font-size:11px;color:#5a6474;font-weight:normal">v0.10</sup></h1>
+<div class="stats">
+<span class="statnum" id="statline"></span>
+<div class="ring" id="ring"><i id="ringtxt">0%</i></div>
+</div>
+</header>
+<div class="toolbar">
+<div class="searchwrap"><span>&#128269;</span><input id="search" placeholder="Dua dhundo... (naam ya reference)" oninput="onSearch(this.value)"></div>
+<div class="chips" id="chips"></div>
+<div class="chips" style="margin-left:auto">
+  <button class="chip" onclick="openHelp()" title="Kaise use karein - Roman Urdu + Urdu" style="background:#1c2333;border-color:#d4af37;color:#d4af37">&#128214; MADAD</button>
+  <button class="chip" onclick="renderAll()" title="Saari videos ek click me (sequential queue)">&#9889; RENDER ALL</button>
+  <button class="chip" onclick="openHistory()" title="Render history (last 200)">&#128337; HISTORY</button>
+  <button class="chip" onclick="thumbsAll()" title="Bina thumb ke saare rendered videos ki poster banao">&#128444;&#65039; THUMBS</button>
+  <button class="chip" onclick="openSettings()" title="Channel name + @handle">&#9881;&#65039;</button>
+  <button class="chip" onclick="openVoice()" title="Combined AR+UR awaz - portal dua ya custom text">&#127908; VOICE ONLY</button>
+  <button class="chip" onclick="ytToggle()" title="Multi-channel YouTube upload manager">&#9654;&#65039; YOUTUBE</button>
+  <button class="chip" onclick="openFolder('videos')" title="Videos folder kholo">&#128193; VIDEOS</button>
+  <button class="chip" onclick="openFolder('audio')" title="TTS audio folder kholo">&#127908; AUDIO</button>
+  <div class="jobbar" id="jobbar">
+    <div class="jrow"><span class="jstep" id="jstep">-</span><span class="jdua" id="jdua"></span><span id="jbatch" style="display:none"></span><div class="track"><div class="fill" id="jfill"></div></div><span class="jpct" id="jpct"></span><button class="chip" id="jcancel" onclick="cancelJob()" style="display:none;background:#3a1520;color:#ff7b72;border-color:#6b2737;padding:4px 10px;font-size:11px">&#9209; CANCEL</button><button class="jx" onclick="dismissBar()" title="Dismiss">&#10005;</button></div>
+  </div>
+</div>
+<div id="ytpanel" style="display:none;background:#11161f;border:1px solid #2a3345;border-radius:14px;margin:0 16px 14px;padding:16px">
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <b style="color:#d4af37;font-size:16px">&#128640; YouTube Upload Portal</b>
+    <span style="flex:1"></span>
+    <button class="chip" onclick="ytRefresh()">&#8635; Refresh</button>
+    <button class="chip" onclick="ytToggle()">&#10005; Band</button>
+  </div>
+  <div id="yt_mainstatus" style="margin-top:10px;font-size:14px;background:#0b0e13;border:1px solid #232c3b;border-radius:10px;padding:12px 14px">&#9898; Channel status load ho raha...</div>
+
+  <div style="margin-top:12px">
+    <button class="chip" id="yt_advbtn" onclick="ytAdvToggle()">&#9881;&#65039; Advanced Setup &amp; Settings &#9656;</button>
+  </div>
+  <div id="yt_adv" style="display:none;border:1px dashed #2a3345;border-radius:10px;padding:12px;margin-top:8px">
+    <b style="font-size:12px;color:#8b93a3">CREDENTIALS</b>
+    <span class="chip" id="yt_secret_pill">client_secret: ?</span>
+    <span class="chip" id="yt_cred_badge">credentials: ?</span>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+      <input id="yt_cid" placeholder="Client ID (....apps.googleusercontent.com)" style="flex:1;min-width:230px">
+      <input id="yt_cs" type="password" placeholder="Client Secret" style="width:190px" autocomplete="off">
+      <button class="btn-save" id="yt_savecred" onclick="ytSaveCreds()" style="padding:6px 14px;font-size:11px">&#128190; SAVE CREDENTIALS</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+      <span style="font-size:11px;color:#8b93a3">ya file se:</span>
+      <input type="file" id="yt_file" accept=".json,application/json" style="display:none">
+      <button class="chip" onclick="document.getElementById('yt_file').click()">&#128193; CHOOSE</button>
+      <span id="yt_filename" style="font-size:11px;color:#8b93a3"></span>
+      <button class="chip" id="yt_save_secret" onclick="ytUploadSecret()">&#128190; SAVE SECRET FILE</button>
+    </div>
+    <div class="aihint no" style="margin:6px 0 0">Google Cloud Console &rarr; Credentials &rarr; OAuth Client ID (Desktop app) ki values paste karo.</div>
+    <hr style="border:none;border-top:1px dashed #2a3345;margin:12px 0">
+    <b style="font-size:12px;color:#8b93a3">CHANNEL LOGIN</b>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+      <button class="chip" id="yt_auth_channel1" onclick="ytAuth('channel1')">&#128274; Authenticate Channel 1</button>
+      <span id="yt_authst_channel1" style="font-size:11px;color:#8b93a3">&#9679;</span>
+      <button class="chip" id="yt_auth_channel2" onclick="ytAuth('channel2')">&#128274; Authenticate Channel 2</button>
+      <span id="yt_authst_channel2" style="font-size:11px;color:#8b93a3">&#9679;</span>
+    </div>
+    <div class="aihint no" style="margin:6px 0 0">AUTH pe click karo &mdash; Google consent window browser me khulegi, allow karo. Token data/yt_token_channelN.json me save hota hai.</div>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center">
+    <label style="font-size:13px;color:#e6e2d2">Channel</label>
+    <select id="yt_channel"><option value="channel1">Channel 1</option><option value="channel2">Channel 2</option></select>
+    <select id="yt_privacy"><option value="private">private</option><option value="unlisted" selected>unlisted</option><option value="public">public</option></select>
+    <select id="yt_mode"><option value="dry-run">DRY-RUN (test)</option><option value="live">LIVE UPLOAD</option></select>
+  </div>
+  <button class="btn-save" id="yt_start" onclick="ytStart()" disabled style="width:100%;padding:14px;font-size:15px;margin-top:10px">&#128640; UPLOAD SELECTED (0) VIDEOS</button>
+  <div class="aihint no" style="margin-top:6px">Quota-safe: max 5 live uploads/day/channel &middot; pehle neeche cards se 1-6 duas chuno</div>
+
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:16px">
+    <b style="font-size:13px;color:#e6e2d2">1-6 Duas chuno:</b>
+    <span class="chip" id="yt_pickcount" style="font-size:12px;padding:6px 12px">Selected: 0 / 6</span>
+    <button class="chip" id="yt_pickreset" onclick="ytPickReset()">&#9851;&#65039; Reset Selection</button>
+  </div>
+  <input id="yt_picksearch" placeholder="&#128269; Dua search karo... (naam ya id)" oninput="ytRenderPicker()" style="width:100%;margin-top:8px;padding:10px 12px;font-size:13px">
+  <div id="yt_picklist" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;max-height:320px;overflow:auto;margin-top:10px;padding:2px"></div>
+
+  <div id="yt_progress" style="display:none;background:#141b26;border:1px solid #d4af37;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:14px;color:#e6e2d2"></div>
+
+  <div style="margin-top:14px">
+    <button class="chip" id="yt_logaccbtn" onclick="ytAccToggle()">&#128293; Technical Logs &#9656;</button>
+    <pre id="yt_log" style="display:none;background:#0b0e13;border:1px solid #232c3b;border-radius:10px;height:150px;overflow:auto;font-size:11px;line-height:1.5;color:#9aa4b5;padding:10px;margin-top:8px;white-space:pre-wrap">(logs yahan aayenge)</pre>
+  </div>
+
+  <div style="margin-top:14px">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <b style="font-size:13px;color:#e6e2d2">Uploaded Videos</b>
+      <button class="chip" id="yt_copyall" onclick="ytCopyLinks()" style="border-color:#d4af37;color:#d4af37">&#128203; Copy All YouTube Links</button>
+    </div>
+    <table id="yt_table" style="width:100%;border-collapse:collapse;margin-top:6px;font-size:12px">
+      <thead><tr>
+        <th style="text-align:left;color:#8b93a3;padding:6px;border-bottom:1px solid #2a3345">#</th>
+        <th style="text-align:left;color:#8b93a3;padding:6px;border-bottom:1px solid #2a3345">Dua</th>
+        <th style="text-align:left;color:#8b93a3;padding:6px;border-bottom:1px solid #2a3345">Channel</th>
+        <th style="text-align:left;color:#8b93a3;padding:6px;border-bottom:1px solid #2a3345">Shorts Link</th>
+        <th style="text-align:left;color:#8b93a3;padding:6px;border-bottom:1px solid #2a3345">Privacy</th>
+      </tr></thead>
+      <tbody id="yt_tbody"><tr><td colspan="5" style="color:#8b93a3;padding:8px">koi upload nahi</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<main>
+<div class="grid" id="grid"></div>
+</main>
+<button class="addbtn" onclick="openForm()">+ NAYI DUA</button>
+<button class="aibtn" onclick="openAi()">&#129302; AI IMPORT</button>
+
+<div class="modal-bg" id="playerbg" onclick="if(event.target===this)closePlayer()">
+  <div class="playerbox">
+    <video id="pvid" controls playsinline></video>
+    <div class="pbtns"><span class="pname" id="pname"></span>
+    <button class="btn-play" onclick="closePlayer()">Band karo &#10005;</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalbg" onclick="if(event.target===this)closeForm()">
+  <div class="modal">
+    <h2 id="modaltitle">&#10133; Nayi Dua Add Karo</h2>
+    <label for="f_title">Title (Roman Urdu) *</label>
+    <input id="f_title" placeholder="e.g. Safar Ki Dua">
+    <label for="f_arabic">Arabic Text * <span style="color:#5a6474">(harakat ke sath)</span></label>
+    <textarea id="f_arabic" class="ar" dir="rtl" placeholder="&#1575;&#1604;&#1604;&#1617;&#1607;&#1615;&#1605;&#1617;&#1614;..."></textarea>
+    <label for="f_urdu">Urdu Tarjuma *</label>
+    <textarea id="f_urdu" class="ar" dir="rtl" placeholder="&#1575;&#1746; &#1575;&#1604;&#1604;&#1729;..."></textarea>
+    <label for="f_ref">Reference</label>
+    <input id="f_ref" placeholder="e.g. Sahih Bukhari 1234">
+    <div class="mrow">
+      <div><label for="f_cat">Category</label>
+        <select id="f_cat">
+          <option value="general">general</option><option value="sleep">sleep</option>
+          <option value="food">food</option><option value="travel">travel</option>
+          <option value="prayer">prayer</option><option value="morning">morning</option>
+          <option value="evening">evening</option><option value="bathroom">bathroom</option>
+          <option value="protection">protection</option><option value="rizq">rizq</option>
+          <option value="forgiveness">forgiveness</option><option value="morning_evening">morning_evening</option>
+          <option value="guidance">guidance</option><option value="health">health</option>
+          <option value="anxiety_relief">anxiety_relief</option><option value="gratitude">gratitude</option>
+          <option value="family">family</option><option value="occasions">occasions</option>
+        </select></div>
+      <div><label for="f_vpair">Voice Pair</label>
+        <select id="f_vpair"><option>Hamed + Asad</option><option>Zariyah + Uzma</option></select></div>
+    </div>
+    <label class="force" style="margin-top:12px"><input type="checkbox" id="f_bis" checked> Bismillah se shuru karo (audio hierarchy)</label>
+    <div class="js-expert" style="display:none;margin-top:14px">Video Style (expert override - normal me ROTATION decide karta hai)</div>
+    <div class="themegrid js-expert" id="themegrid" style="display:none">
+      <label class="topt on" data-v="dark"><input type="radio" name="tplate" value="dark" checked><img src="/preview/dark.png" alt=""><span>Dark Gold</span></label>
+      <label class="topt" data-v="mosque"><input type="radio" name="tplate" value="mosque"><img src="/preview/mosque.png" alt=""><span>Mosque Night</span></label>
+      <label class="topt" data-v="sunset"><input type="radio" name="tplate" value="sunset"><img src="/preview/sunset.png" alt=""><span>Sunset Dawn</span></label>
+      <label class="topt" data-v="manuscript"><input type="radio" name="tplate" value="manuscript"><img src="/preview/manuscript.png" alt=""><span>Manuscript</span></label>
+      <label class="topt" data-v="emerald"><input type="radio" name="tplate" value="emerald"><img src="/preview/emerald.png" alt=""><span>Emerald</span></label>
+      <label class="topt" data-v="ocean"><input type="radio" name="tplate" value="ocean"><img src="/preview/ocean.png" alt=""><span>Ocean Night</span></label>
+      <label class="topt" data-v="desert"><input type="radio" name="tplate" value="desert"><img src="/preview/desert.png" alt=""><span>Desert Gold</span></label>
+      <label class="topt" data-v="royal"><input type="radio" name="tplate" value="royal"><img src="/preview/royal.png" alt=""><span>Royal Purple</span></label>
+      <label class="topt" data-v="ramadan"><input type="radio" name="tplate" value="ramadan"><img src="/preview/ramadan.png" alt=""><span>Ramadan Lanterns</span></label>
+      <label class="topt" data-v="eid"><input type="radio" name="tplate" value="eid"><img src="/preview/eid.png" alt=""><span>Eid Gold Green</span></label>
+      <label class="topt" data-v="qadr"><input type="radio" name="tplate" value="qadr"><img src="/preview/qadr.png" alt=""><span>Laylatul Qadr</span></label>
+    </div>
+    <div class="mbtns">
+      <button class="btn-cancel" onclick="closeForm()">Cancel</button>
+      <button class="btn-save" onclick="saveDua()">SAVE + LIST ME ADD</button>
+    </div>
+    <div class="formmsg" id="formmsg"></div>
+  </div>
+</div>
+<div class="modal-bg" id="voicebg" onclick="if(event.target===this)closeVoice()">
+  <div class="modal">
+    <h2>&#127908; Voice Only <span style="font-size:12px;color:#8b93a3">(AR + UR combined, video nahi)</span></h2>
+    <div class="chips" style="margin-bottom:12px">
+      <button class="chip on" id="vm_portal_btn" onclick="setVoiceMode('portal')">Portal Dua</button>
+      <button class="chip" id="vm_custom_btn" onclick="setVoiceMode('custom')">Custom Text</button>
+    </div>
+    <div id="vm_portal">
+      <label for="v_dua">Dua chuno</label>
+      <select id="v_dua"></select>
+      <label class="force" style="margin-top:12px"><input type="checkbox" id="v_force"> dobara banao (force re-TTS)</label>
+    </div>
+    <div id="vm_custom" style="display:none">
+      <label for="v_arabic">Arabic text</label>
+      <textarea id="v_arabic" class="ar" dir="rtl" style="min-height:70px"></textarea>
+      <label for="v_urdu">Urdu tarjuma (optional)</label>
+      <textarea id="v_urdu" class="ar" dir="rtl" style="min-height:70px"></textarea>
+      <label for="v_name" style="margin-top:10px">Recording naam (English letters, optional)</label>
+      <input id="v_name" placeholder="e.g. test_dua_1">
+      <div class="aihint no" style="margin-top:8px">&#128190; Audio <b>AUDIO folder</b> me save hogi: custom_&lt;naam&gt;.mp3 &mdash; portal ki list me NAHI aayegi</div>
+    </div>
+    <div class="mbtns">
+      <button class="btn-cancel" onclick="closeVoice()">Band karo</button>
+      <button class="btn-save" onclick="genVoice()">&#127908; BANAO</button>
+    </div>
+    <div class="formmsg" id="voicemsg"></div>
+    <div id="voiceplayer" style="display:none;margin-top:14px">
+      <audio id="ap_voice" controls style="width:100%"></audio>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="helpbg" onclick="if(event.target===this)closeHelp()">
+  <div class="modal" style="width:min(680px,94vw)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <b style="color:#d4af37;font-size:17px">&#128214; Kaise Use Karein / &#x6A9;&#x6CC;&#x633;&#x6D2; &#x627;&#x633;&#x62A;&#x639;&#x645;&#x627;&#x644; &#x6A9;&#x631;&#x6CC;&#x6BA;</b>
+      <span style="flex:1"></span>
+      <button class="chip" onclick="closeHelp()">&#10005;</button>
+    </div>
+    <div class="help-tabs">
+      <button id="ht_ro" class="on" onclick="tabHelp('ro')">Roman Urdu</button>
+      <button id="ht_ur" onclick="tabHelp('ur')" style="font-family:'Noto Nastaliq Urdu','Jameel Noori Nastaleeq',serif;font-size:16px">&#x627;&#x631;&#x62F;&#x648;</button>
+    </div>
+
+    <div class="helpbox rotxt" id="help_ro">
+      <h3>1. Ye page kya hai?</h3>
+      Ye ghar ka <b>video studio</b> hai &mdash; 76 dua videos yahan ready hain. Upar right corner ka gol chakra batata hai kitni % videos mukammal hain.
+      <h3>2. Video dekhna</h3>
+      Card ki tasveer pe click karo ya neeche <b>PLAY</b> dabao &mdash; video player khul jayegi.
+      <h3>3. Dua dhundna</h3>
+      Upar search box me dua ka <b>naam ya reference</b> likho, ya category chips (morning, salah...) se chhaanto.
+      <h3>4. Nayi videos banana</h3>
+      <b>&#9889; RENDER ALL</b> ek dafa dabao &mdash; saari videos ek-ek karke banengi (har video ko taqreeban 2 minute lagte hain). Upar progress bar chalegi. Browser band kar do to bhi kaam hota rahega. <b>&#9209; CANCEL</b> sirf zaroorat pe dabana.
+      <h3>5. YouTube upload (ahtiyat!)</h3>
+      <b>&#9654;&#65039; YOUTUBE</b> dabao, panel khul jayega:<br>
+      &bull; Pehle login dekho: <b>sabz dot + "logged in"</b> hona chahiye. Nahi hai to ADVANCED kholo &rarr; <b>&#128274; Authenticate Channel 1</b><br>
+      &bull; Channel select karo (<b>Channel 1</b>)<br>
+      &bull; Sab se pehle <b>DRY-RUN (test)</b> chalao &mdash; is me YouTube pe kuch upload NAHI hota, sirf test hai<br>
+      &bull; Theek ho to <b>LIVE UPLOAD</b> select karke 1 se 6 duas pe tick lagao aur neeche wala bada START button dabao<br>
+      &bull; Privacy <b>unlisted</b> hi rehne do
+      <h3>6. Settings &#9881;&#65039;</h3>
+      Channel name, @handle aur Video Style Preset isi me hai. Style abhi <b>Auto</b> hai (har video ka apna look). Save ke baad NAYE renders naya style lenge &mdash; purani videos pe koi asar nahi.
+      <h3>7. Ye cheezein MAT chhedo</h3>
+      &bull; <b>&#128465;&#65039; DELETE</b> &mdash; dua hamesha ke liye mit jayegi!<br>
+      &bull; <b>&#9997;&#65039; EDIT</b> &mdash; text badalne se video kharab ho sakti hai (ye sirf un-rendered cards pe aata hai)<br>
+      &bull; <b>force re-TTS</b> ka tick &mdash; awaz dobara ban jayegi<br>
+      &bull; <b>ADVANCED/CREDENTIALS</b> wala hissa technical hai
+      <h3>8. Folders</h3>
+      <b>&#128193; VIDEOS / AUDIO</b> buttons se files seedha khulti hain. <b>&#128337; HISTORY</b> me pichhle renders ka record milta hai.
+      <p style="margin-top:14px;color:#8b93a3">&#128172; Koi baat na samajh aaye ya masla ho &mdash; Masood ko bulao &#128522;</p>
+    </div>
+
+    <div class="helpbox urtxt" id="help_ur" style="display:none">
+      <h3>&#x6F2;&#x66E; &#x635;&#x641;&#x62D;&#x6C7; &#x6A9;&#x64A;&#x627; &#x647;&#x6D2;&#x61F;</h3>
+      &#x6CC;&#x6C7; &#x622;&#x67E; &#x6A9;&#x6D2; &#x63A;&#x631; &#x6A9;&#x627; <b>&#x648;&#x64A;&#x69A;&#x64A;&#x648; &#x627;&#x633;&#x679;&#x648;&#x68C;&#x64A;&#x648;</b> &#x647;&#x6D2; &mdash; &#x627;&#x633; &#x645;&#x6CC;&#x6BA; 76 &#x62F;&#x639;&#x627;&#x621;&#x648;&#x6BA; &#x6A9;&#x6CC; &#x648;&#x64A;&#x69A;&#x64A;&#x648;&#x632; &#x62A;&#x64A;&#x627;&#x631; &#x645;&#x648;&#x62C;&#x648;&#x62F; &#x647;&#x64A;&#x6BA;&#x646;&#x6D4; &#x627;&#x648;&#x67E;&#x631; &#x628;&#x627;&#x6C4; &#x6AF;&#x648;&#x644; &#x646;&#x642;&#x637;&#x6C7; &#x628;&#x62A;&#x627;&#x62A;&#x627; &#x6C3;&#x6D2; &#x6A9;&#x6D2; &#x6A9;&#x62A;&#x646;&#x6CC; &#x641;&#x64A;&#x635;&#x62F; &#x648;&#x64A;&#x69A;&#x64A;&#x648;&#x632; &#x645;&#x6A9;&#x645;&#x644; &#x6C1;&#x648; &#x626;&#x6CC;&#x6BE; &#x636;&#x64A;&#x6BA;&#x6D4;
+      <h3>&#x6F2;&#x66E; &#x648;&#x64A;&#x69A;&#x64A;&#x648; &#x62F;&#x64A;&#x6A9;&#x6BE;&#x646;&#x627;</h3>
+      &#x6A9;&#x633;&#x64A; &#x6A9;&#x627;&#x631;&#x688; &#x6A9;&#x64A; &#x62A;&#x635;&#x648;&#x64A;&#x631; &#x67E;&#x631; &#x6A9;&#x644;&#x6A9; &#x6A9;&#x631;&#x64A;&#x6BA; &#x64A;&#x627; &#x646;&#x64A;&#x686;&#x6D2; <b>PLAY</b> &#x62F;&#x628;&#x627;&#x626;&#x64A;&#x6BA; &mdash; &#x648;&#x64A;&#x69A;&#x64A;&#x648; &#x67E;&#x644;&#x64A;&#x626;&#x631; &#x645;&#x64A;&#x6BA; &#x6A9;&#x6BE;&#x644; &#x62C;&#x627;&#x626;&#x64A; &#x6AF;&#x64A;&#x6D4;
+      <h3>&#x6F3;&#x66E; &#x62F;&#x639;&#x627; &#x688;&#x648;&#x646;&#x68C;&#x646;&#x627;</h3>
+      &#x627;&#x648;&#x67E;&#x631; &#x633;&#x631;&#x686; &#x628;&#x627;&#x6A9;&#x633; &#x645;&#x64A;&#x6BA; &#x62F;&#x639;&#x627; &#x6A9;&#x627; <b>&#x646;&#x627;&#x645; &#x64A;&#x627; &#x62D;&#x648;&#x627;&#x644;&#x6C7;</b> &#x644;&#x6A9;&#x6BE;&#x64A;&#x6BA;&#x60C; &#x64A;&#x627; &#x646;&#x64A;&#x686;&#x6D2; &#x632;&#x645;&#x631;&#x6D2; &#x6A9;&#x6D2; &#x628;&#x679;&#x646;&#x648;&#x6BA; &#x633;&#x6D2; &#x686;&#x627;&#x646;&#x679; &#x6A9;&#x631;&#x64A;&#x6BA;&#x6D4;
+      <h3>&#x6F4;&#x66E; &#x646;&#x626;&#x64A; &#x648;&#x64A;&#x69A;&#x64A;&#x648;&#x632; &#x628;&#x646;&#x627;&#x646;&#x627;</h3>
+      <b>&#9889; RENDER ALL</b> &#x627;&#x64A;&#x6A9; &#x628;&#x627;&#x631; &#x62F;&#x628;&#x627;&#x626;&#x64A;&#x6BA; &mdash; &#x62A;&#x645;&#x627;&#x645; &#x648;&#x64A;&#x69A;&#x64A;&#x648;&#x632; &#x627;&#x64A;&#x6A9; &#x6A9;&#x6D2; &#x628;&#x639;&#x62F; &#x627;&#x64A;&#x6A9; &#x628;&#x646;&#x646;&#x6D2; &#x644;&#x6AF;&#x64A;&#x6BA; &#x6AF;&#x64A; (&#x6C1;&#x631; &#x648;&#x64A;&#x69A;&#x64A;&#x648; &#x6A9;&#x648; &#x62A;&#x642;&#x630;&#x64A;&#x628;&#x627;&#x64B; &#x62F;&#x648; &#x645;&#x646;&#x679; &#x644;&#x6AF;&#x62A;&#x6D2; &#x6C1;&#x64A;&#x6BA;)&#x6D4; &#x627;&#x648;&#x67E;&#x631; &#x67E;&#x631;&#x6AF;&#x631;&#x633; &#x628;&#x627;&#x631; &#x646;&#x638;&#x631; &#x622;&#x626;&#x64A; &#x6AF;&#x64I;&#x6D4; &#x628;&#x631;&#x627;&#x648;&#x632;&#x631; &#x628;&#x646;&#x62F; &#x6A9;&#x631; &#x62F;&#x64A;&#x6BA; &#x62A;&#x648; &#x628;&#x6BE;&#x64A; &#x6A9;&#x627;&#x645; &#x6C1;&#x648;&#x62A;&#x627; &#x631;&#x6C1;&#x6D2; &#x6AF;&#x627;&#x6D4; <b>&#9209; CANCEL</b> &#x635;&#x631;&#x641; &#x636;&#x631;&#x648;&#x631;&#x62A; &#x67E;&#x69A;&#x646;&#x6D2; &#x67E;&#x631; &#x62F;&#x628;&#x627;&#x626;&#x64A;&#x6BA;&#x6D4;
+      <h3>&#x6F5;&#x66E; &#x64A;&#x648;&#x67C;&#x64A;&#x648;&#x628; &#x627;&#x67E;&#x644;&#x648;&#x688; (&#x627;&#x62D;&#x62A;&#x64A;&#x627;&#x637;!)</h3>
+      <b>&#9654;&#65039; YOUTUBE</b> &#x62F;&#x628;&#x627;&#x626;&#x64A;&#x6BA;&#x60C; &#x67E;&#x64A;&#x646;&#x644; &#x6A9;&#x6BE;&#x644; &#x62C;&#x627;&#x626;&#x6AF;&#x627;<br>
+      &bull; &#x67E;&#x6C7;&#x644;&#x6D2; &#x644;&#x627;&#x6AF; &#x627;&#x650C; &#x62F;&#x64A;&#x6A9;&#x6BE;&#x64A;&#x6BA;: <b>&#x633;&#x628;&#x632; &#x646;&#x642;&#x637;&#x6C7; + "logged in"</b> &#x6C1;&#x648;&#x646;&#x627; &#x686;&#x627;&#x6C7;&#x6BE;&#x64A;&#x6D2;&#x61B; &#x648;&#x631;&#x646;&#x6C1; ADVANCED &#x6A9;&#x6BE;&#x648;&#x644; &#x6A9;&#x631; &#x6A9;&#x6D2; <b>&#128274; Authenticate Channel 1</b> &#x62F;&#x628;&#x627;&#x626;&#x64A;&#x6BA;<br>
+      &bull; <b>Channel 1</b> &#x645;&#x646;&#x62A;&#x62E;&#x628; &#x6A9;&#x631;&#x64A;&#x6BA;<br>
+      &bull; &#x67E;&#x6C7;&#x644;&#x6D2; <b>DRY-RUN (test)</b> &#x686;&#x644;&#x627;&#x626;&#x64A;&#x6BA; &mdash; &#x627;&#x633; &#x645;&#x64A;&#x6BA; &#x64A;&#x648;&#x67C;&#x64A;&#x648;&#x628; &#x67E;&#x631; &#x6A9;&#x686;&#x6BE; &#x628;&#x6BE;&#x64A; &#x627;&#x67E;&#x644;&#x648;&#x688; &#x646;&#x6C1;&#x64A;&#x6BA; &#x6C1;&#x648;&#x62A;&#x627;&#x60C; &#x635;&#x631;&#x641; &#x622;&#x632;&#x645;&#x627;&#x626;&#x634; &#x6C1;&#x648;&#x62A;&#x64A; &#x647;&#x6D2;<br>
+      &bull; &#x633;&#x628; &#x679;&#x6BE;&#x64A;&#x6A9; &#x6C1;&#x648; &#x62A;&#x648; <b>LIVE UPLOAD</b> &#x645;&#x646;&#x62A;&#x62E;&#x628; &#x6A9;&#x631; &#x6A9;&#x6D2; 1 &#x633;&#x6D2; 6 &#x62F;&#x639;&#x627;&#x621;&#x648;&#x6BA; &#x67E;&#x631; &#x67F;&#x6A9; &#x644;&#x6AF;&#x627;&#x626;&#x64A;&#x6BA; &#x622;&#x631; &#x646;&#x64A;&#x686;&#x6D2; &#x648;&#x627;&#x644;&#x627; &#x628;&#x69A;&#x627; START &#x628;&#x637;&#x646; &#x62F;&#x628;&#x627;&#x626;&#x64A;&#x6BA;<br>
+      &bull; Privacy &#x6A9;&#x648; <b>unlisted</b> &#x6C1;&#x64A; &#x631;&#x6C1;&#x646;&#x6D2; &#x62F;&#x64A;&#x6BA;
+      <h3>&#x6F6;&#x66E; &#x633;&#x64A;&#x679;&#x646;&#x6AF;&#x632; &#x9881;&#65039;</h3>
+      &#x686;&#x64A;&#x646;&#x644; &#x6A9;&#x627; &#x646;&#x627;&#x645;&#x60C; @handle &#x622;&#x631; &#x648;&#x64A;&#x69A;&#x64A;&#x648; &#x627;&#x633;&#x679;&#x627;&#x626;&#x644; &#x627;&#x633;&#x64A; &#x645;&#x64A;&#x6BA; &#x647;&#x6D2;&#x6D4; &#x627;&#x633;&#x679;&#x627;&#x626;&#x644; &#x627;&#x628;&#x6BE;&#x64A; <b>Auto</b> &#x6C3;&#x6D2; (&#x6C1;&#x631; &#x648;&#x64A;&#x69A;&#x64A;&#x648; &#x6A9;&#x627; &#x627;&#x67E;&#x646;&#x627; &#x627;&#x646;&#x62F;&#x627;&#x632;)&#x6D4; Save &#x6A9;&#x631;&#x646;&#x6D2; &#x6A9;&#x6D2; &#x628;&#x639;&#x62F; &#x646;&#x626;&#x64A; &#x648;&#x64A;&#x69A;&#x64A;&#x648;&#x632; &#x646;&#x626;&#x6D2; &#x627;&#x646;&#x62F;&#x627;&#x632; &#x645;&#x64A;&#x6BA; &#x628;&#x646;&#x64A;&#x6BA; &#x6AF;&#x64I; &mdash; &#x67E;&#x631;&#x627;&#x646;&#x64A; &#x648;&#x64A;&#x69A;&#x64A;&#x648;&#x632; &#x67E;&#x631; &#x6A9;&#x648;&#x626;&#x64A; &#x627;&#x62B;&#x631; &#x646;&#x6C1;&#x64A;&#x6BA;&#x6D4;
+      <h3>&#x6F7;&#x66E; &#x64A;&#x6C7; &#x686;&#x64A;&#x632;&#x64A;&#x6BA; &#x645;&#x62A; &#x686;&#x6BE;&#x64A;&#x69A;&#x64A;&#x6BA;</h3>
+      &bull; <b>&#128465;&#65039; DELETE</b> &mdash; &#x62F;&#x639;&#x627; &#x6C1;&#x645;&#x64A;&#x634;&#x6C7; &#x6A9;&#x6D2; &#x644;&#x64A;&#x6D2; &#x62E;&#x62A;&#x645; &#x6C1;&#x648; &#x62C;&#x627;&#x626;&#x64A; &#x6AF;&#x64I;!<br>
+      &bull; <b>&#9997;&#65039; EDIT</b> &mdash; &#x645;&#x62A;&#x646; &#x628;&#x62F;&#x644;&#x646;&#x6D2; &#x633;&#x6D2; &#x648;&#x64A;&#x69A;&#x64A;&#x648; &#x62E;&#x631;&#x627;&#x628; &#x6C1;&#x648; &#x633;&#x6A9;&#x62A;&#x64A; &#x647;&#x6D2;<br>
+      &bull; <b>force re-TTS</b> &#x6A9;&#x627; &#x67F;&#x6A9; &mdash; &#x622;&#x648;&#x627;&#x632; &#x62F;&#x648;&#x628;&#x627;&#x631;&#x6C7; &#x628;&#x646; &#x62C;&#x627;&#x626;&#x64A; &#x6AF;&#x64I;<br>
+      &bull; <b>ADVANCED/CREDENTIALS</b> &#x648;&#x627;&#x644;&#x627; &#x62D;&#x635;&#x6C7; &#x62A;&#x6A9;&#x646;&#x64A;&#x6A9;&#x64A; &#x647;&#x6D2;
+      <h3>&#x6F8;&#x66E; &#x641;&#x648;&#x644;&#x688;&#x631;&#x632;</h3>
+      <b>&#128193; VIDEOS / AUDIO</b> &#x628;&#x637;&#x646;&#x648;&#x6BA; &#x633;&#x6D2; &#x641;&#x627;&#x626;&#x644;&#x6BA; &#x633;&#x64A;&#x62F;&#x6BE;&#x64A; &#x6A9;&#x6BE;&#x644;&#x62A;&#x64A; &#x6C1;&#x64A;&#x6BA;&#x6D4; <b>&#128337; HISTORY</b> &#x645;&#x64A;&#x6BA; &#x67E;&#x686;&#x6BE;&#x644;&#x6D2; &#x631;&#x6D0;&#x646;&#x62F;&#x631; &#x6A9;&#x627; &#x631;&#x6A9;&#x627;&#x631;&#x68C; &#x645;&#x644;&#x62A;&#x627; &#x6C3;&#x6D2;&#x6D4;
+      <p style="margin-top:14px;color:#8b93a3">&#x6A9;&#x648;&#x626;&#x64A; &#x628;&#x627;&#x62A; &#x633;&#x645;&#x62C;&#x6BE; &#x646;&#x627; &#x622;&#x626;&#x6D2; &#x64A;&#x627; &#x6A9;&#x648;&#x626;&#x64A; &#x645;&#x633;&#x626;&#x644;&#x6C7; &#x6C1;&#x648; &#x62A;&#x648; &#x645;&#x633;&#x639;&#x648;&#x62F; &#x6A9;&#x648; &#x628;&#x644;&#x627;&#x626;&#x64A;&#x6BA; &#x613;</p>
+    </div>
+
+    <div class="mbtns" style="margin-top:14px">
+      <button class="btn-save" style="width:100%" onclick="closeHelp()">&#10003; Samajh gaya</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="setbg" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h2>&#9881;&#65039; Channel Settings</h2>
+    <label for="s_name">Channel Name (end card pe dikhega)</label>
+    <input id="s_name" placeholder="e.g. Daily Dua">
+    <label for="s_handle" style="margin-top:10px">@Handle</label>
+    <input id="s_handle" placeholder="@dailydua">
+    <label for="s_style" style="margin-top:10px">Video Style Preset</label>
+    <select id="s_style">
+      <option value="auto">Auto — har video ka apna style (rotation)</option>
+      <option value="classic">Classic Gold (current)</option>
+      <option value="royal">Royal Heavy</option>
+      <option value="minimal">Minimal Clean</option>
+      <option value="cinematic">Cinematic Deep</option>
+      <option value="masterpiece">Masterpiece (Qadr Night FX)</option>
+      <optgroup label="CGI / VFX Series">
+        <option value="volumetric">Volumetric Noor (God Rays)</option>
+        <option value="raytrace">Ray-Traced Gold (Gloss + Fringe)</option>
+        <option value="embernight">Ember Night (Urte Angaare)</option>
+        <option value="glitterroyal">Gold Glitter Royal</option>
+        <option value="desertmirage">Desert Mirage (Heat Shimmer)</option>
+        <option value="waterripple">Water Ripple (Lehrein)</option>
+        <option value="silkmarble">Silk Marble (Procedural Texture)</option>
+        <option value="cinemafocus">Cinema Focus (DoF Bokeh + Aberration)</option>
+        <option value="auroranova">Aurora Nova (Rangin Sitare)</option>
+        <option value="qadrtilt">Qadr 3D Tilt (Perspective)</option>
+      </optgroup>
+    </select>
+    <label style="margin-top:10px">Look Mode</label>
+    <div style="display:flex;gap:18px;margin-top:6px;font-size:13px">
+      <label style="display:flex;align-items:center;gap:6px;margin:0">
+        <input type="radio" name="s_look" value="random"> &#127922; Har Bar Naya (random)</label>
+      <label style="display:flex;align-items:center;gap:6px;margin:0">
+        <input type="radio" name="s_look" value="signature"> &#128444;&#65039; Signature (purana auto)</label>
+    </div>
+    <label for="s_art" style="margin-top:10px">Islamic Art FX (Phase C)</label>
+    <select id="s_art">
+      <option value="auto">Auto-Random (har look ke sath surprise)</option>
+      <option value="none">None (band)</option>
+      <option value="rosette">Rosette Medallion Border</option>
+      <option value="sitare">Sitare Sparkles (Calligraphy Stars)</option>
+      <option value="vines">Arabesque Vine Corners</option>
+      <option value="lanterns">Rising Lanterns (Fanous)</option>
+      <option value="caravan">Desert Caravan Silhouette</option>
+      <option value="palms">Oasis Palm Trees</option>
+    </select>
+    <label for="s_sky" style="margin-top:10px">Sky / Weather FX (Phase B)</label>
+    <select id="s_sky">
+      <option value="auto">Auto-Random (theme ke hisab se)</option>
+      <option value="none">None (band)</option>
+      <option value="rain">Barish (Rain)</option>
+      <option value="storm">Toofan + Barish (Storm)</option>
+      <option value="snow">Baraf (Snow)</option>
+      <option value="fog">Dhundh (Fog)</option>
+      <option value="smoke">Bakhur Dhuan (Smoke)</option>
+      <option value="fireflies">Jugnoo (Fireflies)</option>
+      <option value="petals">Phool Pankhudiyan (Petals)</option>
+    </select>
+    <label for="s_border" style="margin-top:10px">Border FX (Phase A)</label>
+    <select id="s_border">
+      <option value="auto">Auto-Random (theme ke hisab se)</option>
+      <option value="none">None (band)</option>
+      <option value="clouds">Baadal Drift (Clouds)</option>
+      <option value="birds">Parinde Jhund (Birds)</option>
+      <option value="flags">Jhande Swing (Flags)</option>
+      <option value="wind">Hawa Jhonke (Wind)</option>
+    </select>
+    <div class="aihint no" style="margin-top:10px">Style save karne ke baad NAYA render usi preset se banega (purani videos pe asar nahi). Masterpiece = shooting stars + moon halo + golden motes har theme pe. Cache apne aap refresh ho jata hai.</div>
+    <div class="mbtns">
+      <button class="btn-cancel" onclick="closeSettings()">Band karo</button>
+      <button class="btn-save" onclick="saveSettings()">SAVE</button>
+    </div>
+    <div class="formmsg" id="setmsg"></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<div class="modal-bg" id="histbg" onclick="if(event.target===this)closeHistory()">
+  <div class="modal">
+    <h2>&#128337; Render History</h2>
+    <div id="histlist" style="max-height:60vh;overflow:auto;margin-top:10px"></div>
+    <div class="mbtns" style="margin-top:12px"><button class="chip" onclick="closeHistory()">Band karo &#10005;</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="aimodalbg" onclick="if(event.target===this)closeAi()">
+  <div class="modal">
+    <h2>&#129302; AI Se Dua Import</h2>
+    <div class="aihint no" id="aiengine">Checking Chrome AI...</div>
+    <div><b>Step 1:</b> Neeche wala prompt copy karo &rarr; <b>gemini.google.com</b> pe paste karo &rarr; apni dua ka naam likho &rarr; jo jawab aaye wo copy karo</div>
+    <div class="mbtns" style="margin-top:8px">
+      <button class="btn-audio" onclick="copyPrompt()">&#128203; GEMINI PROMPT COPY</button>
+    </div>
+    <label for="ai_raw" style="margin-top:14px"><b>Step 2:</b> Gemini ka jawab (ya koi bhi text) yahan paste karo:</label>
+    <textarea id="ai_raw" style="min-height:130px" placeholder='{"title":"Safar Ki Dua","arabic":"...","urdu":"...","reference":"Sahih Muslim 1342","category":"travel"}'></textarea>
+    <div class="mbtns">
+      <button class="btn-cancel" onclick="closeAi()">Cancel</button>
+      <button class="btn-save" onclick="aiParse()">&#10024; PARSE + FORM BHARO</button>
+    </div>
+    <div class="formmsg" id="aimsg"></div>
+  </div>
+</div>
+<script src="app.js"></script></body></html>

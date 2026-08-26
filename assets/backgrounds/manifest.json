@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "description": "Approved background asset registry for DuaVideoGenerator (VISUAL Phase 1). No image assets yet. Add CC0 / Public Domain / CC-BY / project-owned background images with a matching SHA-256 checksum to make them loadable.",
+  "assets": []
+}
