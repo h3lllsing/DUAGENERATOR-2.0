@@ -9,7 +9,7 @@ import os
 # ============================================================
 # BASE PATHS
 # ============================================================
-BASE_DIR = r"H:\DuaVideoGenerator"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CORE_DIR = os.path.join(BASE_DIR, "core")
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 FONTS_DIR = os.path.join(ASSETS_DIR, "fonts")
