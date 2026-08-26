@@ -57,3 +57,6 @@ fx_proof/
 *.key
 data/gemini_api_key.txt
 security/
+
+# --- Tools (NSSM binary) ---
+tools/
