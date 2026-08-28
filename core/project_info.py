@@ -5,11 +5,6 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-try:
-    import config
-except ImportError:
-    config = None
-
 
 @dataclass
 class ProjectInfo:
@@ -84,41 +79,6 @@ class ProjectInfo:
         ]
         return "\n".join(lines)
 
-    def test(self):
-        """Simple test to verify metadata and paths are correct."""
-        print("Testing Project Info...")
-        
-        # Print summary
-        print(self.get_summary())
-        
-        # Verify critical directories
-        missing_dirs = []
-        for dir_name, dir_path in [
-            ("Output", self.OUTPUT_DIR),
-            ("Temp", self.TEMP_DIR),
-            ("Fonts", self.FONTS_DIR),
-            ("Data", self.DATA_DIR)
-        ]:
-            if os.path.exists(dir_path):
-                print(f"  [OK] {dir_name}: {dir_path}")
-            else:
-                print(f"  [MISSING] {dir_name}: {dir_path}")
-                missing_dirs.append(dir_name)
-        
-        if missing_dirs:
-            print(f"Warning: Directories missing: {', '.join(missing_dirs)}")
-        else:
-            print("All directories verified successfully.")
-
-        # Check config integration
-        if config:
-            print("Config module loaded successfully.")
-        else:
-            print("Config module not found. Using built-in defaults.")
-
 
 # Create a singleton instance for easy import
 PROJECT = ProjectInfo()
-
-if __name__ == "__main__":
-    PROJECT.test()

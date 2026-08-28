@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import time
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 try:
     import edge_tts
@@ -259,35 +259,3 @@ class TTSEngine:
         except Exception as e:
             logger.error(f"Failed to get audio duration: {e}")
             return 0.0
-
-    @staticmethod
-    def test():
-        """Quick test function to verify TTS is working perfectly."""
-        print("Testing TTS Engine...")
-        
-        # Ensure temp folder exists
-        os.makedirs("temp", exist_ok=True)
-        
-        # 1. Arabic Test
-        ar_text = "السلام عليكم ورحمة الله"
-        ar_file = "temp/test_ar.mp3"
-        if TTSEngine.generate_audio(ar_text, 'ar', ar_file):
-            dur = TTSEngine.get_audio_duration(ar_file)
-            print(f"Arabic TTS works! Duration: {dur:.2f} seconds")
-        else:
-            print("Arabic TTS failed.")
-            
-        # 2. Urdu Test
-        ur_text = "آپ کیسے ہیں؟"
-        ur_file = "temp/test_ur.mp3"
-        if TTSEngine.generate_audio(ur_text, 'ur', ur_file):
-            dur = TTSEngine.get_audio_duration(ur_file)
-            print(f"Urdu TTS works! Duration: {dur:.2f} seconds")
-        else:
-            print("Urdu TTS failed.")
-            
-        print("\nTest complete. Please check the 'temp/' folder for MP3 files.")
-
-
-if __name__ == "__main__":
-    TTSEngine.test()

@@ -99,8 +99,6 @@ MOODS = {
 
 DEFAULT_MOOD = MOODS["general"]
 
-FILLERS = ["vignette", "grain"]
-
 
 def _mood(category: str) -> dict:
     return MOODS.get(category, DEFAULT_MOOD)

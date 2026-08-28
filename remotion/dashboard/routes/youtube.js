@@ -379,16 +379,6 @@ module.exports = function ytRoutes(deps) {
       return true;
     }
 
-    // ── GET /api/youtube/settings ──
-    if (method === 'GET' && p === '/api/youtube/settings') {
-      const st = ytReadSettings();
-      send(res, 200, JSON.stringify({ok: true,
-        present: st.present,
-        maskedClientId: st.maskedClientId,
-        path: st.path, sources: st.sources}));
-      return true;
-    }
-
     // ── POST /api/youtube/settings ──
     if (method === 'POST' && p === '/api/youtube/settings') {
       readBody(req, res, (body) => {

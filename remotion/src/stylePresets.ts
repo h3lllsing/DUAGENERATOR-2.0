@@ -467,16 +467,8 @@ const PRESETS: Record<string, {label: string; over: PresetOverrides}> = {
   },
 };
 
-export const STYLE_PRESET_IDS = Object.keys(PRESETS);
-
-export const stylePresetLabel = (id?: string): string =>
-  (PRESETS[id || 'classic'] || PRESETS.classic).label;
-
 export const isValidPreset = (id: unknown): id is string =>
   typeof id === 'string' && Object.prototype.hasOwnProperty.call(PRESETS, id);
-
-export const listPresets = (): Array<{id: string; label: string}> =>
-  Object.keys(PRESETS).map((k) => ({id: k, label: PRESETS[k].label}));
 
 export const resolveStyle = (id?: string | null): ResolvedStyle => ({
   ...CLASSIC,

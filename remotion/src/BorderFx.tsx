@@ -188,9 +188,6 @@ const WindStreaks: React.FC<{seed: number}> = ({seed}) => {
   );
 };
 
-export type BorderFxId =
-  | 'none' | 'clouds' | 'birds' | 'flags' | 'wind';
-
 export const BorderFxLayer: React.FC<{
   fx?: string;
   seed?: number;

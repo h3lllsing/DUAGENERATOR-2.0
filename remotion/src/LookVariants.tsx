@@ -22,9 +22,6 @@ import {ARABIC_FONT} from './fonts';
 const INTRO_END = 66;
 
 // ------------------------------ ORNAMENTS --------------------------------
-export const ORNAMENT_IDS = [
-  'starcrescent', 'lanternjhumka', 'medallion', 'geostar',
-];
 
 // deterministic SVG: crescent moon + 8-point star, gentle sway (no spin)
 const StarCrescent: React.FC<{
@@ -235,8 +232,6 @@ export const OrnamentLayer: React.FC<{
 };
 
 // ----------------------------- CAMERA MOVES ------------------------------
-export const CAMERA_IDS = ['static', 'zoomin', 'panx', 'kenburns', 'driftbreathe'];
-
 const hashDir = (seed?: number): number =>
   ((seed || 12345) % 2 === 0 ? 1 : -1);
 
@@ -289,8 +284,6 @@ export const CameraMove: React.FC<{
 };
 
 // -------------------------------- MOTIFS ---------------------------------
-export const MOTIF_IDS = ['none', 'tasbih', 'kaaba', 'rehal', 'star8'];
-
 const hashPos = (seed: number | undefined, salt: number): number => {
   let h = (seed || 777) + salt * 131;
   h = (h ^ (h >> 7)) * 137;
@@ -535,8 +528,6 @@ const PatternWipeIntro: React.FC<{theme: Theme}> = ({theme}) => {
     </div>
   );
 };
-
-export const INTRO_IDS = ['classic', 'crescentfade', 'patternwipe'];
 
 export const IntroCard: React.FC<{theme: Theme; variant?: string}> = ({
   theme,

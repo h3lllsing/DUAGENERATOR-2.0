@@ -1,20 +1,11 @@
 import React from 'react';
-import {AbsoluteFill, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
 
 // MASTER LOOK v2 (2026-08-24): ek look => poora package.
 // - FrameDecor: 4 border designs (seed se chunte hain, purana L-corner sirf
 //   classic me). Old videos (look ke baghair) bilkul pehle jaise rehte hain.
 // - LookTint: canvas par preset-mood ka color veil => colors bhi usi look ke
 //   hisab se mehsoos hote hain.
-
-export type FrameVariant = 'classic' | 'arch' | 'deco' | 'rosette';
-
-export const FRAME_VARIANTS: FrameVariant[] = [
-  'classic',
-  'arch',
-  'deco',
-  'rosette',
-];
 
 // hex -> rgba helper (tints ke liye)
 export const hexA = (hex: string, a: number): string => {

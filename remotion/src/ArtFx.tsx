@@ -339,10 +339,6 @@ const OasisPalms: React.FC<{seed: number}> = ({seed}) => {
   );
 };
 
-export type ArtFxId =
-  | 'none' | 'rosette' | 'sitare' | 'vines'
-  | 'lanterns' | 'caravan' | 'palms';
-
 export const ArtFxLayer: React.FC<{
   fx?: string;
   seed?: number;

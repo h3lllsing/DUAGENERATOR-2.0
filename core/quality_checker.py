@@ -174,64 +174,6 @@ class QualityChecker:
         """
         return width == self.required_width and height == self.required_height
     
-    def validate_file_size(self, file_size_mb: float) -> bool:
-        """
-        Validate file size.
-        
-        Args:
-            file_size_mb: File size in MB
-            
-        Returns:
-            True if valid
-        """
-        return file_size_mb <= self.max_file_size_mb
-    
-    def get_quality_report(self, video_path: str) -> str:
-        """
-        Get formatted quality report.
-        
-        Args:
-            video_path: Path to video file
-            
-        Returns:
-            Formatted report string
-        """
-        results = self.check_video(video_path)
-        
-        report = []
-        report.append("=" * 50)
-        report.append("QUALITY REPORT")
-        report.append("=" * 50)
-        report.append(f"File: {os.path.basename(video_path)}")
-        report.append("")
-        
-        if results["video_info"]:
-            info = results["video_info"]
-            report.append("Video Info:")
-            report.append(f"  Duration: {info['duration']:.1f}s")
-            report.append(f"  Resolution: {info['width']}x{info['height']}")
-            report.append(f"  FPS: {info['fps']:.1f}")
-            report.append(f"  Size: {info['file_size_mb']:.1f}MB")
-            report.append("")
-        
-        if results["passed"]:
-            report.append("PASSED:")
-            for item in results["passed"]:
-                report.append(f"  + {item}")
-            report.append("")
-        
-        if results["issues"]:
-            report.append("ISSUES:")
-            for item in results["issues"]:
-                report.append(f"  - {item}")
-            report.append("")
-        
-        status = "PASS" if results["valid"] else "FAIL"
-        report.append(f"Overall Status: {status}")
-        report.append("=" * 50)
-        
-        return "\n".join(report)
-
 
 # Test function
 if __name__ == "__main__":
@@ -246,8 +188,5 @@ if __name__ == "__main__":
     
     print(f"\nResolution 1080x1920 valid: {checker.validate_resolution(1080, 1920)}")
     print(f"Resolution 720x1280 valid: {checker.validate_resolution(720, 1280)}")
-    
-    print(f"\nFile size 50MB valid: {checker.validate_file_size(50)}")
-    print(f"File size 150MB valid: {checker.validate_file_size(150)}")
     
     print("\nQuality Checker Test Complete!")

@@ -7,24 +7,6 @@ logger = logging.getLogger(__name__)
 
 from core.project_info import PROJECT
 
-# PILLAR 1 · additive optional schema fields. Legacy entries may omit them
-# entirely; every consumer must treat absence as "use legacy behaviour".
-OPTIONAL_SCHEMA_FIELDS = (
-    'transliteration',    # roman pronunciation line (EndCard/kicker slot)
-    'reference_source',   # e.g. 'Sahih Bukhari' | 'Quran'
-    'reference_no',       # e.g. 375 | '2:152' (number or surah:ayah string)
-)
-
-# PILLAR 1 · expanded taxonomy ids. Legacy 8 category ids remain fully valid.
-TAXONOMY_V2 = (
-    'protection', 'rizq', 'forgiveness', 'morning_evening', 'guidance',
-    'health', 'anxiety_relief', 'gratitude', 'family', 'occasions',
-)
-LEGACY_CATEGORIES = (
-    'bathroom', 'sleep', 'food', 'travel', 'prayer', 'morning', 'evening',
-    'general',
-)
-
 
 class DuaDatabase:
     """
@@ -114,64 +96,6 @@ class DuaDatabase:
         """Returns the list of all categories."""
         return self.categories
 
-    def get_dua_summary(self) -> str:
-        """
-        Returns a human-readable summary of loaded data.
-        Useful for CLI menus.
-        """
-        lines = [
-            "=" * 50,
-            "DUA DATABASE SUMMARY",
-            "=" * 50,
-            f"Total Duas      : {len(self.duas)}",
-            f"Total Categories: {len(self.categories)}",
-            "\nCategories & Counts:"
-        ]
-        
-        for cat in self.categories:
-            cat_id = cat.get('id', 'unknown')
-            count = len(self.get_duas_by_category(cat_id))
-            cat_name = cat.get('name', cat_id)
-            lines.append(f"  - {cat_name}: {count} duas")
-        
-        lines.append("=" * 50)
-        return "\n".join(lines)
-
-    def test(self):
-        """Runs a comprehensive test of the database."""
-        print("Testing Dua Database...")
-        
-        # 1. Check loaded counts
-        print(f"Loaded {len(self.duas)} duas and {len(self.categories)} categories.")
-        
-        # 2. Print summary
-        print(self.get_dua_summary())
-        
-        # 3. Test get_by_id
-        if self.duas:
-            first_dua = self.duas[0]
-            dua_id = first_dua.get('id')
-            if dua_id:
-                found = self.get_dua_by_id(dua_id)
-                if found:
-                    print(f"  [OK] get_dua_by_id('{dua_id}') -> Found")
-                else:
-                    print(f"  [FAIL] get_dua_by_id('{dua_id}') -> Not Found")
-        
-        # 4. Test category filter
-        if self.categories:
-            first_cat_id = self.categories[0].get('id')
-            if first_cat_id:
-                filtered = self.get_duas_by_category(first_cat_id)
-                print(f"  [OK] get_duas_by_category('{first_cat_id}') -> {len(filtered)} duas found")
-        
-        # 5. Verify path integrity
-        print(f"  [INFO] Data directory: {self.data_dir}")
-        print("  [OK] Test complete.")
-
 
 # Create a singleton instance for easy import
 DB = DuaDatabase()
-
-if __name__ == "__main__":
-    DB.test()

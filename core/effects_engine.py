@@ -4,7 +4,6 @@ Effects Engine Module
 """
 
 import logging
-import os
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageFont
@@ -326,10 +325,6 @@ class EffectsEngine:
         
         return result
     
-    def get_available_effects(self) -> List[str]:
-        """Get list of available effects."""
-        return list(self.effects.keys())
-
     def apply_to_frames(self, frames: List[Image.Image],
                         effect_name: str = "neon_glow") -> List[Image.Image]:
         """
@@ -809,7 +804,7 @@ if __name__ == "__main__":
     draw.text((50, 80), "Test Text", fill=(255, 215, 0, 255))
     
     # Test each effect
-    effects = engine.get_available_effects()
+    effects = ['neon_glow', 'metallic_gold', 'typewriter', 'bounce', 'wave', 'glitch']
     
     for effect_name in effects:
         print(f"\nTesting effect: {effect_name}")

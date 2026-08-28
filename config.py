@@ -147,18 +147,6 @@ THEMES = {
 DEFAULT_THEME = "dark"
 
 # ============================================================
-# ANIMATION SETTINGS
-# ============================================================
-ANIMATION = {
-    "fade_in": True,
-    "fade_duration": 1.5,  # seconds
-    "easing": "ease_out",  # ease_out, ease_in, ease_in_out
-    "bounce_emoji": True,
-    "bounce_speed": 3.0,
-    "bounce_height": 8
-}
-
-# ============================================================
 # DUA DATABASE SETTINGS
 # ============================================================
 DUA_DATABASE = os.path.join(DATA_DIR, "duas.json")

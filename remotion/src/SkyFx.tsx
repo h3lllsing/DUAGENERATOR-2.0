@@ -13,8 +13,6 @@ const mulberry32 = (a: number) => () => {
   return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 };
 
-const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
-
 // ---- RAIN: tez jhukti baarish ki lakeeren ----
 const Rain: React.FC<{seed: number; heavy: boolean}> = ({seed, heavy}) => {
   const frame = useCurrentFrame();
@@ -294,10 +292,6 @@ const Petals: React.FC<{seed: number}> = ({seed}) => {
     </AbsoluteFill>
   );
 };
-
-export type SkyFxId =
-  | 'none' | 'rain' | 'storm' | 'snow' | 'fog'
-  | 'smoke' | 'fireflies' | 'petals';
 
 export const SkyFxLayer: React.FC<{
   fx?: string;

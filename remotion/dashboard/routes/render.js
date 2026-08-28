@@ -844,23 +844,8 @@ module.exports = function renderRoutes(deps) {
       return true;
     }
 
-    // ── POST /api/open ──
-    if (method === 'POST' && p === '/api/open') {
-      readBody(req, res, (body) => {
-        try {
-          const name = decodeURIComponent(JSON.parse(body));
-          const file = path.join(OUT, path.basename(name));
-          if (!fs.existsSync(file)) return send(res, 404, JSON.stringify({ok: false}));
-          spawn('explorer', [file]);
-          send(res, 200, JSON.stringify({ok: true}));
-        } catch (e) { send(res, 400, JSON.stringify({ok: false})); }
-      });
-      return true;
-    }
-
     return false; // not handled
   };
   handler.duaStatus = duaStatus;
-  handler.safeTitle = safeTitle;
   return handler;
 };

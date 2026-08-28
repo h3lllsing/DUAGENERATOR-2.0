@@ -18,7 +18,6 @@ the glyphs left->right (HarfBuzz already emits them in visual order).
 
 import os
 import sys
-import zlib
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

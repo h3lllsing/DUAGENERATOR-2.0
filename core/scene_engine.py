@@ -200,9 +200,6 @@ class MotionSpec:
         y0 = min(max(0, y0), bg_h - h)
         return (x0, y0, x0 + w, y0 + h)
 
-    def key(self) -> str:
-        return self.kind
-
 
 @dataclass
 class TextLayer:

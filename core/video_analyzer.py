@@ -414,43 +414,6 @@ class VideoAnalyzer:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(style, f, indent=2, ensure_ascii=False)
     
-    def load_style(self, style_name: str) -> Dict:
-        """
-        Load learned style from file.
-        
-        Args:
-            style_name: Name of the style
-            
-        Returns:
-            Style dictionary
-        """
-        file_path = os.path.join(self.learned_dir, f"{style_name}_style.json")
-        
-        if not os.path.exists(file_path):
-            return None
-        
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    
-    def get_all_styles(self) -> List[Dict]:
-        """
-        Get all learned styles.
-        
-        Returns:
-            List of style dictionaries
-        """
-        styles = []
-        
-        if os.path.exists(self.learned_dir):
-            for file in os.listdir(self.learned_dir):
-                if file.endswith("_style.json"):
-                    style_name = file.replace("_style.json", "")
-                    style = self.load_style(style_name)
-                    if style:
-                        styles.append({"name": style_name, "style": style})
-        
-        return styles
-    
     def create_master_patterns(self, styles: List[Dict]) -> Dict:
         """
         Create master patterns from multiple styles.
@@ -506,16 +469,6 @@ class VideoAnalyzer:
         
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(patterns, f, indent=2, ensure_ascii=False)
-    
-    def load_master_patterns(self) -> Dict:
-        """Load master patterns from file."""
-        file_path = os.path.join(self.learned_dir, "master_patterns.json")
-        
-        if not os.path.exists(file_path):
-            return None
-        
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
 
 
 # Test function

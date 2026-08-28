@@ -8,7 +8,6 @@ import type {WordTiming} from './types';
 //   blurin     = aane wale lafz dhundhlay, bolte waqt sharp hote hain
 //   typewriter = lafz ek-ek karke appear + blinking caret
 //   popwave    = active lafz bada spring-pop, pichhle par halki wave
-export const TEXT_FX_IDS = ['glide', 'blurin', 'typewriter', 'popwave'];
 
 export const KaraokeText: React.FC<{
   words: WordTiming[];

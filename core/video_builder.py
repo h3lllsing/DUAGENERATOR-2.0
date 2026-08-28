@@ -7,7 +7,7 @@ from PIL import Image
 
 import imageio
 import imageio_ffmpeg
-from moviepy import VideoFileClip, AudioFileClip, CompositeVideoClip
+from moviepy import VideoFileClip, AudioFileClip
 
 logger = logging.getLogger(__name__)
 
@@ -236,48 +236,3 @@ class VideoBuilder:
             import traceback
             traceback.print_exc()
             return False
-
-    def test(self):
-        """
-        Full integration test: Creates a dummy video (1 second) with a test frame,
-        and attempts to mix it with the previously generated TTS audio.
-        """
-        print("Testing Video Builder (Full Pipeline)...")
-        os.makedirs("temp", exist_ok=True)
-        
-        # 1. Create a dummy frame (1080x1920 dark background with some text)
-        test_img = Image.new('RGB', (1080, 1920), color=(20, 25, 35))
-        from PIL import ImageDraw, ImageFont
-        draw = ImageDraw.Draw(test_img)
-        try:
-            font_path = os.path.join("assets", "fonts", "NotoNaskhArabic-Regular.ttf")
-            if os.path.exists(font_path):
-                font = ImageFont.truetype(font_path, 100)
-            else:
-                font = ImageFont.load_default()
-            draw.text((540, 960), "Test Video", font=font, fill=(255, 215, 0), anchor="mm")
-        except Exception:
-            logger.debug("Font load skipped, using default")
-            pass
-        
-        frames = [test_img] * 60  # 1 second at 60fps
-        
-        # 2. Paths
-        video_path = "temp/test_video.mp4"
-        audio_path = "temp/test_ar.mp3"  # Arabic test audio from TASK 2
-        
-        # 3. Build video
-        success = self.build_video(frames, video_path, audio_path)
-        
-        if success and os.path.exists(video_path):
-            size = os.path.getsize(video_path) / 1024
-            print(f"[PASS] Test Video generated successfully: temp/test_video.mp4 ({size:.1f} KB)")
-        else:
-            print("[FAIL] Test Video generation failed.")
-        
-        return success
-
-
-if __name__ == "__main__":
-    builder = VideoBuilder()
-    builder.test()

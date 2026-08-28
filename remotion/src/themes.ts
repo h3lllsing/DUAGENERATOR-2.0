@@ -258,8 +258,6 @@ export const THEMES: Record<string, Theme> = {
   },
 };
 
-export const THEME_IDS = Object.keys(THEMES);
-
 export const getTheme = (id?: string): Theme =>
   (id && THEMES[id]) || THEMES.dark;
 

@@ -206,15 +206,6 @@ module.exports = function duaRoutes(deps) {
       return true;
     }
 
-    // ── POST /api/duplicate-dua ──
-    if (method === 'POST' && p === '/api/duplicate-dua') {
-      readBody(req, res, () => {
-        send(res, 403, JSON.stringify({ok: false,
-          error: 'Duplicate feature band kar di gayi hai'}));
-      });
-      return true;
-    }
-
     // ── GET /api/ai-config ──
     if (method === 'GET' && p === '/api/ai-config') {
       const cfgPath = path.join(DATA, 'ai_api_config.json');

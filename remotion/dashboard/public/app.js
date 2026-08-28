@@ -615,7 +615,7 @@ function openSettings(){
     document.getElementById('s_sky').value=c.skyFx||'auto';
     document.getElementById('s_border').value=c.borderFx||'auto';
   });
-  setMsg2('','');
+  setStatusMsg('','');
   document.getElementById('setbg').classList.add('show');
   _pushModal('settings');
   ytRefresh();
@@ -792,12 +792,12 @@ window.addEventListener('load', function(){
     }
   } catch(e){}
 });
-function setMsg2(t,c){ const m=document.getElementById('setmsg'); m.textContent=t; m.className='formmsg '+c; }
+function setStatusMsg(t,c){ const m=document.getElementById('setmsg'); m.textContent=t; m.className='formmsg '+c; }
 async function saveSettings(){
   const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channelName:document.getElementById('s_name').value,handle:document.getElementById('s_handle').value,stylePreset:document.getElementById('s_style').value,lookMode:((document.querySelector('input[name=s_look]:checked')||{}).value||'random'),artFx:document.getElementById('s_art').value,skyFx:document.getElementById('s_sky').value,borderFx:document.getElementById('s_border').value})});
   const j=await r.json();
-  if(j.ok){setMsg2('\u2705 Save ho gaya! Agla render in settings se banega.','ok');}
-  else setMsg2('Save fail hua','err');
+  if(j.ok){setStatusMsg('\u2705 Save ho gaya! Agla render in settings se banega.','ok');}
+  else setStatusMsg('Save fail hua','err');
 }
 async function aiMetaPrompt(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
@@ -940,35 +940,6 @@ function applyDua(o){
   _pushModal('form');
   const wc=(String(o.urdu||'').trim().match(/\\S+/g)||[]).length;
   toast('\u2728 Form bhar diya ('+wc+' words) - check karke SAVE dabao','ok');
-}
-function editDua(id){
-  const d=duas.find(x=>x.id===id); if(!d)return;
-  editingId=id;
-  document.getElementById('modaltitle').textContent='\u270F\uFE0F Edit: '+d.title;
-  document.getElementById('f_title').value=d.title||'';
-  document.getElementById('f_arabic').value=d.arabic||'';
-  document.getElementById('f_urdu').value=d.urdu||'';
-  document.getElementById('f_ref').value=d.reference||'';
-  document.getElementById('f_cat').value=d.category||'general';
-  document.getElementById('f_bis').checked=d.bismillah!==false;
-  setThemeSel(d.template&&THEME_LABEL[d.template]?d.template:'dark');
-  const vp=document.getElementById('f_vpair');
-  vp.value=(d.voiceArabic==='ar-SA-ZariyahNeural')?'Zariyah + Uzma':'Hamed + Asad';
-  setMsg('','');
-  document.getElementById('modalbg').classList.add('show');
-  _pushModal('form');
-}
-async function copyText(id){
-  const d=duas.find(x=>x.id===id); if(!d)return;
-  const txt=[d.title,'','Arabic:',d.arabic||'','','Urdu:',d.urdu||'','','Reference: '+(d.reference||'-')].join('\n');
-  try{await navigator.clipboard.writeText(txt);toast('\uD83D\uDCCB Text clipboard pe copy ho gaya','ok');}
-  catch(e){toast('Copy fail hua','err');}
-}
-async function dupDua(id){
-  const r=await fetch('/api/duplicate-dua',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-  const j=await r.json();
-  if(j.ok){toast('\u29C9 Duplicate bana: '+j.id,'ok'); lastGridKey=''; load();}
-  else toast(j.error||'Duplicate fail','err');
 }
 async function delDua(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
