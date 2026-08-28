@@ -26,9 +26,10 @@ try:
 except (AttributeError, ValueError):
     pass
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TOKEN_PATH = os.path.join(PROJECT, "data", "yt_token.json")
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
+           "https://www.googleapis.com/auth/youtube.readonly"]
 
 
 def set_token_path(path):
@@ -90,6 +91,9 @@ def get_credentials():
         print("  pip install google-auth-oauthlib google-api-python-client")
         return None
     data = load_token()
+    if data and set(SCOPES) - set(data.get("scopes", [])):
+        print("WARN token missing scopes:", list(set(SCOPES) - set(data.get("scopes", []))))
+        print("  Re-login needed for full access (portal se AUTH karo)")
     cred = Credentials(**{k: data[k] for k in
                           ("token", "refresh_token", "token_uri",
                            "client_id", "client_secret")}) if data else None

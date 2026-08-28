@@ -7,7 +7,7 @@ import os
 import re
 import sys
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(PROJECT)
 sys.path.append(os.path.join(PROJECT, "remotion", "scripts"))
 

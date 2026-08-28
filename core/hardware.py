@@ -13,15 +13,18 @@ Backends (auto-selected):
 Nothing here is ever imported from the frozen render modules.
 """
 
+import logging
 import os
-import sys
 import multiprocessing as mp
+
+logger = logging.getLogger(__name__)
 
 
 def detect_cpu_cores() -> int:
     try:
         n = mp.cpu_count()
     except Exception:
+        logger.debug("mp.cpu_count() failed, defaulting to 1")
         n = 1
     return max(1, int(n or 1))
 
@@ -47,6 +50,7 @@ def detect_gpu() -> dict:
                 info["available"] = True
                 return info
     except Exception:
+        logger.debug("PyOpenCL not available")
         pass
 
     # 2) OpenCV CUDA build (very rare on pip wheels, try anyway).
@@ -60,6 +64,7 @@ def detect_gpu() -> dict:
                 info["available"] = True
                 return info
     except Exception:
+        logger.debug("OpenCV CUDA not available")
         pass
 
     # 3) Windows WMI (report only, no compute).
@@ -81,6 +86,7 @@ def detect_gpu() -> dict:
                 # WMI gives us a GPU name but no compute access.
                 return info
         except Exception:
+            logger.debug("WMI GPU query failed")
             pass
     return info
 
@@ -95,6 +101,7 @@ def pick_backend(frames_total: int = 0) -> str:
         import pyopencl as cl  # noqa: F401
         return "opencl_gpu"
     except Exception:
+        logger.debug("pyopencl import check failed")
         pass
 
     # CPU parallel only helps for very long, heavy renders.
@@ -181,6 +188,7 @@ def gaussian_blur(mask, sigma: float, kernel=None):
             cl.enqueue_copy(queue, res_arr, o_buf)
             return res_arr.astype(mask.dtype)
     except Exception:
+        logger.debug("OpenCL GPU blur failed, falling back to CPU")
         pass
     import cv2
     return cv2.GaussianBlur(mask, (0, 0), sigma)

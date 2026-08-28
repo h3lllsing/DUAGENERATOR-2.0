@@ -19,7 +19,7 @@ import sys
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8",
                               errors="replace")
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 CFG_PATH = os.path.join(PROJECT, "remotion", "dashboard", "config.json")
 
 MAX_TITLE = 95

@@ -210,6 +210,91 @@ module.exports = function duaRoutes(deps) {
       return true;
     }
 
+    // ── GET /api/ai-config ──
+    if (method === 'GET' && p === '/api/ai-config') {
+      const cfgPath = path.join(DATA, 'ai_api_config.json');
+      try {
+        const raw = fs.readFileSync(cfgPath, 'utf8').replace(/^\uFEFF/, '');
+        const cfg = JSON.parse(raw);
+        send(res, 200, JSON.stringify({ok: true, config: cfg}));
+      } catch (_) {
+        send(res, 200, JSON.stringify({ok: true, config: null}));
+      }
+      return true;
+    }
+
+    // ── POST /api/ai-config (save base_url + api_keys + models) ──
+    if (method === 'POST' && p === '/api/ai-config') {
+      readBody(req, res, (body) => {
+        try {
+          const cfg = JSON.parse(body || '{}');
+          const cleaned = {
+            base_url: String(cfg.base_url || 'https://aihubmix.com/v1').trim(),
+            api_keys: (Array.isArray(cfg.api_keys) ? cfg.api_keys : [])
+              .map((k) => String(k || '').trim()).filter(Boolean),
+            models: (Array.isArray(cfg.models) ? cfg.models : [])
+              .map((m) => String(m || '').trim()).filter(Boolean),
+          };
+          if (!cleaned.api_keys.length) {
+            send(res, 400, JSON.stringify({ok: false, error: 'Kam se kam 1 API key chahiye'}));
+            return;
+          }
+          if (!cleaned.models.length) {
+            cleaned.models = ['minimax-m3-free', 'gemini-3.7-flash-free'];
+          }
+          fs.writeFileSync(path.join(DATA, 'ai_api_config.json'),
+            JSON.stringify(cleaned, null, 2), 'utf8');
+          send(res, 200, JSON.stringify({ok: true, config: cleaned}));
+        } catch (e) {
+          send(res, 400, JSON.stringify({ok: false, error: String(e.message || e)}));
+        }
+      });
+      return true;
+    }
+
+    // ── POST /api/ai-import ──
+    if (method === 'POST' && p === '/api/ai-import') {
+      readBody(req, res, (body) => {
+        try {
+          const f = JSON.parse(body || '{}');
+          const count = Math.min(Math.max(parseInt(f.count, 10) || 5, 1), 10);
+          const category = String(f.category || 'general').trim();
+          const topic = String(f.topic || '').trim();
+          const args = [path.join('scripts', 'ai_import.py'),
+            '--count', String(count),
+            '--category', category];
+          if (topic) args.push('--topic', topic);
+          const {spawn} = require('child_process');
+          const py = spawn(process.env.PYTHON || 'python', args,
+            {cwd: REMOTION, windowsHide: true});
+          let out = '';
+          let err = '';
+          py.stdout.on('data', (d) => { out += d.toString(); });
+          py.stderr.on('data', (d) => { err += d.toString(); });
+          py.on('close', (code) => {
+            try {
+              const last = out.trim().split(/\r?\n/).pop() || '{}';
+              const result = JSON.parse(last);
+              send(res, 200, JSON.stringify(result));
+            } catch (e) {
+              send(res, code === 0 ? 200 : 500, JSON.stringify({
+                ok: code === 0,
+                added: 0,
+                error: err.slice(0, 500) || 'parse error',
+                output: out.slice(-500),
+              }));
+            }
+          });
+          py.on('error', (e) => {
+            send(res, 500, JSON.stringify({ok: false, error: String(e.message)}));
+          });
+        } catch (e) {
+          send(res, 400, JSON.stringify({ok: false, error: 'bad request'}));
+        }
+      });
+      return true;
+    }
+
     return false; // not handled
   };
 };

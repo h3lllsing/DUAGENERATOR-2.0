@@ -34,17 +34,16 @@ Duration: the renderer fills exactly the caller-supplied final duration
 No packages are installed; no external images are downloaded.
 """
 
+import logging
 import os
 import random
-import sys
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logger = logging.getLogger(__name__)
 
 from core.project_info import PROJECT
 from core.arabic_renderer import (ArabicRenderer, _is_arabic,
@@ -64,7 +63,7 @@ except Exception:
 # ----------------------------------------------------------------------
 CANVAS_WIDTH = 1080
 CANVAS_HEIGHT = 1920
-DEFAULT_FPS = 24
+DEFAULT_FPS = 80
 
 # Formal content safe rectangle (x0, y0, x1, y1). Critical Arabic/Urdu/title
 # text must ALWAYS lie fully inside this rectangle.

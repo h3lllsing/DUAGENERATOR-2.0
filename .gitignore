@@ -58,5 +58,14 @@ fx_proof/
 data/gemini_api_key.txt
 security/
 
+# --- Runtime secrets (never commit) ---
+remotion/dashboard/auth.json
+data/ai_api_config.json
+remotion/src/data/ai_api_config.json
+
+# --- Downloaded background media (regenerate via download_backgrounds.py) ---
+assets/backgrounds/images/
+assets/backgrounds/videos/
+
 # --- Tools (NSSM binary) ---
 tools/

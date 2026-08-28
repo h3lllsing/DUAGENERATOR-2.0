@@ -3,13 +3,12 @@ Revamp Engine Module
 Unlimited video revamp with effect/color/timing rotation
 """
 
+import logging
 import os
-import sys
 import json
 from typing import Dict, List, Tuple
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logger = logging.getLogger(__name__)
 
 from core.project_info import PROJECT
 

@@ -59,7 +59,7 @@ module.exports = function renderRoutes(deps) {
   function run(cmd, args, opts) {
     return new Promise((resolve) => {
       log('$ ' + path.basename(cmd) + ' ' + args.join(' ').slice(0, 300));
-      const p = spawn(cmd, args, Object.assign({cwd: REMOTION}, opts));
+      const p = spawn(cmd, args, Object.assign({cwd: REMOTION, windowsHide: true}, opts));
       if (job) job.child = p;
       let buf = '';
       const pump = (d) => {
@@ -81,7 +81,7 @@ module.exports = function renderRoutes(deps) {
   async function runQuiet(cmd, args) {
     return new Promise((resolve) => {
       log('$ ' + path.basename(cmd) + ' ' + args.join(' ').slice(0, 300));
-      const p = spawn(cmd, args, {cwd: REMOTION});
+      const p = spawn(cmd, args, {cwd: REMOTION, windowsHide: true});
       let buf = '';
       const pump = (d) => {
         buf += d.toString();
@@ -98,7 +98,7 @@ module.exports = function renderRoutes(deps) {
 
   async function runCapture(cmd, args) {
     return new Promise((resolve, reject) => {
-      const p = spawn(cmd, args, {cwd: REMOTION});
+      const p = spawn(cmd, args, {cwd: REMOTION, windowsHide: true});
       let out = '';
       p.stdout.on('data', (d) => out += d.toString());
       p.stderr.on('data', () => {});
@@ -204,7 +204,7 @@ module.exports = function renderRoutes(deps) {
         '--crf=15', '--jpeg-quality=100', '--log=error',
         ...stylePropsArgs(duaId)];
       log('$ node remotion-cli ' + args.join(' '));
-      const p = spawn(process.execPath, [cli, ...args], {cwd: REMOTION});
+      const p = spawn(process.execPath, [cli, ...args], {cwd: REMOTION, windowsHide: true});
       if (job) job.child = p;
       let buf = '';
       const handle = (d) => {
@@ -233,7 +233,7 @@ module.exports = function renderRoutes(deps) {
       const p = spawn(FFMPEG, ['-y', '-i', vidPath,
         '-c', 'copy',
         '-bsf:v', 'h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1',
-        '-movflags', '+faststart', tmp], {cwd: REMOTION});
+        '-movflags', '+faststart', tmp], {cwd: REMOTION, windowsHide: true});
       let err = '';
       p.stderr.on('data', (d) => { err += d.toString(); });
       p.on('close', (code) => {
@@ -659,6 +659,10 @@ module.exports = function renderRoutes(deps) {
           const a = String(f.arabic || '').trim();
           const u = String(f.urdu || '').trim();
           if (!a && !u) return send(res, 400, JSON.stringify({ok: false, error: 'Arabic ya Urdu text do'}));
+          if (a.length > 5000) return send(res, 400, JSON.stringify({ok: false,
+            error: 'Arabic text bahut lamba hai (max 5000 chars)'}));
+          if (u.length > 5000) return send(res, 400, JSON.stringify({ok: false,
+            error: 'Urdu text bahut lamba hai (max 5000 chars)'}));
           const name = /^[a-z0-9_]{1,60}$/.test(String(f.name || '')) ? String(f.name) : 'custom_' + Date.now();
           const cdir = path.join(TEMP, 'custom');
           fs.mkdirSync(cdir, {recursive: true});
@@ -820,7 +824,12 @@ module.exports = function renderRoutes(deps) {
       readBody(req, res, (body) => {
         try {
           const {duaId, force} = JSON.parse(body);
-          const result = startJob(String(duaId), !!force);
+          const id = String(duaId || '').trim();
+          if (!id || !/^[a-z0-9_\-]{1,80}$/.test(id)) {
+            return send(res, 400, JSON.stringify({ok: false,
+              error: 'duaId invalid format (a-z 0-9 _ - max 80)'}));
+          }
+          const result = startJob(id, !!force);
           send(res, 200, JSON.stringify(result));
         } catch (e) { send(res, 400, JSON.stringify({ok: false, error: 'bad request'})); }
       });

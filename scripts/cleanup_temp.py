@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "remotion", "scripts"))
 from upload import safe_title  # same naming logic as the uploader
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMP = os.path.join(PROJECT, "temp")
 OUT = os.path.join(PROJECT, "remotion", "out")
 DB = os.path.join(PROJECT, "data", "duas.json")

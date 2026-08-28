@@ -28,7 +28,7 @@ TESTS_DIR = os.path.join(BASE_DIR, "tests")
 # ============================================================
 VIDEO_WIDTH = 1080
 VIDEO_HEIGHT = 1920
-VIDEO_FPS = 24
+VIDEO_FPS = 80  # Smooth playback for YouTube Shorts
 VIDEO_DURATION = 18  # seconds (15-20 range)
 
 # VIDEO-002: Product duration specification for YouTube Shorts.
@@ -39,7 +39,21 @@ VIDEO_DURATION = 18  # seconds (15-20 range)
 VIDEO_MIN_DURATION = 15  # seconds
 VIDEO_MAX_DURATION = 50  # seconds
 VIDEO_CODEC = "libx264"
-VIDEO_QUALITY = 8  # imageio quality (1-10)
+VIDEO_QUALITY = 9  # imageio quality (1-10) — max quality
+
+# FFmpeg encoding presets (Phase 2: Video Quality)
+FFMPEG_CRF = 15          # Near-lossless (0=lossless, 15=visually transparent)
+FFMPEG_PRESET = "slow"   # Better compression at same quality (5% smaller files)
+FFMPEG_PROFILE = "high"  # Best compression efficiency (YouTube recommended)
+FFMPEG_LEVEL = "4.1"     # Max for 1080p@60fps
+FFMPEG_GOP = 30          # Half of 60fps — better seeking
+FFMPEG_MOVFLAGS = "+faststart"  # moov atom at front for web streaming
+FFMPEG_PIX_FMT = "yuv420p"     # Maximum compatibility
+
+# Post-processing filters
+FFMPEG_SHARPEN = True         # Unsharp mask for crisp text
+FFMPEG_COLOR_GRADE = True     # Slight saturation boost
+FFMPEG_LOUDNESS = True        # -14 LUFS (YouTube standard)
 
 # ============================================================
 # AUDIO SETTINGS (edge-tts)

@@ -3,13 +3,17 @@ Quality Checker Module
 Video quality validation for YouTube Shorts
 """
 
+import logging
 import os
 import cv2
 from typing import Dict, List
 
+logger = logging.getLogger(__name__)
+
 try:
     import config as _config
 except Exception:
+    logger.debug("config not available for quality checker")
     _config = None
 
 
@@ -21,13 +25,13 @@ class QualityChecker:
 
     # Float tolerance for boundary checks (e.g. 14.99 must fail, 15.00 must pass)
     EPS = 1e-6
-    # FPS is written as exactly 24 by the pipeline; this only absorbs binary
-    # float representation noise (23.98/24.04 from other tools still FAIL).
+    # FPS is written as exactly 60 by the pipeline; this only absorbs binary
+    # float representation noise (59.98/60.04 from other tools still FAIL).
     FPS_EPS = 1e-4
 
     def __init__(self):
         """Initialize quality checker."""
-        # VIDEO-002: 15-50 second product window, exactly 24 FPS.
+        # VIDEO-002: 15-50 second product window, exactly 60 FPS.
         # Values come from config.py (single source of truth) with safe fallbacks.
         self.min_duration = float(getattr(_config, "VIDEO_MIN_DURATION", 15))
         self.max_duration = float(getattr(_config, "VIDEO_MAX_DURATION", 50))
@@ -115,7 +119,7 @@ class QualityChecker:
                     f"File size: {file_size_mb:.1f}MB (must be under {self.max_file_size_mb}MB)"
                 )
             
-            # Check FPS (VIDEO-002: exactly 24, container-rounding tolerant)
+            # Check FPS (VIDEO-002: exactly 60, container-rounding tolerant)
             if abs(fps - self.required_fps) <= self.FPS_EPS:
                 results["passed"].append(f"FPS: {fps:.1f} (OK)")
             else:
@@ -147,7 +151,7 @@ class QualityChecker:
 
     def validate_fps(self, fps: float) -> bool:
         """
-        Validate video FPS is exactly 24 (VIDEO-002).
+        Validate video FPS is exactly 60 (VIDEO-002).
 
         Args:
             fps: Frames per second

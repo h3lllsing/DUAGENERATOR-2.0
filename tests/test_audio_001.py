@@ -262,10 +262,10 @@ class TestVideoBuilderMux:
 
     def _build(self, seconds, audio_seconds, out_name="mux.mp4"):
         frames = [Image.new("RGB", (1080, 1920), (20, 25, 35))
-                  for _ in range(int(seconds * 24))]
+                  for _ in range(int(seconds * 120))]
         audio = _sine_wav(_tmp("audio.wav"), audio_seconds)
         out = _tmp(out_name)
-        builder = VideoBuilder(fps=24, resolution=(1080, 1920))
+        builder = VideoBuilder(fps=120, resolution=(1080, 1920))
         assert builder.build_video(frames, out, audio_path=audio) is True
         return out
 
@@ -276,7 +276,7 @@ class TestVideoBuilderMux:
             info = _probe(out)
             assert info["video"] is not None
             assert info["video"][1] == "1080" and info["video"][2] == "1920"
-            assert abs(float(info["video"][3]) - 24.0) < 0.1
+            assert abs(float(info["video"][3]) - 120.0) < 0.1
             assert info["yuv420p"] is True
         finally:
             self._cleanup()

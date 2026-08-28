@@ -3,10 +3,13 @@ Security Module - AES-128-CBC Encryption (Fernet)
 All data encrypted at rest
 """
 
+import logging
 import os
 import json
 import base64
 import hmac
+
+logger = logging.getLogger(__name__)
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -293,6 +296,7 @@ class SecurityManager:
             self.cipher.decrypt(token.encode())
             return 'new'
         except Exception:
+            logger.debug("Current salt decrypt failed, trying legacy")
             pass
         # Try legacy salt
         try:
@@ -300,6 +304,7 @@ class SecurityManager:
             legacy_cipher.decrypt(token.encode())
             return 'legacy'
         except Exception:
+            logger.warning("Legacy salt decrypt also failed")
             pass
         salt_missing_now = not os.path.exists(self.salt_path)
         salt_was_regenerated = getattr(self, '_salt_regenerated', False)
@@ -327,7 +332,7 @@ class SecurityManager:
             with open(self.vault_path, 'r') as f:
                 legacy_token = f.read()
             if not self._is_valid_fernet_token(legacy_token):
-                print("[Security] Migration failed: vault token has invalid structure.")
+                logger.error("Migration failed: vault token has invalid structure.")
                 return False
             legacy_cipher = Fernet(self._derive_key_with_salt(password, LEGACY_SALT))
             plaintext_json = legacy_cipher.decrypt(legacy_token.encode()).decode()
@@ -335,7 +340,7 @@ class SecurityManager:
             # Re-encrypt under the current salt and verify in memory
             new_token = self.encrypt_dict(plaintext)
             if self.decrypt_dict(new_token) != plaintext:
-                print("[Security] Migration failed: re-encryption verification failed.")
+                logger.error("Migration failed: re-encryption verification failed.")
                 return False
             # Preserve the original bytes before touching the vault
             with open(backup_path, 'wb') as f:
@@ -345,17 +350,18 @@ class SecurityManager:
             # Post-write verification under the NEW salt
             loaded = self.load_vault()
             if loaded != plaintext:
-                print("[Security] Post-write verification failed; restoring backup.")
+                logger.error("Post-write verification failed; restoring backup.")
                 if os.path.exists(backup_path):
                     os.replace(backup_path, self.vault_path)
                 return False
             return True
         except Exception as e:
-            print(f"[Security] Migration failed: {e}")
+            logger.error(f"Migration failed: {e}")
             try:
                 if os.path.exists(self.vault_path + '.tmp'):
                     os.remove(self.vault_path + '.tmp')
             except Exception:
+                logger.debug("Tmp file cleanup skipped")
                 pass
             return False
     

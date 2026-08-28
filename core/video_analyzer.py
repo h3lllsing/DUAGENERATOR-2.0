@@ -3,12 +3,15 @@ Video Analyzer Module
 Scans sample videos to learn visual styles
 """
 
+import logging
 import os
 import json
 import cv2
 import numpy as np
 from typing import List, Dict, Tuple
 from collections import Counter
+
+logger = logging.getLogger(__name__)
 
 
 class VideoAnalyzer:
@@ -43,22 +46,22 @@ class VideoAnalyzer:
         video_files = self._get_video_files()
         
         if not video_files:
-            print("No sample videos found!")
-            print(f"Place your videos in: {self.samples_dir}")
+            logger.info("No sample videos found!")
+            logger.info("Place your videos in: %s", self.samples_dir)
             return []
         
-        print(f"\nFound {len(video_files)} sample videos:")
+        logger.info("Found %d sample videos:", len(video_files))
         for idx, video_file in enumerate(video_files, 1):
-            print(f"  {idx}. {video_file}")
+            logger.info("  %d. %s", idx, video_file)
         
-        print("\nScanning videos...")
+        logger.info("Scanning videos...")
         
         learned_styles = []
         
         for idx, video_file in enumerate(video_files, 1):
             video_path = os.path.join(self.samples_dir, video_file)
             
-            print(f"\n[{idx}/{len(video_files)}] Scanning {video_file}...")
+            logger.info("[%d/%d] Scanning %s...", idx, len(video_files), video_file)
             
             style = self.analyze_video(video_path)
             
@@ -70,17 +73,17 @@ class VideoAnalyzer:
                 style_name = os.path.splitext(video_file)[0]
                 self.save_style(style_name, style)
                 
-                print(f"  - Colors: {style['colors']['primary']}")
-                print(f"  - Effects: {style['effects']}")
-                print(f"  - Timing: {style['timing']['duration']:.1f}s")
-                print(f"  - Style saved!")
+                logger.info("  - Colors: %s", style['colors']['primary'])
+                logger.info("  - Effects: %s", style['effects'])
+                logger.info("  - Timing: %.1fs", style['timing']['duration'])
+                logger.info("  - Style saved!")
         
         # Create master patterns
         if learned_styles:
             master_patterns = self.create_master_patterns(learned_styles)
             self.save_master_patterns(master_patterns)
-            print(f"\nMaster patterns created!")
-            print(f"Total styles learned: {len(learned_styles)}")
+            logger.info("Master patterns created!")
+            logger.info("Total styles learned: %d", len(learned_styles))
         
         return learned_styles
     
@@ -96,14 +99,14 @@ class VideoAnalyzer:
         """
         # Check if file exists
         if not os.path.exists(video_path):
-            print(f"  Error: Video file not found: {video_path}")
+            logger.error("Video file not found: %s", video_path)
             return None
         
         # Open video
         cap = cv2.VideoCapture(video_path)
         
         if not cap.isOpened():
-            print(f"  Error: Could not open video: {video_path}")
+            logger.error("Could not open video: %s", video_path)
             return None
         
         # Get video properties
@@ -114,16 +117,16 @@ class VideoAnalyzer:
         
         duration = frame_count / fps if fps > 0 else 0
         
-        print(f"  - Duration: {duration:.1f}s")
-        print(f"  - Resolution: {width}x{height}")
-        print(f"  - FPS: {fps:.1f}")
+        logger.info("  - Duration: %.1fs", duration)
+        logger.info("  - Resolution: %dx%d", width, height)
+        logger.info("  - FPS: %.1f", fps)
         
         # Extract frames (1 per second)
         frames = self._extract_frames(cap, fps, frame_count)
         cap.release()
         
         if not frames:
-            print(f"  Error: Could not extract frames")
+            logger.error("Could not extract frames")
             return None
         
         # Analyze frames
@@ -256,7 +259,7 @@ class VideoAnalyzer:
             }
         
         except Exception as e:
-            print(f"  Warning: Color analysis failed: {e}")
+            logger.warning("Color analysis failed: %s", e)
             # Return default colors
             return {
                 "primary": [255, 215, 0],

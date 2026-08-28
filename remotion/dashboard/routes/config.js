@@ -68,6 +68,18 @@ module.exports = function configRoutes(deps) {
       return true;
     }
 
+    // ── GET /api/version ──
+    if (method === 'GET' && p === '/api/version') {
+      let ver = '0.10.0';
+      try {
+        const pkgPath = path.resolve(__dirname, '..', '..', '..', 'remotion', 'package.json');
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        ver = pkg.version || ver;
+      } catch (_) {}
+      return send(res, 200, JSON.stringify({ok: true, version: ver,
+        engine: 'dua-video-generator', uptime: process.uptime() | 0}));
+    }
+
     return false; // not handled
   };
 };

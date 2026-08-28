@@ -9,7 +9,7 @@ import os
 import subprocess
 import sys
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 PY = sys.executable
 SCRIPTS = os.path.join(PROJECT, "remotion", "scripts")
 

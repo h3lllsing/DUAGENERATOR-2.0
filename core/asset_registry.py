@@ -12,20 +12,20 @@ approval gate + selector for local background images.
 
 import hashlib
 import json
+import logging
 import os
 import random
-import sys
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logger = logging.getLogger(__name__)
 
 from core.project_info import PROJECT
 
 try:
     import config
 except Exception:
+    logger.debug("config not available for asset registry")
     config = None
 
 
@@ -37,6 +37,7 @@ ALLOWED_LICENSES = frozenset({
     "CC-BY-SA",
     "PUBLIC DOMAIN",
     "PROJECT-OWNED",
+    "PEXELS LICENSE",
 })
 
 

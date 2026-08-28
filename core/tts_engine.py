@@ -1,15 +1,17 @@
 import asyncio
 import json
+import logging
 import os
-import sys
 import time
 from typing import List, Optional, Tuple
 
-# Ensure project root is in path (taake relative imports baad mein kaam karein)
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import edge_tts
+try:
+    import edge_tts
+except ImportError:
+    edge_tts = None
 from moviepy import AudioFileClip  # Audio duration nikalne ke liye
+
+logger = logging.getLogger(__name__)
 
 
 class TTSEngine:
@@ -92,6 +94,9 @@ class TTSEngine:
         reason, audio generation falls back to plain synthesis so the audio is
         never lost because of optional metadata.
         """
+        if edge_tts is None:
+            logger.error("edge-tts not installed. Run: pip install edge-tts")
+            return False
         try:
             if timing_path:
                 try:
@@ -101,8 +106,8 @@ class TTSEngine:
                     await communicate.save(output_file, metadata_fname=timing_path)
                     return True
                 except Exception as e:
-                    print(f"[TTS] Word boundary capture failed ({e}); "
-                          "retrying without metadata.")
+                    logger.warning(f"Word boundary capture failed ({e}); "
+                                   "retrying without metadata.")
                     if timing_path and os.path.exists(timing_path):
                         try:
                             os.remove(timing_path)
@@ -113,7 +118,7 @@ class TTSEngine:
             await communicate.save(output_file)
             return True
         except Exception as e:
-            print(f"[TTS Error] {e}")
+            logger.error(f"{e}")
             return False
 
     @staticmethod
@@ -171,17 +176,17 @@ class TTSEngine:
                 # If we got here, generation failed
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
-                    print(f"[TTS] Attempt {attempt + 1} failed, retrying in {delay}s...")
+                    logger.info(f"Attempt {attempt + 1} failed, retrying in {delay}s...")
                     time.sleep(delay)
                     
             except Exception as e:
-                print(f"[TTS Generation Error] Attempt {attempt + 1}: {e}")
+                logger.error(f"Attempt {attempt + 1}: {e}")
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
-                    print(f"[TTS] Retrying in {delay}s...")
+                    logger.info(f"Retrying in {delay}s...")
                     time.sleep(delay)
         
-        print(f"[TTS] All {TTSEngine.MAX_RETRIES} attempts failed")
+        logger.error(f"All {TTSEngine.MAX_RETRIES} attempts failed")
         return False
 
     @staticmethod
@@ -224,7 +229,7 @@ class TTSEngine:
                         "end": round(offset_s + duration_s, 6),
                     })
         except Exception as e:
-            print(f"[TTS] Failed to parse word boundaries: {e}")
+            logger.error(f"Failed to parse word boundaries: {e}")
             return []
         return words
 
@@ -238,7 +243,7 @@ class TTSEngine:
             with AudioFileClip(file_path) as clip:
                 return clip.duration
         except Exception as e:
-            print(f"[Duration Error] {e}")
+            logger.error(f"Failed to get audio duration: {e}")
             return 0.0
 
     @staticmethod

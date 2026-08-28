@@ -7,7 +7,10 @@ is what separates premium motion from default tool output.
 All curves take p in [0,1] and return t in [0,1].
 """
 
+import logging
 import math
+
+logger = logging.getLogger(__name__)
 
 
 def linear(p):

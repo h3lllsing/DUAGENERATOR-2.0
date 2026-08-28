@@ -7,18 +7,42 @@ const os = require('os');
 const crypto = require('crypto');
 const {spawn} = require('child_process');
 
-const PROJECT = 'H:\\DuaVideoGenerator';
+const PROJECT = path.resolve(__dirname, '..', '..');
 const REMOTION = path.join(PROJECT, 'remotion');
 const TEMP = path.join(PROJECT, 'temp');
 const OUT = path.join(REMOTION, 'out');
 const DATA = path.join(REMOTION, 'src', 'data');
-const PY = path.join(os.homedir(), 'AppData', 'Local', 'Programs',
-  'Python', 'Python312', 'python.exe');
-const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const FFMPEG = path.join(REMOTION, 'node_modules', '@remotion',
-  'compositor-win32-x64-msvc', 'ffmpeg.exe');
+const PY = process.env.PYTHON || 'python';
+const CHROME = process.env.CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const FFMPEG = process.env.FFMPEG_PATH || path.join(REMOTION, 'node_modules',
+  '@remotion', 'compositor-win32-x64-msvc', 'ffmpeg.exe');
 const PORT = 7860;
 const CFG_PATH = path.join(__dirname, 'config.json');
+const AUTH_PATH = path.join(__dirname, 'auth.json');
+
+function loadOrCreateToken() {
+  try {
+    const data = JSON.parse(fs.readFileSync(AUTH_PATH, 'utf8'));
+    if (data.token && data.token.length >= 16) return data.token;
+  } catch (_) {}
+  const token = crypto.randomBytes(24).toString('hex');
+  try { writeAtomic(AUTH_PATH, JSON.stringify({token}, null, 2)); } catch (_) {}
+  return token;
+}
+const AUTH_TOKEN = loadOrCreateToken();
+
+const rateLimit = {map: {}, window: 2000, max: 30};
+function checkRateLimit(key) {
+  const now = Date.now();
+  const bucket = rateLimit.map[key];
+  if (!bucket || now - bucket.t > rateLimit.window) {
+    rateLimit.map[key] = {t: now, c: 1};
+    return true;
+  }
+  bucket.c++;
+  if (bucket.c > rateLimit.max) return false;
+  return true;
+}
 
 function send(res, code, body, type) {
   if (res.headersSent || res.writableEnded) return;
@@ -51,7 +75,8 @@ function saveQc() {
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
 let HTML_CACHE = '';
-try { HTML_CACHE = fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8'); } catch (_) {}
+try { HTML_CACHE = fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8')
+  .replace('<!--INJECT_AUTH-->', '<script>window.AUTH_TOKEN="' + AUTH_TOKEN + '";</script>'); } catch (_) {}
 
 const fxg = require('./fx-guardrails');
 const STYLE_PRESETS = fxg.STYLE_PRESETS || ['auto', 'classic', 'royal', 'minimal',
@@ -82,6 +107,14 @@ const duaHandler = require('./routes/duas')(Object.assign({}, deps, {
 }));
 const configHandler = require('./routes/config')(deps);
 
+function verifyAuth(req) {
+  const auth = req.headers.authorization || '';
+  if (auth.startsWith('Bearer ') && auth.slice(7) === AUTH_TOKEN) return true;
+  const url = new URL(req.url, 'http://localhost');
+  if (url.searchParams.get('token') === AUTH_TOKEN) return true;
+  return false;
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const origin = req.headers.origin || '';
@@ -89,12 +122,31 @@ const server = http.createServer((req, res) => {
       !/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/i.test(origin)) {
     return send(res, 403, JSON.stringify({ok: false, error: 'cross-origin blocked'}));
   }
+  if (url.pathname.startsWith('/api/') && !verifyAuth(req)) {
+    return send(res, 401, JSON.stringify({ok: false, error: 'unauthorized'}));
+  }
+  if (req.method === 'POST' && /^\/api\/(render|tts-custom|render-all)$/.test(url.pathname)) {
+    if (!checkRateLimit(url.pathname)) {
+      return send(res, 429, JSON.stringify({ok: false,
+        error: 'rate limit (30 requests per 2s)'}));
+    }
+  }
   if (ytHandler(req, url, res)) return;
   if (renderHandler(req, url, res)) return;
   if (duaHandler(req, url, res)) return;
   if (configHandler(req, url, res)) return;
   if (req.method === 'GET' && url.pathname === '/') {
-    return send(res, 200, HTML_CACHE, 'text/html; charset=utf-8');
+    const htmlHash = crypto.createHash('md5').update(HTML_CACHE).digest('hex').slice(0, 16);
+    const etag = '"' + htmlHash + '"';
+    if (req.headers['if-none-match'] === etag) {
+      return send(res, 304, '', 'text/html');
+    }
+    res.writeHead(200, {
+      'Content-Type': 'text/html; charset=utf-8',
+      'ETag': etag,
+      'Cache-Control': 'no-cache',
+    });
+    return res.end(HTML_CACHE);
   }
   const ext = path.extname(url.pathname);
   if (ext && ['.css', '.js', '.png', '.jpg', '.ico', '.svg', '.json'].includes(ext)) {

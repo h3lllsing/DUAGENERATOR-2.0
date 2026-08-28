@@ -3,9 +3,12 @@ Metadata Generator Module
 Auto-generates YouTube metadata (title, description, tags, hashtags)
 """
 
+import logging
 import os
 import json
 from typing import Dict, List
+
+logger = logging.getLogger(__name__)
 
 
 class MetadataGenerator:

@@ -3,15 +3,14 @@ Effects Engine Module
 6 Professional Visual Effects for Dua Videos
 """
 
+import logging
 import os
-import sys
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageFont
 from typing import List
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logger = logging.getLogger(__name__)
 
 from core.project_info import PROJECT
 
@@ -481,6 +480,7 @@ class EffectsEngine:
             from core.hardware import gaussian_blur
             m = gaussian_blur(mask, 8.0)
         except Exception:
+            logger.debug("gaussian_blur import failed, using cv2 fallback")
             m = cv2.GaussianBlur(mask, (0, 0), 8)
         glow = np.stack(
             [m * (tint[0] * intensity),

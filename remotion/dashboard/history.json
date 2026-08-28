@@ -1,5 +1,47 @@
 [
   {
+    "ts": "2026-08-26T12:48:47.107Z",
+    "duaId": "sehat_aur_afiyat_ki_dua",
+    "title": "Sehat Aur Afiyat Ki Dua",
+    "result": "PASS",
+    "look": "desertmirage / birds / rain / rosette / deco / t:popwave / c:driftbreathe / o:geostar"
+  },
+  {
+    "ts": "2026-08-26T12:34:45.619Z",
+    "duaId": "rizq_aur_afiyat_ki_dua",
+    "title": "Rizq Aur Afiyat Ki Dua",
+    "result": "FAIL",
+    "error": "render failed (exit 1)"
+  },
+  {
+    "ts": "2026-08-26T12:34:16.072Z",
+    "duaId": "sehat_aur_afiyat_ki_dua",
+    "title": "Sehat Aur Afiyat Ki Dua",
+    "result": "FAIL",
+    "error": "render failed (exit 1)"
+  },
+  {
+    "ts": "2026-08-26T12:18:22.270Z",
+    "duaId": "sehat_aur_afiyat_ki_dua",
+    "title": "Sehat Aur Afiyat Ki Dua",
+    "result": "FAIL",
+    "error": "prepare failed (exit 3221225786)"
+  },
+  {
+    "ts": "2026-08-26T12:06:55.479Z",
+    "duaId": "sleep_dua",
+    "title": "Sone Ki Dua",
+    "result": "PASS",
+    "look": "volumetric / flags / snow / sitare / deco / t:typewriter / m:tasbih / g:coolnight / c:kenburns / o:lanternjhumka"
+  },
+  {
+    "ts": "2026-08-26T12:02:53.012Z",
+    "duaId": "sleep_dua",
+    "title": "Sone Ki Dua",
+    "result": "FAIL",
+    "error": "render failed (exit 1)"
+  },
+  {
     "ts": "2026-08-24T10:37:15.799Z",
     "duaId": "la_hawla_kanz",
     "title": "Jannat Ka Khazana Zikr",

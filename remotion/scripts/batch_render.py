@@ -26,7 +26,7 @@ import time
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8",
                               errors="replace")
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 REMOTION = os.path.join(PROJECT, "remotion")
 OUT_DIR = os.path.join(REMOTION, "out")
 THUMB_DIR = os.path.join(OUT_DIR, "thumbs")

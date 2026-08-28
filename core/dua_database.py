@@ -1,10 +1,9 @@
+import logging
 import os
-import sys
 import json
 from typing import List, Dict, Optional, Any
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logger = logging.getLogger(__name__)
 
 from core.project_info import PROJECT
 
@@ -55,12 +54,12 @@ class DuaDatabase:
                     self.duas = data['duas']
                 else:
                     self.duas = data
-            print(f"[DuaDatabase] Loaded {len(self.duas)} duas from {self.duas_file}")
+            logger.info(f"Loaded {len(self.duas)} duas from {self.duas_file}")
         except FileNotFoundError:
-            print(f"[DuaDatabase] Warning: Duas file not found at {self.duas_file}")
+            logger.warning(f"Duas file not found at {self.duas_file}")
             self.duas = []
         except json.JSONDecodeError as e:
-            print(f"[DuaDatabase] Error: Invalid JSON in duas file: {e}")
+            logger.error(f"Invalid JSON in duas file: {e}")
             self.duas = []
         
         # Load Categories
@@ -72,12 +71,12 @@ class DuaDatabase:
                     self.categories = data['categories']
                 else:
                     self.categories = data
-            print(f"[DuaDatabase] Loaded {len(self.categories)} categories from {self.categories_file}")
+            logger.info(f"Loaded {len(self.categories)} categories from {self.categories_file}")
         except FileNotFoundError:
-            print(f"[DuaDatabase] Warning: Categories file not found at {self.categories_file}")
+            logger.warning(f"Categories file not found at {self.categories_file}")
             self.categories = []
         except json.JSONDecodeError as e:
-            print(f"[DuaDatabase] Error: Invalid JSON in categories file: {e}")
+            logger.error(f"Invalid JSON in categories file: {e}")
             self.categories = []
 
     def get_all_duas(self) -> List[Dict[str, Any]]:

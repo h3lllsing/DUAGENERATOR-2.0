@@ -15,6 +15,7 @@ module.exports = function ytRoutes(deps) {
     privacy: null, code: null, startedAt: null, finishedAt: null,
     videos: [], child: null};
   let ytLastUploadReq = 0;
+  let ytLastAuthReq = 0;
 
   // ── Auth job state ──
   let ytauth = {running: false, logs: [], channel: null, code: null,
@@ -83,7 +84,7 @@ module.exports = function ytRoutes(deps) {
 
   function ytCapture(args) {
     return new Promise((resolve) => {
-      const p = spawn(PY, args, {cwd: REMOTION});
+      const p = spawn(PY, args, {cwd: REMOTION, windowsHide: true});
       let out = '';
       p.stdout.on('data', (d) => out += d.toString());
       p.stderr.on('data', () => {});
@@ -92,6 +93,9 @@ module.exports = function ytRoutes(deps) {
     });
   }
 
+  const DAILY_UPLOAD_CAP = 10;  // max uploads per channel per day
+  const DAILY_QUOTA_CAP = 9000; // stay under 10K YouTube quota limit
+
   function ytStartUploadJob(opts) {
     if (ytJob.running) return {ok: false, error: 'Upload pehle se chal raha hai'};
     if (!opts.only || !opts.only.length) {
@@ -99,6 +103,31 @@ module.exports = function ytRoutes(deps) {
         error: 'selectedDuas required - pehle 1-6 duas choose karo'};
     }
     const ch = opts.channel;
+
+    // Quota gate: check daily cap
+    let quotaUnits = 0;
+    let dailyUploads = 0;
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      const q = JSON.parse(fs.readFileSync(ytQuotaPath(ch), 'utf8')
+        .replace(/^\uFEFF/, ''));
+      quotaUnits = parseInt(q[today], 10) || 0;
+    } catch (_) {}
+    try {
+      const ledger = ytReadLedger(ch);
+      dailyUploads = ledger.filter((e) =>
+        String(e.uploadedAt || '').startsWith(today)).length;
+    } catch (_) {}
+    if (dailyUploads + opts.only.length > DAILY_UPLOAD_CAP) {
+      return {ok: false, error:
+        `Daily upload cap reached (${dailyUploads}/${DAILY_UPLOAD_CAP}). ` +
+        `Tried to add ${opts.only.length} more. Try tomorrow.`};
+    }
+    if (quotaUnits >= DAILY_QUOTA_CAP) {
+      return {ok: false, error:
+        `YouTube quota cap reached (${quotaUnits}/${DAILY_QUOTA_CAP} units). ` +
+        `Try tomorrow.`};
+    }
     const args = [path.join('scripts', 'upload.py')];
     if (opts.mode === 'live') args.push('--live');
     args.push('--only', opts.only.join(','));
@@ -112,7 +141,7 @@ module.exports = function ytRoutes(deps) {
     ytLog('START channel=' + ch + ' mode=' + opts.mode +
       ' privacy=' + opts.privacy +
       ' manual=[' + opts.only.length + ' dua]');
-    const p = spawn(PY, args, {cwd: REMOTION});
+    const p = spawn(PY, args, {cwd: REMOTION, windowsHide: true});
     ytJob.child = p;
     ytJob.timedOut = false;
     try { fs.unlinkSync(YT_CANCEL_FLAG); } catch (e) {}
@@ -238,7 +267,7 @@ module.exports = function ytRoutes(deps) {
       startedAt: Date.now(), finishedAt: null, child: null};
     ytAuthLog('LOGIN START channel=' + ch +
       ' - Google consent window browser me khul rahi hai...');
-    const p = spawn(PY, args, {cwd: REMOTION});
+    const p = spawn(PY, args, {cwd: REMOTION, windowsHide: true});
     ytauth.child = p;
     let buf = '';
     const pump = (d) => {
@@ -414,6 +443,12 @@ module.exports = function ytRoutes(deps) {
 
     // ── POST /api/youtube/auth ──
     if (method === 'POST' && p === '/api/youtube/auth') {
+      const now = Date.now();
+      if (now - (ytLastAuthReq || 0) < 10000) {
+        return send(res, 429, JSON.stringify({ok: false,
+          error: 'auth cooldown active (10s)'}));
+      }
+      ytLastAuthReq = now;
       readBody(req, res, (body) => {
         try {
           const f = JSON.parse(body || '{}');
@@ -482,15 +517,16 @@ module.exports = function ytRoutes(deps) {
               error: 'selectedDuas zaroori hai - 1 se 6 duas choose karo '
                 + '(auto picking band hai)'}));
           }
-          const alreadyUploaded = only.filter(function(id) {
-            return ytAllUploadedIds().indexOf(id) >= 0;
-          });
-          if (alreadyUploaded.length) {
-            return send(res, 409, JSON.stringify({ok: false,
-              error: alreadyUploaded.length + ' video(s) pehle upload ho '
-                + 'chuki hain: ' + alreadyUploaded.join(', ')
-                + ' — ledger check se block. Dubara upload ke liye ledger '
-                + 'se hatao.'}));
+          if (!f.force) {
+            const alreadyUploaded = only.filter(function(id) {
+              return ytAllUploadedIds().indexOf(id) >= 0;
+            });
+            if (alreadyUploaded.length) {
+              return send(res, 409, JSON.stringify({ok: false,
+                error: alreadyUploaded.length + ' video(s) pehle upload ho '
+                  + 'chuki hain: ' + alreadyUploaded.join(', ')
+                  + ' — Re-upload ke liye pehle ledger se hatao.'}));
+            }
           }
           const r = ytStartUploadJob({channel, privacy, mode, only});
           if (!r.ok) return send(res, r.error.indexOf('chal raha') >= 0
@@ -520,6 +556,85 @@ module.exports = function ytRoutes(deps) {
       } catch (e) {
         send(res, 500, JSON.stringify({ok: false, error: String(e.message || e)}));
       }
+      return true;
+    }
+
+    // ── GET /api/youtube/uploaded ──
+    if (method === 'GET' && p === '/api/youtube/uploaded') {
+      const items = [];
+      for (const ch of ['channel1', 'channel2']) {
+        try {
+          const ledger = JSON.parse(fs.readFileSync(ytLedgerPath(ch), 'utf8').replace(/^\uFEFF/, ''));
+          for (const [duaId, v] of Object.entries(ledger)) {
+            if (v && v.status === 'uploaded') {
+              items.push({
+                duaId, channel: ch,
+                videoId: v.video_id || null,
+                privacy: v.privacy || null,
+                uploadedAt: v.uploaded_at || null,
+                url: v.video_id ? 'https://youtu.be/' + v.video_id : null,
+                title: getDuaTitle(duaId),
+              });
+            }
+          }
+        } catch (_) {}
+      }
+      items.sort((a, b) => String(b.uploadedAt || '').localeCompare(String(a.uploadedAt || '')));
+      send(res, 200, JSON.stringify({ok: true, items}));
+      return true;
+    }
+
+    // ── GET /api/youtube/stats ──
+    if (method === 'GET' && p === '/api/youtube/stats') {
+      const urlObj = new URL(url.href, 'http://localhost');
+      const idsParam = urlObj.searchParams.get('ids') || '';
+      const channelParam = urlObj.searchParams.get('channel') || 'channel1';
+      (async () => {
+        try {
+          const args = [path.join('scripts', 'youtube_stats.py'),
+            '--channel', channelParam];
+          if (idsParam) args.push('--ids', idsParam);
+          const cap = await ytCapture(args);
+          const parsed = JSON.parse(cap.out.trim().split(/\r?\n/).pop() || '{}');
+          send(res, 200, JSON.stringify(parsed));
+        } catch (e) {
+          send(res, 500, JSON.stringify({ok: false, error: String(e.message || e)}));
+        }
+      })();
+      return true;
+    }
+
+    // ── POST /api/youtube/re-upload ──
+    if (method === 'POST' && p === '/api/youtube/re-upload') {
+      if (ytJob.running) {
+        return send(res, 409, JSON.stringify({ok: false, error: 'Upload chal raha hai - pehle ruko'}));
+      }
+      readBody(req, res, (body) => {
+        try {
+          const f = JSON.parse(body || '{}');
+          const duaId = String(f.duaId || '').trim();
+          const channel = String(f.channel || '').trim();
+          if (!duaId || !/^channel[12]$/.test(channel)) {
+            return send(res, 400, JSON.stringify({ok: false, error: 'duaId aur channel zaroori hain'}));
+          }
+          const ledgerPath = ytLedgerPath(channel);
+          try {
+            const ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8').replace(/^\uFEFF/, ''));
+            if (ledger[duaId]) {
+              delete ledger[duaId];
+              fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 2), 'utf8');
+              ytLog('RE-UPLOAD: ledger entry removed for ' + duaId + ' (' + channel + ')');
+              send(res, 200, JSON.stringify({ok: true, duaId, channel}));
+            } else {
+              send(res, 404, JSON.stringify({ok: false, error: 'Ledger mein ye dua nahi mili'}));
+            }
+          } catch (e) {
+            send(res, 404, JSON.stringify({ok: false, error: 'Ledger file nahi mili'}));
+          }
+        } catch (e) {
+          send(res, 400, JSON.stringify({ok: false, error: 'bad request'}));
+        }
+      });
       return true;
     }
 

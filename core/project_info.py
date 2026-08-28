@@ -1,10 +1,9 @@
+import logging
 import os
-import sys
 from dataclasses import dataclass
 from typing import Optional
 
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logger = logging.getLogger(__name__)
 
 try:
     import config
@@ -21,14 +20,14 @@ class ProjectInfo:
     
     # Core Metadata
     PROJECT_NAME: str = "Dua Video Generator"
-    VERSION: str = "1.0.0"
+    VERSION: str = "0.10.0"
     CHANNEL_NAME: str = "@bushranasir1075"
     AUTHOR: str = "MASOOD NASIR"
     
     # Video Standards
     VIDEO_WIDTH: int = 1080
     VIDEO_HEIGHT: int = 1920
-    FPS: int = 24
+    FPS: int = 80
     
     # Folder Paths (Relative to project root)
     PROJECT_ROOT: str = ""

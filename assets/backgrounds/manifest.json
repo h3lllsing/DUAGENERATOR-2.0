@@ -1,5 +1,2541 @@
 {
   "schema_version": 1,
-  "description": "Approved background asset registry for DuaVideoGenerator (VISUAL Phase 1). No image assets yet. Add CC0 / Public Domain / CC-BY / project-owned background images with a matching SHA-256 checksum to make them loadable.",
-  "assets": []
+  "description": "Pexels background assets (images + optional videos) auto-registered by download_backgrounds.py. Pexels License, monetization-safe.",
+  "assets": [
+    {
+      "id": "pix_prayer_29832018",
+      "file": "images\\prayer_29832018.jpg",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ebd32eadae7d59136a239ff92cc4cb32a72a05f8df3cf2acfb3d99be988fae58",
+      "approved": true,
+      "resolution_width": 3127,
+      "resolution_height": 4308,
+      "source_url": "https://www.pexels.com/photo/indonesian-mosque-interior-with-worshipper-praying-29832018/",
+      "author": "Mohammed Alim",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_prayer_33986094",
+      "file": "images\\prayer_33986094.jpg",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b5333586d859337e6e00c6d1b6fffdd784c0257c5d30065451d0a85ff86f66a4",
+      "approved": true,
+      "resolution_width": 3874,
+      "resolution_height": 5164,
+      "source_url": "https://www.pexels.com/photo/man-praying-outside-a-busy-mosque-courtyard-33986094/",
+      "author": "Ismail Suleiman",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_prayer_27815781",
+      "file": "images\\prayer_27815781.jpg",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "194ead937a75e4da127340c2252fa8b06c2ef75d4fbf2426ee94c4c0aae651cf",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/a-group-of-people-sitting-in-a-mosque-27815781/",
+      "author": "Şeyhmus Kino",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_prayer_38361448",
+      "file": "videos\\prayer_38361448.mp4",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ee7c1959b78db1fead298b378e896c90ba663804135521d649039ba4d90ddf98",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/majestic-architecture-of-a-historic-mosque-38361448/",
+      "author": "Fatih Mutaf",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_prayer_5973393",
+      "file": "videos\\prayer_5973393.mp4",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e34354e59ba356f10b216a56486f3e7fdc0eb650a84bf0507879dda5c7321675",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-footage-of-a-mosque-5973393/",
+      "author": "Tima Miroshnichenko",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_prayer_34547119",
+      "file": "videos\\prayer_34547119.mp4",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "091aaa2824dbea319da47ca2ba559c64efc5921851c71582ef59fd90bca468e8",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/ornate-islamic-mosque-ceiling-interior-view-34547119/",
+      "author": "Ömer Faruk Feyat",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_prayer_34382046",
+      "file": "videos\\prayer_34382046.mp4",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "fc99e0b39b3c3bda8dac3bdda1b00863bdf89841ad6acb5fa099a73f95ec0ad0",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/mosque-minaret-and-tree-in-autumn-scene-34382046/",
+      "author": "Ebahir",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_prayer_17384798",
+      "file": "images\\prayer_17384798.jpg",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ce94dbd93d6ef1aecb4f3c10b8566272c7f8c280a9abd6cf4c9da81b7152aba8",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/back-view-of-man-sitting-at-mosque-17384798/",
+      "author": "aboodi vesakaran",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_prayer_31150380",
+      "file": "images\\prayer_31150380.jpg",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "0bedd89321abc5fea7247be0dbec6e9b74812a3d5cf5e7a319bb02c799b9007d",
+      "approved": true,
+      "resolution_width": 1936,
+      "resolution_height": 3442,
+      "source_url": "https://www.pexels.com/photo/interior-of-mosque-in-cyberjaya-with-worshipers-31150380/",
+      "author": "Ahmad Shakir Shamsulbadri",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_prayer_19001092",
+      "file": "images\\prayer_19001092.jpg",
+      "categories": [
+        "prayer"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "53e2d26310988af3acdf746c1cda4a8d6dece2ab719ebe709d53cc023cfaaea9",
+      "approved": true,
+      "resolution_width": 2250,
+      "resolution_height": 4000,
+      "source_url": "https://www.pexels.com/photo/people-praying-in-front-of-the-mihrab-in-the-mosque-19001092/",
+      "author": "Yusuf  Kaya",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_morning_67000",
+      "file": "images\\morning_67000.jpg",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "9eeb37bd823820e43e6db8bad9f39d4137d2585d9bf027bea9161370d99555f4",
+      "approved": true,
+      "resolution_width": 2592,
+      "resolution_height": 3408,
+      "source_url": "https://www.pexels.com/photo/silhouette-of-tree-during-sunset-67000/",
+      "author": "ana larazzy",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_morning_16661298",
+      "file": "images\\morning_16661298.jpg",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "28620d80bb14ceec398d5093145544df1313bc0aa6c86281775d78024779413c",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/clouds-in-the-sky-at-sunrise-16661298/",
+      "author": "Hee Kwang Lee",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_morning_20410812",
+      "file": "images\\morning_20410812.jpg",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "69b436fd5dad535c324599d9fb92c57c4b43362a585267f49cfc307259831de1",
+      "approved": true,
+      "resolution_width": 3782,
+      "resolution_height": 5673,
+      "source_url": "https://www.pexels.com/photo/wildflower-at-dusk-20410812/",
+      "author": "Helena Jankovičová Kováčová",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_morning_31544471",
+      "file": "images\\morning_31544471.jpg",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e356b5c2fd82b3af4014b5174eed80a349ba110bb9237038e6f45f57da569051",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/beautiful-sunrise-over-misty-meadow-31544471/",
+      "author": "Mohamed B.",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_morning_20473396",
+      "file": "images\\morning_20473396.jpg",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "f2089bdf9a50e3664ea58b4cd71c65070d822454722478dc1859b5bc199beb1f",
+      "approved": true,
+      "resolution_width": 3000,
+      "resolution_height": 4496,
+      "source_url": "https://www.pexels.com/photo/silhouettes-of-leafless-trees-under-the-setting-sun-20473396/",
+      "author": "Hurrah suhail",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_morning_35609885",
+      "file": "images\\morning_35609885.jpg",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "792da8c4715cd2432a090070cf6df2fbfc778fd7215791689fd58dde1fc60288",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/idyllic-sunrise-over-rural-landscape-with-trees-35609885/",
+      "author": "Damian Elsner",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_morning_12278141",
+      "file": "videos\\morning_12278141.mp4",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "9a18e71d213a97125fc54c648fa33e36503978cf6051e00530d3a629510450a8",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/clouds-under-sun-12278141/",
+      "author": "Altaf Shah",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_morning_27807783",
+      "file": "videos\\morning_27807783.mp4",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "0fb1e82348b9bebc465aa08cada8e2a8dc44cf31cbaae0942cb355e17222ecdd",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/sunset-27807783/",
+      "author": "JULIO BECK",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_morning_15499818",
+      "file": "videos\\morning_15499818.mp4",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "4bacd4824a489389c01184c8111db0d31e48325dcfad625c7f1d5b1562e41bd8",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-sunrise-over-a-field-with-fog-15499818/",
+      "author": "Matthias Groeneveld",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_morning_11233321",
+      "file": "videos\\morning_11233321.mp4",
+      "categories": [
+        "morning"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "66aa71088684129868f8abcba83a7f7acd49a1cd8005fad95b1e098564f3653a",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/clounds-and-sky-11233321/",
+      "author": "Naga Prakash Narla",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_evening_29355703",
+      "file": "images\\evening_29355703.jpg",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "a88747116aaa3371c56bacd2e6a76d50ed32ae18948814626e0768e6a7fe5f76",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/colorful-cloudscape-with-vibrant-sunset-colors-29355703/",
+      "author": "Lara",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_evening_7822341",
+      "file": "images\\evening_7822341.jpg",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "738ec3f03c1930558478fbd553419ac05255fba6e4aed8cb338cf1eba86f38c3",
+      "approved": true,
+      "resolution_width": 2448,
+      "resolution_height": 3264,
+      "source_url": "https://www.pexels.com/photo/sky-during-dusk-7822341/",
+      "author": "Zehra Topak",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_evening_17725058",
+      "file": "images\\evening_17725058.jpg",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e0d98bc116183c418a2700cbd1a1e8b52274776fd522ea5fc64bf840e2ac9df2",
+      "approved": true,
+      "resolution_width": 2592,
+      "resolution_height": 3240,
+      "source_url": "https://www.pexels.com/photo/the-sun-is-setting-behind-a-dark-sky-17725058/",
+      "author": "Alimurat Üral",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_evening_13922023",
+      "file": "images\\evening_13922023.jpg",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "86c5732c6116e25cd2481ac847ef5e773c5f3106c60ed7cc2fe4063a058012fd",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/clouds-in-the-sky-during-sunset-13922023/",
+      "author": "shyam mishra",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_evening_34444833",
+      "file": "images\\evening_34444833.jpg",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "56e21c30321249acb0a2ac90a10a3cf2a9473677c3cfbec2e487bf1f6535e4e4",
+      "approved": true,
+      "resolution_width": 3000,
+      "resolution_height": 3898,
+      "source_url": "https://www.pexels.com/photo/dramatic-sunset-sky-with-orange-clouds-34444833/",
+      "author": "Hanife Altan",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_evening_8763752",
+      "file": "images\\evening_8763752.jpg",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "18a3081eb08c9d120590ceb2f01682ee265b28bef0335f4a8359d49d2589bb5e",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/dramatic-blue-and-orange-sky-8763752/",
+      "author": "Lena Shekhovtsova",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_evening_38735389",
+      "file": "videos\\evening_38735389.mp4",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "151259bbd239cb6f8c106ffea85493f2845c13f22e491fbe711238b6fe2dc8fc",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/dramatic-cloudy-sky-at-twilight-38735389/",
+      "author": "Saurabh Srivastava",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_evening_29069414",
+      "file": "videos\\evening_29069414.mp4",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "a74720393dfe673f4d9aa14bf39534276566c81e399e6029237749a0bd91e6ec",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/airplane-silhouetted-against-vibrant-sunset-sky-29069414/",
+      "author": "Hāyca",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_evening_35527464",
+      "file": "videos\\evening_35527464.mp4",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b842c976a29840ca0d7f97dcf67e4d422353729e80cdf74773e438d1feb0210f",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/serene-twilight-sky-with-gentle-clouds-35527464/",
+      "author": "Altaf Shah",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_evening_35375537",
+      "file": "videos\\evening_35375537.mp4",
+      "categories": [
+        "evening"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "9462d4b1922953c60614470ac5d782a3aa2b281e2bc62404905451aebd3178ad",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/dramatic-urban-skyline-at-sunset-35375537/",
+      "author": "Ivett M",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_sleep_15250338",
+      "file": "images\\sleep_15250338.jpg",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c99126742de7ea16e46cb3c0a4ef1cd2a34c4bad481c40264d6a4663b7401396",
+      "approved": true,
+      "resolution_width": 3000,
+      "resolution_height": 3745,
+      "source_url": "https://www.pexels.com/photo/moon-in-dark-night-sky-15250338/",
+      "author": "Allan Carvalho",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_sleep_10478274",
+      "file": "images\\sleep_10478274.jpg",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "a39b56fde397c86456f9323c69217436f1e5b119ac950d2b51f108ed4dfb0c1c",
+      "approved": true,
+      "resolution_width": 3664,
+      "resolution_height": 5472,
+      "source_url": "https://www.pexels.com/photo/stars-in-the-night-sky-10478274/",
+      "author": "Deepak Ramesha",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_sleep_17961788",
+      "file": "images\\sleep_17961788.jpg",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e1ad89d672a62d345ed684041efa64366557ff809bde6b76c3514b3c374c23e2",
+      "approved": true,
+      "resolution_width": 4024,
+      "resolution_height": 6048,
+      "source_url": "https://www.pexels.com/photo/fallen-star-and-shinning-galaxy-17961788/",
+      "author": "Alexey Chudin",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_sleep_3567209",
+      "file": "images\\sleep_3567209.jpg",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "81be1e5bf5af6c0a7fbdd4a31ba4d6b5e7f4e7ef0d88b7389f44c51b1b34976d",
+      "approved": true,
+      "resolution_width": 1899,
+      "resolution_height": 2374,
+      "source_url": "https://www.pexels.com/photo/silhouette-of-person-raising-his-hands-3567209/",
+      "author": "Manav Sharma",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_sleep_9628664",
+      "file": "images\\sleep_9628664.jpg",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "07bf4ca52cd092374154489079a9d621855ee616816d456a616e02a1ec9d2ca2",
+      "approved": true,
+      "resolution_width": 3787,
+      "resolution_height": 4734,
+      "source_url": "https://www.pexels.com/photo/moon-and-clouds-on-sky-at-dawn-9628664/",
+      "author": "Bayram Er",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_sleep_447329",
+      "file": "images\\sleep_447329.jpg",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b43cb26e0fc2b55487325117022c0eef1bcb62c17eaf61c9e1c4f620fee100ef",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/person-hand-and-crescent-moon-447329/",
+      "author": "Kaique Rocha",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_sleep_37029441",
+      "file": "videos\\sleep_37029441.mp4",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "715dba616546af17d53c8afdf8e5e2fc4e2e04af4fa4113574f3f8c510f99bc7",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/alien-lunar-surface-with-starry-sky-37029441/",
+      "author": "Nicola Narracci",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_sleep_36963635",
+      "file": "videos\\sleep_36963635.mp4",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d8479c119c1403507924398a0ae3d0f80f4f5e27148dd4728cc870f673c07bd7",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/detailed-view-of-the-moon-s-surface-in-space-36963635/",
+      "author": "Nicola Narracci",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_sleep_20766726",
+      "file": "videos\\sleep_20766726.mp4",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e17d6ab87cd0c4c4a441c6f14d01c4dfed029c9269ae380ef1aa0783de0e5880",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/moon-and-clouds-20766726/",
+      "author": "Ashvin Malviya",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_sleep_37023380",
+      "file": "videos\\sleep_37023380.mp4",
+      "categories": [
+        "sleep"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "527b03f5caa1519e3e2743db5b706c981979a0c6292d8b8731fccd1e207e350d",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/lunar-surface-under-starry-sky-37023380/",
+      "author": "Nicola Narracci",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_food_38627668",
+      "file": "images\\food_38627668.jpg",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "f61b12e2492c1711c4ca9078f261b0933ccd5ff7619921eab966535252aef0a8",
+      "approved": true,
+      "resolution_width": 3000,
+      "resolution_height": 4000,
+      "source_url": "https://www.pexels.com/photo/close-up-of-lush-green-hosta-leaves-38627668/",
+      "author": "Jennifer Wojczak",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_food_27745125",
+      "file": "images\\food_27745125.jpg",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e9a9c929bdd0904a868e7ad626ab8e229aeb8fcad0756e5d5369fcbe0f39d00e",
+      "approved": true,
+      "resolution_width": 3744,
+      "resolution_height": 5616,
+      "source_url": "https://www.pexels.com/photo/a-close-up-of-a-green-plant-with-large-leaves-27745125/",
+      "author": "Thể Phạm",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_food_16265718",
+      "file": "images\\food_16265718.jpg",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "087fc514bee42365f00b1b24805b9fda968eafe6dda324d4a9816a2a5aeb244c",
+      "approved": true,
+      "resolution_width": 3456,
+      "resolution_height": 5184,
+      "source_url": "https://www.pexels.com/photo/abundance-of-green-plants-16265718/",
+      "author": "Doğu Tuncer",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_food_31659803",
+      "file": "images\\food_31659803.jpg",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "7ee5d79957de789075796e335c2b32daaa7266d22c1eec3ebaafe5703de32013",
+      "approved": true,
+      "resolution_width": 5152,
+      "resolution_height": 7728,
+      "source_url": "https://www.pexels.com/photo/dense-lush-green-foliage-texture-close-up-31659803/",
+      "author": "Gustavo Denuncio",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_food_27274083",
+      "file": "images\\food_27274083.jpg",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "43621d3dc90903da2f9ac9ce04acb7058f3edcbd82592eab2cab345a2a1acf46",
+      "approved": true,
+      "resolution_width": 12240,
+      "resolution_height": 16320,
+      "source_url": "https://www.pexels.com/photo/a-close-up-of-green-leaves-with-white-flowers-27274083/",
+      "author": "Anitta BL",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_food_37215867",
+      "file": "videos\\food_37215867.mp4",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "08e0b15927ef1bdce4d440f8aa613e881b1fe733672c09aaffdd9c20f9d59fee",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/lush-golden-foliage-in-bright-sunshine-37215867/",
+      "author": "정규송 Nui MALAMA",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_food_12102336",
+      "file": "videos\\food_12102336.mp4",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "1cc03ed7a5d6ac4c772e0eff23513add6b29d700c0cd4e4d37a9f80e08fbef97",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/close-up-view-of-green-leaves-12102336/",
+      "author": "Rodrigo Garcin",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_food_19857330",
+      "file": "videos\\food_19857330.mp4",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "bf2ba4a85e1f91afc117f5da667041d4d73326f0a4f6b525afc72dd44173b6ce",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/goiabeira-19857330/",
+      "author": "LiveD Prod.",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_food_4042978",
+      "file": "videos\\food_4042978.mp4",
+      "categories": [
+        "food"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "08f0ec52d56baaf69387b2e44d9d41088ea6a296628ed213155a6431b7217179",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-close-up-shot-of-a-plant-4042978/",
+      "author": "Habib Khan",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_travel_15937488",
+      "file": "images\\travel_15937488.jpg",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "7e8b1717e8309db4438d04deb498f519114143820222df10f4a48a80d2036a73",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/clouds-over-mountains-behind-window-15937488/",
+      "author": "Adrien Olichon",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_travel_30712364",
+      "file": "images\\travel_30712364.jpg",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e04a1a618f4185a8f57485f066bf2b73b3038a5173189800dec668336df5dc73",
+      "approved": true,
+      "resolution_width": 2303,
+      "resolution_height": 3455,
+      "source_url": "https://www.pexels.com/photo/majestic-snow-covered-mountain-in-turkiye-30712364/",
+      "author": "Esmanur M.",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_travel_2790919",
+      "file": "images\\travel_2790919.jpg",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "dff164e518b8c691c6f900beb09e5dd39de16c0e71a1cc02bf54ab0a7c2f5d25",
+      "approved": true,
+      "resolution_width": 3456,
+      "resolution_height": 4608,
+      "source_url": "https://www.pexels.com/photo/scenic-photo-of-mountains-during-daytime-2790919/",
+      "author": "Diana ✨",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_travel_34242932",
+      "file": "images\\travel_34242932.jpg",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "2c5dd32d2318c7bcc462ff82c2d13f374c9ace5bb190396b8015b0278b8982a6",
+      "approved": true,
+      "resolution_width": 3072,
+      "resolution_height": 4608,
+      "source_url": "https://www.pexels.com/photo/breathtaking-alpine-view-at-grossglockner-pass-34242932/",
+      "author": "Denisa Lesniaková",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_travel_1681392",
+      "file": "images\\travel_1681392.jpg",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "94d88d9261a84f7abac0c891071f5c4bb670b944af6e504ac867789e133052c7",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/vehicles-on-a-road-through-the-forest-1681392/",
+      "author": "Guilherme Rossi",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_travel_36803542",
+      "file": "images\\travel_36803542.jpg",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c8bf80db9c5d5e0625a2258a2cbef4aa481de214c05d9d0fff10def63b69f3aa",
+      "approved": true,
+      "resolution_width": 2268,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/scenic-mountain-road-in-khyber-pakhtunkhwa-36803542/",
+      "author": "Abdul Basit",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_travel_29035454",
+      "file": "videos\\travel_29035454.mp4",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "59b7f1e28cca735eb35898b23904ed5030eb7490f3baaffd2b3478be35e57554",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/aerial-view-of-scenic-mountain-valley-landscape-29035454/",
+      "author": "Oskar Gross",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_travel_28927581",
+      "file": "videos\\travel_28927581.mp4",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ec0f774079b27d7c6db81c1fb47defe4d9125fb1b45b35efa96171b530ce8dc1",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/scenic-kolsai-lake-in-kazakhstan-with-mountains-28927581/",
+      "author": "SiD Agastia",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_travel_38787756",
+      "file": "videos\\travel_38787756.mp4",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "09e88c0738bf1d314f7bab56e6432357ce5667dd4c3553609ecd9a94f64c0a0d",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/aerial-view-of-scenic-mountain-landscape-38787756/",
+      "author": "Unaizat Abdulgamidova",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_travel_27946622",
+      "file": "videos\\travel_27946622.mp4",
+      "categories": [
+        "travel"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "077c0a119fc5d221b2da7ca866d92e07b07b4c3eba7a8b6ed20c409395f31c6a",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-grassy-field-with-trees-and-a-mountain-in-the-background-27946622/",
+      "author": "Ex Route Adventures",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_bathroom_2708177",
+      "file": "images\\bathroom_2708177.jpg",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "56018c078321f626923ac44cd8d3e5d93c1bb77fdf480898e48fd8d3d7511deb",
+      "approved": true,
+      "resolution_width": 3078,
+      "resolution_height": 3875,
+      "source_url": "https://www.pexels.com/photo/water-drop-close-up-photography-2708177/",
+      "author": "Bernyce Hollingworth",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_bathroom_955788",
+      "file": "images\\bathroom_955788.jpg",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "63ba635750064b5d94bc1b192424d6a91fe2f44663870314ca4646cd96fb30cd",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/raindrops-photography-955788/",
+      "author": "Sarah Trummer",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_bathroom_22710708",
+      "file": "images\\bathroom_22710708.jpg",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "0326d551243c3654dcc4b6bec95d6c2772b7be4a4b2ce0c660f6054880ab8632",
+      "approved": true,
+      "resolution_width": 3086,
+      "resolution_height": 3752,
+      "source_url": "https://www.pexels.com/photo/green-liquid-shape-22710708/",
+      "author": "Craig Philip",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_bathroom_34069682",
+      "file": "images\\bathroom_34069682.jpg",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "f85656be953415022c0c9e71b701840936c12fdfcd29673b9b59017e15741471",
+      "approved": true,
+      "resolution_width": 6128,
+      "resolution_height": 8144,
+      "source_url": "https://www.pexels.com/photo/blue-water-droplets-on-glass-surface-34069682/",
+      "author": "Baljinder Singh",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_bathroom_21802567",
+      "file": "images\\bathroom_21802567.jpg",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b4998d6ce684fc8aba4ed30358e396db690def5975f872f328df4724de303379",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/shiny-raindrops-on-window-glass-21802567/",
+      "author": "Carolyn",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_bathroom_4194845",
+      "file": "images\\bathroom_4194845.jpg",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "5424514a7d37d5ada7f111e3d881dea591d0af8571e86a06ffd3c2ebb79549fd",
+      "approved": true,
+      "resolution_width": 3610,
+      "resolution_height": 5415,
+      "source_url": "https://www.pexels.com/photo/close-up-photo-of-water-4194845/",
+      "author": "https://kaboompics.com/",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_bathroom_7565882",
+      "file": "videos\\bathroom_7565882.mp4",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "dd44bed4ced0ab18f7dccc3741c3282ed90b16ef1537a13bbb5c6fbc38465ad1",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/blue-paint-on-water-7565882/",
+      "author": "MART  PRODUCTION",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_bathroom_39218436",
+      "file": "videos\\bathroom_39218436.mp4",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "79d5ea957c326084434d8ee8885f7f5552b9c39350aba430be2885c6d02482c9",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/close-up-of-rain-drops-on-a-window-39218436/",
+      "author": "Angelo Delgado",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_bathroom_10336271",
+      "file": "videos\\bathroom_10336271.mp4",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "fff620557608bb0ad5de25a7683fb6e4c5c17c5272b61618bd3da68f81ce266c",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/rain-drops-at-night-10336271/",
+      "author": "gusat silviu",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_bathroom_7640725",
+      "file": "videos\\bathroom_7640725.mp4",
+      "categories": [
+        "bathroom"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "1354239cb663c602a5e4a64bc9efccce200093c05bb4f87140c7964622cdaf9a",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/air-bubbles-7640725/",
+      "author": "Eva Bronzini",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_protection_30439336",
+      "file": "images\\protection_30439336.jpg",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "045c49dfdd520558953ea72e9b95e5273ce9f6113a8d619393d1ed439c06c24f",
+      "approved": true,
+      "resolution_width": 5152,
+      "resolution_height": 7728,
+      "source_url": "https://www.pexels.com/photo/group-praying-with-open-hands-in-middle-eastern-attire-30439336/",
+      "author": "Şevval Pirinççi",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_protection_37592529",
+      "file": "images\\protection_37592529.jpg",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b97872f7d657af7817fe093ee3ef8dcebb7d3bd22acca98f36e2dda97eeae5a2",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/close-up-of-hands-in-prayer-gesture-in-indonesia-37592529/",
+      "author": "Defrino Maasy",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_protection_37592531",
+      "file": "images\\protection_37592531.jpg",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "26b0b3f7c603cbddfd4c94b9328c6eb3bb6d3d546f965fecd59477c978039de9",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/hands-raised-in-prayer-on-a-rug-37592531/",
+      "author": "Defrino Maasy",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_protection_36211949",
+      "file": "images\\protection_36211949.jpg",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "6ebf4f81c9328245c7a47c137f36c95a06658356d41c855962309c15371842f3",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 5000,
+      "source_url": "https://www.pexels.com/photo/close-up-of-hands-holding-prayer-beads-with-quran-36211949/",
+      "author": "Rizky Sabriansyah",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_protection_36092135",
+      "file": "images\\protection_36092135.jpg",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "70fee928789915f75ef7e1459e95d567faff8ed4dd7db1aa0ff031ba31758dda",
+      "approved": true,
+      "resolution_width": 3001,
+      "resolution_height": 4000,
+      "source_url": "https://www.pexels.com/photo/black-and-white-image-of-two-people-praying-36092135/",
+      "author": "Faisal | @Photobapak",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_protection_37592508",
+      "file": "images\\protection_37592508.jpg",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "29572b036478889ad536023bc5e4081b2d34b2ff90dd51169e9877691c6dc6fb",
+      "approved": true,
+      "resolution_width": 3791,
+      "resolution_height": 5686,
+      "source_url": "https://www.pexels.com/photo/man-in-traditional-attire-engaging-in-prayer-37592508/",
+      "author": "Defrino Maasy",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_protection_5366583",
+      "file": "videos\\protection_5366583.mp4",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "8e633050bb14d4089db1a946924e41aaafe1367d92f02468f0c2f863ca219aad",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/female-hands-holding-rosary-5366583/",
+      "author": "https://kaboompics.com/",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_protection_8711349",
+      "file": "videos\\protection_8711349.mp4",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "110707df03e86ffa96c7c0b18f381c4226f7bbeaba3d4fa96fb2fd5605cdd1f9",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/close-up-of-a-monk-s-hand-in-prayer-position-8711349/",
+      "author": "RDNE Stock project",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_protection_8819586",
+      "file": "videos\\protection_8819586.mp4",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "1d0a84a0ebf8fa2598e5e1f5f6b9ed47ee0240568db4721a4ff06d6699b04c90",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/animated-video-of-hands-8819586/",
+      "author": "cottonbro CG studio",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_protection_5366581",
+      "file": "videos\\protection_5366581.mp4",
+      "categories": [
+        "protection"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "7226a745832f5d7490d0f2285b6d151bb4e871194695e6187569588328bac562",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/female-hands-holding-rosary-5366581/",
+      "author": "https://kaboompics.com/",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_forgiveness_36411817",
+      "file": "images\\forgiveness_36411817.jpg",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "134da49048b761a16159597291c9b322ff9f8a978aa04257d202f6f3e8ae6b4b",
+      "approved": true,
+      "resolution_width": 3648,
+      "resolution_height": 5472,
+      "source_url": "https://www.pexels.com/photo/dramatic-sun-rays-through-dark-clouds-36411817/",
+      "author": "Bejan  Adrian",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_forgiveness_37191879",
+      "file": "images\\forgiveness_37191879.jpg",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "adffcacf962221d5521f17bbbfde6ebe53b8b3334410c74a947e5a6092ae9ab2",
+      "approved": true,
+      "resolution_width": 3000,
+      "resolution_height": 4000,
+      "source_url": "https://www.pexels.com/photo/golden-sun-rays-breaking-through-clouds-at-dusk-37191879/",
+      "author": "ÀniL",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_forgiveness_31788105",
+      "file": "images\\forgiveness_31788105.jpg",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "47b2670a20db497f5bf1516303d333e02b59d6a86172601ffceee5300ab47742",
+      "approved": true,
+      "resolution_width": 4766,
+      "resolution_height": 7122,
+      "source_url": "https://www.pexels.com/photo/dramatic-sky-with-sun-rays-breaking-through-clouds-31788105/",
+      "author": "Jaqor Q.I.",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_forgiveness_29286043",
+      "file": "images\\forgiveness_29286043.jpg",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ffceddec8ce18ce833da0e980cae5d9352f068ad156b7292bc03ef389d9ecfed",
+      "approved": true,
+      "resolution_width": 3712,
+      "resolution_height": 4158,
+      "source_url": "https://www.pexels.com/photo/majestic-sun-rays-emanate-through-clouds-29286043/",
+      "author": "Mahmoud Yahyaoui",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_forgiveness_32557220",
+      "file": "images\\forgiveness_32557220.jpg",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "6d71ee5e53ee20c8ec7eef23a3f483327faf9e246ffb883e8b85e180f58122e3",
+      "approved": true,
+      "resolution_width": 3072,
+      "resolution_height": 4096,
+      "source_url": "https://www.pexels.com/photo/dramatic-sky-with-sun-rays-and-clouds-32557220/",
+      "author": "Noor Zaman",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_forgiveness_37157650",
+      "file": "images\\forgiveness_37157650.jpg",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "bee871ee78dbd6e868466bdce29385e0af25cc26914af798f2eff7c8ae217711",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/dramatic-sunlight-breaking-through-clouds-37157650/",
+      "author": "Essahak Shyam",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_forgiveness_38735389",
+      "file": "videos\\forgiveness_38735389.mp4",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "151259bbd239cb6f8c106ffea85493f2845c13f22e491fbe711238b6fe2dc8fc",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/dramatic-cloudy-sky-at-twilight-38735389/",
+      "author": "Saurabh Srivastava",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_forgiveness_35136564",
+      "file": "videos\\forgiveness_35136564.mp4",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d35a3124b8cf25566514afc7842f60734ec9e38d824a3996f32595ef461ffa4a",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/dramatic-black-and-white-cloudscape-35136564/",
+      "author": "Altaf Shah",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_forgiveness_32079443",
+      "file": "videos\\forgiveness_32079443.mp4",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "8fd20f1abe924373a097adf836564ebf3981bb4ae00834b1f4cccf5098b15c96",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/blue-sky-timelapse-with-wispy-clouds-32079443/",
+      "author": "Bav Vadgama",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_forgiveness_12222644",
+      "file": "videos\\forgiveness_12222644.mp4",
+      "categories": [
+        "forgiveness"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "21f8aa6ed129db418827f508daf125d220fd3269f7573f9a3f935ec332c146da",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/clouds-and-sun-on-sky-12222644/",
+      "author": "Dmitry Marchenkov",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_guidance_20696910",
+      "file": "images\\guidance_20696910.jpg",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "45a8690a8da571b928e77b0ad27d6a88ad6b5551dfc29615e659af0aeaf7570f",
+      "approved": true,
+      "resolution_width": 2160,
+      "resolution_height": 3840,
+      "source_url": "https://www.pexels.com/photo/ramadan-ramadan-kareem-alquran-ramadhan-background-20696910/",
+      "author": "Leylâ",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_guidance_20720626",
+      "file": "images\\guidance_20720626.jpg",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "abb992ba3d50f2acd0aa1b581d456f028fc421b0ceeb50c3000aaf74d6494508",
+      "approved": true,
+      "resolution_width": 2848,
+      "resolution_height": 4272,
+      "source_url": "https://www.pexels.com/photo/open-koran-and-lantern-20720626/",
+      "author": "Sarah AlAmeri",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_guidance_32166701",
+      "file": "images\\guidance_32166701.jpg",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "f1f78810d9bdc6b8809973665920cd065ad048dc22f8a27896519bf449e2c1e4",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/open-quran-with-bookmark-and-lamp-32166701/",
+      "author": "Hanafi Mellek",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_guidance_14876557",
+      "file": "images\\guidance_14876557.jpg",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "876192e19e5f2ae6f13b34779454bbfa1c6cbbbeef74e7bd42b7094b8e33d8eb",
+      "approved": true,
+      "resolution_width": 3021,
+      "resolution_height": 4533,
+      "source_url": "https://www.pexels.com/photo/open-koran-and-fairy-lights-14876557/",
+      "author": "Soumia  Photography",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_guidance_36516119",
+      "file": "images\\guidance_36516119.jpg",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "9cddfbe7801d4ad8946bc1ce00771ce62b0de657dab638ff8d6bff1ea389458a",
+      "approved": true,
+      "resolution_width": 3264,
+      "resolution_height": 4928,
+      "source_url": "https://www.pexels.com/photo/open-quran-with-calligraphy-frame-and-lamp-36516119/",
+      "author": "Muhtelifane",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_guidance_30715751",
+      "file": "images\\guidance_30715751.jpg",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "6fd3080a75aa52d06cfbb3dd630c553d7e70bd517ac550d734c5bd9debf15256",
+      "approved": true,
+      "resolution_width": 2268,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/elegant-setup-with-quran-prayer-beads-and-coffee-30715751/",
+      "author": "theglowvibes_mah مـــاه_🌔",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_guidance_8165553",
+      "file": "videos\\guidance_8165553.mp4",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ebc0ed6dbbec5c00602b7ad54adb15e3cc52f5273fc3578c2ee69b6269e889cf",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-close-up-view-of-scripture-in-quran-8165553/",
+      "author": "Alena Darmel",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_guidance_8165472",
+      "file": "videos\\guidance_8165472.mp4",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "cf8b7d06e99ec38e3ed560a5919eff1c99b92b170fb0cfe4fcb9447243575d07",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/an-open-page-of-quran-8165472/",
+      "author": "Alena Darmel",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_guidance_8165766",
+      "file": "videos\\guidance_8165766.mp4",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d28a150d300fe7deb739deda014f0d01a85d07d8e019f46cc5fe5c16c43543a4",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/close-up-of-quran-and-misbaha-8165766/",
+      "author": "Alena Darmel",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_guidance_28452228",
+      "file": "videos\\guidance_28452228.mp4",
+      "categories": [
+        "guidance"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ad4a888cb836e49a34cb79ea58470f7aa9829328c8f79d998438ebd96827d9be",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/islam-28452228/",
+      "author": "Muhtelifane",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_rizzq_18090124",
+      "file": "images\\rizzq_18090124.jpg",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "202c6ee684b7e6503f9940c5986746613f7bb23ec07d4ceda06a22f604af75ea",
+      "approved": true,
+      "resolution_width": 2003,
+      "resolution_height": 3004,
+      "source_url": "https://www.pexels.com/photo/green-spikes-of-wheat-18090124/",
+      "author": "Arseni Shuliak",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_rizzq_21358067",
+      "file": "images\\rizzq_21358067.jpg",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "37b5f64b8d4feef1dc4b8fc413ea189da571cd04b56f4a08e32dfa687b1e7754",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/high-grass-on-a-field-21358067/",
+      "author": "Salih Sezgin",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_rizzq_2127788",
+      "file": "images\\rizzq_2127788.jpg",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "712fc9809aabcea64ff49634fbcc4b5e29df138fc43e64fc644617392f579134",
+      "approved": true,
+      "resolution_width": 3264,
+      "resolution_height": 4928,
+      "source_url": "https://www.pexels.com/photo/brown-wooden-chair-in-middle-of-green-ffield-2127788/",
+      "author": "Gül Işık",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_rizzq_16219192",
+      "file": "images\\rizzq_16219192.jpg",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "a5d59b45135caa6df9d147fc2a237d9aae6d68a69f2cfa9e8e07b4406c63b7e8",
+      "approved": true,
+      "resolution_width": 3000,
+      "resolution_height": 4000,
+      "source_url": "https://www.pexels.com/photo/dirt-road-and-green-rural-fields-16219192/",
+      "author": "Muhammad Rashid Ali",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_rizzq_35564793",
+      "file": "images\\rizzq_35564793.jpg",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c619a5b324544e97a14b5e0fdd3429cb87ffce0d08541540695d7b178f332907",
+      "approved": true,
+      "resolution_width": 4284,
+      "resolution_height": 5712,
+      "source_url": "https://www.pexels.com/photo/green-wheat-stalks-against-blue-sky-in-field-35564793/",
+      "author": "Peter  Parker",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_rizzq_34679059",
+      "file": "images\\rizzq_34679059.jpg",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "5e34c11e8aa05af5968f975ca53ba251939356abbf53f33b2f7d9eb22deefaef",
+      "approved": true,
+      "resolution_width": 1828,
+      "resolution_height": 2750,
+      "source_url": "https://www.pexels.com/photo/lush-green-field-under-clear-blue-sky-34679059/",
+      "author": "Alexandra Kirikova",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_rizzq_12196984",
+      "file": "videos\\rizzq_12196984.mp4",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "695f818cff03036a57f12803ae358a5b22f7fe8a3cea32495149cb7f1949049a",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/clouds-over-rural-field-12196984/",
+      "author": "Altaf Shah",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_rizzq_34754704",
+      "file": "videos\\rizzq_34754704.mp4",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "2ea4d799f00d8b65c3bd5b8643913b913571d009e7155ab67b41dd56cde6298e",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/lush-wheat-field-swaying-in-the-breeze-34754704/",
+      "author": "F 植生记",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_rizzq_11734460",
+      "file": "videos\\rizzq_11734460.mp4",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d8555b419c3ee475dc0e1a2f9e7574fc871964f192d39bbc1a6af49f9d26f261",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/close-up-of-grain-11734460/",
+      "author": "Shan Ali",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_rizzq_34754705",
+      "file": "videos\\rizzq_34754705.mp4",
+      "categories": [
+        "rizzq"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c60ed1e1e2869ba4d85d98f6eb1c9dd5e5bdd3454178e3c8b5199c7c0e580d14",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/vibrant-wheat-field-on-a-sunny-day-34754705/",
+      "author": "F 植生记",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_health_19050718",
+      "file": "images\\health_19050718.jpg",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "f42e55157b8c88d3c8df98cfb95c059fc3748f32dd2a29a5e8ef28adf0bec375",
+      "approved": true,
+      "resolution_width": 4160,
+      "resolution_height": 5536,
+      "source_url": "https://www.pexels.com/photo/close-up-of-a-green-plant-19050718/",
+      "author": "Ellie Burgin",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_health_9167682",
+      "file": "images\\health_9167682.jpg",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d640e943cbd227d1e9b79fe0c82feec432ff9c05355eab013bb7afcd8be0f25b",
+      "approved": true,
+      "resolution_width": 2590,
+      "resolution_height": 3885,
+      "source_url": "https://www.pexels.com/photo/green-leaves-in-close-up-photography-9167682/",
+      "author": "Ксения Маркова",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_health_7245998",
+      "file": "images\\health_7245998.jpg",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d90c4cc0a62888770a0c157962a2899e6e7075fdda9a885f9c46f2a750baaa74",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/close-up-shot-of-green-leaves-7245998/",
+      "author": "Viktoria Lunyakova",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_health_15725622",
+      "file": "images\\health_15725622.jpg",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "57e6fdd69515798992d5043e72d945308aa17acd5ade6f9adfae7c274b2de51b",
+      "approved": true,
+      "resolution_width": 4160,
+      "resolution_height": 6240,
+      "source_url": "https://www.pexels.com/photo/grass-green-leaves-15725622/",
+      "author": "Rafael Rodrigues",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_health_35649358",
+      "file": "images\\health_35649358.jpg",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "8cfae2951376a0157619d1ff7026a28b8350d7a44516f48574e07cb25a599f14",
+      "approved": true,
+      "resolution_width": 3301,
+      "resolution_height": 4126,
+      "source_url": "https://www.pexels.com/photo/lush-tropical-banana-leaves-close-up-35649358/",
+      "author": "Subin Backwaters",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_health_7664683",
+      "file": "images\\health_7664683.jpg",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "3acf4fb9b23c6454decd5dee0412f9132d5dcc53ad2a97dc4f18a1df64ea7d69",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/close-up-photography-of-leaves-7664683/",
+      "author": "belen capello",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_health_7615582",
+      "file": "videos\\health_7615582.mp4",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "7750d966759e17aa17b84d8f966d90fbc2a11b31e90a7b50c4223339ebd14cb1",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/ingredients-of-homeophatic-medicine-7615582/",
+      "author": "Nataliya Vaitkevich",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_health_9466775",
+      "file": "videos\\health_9466775.mp4",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "1693fe63b2cf173631056c283ee9087a062a1b9187be1cc87646d0cfd8c80e09",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-person-touching-leaves-9466775/",
+      "author": "ROCKETMANN TEAM",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_health_38060008",
+      "file": "videos\\health_38060008.mp4",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "aa587ba3bf35a696549b1c8cd53aff06f5ed24407b2cf6826cc6121ca19e83c7",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/lush-green-forest-canopy-view-in-summer-38060008/",
+      "author": "sohaib Mohammed",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_health_12064560",
+      "file": "videos\\health_12064560.mp4",
+      "categories": [
+        "health"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "a08480d2e17818d7cffdc39e8b6235c637bd6bed9079cc5e3ccce3e7b0a4e346",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/hands-touching-leaves-12064560/",
+      "author": "Deeana Arts 🇵🇷",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_family_32565706",
+      "file": "images\\family_32565706.jpg",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "36e36edc726e56b294ea175ef8f82be6104b77dbfeef95953fb7324b94adc37e",
+      "approved": true,
+      "resolution_width": 2709,
+      "resolution_height": 4065,
+      "source_url": "https://www.pexels.com/photo/silhouette-of-father-and-child-at-sunset-beach-32565706/",
+      "author": "yassir draka",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_family_14493891",
+      "file": "images\\family_14493891.jpg",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "2fbaac812a39f66e3a08972b06c9b218b5b83f1e8a997a41ab4b6a8558f80cb3",
+      "approved": true,
+      "resolution_width": 3385,
+      "resolution_height": 5078,
+      "source_url": "https://www.pexels.com/photo/parent-holding-child-in-air-for-fun-14493891/",
+      "author": "Dasha",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_family_14960151",
+      "file": "images\\family_14960151.jpg",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c468b643b9fb20fcc8003349cb805a4af731237c15be804111e5f403669cc31c",
+      "approved": true,
+      "resolution_width": 1748,
+      "resolution_height": 2901,
+      "source_url": "https://www.pexels.com/photo/silhouettes-of-people-standing-at-a-beach-14960151/",
+      "author": "Rahul Franklin",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_family_5375363",
+      "file": "images\\family_5375363.jpg",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ae2bf02aa054c5da33ec38e2c93666d27f41567ad47f091a443fd4c4d3f8dfec",
+      "approved": true,
+      "resolution_width": 3914,
+      "resolution_height": 5870,
+      "source_url": "https://www.pexels.com/photo/silhouette-of-a-man-with-a-boy-and-sea-at-sunrise-5375363/",
+      "author": "PEDRO DUTRA",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_family_19709850",
+      "file": "images\\family_19709850.jpg",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "23eb5c17731e845c949c7c40430e6c5782c8121557b9098f3b41cdf8e3c51816",
+      "approved": true,
+      "resolution_width": 1898,
+      "resolution_height": 3376,
+      "source_url": "https://www.pexels.com/photo/woman-and-children-looking-at-sunset-on-terrace-19709850/",
+      "author": "M e r v e",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_family_27572807",
+      "file": "images\\family_27572807.jpg",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "a56694a5310c2ffee98ab985210cab9165c8a5119643178f5917f45601c75f6f",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/a-silhouette-of-a-man-and-child-walking-on-the-beach-27572807/",
+      "author": "Cristiano Junior",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_family_34299026",
+      "file": "videos\\family_34299026.mp4",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "bb2b5241966b3cb986d1475026ac9c57d7eecfd6e745b1011e7f6cecc3ea83a4",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/peaceful-beach-walk-at-sunset-34299026/",
+      "author": "Adailton Domingues",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_family_36248385",
+      "file": "videos\\family_36248385.mp4",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "cbe1c3aa9ee4532a8e4b5bfb1705a8a75a1fe7afba194bb09296f9ff8701f207",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/father-and-child-wading-in-sunset-ocean-36248385/",
+      "author": "Darell Book",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_family_36384209",
+      "file": "videos\\family_36384209.mp4",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e52f7f9bc5381b70a952e2f1a06f94562a195aa3475feca4dc91298312b6e381",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/sunset-by-the-beach-with-silhouetted-group-36384209/",
+      "author": "Nischal",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_family_38740033",
+      "file": "videos\\family_38740033.mp4",
+      "categories": [
+        "family"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b3ad24575f809cd20e256100c40e498228a83be39f8d0c518db224208bbf6192",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/scenic-beach-sunset-with-families-playing-38740033/",
+      "author": "Margarita K",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_gratitude_67000",
+      "file": "images\\gratitude_67000.jpg",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "9eeb37bd823820e43e6db8bad9f39d4137d2585d9bf027bea9161370d99555f4",
+      "approved": true,
+      "resolution_width": 2592,
+      "resolution_height": 3408,
+      "source_url": "https://www.pexels.com/photo/silhouette-of-tree-during-sunset-67000/",
+      "author": "ana larazzy",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_gratitude_20410812",
+      "file": "images\\gratitude_20410812.jpg",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "69b436fd5dad535c324599d9fb92c57c4b43362a585267f49cfc307259831de1",
+      "approved": true,
+      "resolution_width": 3782,
+      "resolution_height": 5673,
+      "source_url": "https://www.pexels.com/photo/wildflower-at-dusk-20410812/",
+      "author": "Helena Jankovičová Kováčová",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_gratitude_5694802",
+      "file": "images\\gratitude_5694802.jpg",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "73792dfd1e09b760360fb654380571ef61c1a3443b18ad60baac03f50d35cd08",
+      "approved": true,
+      "resolution_width": 7481,
+      "resolution_height": 10100,
+      "source_url": "https://www.pexels.com/photo/glowing-light-behind-mountain-at-night-time-5694802/",
+      "author": "Allec Gomes",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_gratitude_19858730",
+      "file": "images\\gratitude_19858730.jpg",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "74082edb8cefa2c91c5695cab971870b1927451c865c9ea70eb91424f2c78591",
+      "approved": true,
+      "resolution_width": 4016,
+      "resolution_height": 5020,
+      "source_url": "https://www.pexels.com/photo/grass-in-winter-at-dawn-19858730/",
+      "author": "Vera Silkina",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_gratitude_37451541",
+      "file": "images\\gratitude_37451541.jpg",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "ede0f82a0ba5dab5d340b39aee8fb9f28d31363bb799e3781851a09f9a48630e",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/golden-hour-sunlight-through-tall-grasses-37451541/",
+      "author": "Anna Klymenko",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_gratitude_14392210",
+      "file": "images\\gratitude_14392210.jpg",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d7c7dd50e100a1e80924f5353d68dff3354631cb94a25e66edd111278cf1733b",
+      "approved": true,
+      "resolution_width": 2666,
+      "resolution_height": 4000,
+      "source_url": "https://www.pexels.com/photo/photo-of-leafless-trees-during-dusk-14392210/",
+      "author": "Aleksandr Gorlov",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_gratitude_16176908",
+      "file": "videos\\gratitude_16176908.mp4",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "46ba5c82092de3f3c8d7c7492f6da9bf3b35dcdc4907118ca95cbc310907bcb0",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/the-sun-is-setting-over-a-field-with-frost-16176908/",
+      "author": "Matthias Groeneveld",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_gratitude_27100098",
+      "file": "videos\\gratitude_27100098.mp4",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "e7267996cd60f89b138c3dd6f378371741e1adf832386f99cbfbd594029a46b1",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/the-sun-is-shining-through-the-trees-in-the-grass-27100098/",
+      "author": "Matthias Groeneveld",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_gratitude_15499822",
+      "file": "videos\\gratitude_15499822.mp4",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c2c7e42d26f5b3f7457db3da1beccff4074b4b79d8f9f80a36a62ae97a1416d7",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-sunrise-over-a-field-with-trees-and-fog-15499822/",
+      "author": "Matthias Groeneveld",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_gratitude_34159263",
+      "file": "videos\\gratitude_34159263.mp4",
+      "categories": [
+        "gratitude"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "8f7ef4a0db1e4ed1cab94a55ad5b1d78457742ec331ebb52244df69b8c546894",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/ethereal-sunrise-over-foggy-meadow-34159263/",
+      "author": "Matthias Groeneveld",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_occasions_31415226",
+      "file": "images\\occasions_31415226.jpg",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "60d93b11758094a44cd521a2eda58ed208006a9ab213076182fb4f6bc3443439",
+      "approved": true,
+      "resolution_width": 3200,
+      "resolution_height": 4800,
+      "source_url": "https://www.pexels.com/photo/golden-lantern-decorations-at-sunset-31415226/",
+      "author": "Hatice Kübra Kısa",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_occasions_36215257",
+      "file": "images\\occasions_36215257.jpg",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "de88eeb9c9871ee7971732b283fa789198e9e9369b0431d20ec28f31dfc10e0c",
+      "approved": true,
+      "resolution_width": 3024,
+      "resolution_height": 4032,
+      "source_url": "https://www.pexels.com/photo/colorful-ramadan-themed-decorative-cookies-36215257/",
+      "author": "yasminizm",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_occasions_24284827",
+      "file": "images\\occasions_24284827.jpg",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "2c8d7355284b7a9c52fd22c4730c1e862ba075880cdb67345cc131ab8f486bab",
+      "approved": true,
+      "resolution_width": 3191,
+      "resolution_height": 4255,
+      "source_url": "https://www.pexels.com/photo/lanterns-hanging-over-the-street-for-a-traditional-festival-24284827/",
+      "author": "Nafizur  Rahman",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_occasions_36170030",
+      "file": "images\\occasions_36170030.jpg",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b0a39218f1084bc632dba622c68afb272a9502e238cea80c69bb5f058ee0448e",
+      "approved": true,
+      "resolution_width": 4359,
+      "resolution_height": 7000,
+      "source_url": "https://www.pexels.com/photo/decorative-arabic-calligraphy-with-lantern-36170030/",
+      "author": "ULTRA_ IMAGE",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_occasions_16067094",
+      "file": "images\\occasions_16067094.jpg",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "06df31d34a50951bcea8716cc5192932b0708ad0c755ce8e4141a19152acd2a5",
+      "approved": true,
+      "resolution_width": 2243,
+      "resolution_height": 3987,
+      "source_url": "https://www.pexels.com/photo/window-decorated-for-ramadan-and-a-stand-with-the-quran-16067094/",
+      "author": "Hilal Yıldız",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_occasions_36623143",
+      "file": "images\\occasions_36623143.jpg",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "f86266bafbc97de7ce74dfb314341ddf65091d884c8f2ea45c8690ef33b4b606",
+      "approved": true,
+      "resolution_width": 2170,
+      "resolution_height": 3858,
+      "source_url": "https://www.pexels.com/photo/festive-night-at-mosque-in-istanbul-36623143/",
+      "author": "Sema Nur",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_occasions_8995626",
+      "file": "videos\\occasions_8995626.mp4",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "0129e5eb5407107505ace0c6914cf9f6422af1336ad81d919d7c129783e43b4e",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/kurban-bayram-spelled-on-a-letter-board-8995626/",
+      "author": "PNW Production",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_occasions_9096886",
+      "file": "videos\\occasions_9096886.mp4",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b735a2861af98424e05b0529575928d107d663d6288599b13d2ddb30867e71cf",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/party-banner-with-lights-9096886/",
+      "author": "Timur Weber",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_occasions_16107920",
+      "file": "videos\\occasions_16107920.mp4",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c4510612f59881f477c55d2e776c39781129d05f1542bba74fe69b5e262af620",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/the-blue-mosque-at-night-with-a-sign-that-says-toplum-16107920/",
+      "author": "Yunus KARA",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_occasions_7249126",
+      "file": "videos\\occasions_7249126.mp4",
+      "categories": [
+        "occasions"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "03acf710ef1f539b4367785d33cc6efeda3f4e1e48aab6155f7045f0f255cb07",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/a-woman-sitting-at-the-table-7249126/",
+      "author": "RDNE Stock project",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_anxiety_relief_4781782",
+      "file": "images\\anxiety_relief_4781782.jpg",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "cb1e164c09553fa6008c18d685b8b41caa323ffd7e43c8a7eee951408be1ec70",
+      "approved": true,
+      "resolution_width": 3072,
+      "resolution_height": 4608,
+      "source_url": "https://www.pexels.com/photo/photograph-of-a-body-of-water-with-waves-4781782/",
+      "author": "Alice Castro",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_anxiety_relief_34920472",
+      "file": "images\\anxiety_relief_34920472.jpg",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "98c12cbff167d8c64d2b437add14482279fa450fd2e0dd6867bf2f0ded4bf698",
+      "approved": true,
+      "resolution_width": 2848,
+      "resolution_height": 4288,
+      "source_url": "https://www.pexels.com/photo/serene-deep-blue-ocean-water-surface-34920472/",
+      "author": "Ninety Seven Years",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_anxiety_relief_39192620",
+      "file": "images\\anxiety_relief_39192620.jpg",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "24c3f2d54dda534bd62e0fbe915e7b2dd0a644d13595f0e4c9d4cee283fb245b",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/serene-blue-ocean-waves-captured-in-summer-light-39192620/",
+      "author": "Madzery Ma",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_anxiety_relief_27000709",
+      "file": "images\\anxiety_relief_27000709.jpg",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "57298f254402074b5be3dfc3526b8cf1fe32eb4e7dcee95944d43c691b173c12",
+      "approved": true,
+      "resolution_width": 3512,
+      "resolution_height": 6240,
+      "source_url": "https://www.pexels.com/photo/close-up-of-waves-on-the-shore-27000709/",
+      "author": "Rahime Gül",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_anxiety_relief_6638792",
+      "file": "images\\anxiety_relief_6638792.jpg",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "87da288b9df1a061368e36d7bd7ecb175927e1b74bc74ed07f3d893947b4053c",
+      "approved": true,
+      "resolution_width": 2670,
+      "resolution_height": 4000,
+      "source_url": "https://www.pexels.com/photo/waves-breaking-on-a-seashore-6638792/",
+      "author": "Ksenia Chernaya",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_anxiety_relief_20219912",
+      "file": "images\\anxiety_relief_20219912.jpg",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b15ae1c4169e124e79895cc8ec1c4e47cedc7e6b3bf554c27de42113828c257c",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/ripples-in-sea-20219912/",
+      "author": "Nives Plander",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_anxiety_relief_32024289",
+      "file": "videos\\anxiety_relief_32024289.mp4",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "b25bfa04f81ed2de01f58549726f87f0ce9408108d49f9474ccb802e905ade52",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/calm-ocean-surface-at-sunset-32024289/",
+      "author": "Pew Nguyen",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_anxiety_relief_27675468",
+      "file": "videos\\anxiety_relief_27675468.mp4",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "1a7d541ff6a0ed678507758c41fe7f87b59708307beeb42713ac3f390bfc9fdc",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/the-sun-is-setting-over-the-water-27675468/",
+      "author": "quang vinh",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_anxiety_relief_33193334",
+      "file": "videos\\anxiety_relief_33193334.mp4",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "d640709eb4eaf18368cf747f0d2ca2ac97b077763264531a690f3870a116a86d",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/slow-motion-of-calm-ocean-waves-33193334/",
+      "author": "Larkkid Dung",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_anxiety_relief_38544599",
+      "file": "videos\\anxiety_relief_38544599.mp4",
+      "categories": [
+        "anxiety_relief"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "6deb4795377c4e79233f58199f24bb36e3f0b2aaa4dc392cb0941396115cf691",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/calming-ocean-waves-with-blue-waters-38544599/",
+      "author": "Ch  Jawad",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "pix_general_7641148",
+      "file": "images\\general_7641148.jpg",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "1d91df0851792f302a98d485ec856723e9001254f07b6beeaa42b3db491bb7d3",
+      "approved": true,
+      "resolution_width": 4747,
+      "resolution_height": 7120,
+      "source_url": "https://www.pexels.com/photo/black-cloth-in-close-up-photography-7641148/",
+      "author": "Eva Bronzini",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_general_7505924",
+      "file": "images\\general_7505924.jpg",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "73028ded90ccaa808e132dccf61b5c2b579fc1a01ef1ca50e027455f45a7f9ee",
+      "approved": true,
+      "resolution_width": 4000,
+      "resolution_height": 6000,
+      "source_url": "https://www.pexels.com/photo/reflection-from-a-dark-liquid-surface-7505924/",
+      "author": "Eva Bronzini",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_general_2425232",
+      "file": "images\\general_2425232.jpg",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "8d8c50196e2f3da2f39d6359b8fb7865b65d0d10fc6a7e7bfc37d1a379cc619a",
+      "approved": true,
+      "resolution_width": 1699,
+      "resolution_height": 2550,
+      "source_url": "https://www.pexels.com/photo/black-pattern-on-black-background-2425232/",
+      "author": "Stacey Koenitz",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_general_4862953",
+      "file": "images\\general_4862953.jpg",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "01fd140f4169d2ec50085ff3bcf3b8942861dfc4099e646179c2f8698ebe5182",
+      "approved": true,
+      "resolution_width": 3821,
+      "resolution_height": 5732,
+      "source_url": "https://www.pexels.com/photo/white-polka-dot-pattern-on-black-fabric-4862953/",
+      "author": "https://kaboompics.com/",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_general_7641151",
+      "file": "images\\general_7641151.jpg",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c398cfc4da9607abc3caa8eeab74b069f2907542a26a438ae7db68cf4a84bc82",
+      "approved": true,
+      "resolution_width": 2848,
+      "resolution_height": 4272,
+      "source_url": "https://www.pexels.com/photo/close-up-shot-of-green-fabric-7641151/",
+      "author": "Eva Bronzini",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "pix_general_9667550",
+      "file": "images\\general_9667550.jpg",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "5eeb5c37b47c290782aa413889ba1ab800b1307a8308da0feb3df0a026e1ac72",
+      "approved": true,
+      "resolution_width": 2833,
+      "resolution_height": 4249,
+      "source_url": "https://www.pexels.com/photo/high-speed-photography-of-particles-of-water-splash-9667550/",
+      "author": "cottonbro studio",
+      "notes": "downloaded by download_backgrounds.py"
+    },
+    {
+      "id": "vid_general_10994872",
+      "file": "videos\\general_10994872.mp4",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "952348d567e489c8420b0b2b539e86967f1d12ae8a9b611a27da8aef7bbec2e1",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/dark-surface-tering-on-black-background-10994872/",
+      "author": "Nikita Ryumshin",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_general_35666006",
+      "file": "videos\\general_35666006.mp4",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "7737f2e33b799df6a009139bc90b6e24290d88914e56455b94bc1831d0c98177",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/abstract-shadow-patterns-on-textured-wall-35666006/",
+      "author": "Neringa  11",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_general_9665234",
+      "file": "videos\\general_9665234.mp4",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "c7be54afc101937e426d6f0da71df1f72950e7c2309b1075d894ebf65f70610e",
+      "approved": true,
+      "resolution_width": 540,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/falling-tiny-white-dust-particles-on-black-background-9665234/",
+      "author": "cottonbro studio",
+      "notes": "video background by download_backgrounds.py"
+    },
+    {
+      "id": "vid_general_7946013",
+      "file": "videos\\general_7946013.mp4",
+      "categories": [
+        "general"
+      ],
+      "license": "Pexels License",
+      "checksum_sha256": "f6a59b3009297b5e4f1564ffee4268aa12604361806cfbbc391c5b63117ef599",
+      "approved": true,
+      "resolution_width": 506,
+      "resolution_height": 960,
+      "source_url": "https://www.pexels.com/video/black-silky-cloth-7946013/",
+      "author": "Hanna Pad",
+      "notes": "video background by download_backgrounds.py"
+    }
+  ]
 }

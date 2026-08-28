@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Standalone TTS + audio merge for one dua (feeds Remotion pipeline).
 
-Produces in H:\\DuaVideoGenerator\\temp:
+Produces in temp:
   <id>_ar.mp3, <id>_ur.mp3, <id>_ar_timing.jsonl, <id>_ur_timing.jsonl,
   <id>_merged.wav  (loudness-normalized + padded to VIDEO-002 policy)
 
@@ -10,7 +10,7 @@ Skips work when outputs already exist (pass --force to redo).
 import os
 import sys
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(PROJECT)
 
 from core.dua_database import DB

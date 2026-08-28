@@ -1,7 +1,19 @@
 let duas=[], busy=false, searchTerm='', activeCat='All';
-let forceFlags={}, lastGridKey='', prevStep=null, barHidden=false, editingId=null;
+let forceFlags={}, lastGridKey='', prevStep=null, barHidden=false, editingId=null, jobDua='';
+const _AUTH=(window.AUTH_TOKEN||'');
+const _origFetch=window.fetch;
+window.fetch=function(url,opts){
+  opts=opts||{};
+  if(typeof url==='string'&&url.startsWith('/api/')){
+    opts.headers=opts.headers||{};
+    if(opts.headers instanceof Headers){opts.headers.set('Authorization','Bearer '+_AUTH);}
+    else if(Array.isArray(opts.headers)){opts.headers.push(['Authorization','Bearer '+_AUTH]);}
+    else{opts.headers['Authorization']='Bearer '+_AUTH;}
+  }
+  return _origFetch(url,opts);
+};
 var EXPERT=/[?&]expert=1/.test(location.search);
-if(EXPERT){document.querySelectorAll('.js-expert').forEach(function(el){el.style.display='';});}
+if(EXPERT){document.body.classList.add('expert');}
 const THEME_LABEL={dark:'Dark Gold',mosque:'Mosque Night',sunset:'Sunset Dawn',manuscript:'Manuscript',emerald:'Emerald Pattern',ocean:'Ocean Night',desert:'Desert Gold',royal:'Royal Purple'};
 const VOICE_PAIRS={'Hamed + Asad':['ar-SA-HamedNeural','ur-PK-AsadNeural'],'Zariyah + Uzma':['ar-SA-ZariyahNeural','ur-PK-UzmaNeural']};
 function setThemeSel(v){
@@ -11,8 +23,12 @@ function setThemeSel(v){
     l.querySelector('input').checked=on;
   });
 }
+let _loaded=false;
 async function load(){
-  const r=await fetch('/api/duas'); const j=await r.json(); duas=j.duas; buildChips(); render(); stats(); ytRenderPicker();
+  if(!_loaded){document.getElementById('grid').innerHTML='<div class="loading">Loading...</div>';}
+  const r=await fetch('/api/duas'); const j=await r.json(); duas=j.duas; buildChips(); render(); stats();
+  _loaded=true;
+  if(document.getElementById('ytHub').style.display!=='none') ytRenderPicker();
 }
 function stats(){
   const done=duas.filter(d=>d.videoFile).length;
@@ -20,6 +36,9 @@ function stats(){
   const pct=duas.length?Math.round(done*100/duas.length):0;
   document.getElementById('ring').style.setProperty('--p',pct+'%');
   document.getElementById('ringtxt').textContent=pct+'%';
+  const upCount=(window.ytUploadedIds||[]).length;
+  const el=document.getElementById('uploaded_count');
+  if(el) el.textContent=upCount;
 }
 function buildChips(){
   const cats=['All',...new Set(duas.map(d=>d.category))];
@@ -29,7 +48,9 @@ function buildChips(){
 function setCat(c){ activeCat=c; buildChips(); render(); }
 function onSearch(v){ searchTerm=v.trim().toLowerCase(); render(); }
 function filtered(){
+  var upIds=window.ytUploadedIds||[];
   return duas.filter(d=>{
+    if(upIds.indexOf(d.id)>=0) return false;
     const okCat=activeCat==='All'||d.category===activeCat;
     const q=searchTerm;
     const okQ=!q||d.title.toLowerCase().includes(q)||(d.reference||'').toLowerCase().includes(q)||d.id.includes(q);
@@ -37,32 +58,41 @@ function filtered(){
   });
 }
 var ytPollT=null,ytWasRunning=false,ytWasAuth=false;
-function ytToggle(){
-  var p=document.getElementById('ytpanel');
-  var show=p.style.display==='none';
-  p.style.display=show?'block':'none';
-  if(show){ ytRenderPicker(); ytRefresh(); }
+var ytHubTab='upload';
+function ytToggle(tab){
+  var p=document.getElementById('ytHub');
+  var isOpen=p.style.display!=='none';
+  tab=tab||'upload';
+  if(!isOpen){
+    p.style.display='block';
+    _pushModal('ytHub');
+    ytTab(tab);
+    ytRefresh();
+    ytRenderPicker();
+  } else if(ytHubTab!==tab){
+    ytTab(tab);
+  } else {
+    p.style.display='none';
+    _popModal('ytHub');
+  }
 }
+function ytTab(name){
+  ytHubTab=name;
+  document.querySelectorAll('.yt-tab').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name);});
+  document.getElementById('ytTab_upload').style.display=name==='upload'?'block':'none';
+  document.getElementById('ytTab_uploaded').style.display=name==='uploaded'?'block':'none';
+  if(name==='uploaded'){ openUploadedList(); }
+  else { stopYtStatsAuto(); }
+}
+function ytHubClose(){ document.getElementById('ytHub').style.display='none'; _popModal('ytHub'); stopYtStatsAuto(); }
 function ytEsc(s){
   return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 function ytEnsurePoll(){
-  if(!ytPollT) ytPollT=setInterval(ytRefresh,1500);
+  if(!ytPollT) ytPollT=setInterval(ytRefresh,5000);
 }
-function ytAuthBadgeHtml(c){
-  if(c.auth==='ok') return '<span style="color:#56d364">&#9679; logged in</span>';
-  if(c.auth==='unverified') return '<span style="color:#d4af37">&#9679; token?</span>';
-  return '<span style="color:#ff7676">&#9679; not logged in</span>';
-}
-function ytSecToggle(btnId,secId){
-  var b=document.getElementById(btnId);
-  var s=document.getElementById(secId);
-  var open=s.style.display==='none';
-  s.style.display=open?'block':'none';
-  b.textContent=b.textContent.replace(open?'\u{25B8}':'\u{25BE}',open?'\u{25BE}':'\u{25B8}');
-}
-function ytAdvToggle(){ ytSecToggle('yt_advbtn','yt_adv'); }
-function ytAccToggle(){ ytSecToggle('yt_logaccbtn','yt_log'); }
+
+function ytAccToggle(){ var b=document.getElementById('yt_log_box'); b.style.display=b.style.display==='none'?'block':'none'; }
 function ytCopyFallback(t){
   var ta=document.createElement('textarea');
   ta.value=t;
@@ -74,7 +104,7 @@ function ytCopyFallback(t){
 function ytCopyLinks(){
   var links=window.ytLastLinks||[];
   if(!links.length){toast('Abhi koi YouTube link maujood nahi - pehle upload karo','err');return;}
-  var txt=links.map(function(x){return x.title+' - '+x.url;}).join('\\n');
+  var txt=links.map(function(x){return x.title+' - '+x.url;}).join('\n');
   var done=function(){toast(links.length+' links copy ho gaye - ready to share!','ok');};
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(txt).then(done,function(){ytCopyFallback(txt);done();});
@@ -84,34 +114,27 @@ async function ytRefresh(){
   try{
     const r=await fetch('/api/youtube/status'); if(!r.ok)return;
     const j=await r.json();
-    const sp=document.getElementById('yt_secret_pill');
-    sp.textContent='client_secret: '+(j.clientSecret?('FOUND'+(j.secretInfo?' ('+j.secretInfo+')':'')):'MISSING');
-    sp.style.borderColor=j.clientSecret?'#2ea043':'#6b2737';
-    const cb=document.getElementById('yt_cred_badge');
-    const cr=j.creds&&j.creds.present;
-    cb.textContent='credentials: '+(cr?('SET '+(j.creds.maskedClientId||'')):'NOT SET');
-    cb.style.borderColor=cr?'#2ea043':'#6b2737';
-    const cidInp=document.getElementById('yt_cid');
-    cidInp.placeholder=(cr&&j.creds.maskedClientId)?('saved: '+j.creds.maskedClientId):'Client ID (....apps.googleusercontent.com)';
     var ms=[];
+    var totalQuota=0;
     ['channel1','channel2'].forEach(function(ch,i){
       const c=(j.channels&&j.channels[ch])||{};
-    var ch=window.ytCh&&window.ytCh[c];
-    var qu=(ch&&typeof ch.quotaUploadsToday==='number')?ch.quotaUploadsToday:null;
-    var suffix=(qu!==null)?(' \u00b7 Quota '+qu+'/5'):'';
-    if(c.auth==='ok') ms.push('\u{1F7E2} Channel '+(i+1)+': Ready'+suffix);
-    else if(c.auth==='unverified') ms.push('\u{1F7E1} Channel '+(i+1)+': Token check'+suffix);
-    else ms.push('\u{1F534} Channel '+(i+1)+': Setup needed'+suffix);
+      const qu=(typeof c.quotaUploadsToday==='number')?c.quotaUploadsToday:0;
+      totalQuota+=qu;
+      if(c.auth==='ok') ms.push('<span style="color:#56d364">&#9679; Ch '+(i+1)+': Ready</span> <span style="color:#5a6474">('+qu+'/5 quota)</span>');
+      else ms.push('<span style="color:#ff8585">&#9679; Ch '+(i+1)+': Setup needed</span>');
     });
     var needSetup=(j.channels&&(j.channels.channel1||{}).auth!=='ok')||(j.channels&&(j.channels.channel2||{}).auth!=='ok');
-    document.getElementById('yt_mainstatus').innerHTML=ms.join(' &nbsp;&middot;&nbsp; ')
-      +(needSetup?'<div class="aihint no" style="margin:4px 0 0">Channel setup ke liye neeche \u2699 Advanced Setup kholo</div>':'');
-    ['channel1','channel2'].forEach(ch=>{
-      const c=(j.channels&&j.channels[ch])||{};
-      const el=document.getElementById('yt_authst_'+ch);
-      const running=j.auth&&j.auth.running&&j.auth.channel===ch;
-      el.innerHTML=running?'<span style="color:#d4af37">&#9679; consent window khula...</span>':ytAuthBadgeHtml(c);
-    });
+    document.getElementById('yt_mainstatus').innerHTML=ms.join(' &nbsp;&nbsp; ')
+      +(needSetup?'<div style="margin:6px 0 0;font-size:12px;color:#8b93a3">Setup ke liye <b onclick="openSettings()" style="cursor:pointer;color:#d4af37">Settings &#8594; YouTube Auth</b></div>':'');
+    var sb=document.getElementById('yt_statbar');
+    if(sb){
+      var hasJob=j.job&&j.job.running;
+      var hasAuth=j.auth&&j.auth.running;
+      sb.innerHTML='<div class="yt-stat"><div class="val">'+totalQuota+'</div><div class="lbl">Quota Used</div></div>'
+        +'<div class="yt-stat"><div class="val">'+(j.channels?2:0)+'</div><div class="lbl">Channels</div></div>'
+        +'<div class="yt-stat"><div class="val">'+(hasJob?((j.job.done||0)+'/'+(j.job.total||0)):'Idle')+'</div><div class="lbl">Upload Status</div></div>'
+        +'<div class="yt-stat"><div class="val">'+(hasAuth?'Active':'--')+'</div><div class="lbl">Auth</div></div>';
+    }
     var lg=document.getElementById('yt_log');
     var tail=null;
     if(j.job&&j.job.running) tail=j.job.logTail;
@@ -121,48 +144,31 @@ async function ytRefresh(){
       tail=jt>=at?(j.job&&j.job.logTail):(j.auth&&j.auth.logTail);
     }
     if(tail&&tail.length){
-      lg.textContent=tail.join('\\n');
+      lg.textContent=tail.join('\n');
       lg.scrollTop=lg.scrollHeight;
     }
-    var rows=[];
-    ['channel1','channel2'].forEach(ch=>{
-      const list=(j.channels&&j.channels[ch]&&j.channels[ch].recent)||[];
-      list.forEach(u=>rows.push({ch:ch,u:u}));
-    });
-    rows.sort((a,b)=>String(b.u.uploadedAt||'').localeCompare(String(a.u.uploadedAt||'')));
-    const tb=document.getElementById('yt_tbody');
-    if(rows.length){
-      tb.innerHTML=rows.slice(0,12).map((x,i)=>{
-        const link=x.u.url?'<a href="'+x.u.url+'" target="_blank" style="color:#58a6ff">youtu.be/'+ytEsc(x.u.videoId)+'</a>':'-';
-        return '<tr>'
-          +'<td style="padding:6px;border-bottom:1px solid #232c3b;color:#8b93a3">'+(i+1)+'</td>'
-          +'<td style="padding:6px;border-bottom:1px solid #232c3b">'+ytEsc(x.u.title)+'</td>'
-          +'<td style="padding:6px;border-bottom:1px solid #232c3b;color:#8b93a3">'+(x.ch==='channel1'?'Ch 1':'Ch 2')+'</td>'
-          +'<td style="padding:6px;border-bottom:1px solid #232c3b">'+link+'</td>'
-          +'<td style="padding:6px;border-bottom:1px solid #232c3b;color:#8b93a3">'+ytEsc(x.u.privacy||'')+'</td>'
-          +'</tr>';
-      }).join('');
-    } else {
-      tb.innerHTML='<tr><td colspan="5" style="color:#8b93a3;padding:8px">koi upload nahi</td></tr>';
-    }
-    window.ytLastLinks=rows.filter(function(x){return x.u.url;})
-      .map(function(x){return {title:x.u.title,url:x.u.url};});
+    window.ytLastLinks=(j.job&&j.job.finishedLinks)||[];
     var pg=document.getElementById('yt_progress');
     var jb=j.job||{};
     if(jb.running){
-      pg.style.display='block';
+      pg.className='progress-box show';
       var t=jb.total||0,d=jb.done||0;
-      pg.innerHTML='\u{23F3} Uploading Video '+Math.min(d+1,t||1)+' of '+(t||'?')+'... Please wait '
-        +'<button onclick="ytCancelReq()" style="margin-left:10px;background:#3a1520;color:#ff7b72;border:1px solid #6b2737;border-radius:8px;padding:4px 12px;font-size:11px;cursor:pointer">\u{23F9} CANCEL</button>';
+      var pct=t?Math.round(d*100/t):0;
+      document.getElementById('yt_progress_title').textContent='Uploading Video '+Math.min(d+1,t||1)+' of '+(t||'?');
+      document.getElementById('yt_progress_fill').style.width=pct+'%';
     } else if(j.auth&&j.auth.running){
-      pg.style.display='block';
-      pg.innerHTML='\u{1F511} Google login window khuli hai - browser me account choose karke allow karo...';
+      pg.className='progress-box show';
+      document.getElementById('yt_progress_title').textContent='Google login window khuli hai - browser me account choose karo';
+      document.getElementById('yt_progress_fill').style.width='50%';
     } else if(jb.code!==null&&jb.code!==undefined&&(jb.videos||[]).length){
-      pg.style.display='block';
-      pg.innerHTML=(jb.code===0?'\u{2705} ':'\u{26A0}\u{FE0F} ')+'Run complete - '+jb.videos.length+' video(s). Links neeche table me hain.';
+      pg.className='progress-box show';
+      document.getElementById('yt_progress_title').textContent=(jb.code===0?'Done':'Warning')+' - '+jb.videos.length+' video(s) uploaded';
+      document.getElementById('yt_progress_fill').style.width='100%';
     } else {
-      pg.style.display='none';
+      pg.className='progress-box';
     }
+    var ac=document.getElementById('yt_start');
+    if(ac) ac.disabled=!!(jb.running||(j.auth&&j.auth.running));
     window.ytCh=j.channels||{};
     var up=j.uploadedIds||[];
     if(JSON.stringify(up)!==JSON.stringify(window.ytUploadedIds||[])){
@@ -274,29 +280,54 @@ async function ytAuth(ch){
 var ytBusy=false,ytSel={};
 function ytUpdateCount(){
   var n=Object.keys(ytSel).length;
-  document.getElementById('yt_pickcount').textContent='Selected: '+n+' / 6';
+  document.getElementById('yt_pickcount').textContent=n+' / 6 Selected';
   var b=document.getElementById('yt_start');
   b.disabled=(ytBusy||n===0||n>6);
   b.textContent='\u{1F680} UPLOAD SELECTED ('+n+') VIDEOS';
 }
 function ytRenderPicker(){
   var q=(document.getElementById('yt_picksearch').value||'').toLowerCase();
+  var upIds=window.ytUploadedIds||[];
   var rows=(typeof duas!=='undefined'?duas:[]).filter(function(d){
     if(!d.videoFile) return false;
-    return !q||d.title.toLowerCase().includes(q)||d.id.toLowerCase().includes(q);
+    if(upIds.indexOf(d.id)>=0) return false;
+    return !q||d.title.toLowerCase().includes(q)||d.id.toLowerCase().includes(q)||(d.reference||'').toLowerCase().includes(q);
   });
   var keys=Object.keys(ytSel);
-  document.getElementById('yt_picklist').innerHTML=rows.length?rows.map(function(d){
+  var el=document.getElementById('yt_picklist');
+  if(!rows.length){
+    el.innerHTML='<div style="font-size:12px;color:#5a6474;padding:16px;text-align:center">Koi rendered dua nahi mili</div>';
+    return;
+  }
+  var frag=document.createDocumentFragment();
+  rows.forEach(function(d){
     var on=!!ytSel[d.id];
     var pos=on?(keys.indexOf(d.id)+1):null;
-    return '<div onclick="ytToggleDua(\''+d.id+'\')" style="position:relative;background:'+(on?'#1c2431':'#151b26')+';border:2px solid '+(on?'#d4af37':'#2a3345')+';border-radius:12px;padding:12px 10px;cursor:pointer;user-select:none">'
-      +'<span style="color:#8b93a3;font-size:10px">'+ytEsc(d.id)+'</span>'
-       +'<div style="font-size:12.5px;color:#e6e2d2;margin-top:4px;line-height:1.35">'+ytEsc(d.title)+'</div>'
-      +((window.ytUploadedIds||[]).indexOf(d.id)>=0?'<span style="display:inline-block;margin-top:6px;background:#1f3327;color:#7dd88f;border:1px solid #2f5a3f;border-radius:6px;padding:2px 8px;font-size:10px">[Uploaded]</span>':'')
-      +(d.refShared?'<span style="display:inline-block;margin-top:6px;margin-left:4px;background:#3a2f14;color:#e0b34d;border:1px solid #5a4a1f;border-radius:6px;padding:2px 8px;font-size:10px" title="Isi hadith reference par ek aur dua bhi hai">ref shared</span>':'')
-      +(pos?'<span style="position:absolute;top:-10px;right:-6px;background:#d4af37;color:#0b0e13;font-weight:bold;font-size:13px;border-radius:999px;min-width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.5)">#'+pos+'</span>':'')
+    var isUploaded=(window.ytUploadedIds||[]).indexOf(d.id)>=0;
+    var card=document.createElement('div');
+    card.className='card picker-card'+(on?' selected':'');
+    card.setAttribute('data-id',d.id);
+    card.onclick=function(){ ytToggleDua(d.id); };
+    var thumb=d.thumbFile
+      ?'<img class="card-thumb" src="/thumb/'+encodeURIComponent(d.thumbFile)+'" loading="lazy" style="cursor:default">'
+      :'<div class="card-thumb" style="display:flex;align-items:center;justify-content:center;color:#39445a;font-size:18px">&#9654;</div>';
+    card.innerHTML=thumb
+      +'<div class="card-body">'
+        +'<div class="card-ref">'+(d.reference||'&nbsp;')+'</div>'
+        +'<div class="card-title">'+ytEsc(d.title)+'</div>'
+        +'<div class="card-meta">'
+          +'<span class="b ok">Ready</span>'
+          +(isUploaded?'<span class="pi-up">&#10003; Uploaded</span>':'')
+        +'</div>'
+      +'</div>'
+      +'<div class="card-actions" style="align-items:center;gap:4px">'
+        +'<div class="pi-check">'+(on?'&#10003;':'')+'</div>'
+        +(pos?'<div class="pi-pos">'+pos+'</div>':'')
       +'</div>';
-  }).join(''):'<div style="font-size:12px;color:#8b93a3;padding:8px">koi dua nahi mili</div>';
+    frag.appendChild(card);
+  });
+  el.innerHTML='';
+  el.appendChild(frag);
 }
 function ytToggleDua(id){
   if(ytSel[id]){ delete ytSel[id]; }
@@ -321,8 +352,8 @@ function quickUpload(id){
     if(Object.keys(ytSel).length>=6){toast('Max 6 videos ek run me select kar sakte ho','err');return;}
     ytSel[id]=true;
   }
-  var p=document.getElementById('ytpanel');
-  if(p&&p.style.display==='none')ytToggle();
+  var p=document.getElementById('ytHub');
+  if(p&&p.style.display==='none')ytToggle('upload');
   ytUpdateCount();
   ytRenderPicker();
   var anchor=document.getElementById('yt_pickcount');
@@ -340,26 +371,20 @@ async function ytCancelReq(){
 }
 async function ytStart(){  const sel=Object.keys(ytSel);
   if(!sel.length){toast('Pehle 1-6 duas select karo','err');return;}
-  const mode=document.getElementById('yt_mode').value;
-  if(mode==='live'&&!confirm('LIVE upload? '+sel.length+' selected videos ASLI YouTube channel par jayengi.'))return;
-  var upIds=window.ytUploadedIds||[];
-  var already=sel.filter(function(id){return upIds.indexOf(id)>=0;});
-  if(already.length){
-    if(!confirm(already.length+' video(s) pehle upload ho chuki hain: '
-      +already.join(', ')+'. Dubara upload karogi?'))return;
-  }
+  var mode=document.getElementById('yt_mode').value;
+  if(mode==='live'&&!confirm('LIVE MODE - Asli YouTube pe upload hoga. Confirm karo?'))return;
   var b=document.getElementById('yt_start');b.disabled=true;b.textContent='Uploading...';
   const bodyObj={
     channel:document.getElementById('yt_channel').value,
     privacy:document.getElementById('yt_privacy').value,
-    mode,
+    mode:mode,
     selectedDuas:sel};
   const body=JSON.stringify(bodyObj);
   try{
     const r=await fetch('/api/youtube/upload',{method:'POST',headers:{'Content-Type':'application/json'},body});
     const j=await r.json();
     if(!j.ok){b.disabled=false;b.textContent='\u{1F680} UPLOAD SELECTED ('+sel.length+') VIDEOS';toast(j.error||'Upload start fail','err');return;}
-    toast('Upload start: '+j.channel+' manual x'+j.selectedCount+' ('+j.mode+')','ok');
+    toast('Upload start: '+j.channel+' '+mode+' x'+j.selectedCount,mode==='live'?'ok':'warn');
     ytWasRunning=true;
     ytEnsurePoll();
     ytRefresh();
@@ -373,43 +398,41 @@ function logClass(l){
 }
 function render(){
   const list=filtered();
-  const key=JSON.stringify([list.map(d=>[d.id,d.videoFile,d.audioReady,d.manifest]),searchTerm,activeCat,busy]);
+  const done=list.filter(d=>d.videoFile).length;
+  const total=list.length;
+  const busyKey=busy?jobDua:'';
+  const key=total+':'+done+':'+busyKey+':'+searchTerm+':'+activeCat;
   if(key===lastGridKey)return;
   lastGridKey=key;
   const grid=document.getElementById('grid');
-  if(!list.length){grid.innerHTML='<div class="empty">Koi dua nahi mili &#128269;</div>';return;}
-  grid.innerHTML=list.map(d=>{
+  if(!total){grid.innerHTML='<div class="empty">Koi dua nahi mili</div>';return;}
+  const frag=document.createDocumentFragment();
+  list.forEach(d=>{
     const vid=d.videoFile;
-    const cls='card'+(vid?' rendered':'')+((busy&&jobDua===d.id)?' active-job':'');
-    return '<div class="'+cls+'">'+
-      (d.thumbFile?'<img class="poster" src="/thumb/'+encodeURIComponent(d.thumbFile)+'" loading="lazy" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')" style="cursor:'+(vid?'pointer':'default')+'">':'')+
-      '<div class="trow"><div style="flex:1"><div class="ref">'+(d.reference||'')+'</div>'+
-      '<div class="t">'+d.title+'</div></div>'+
-      '<div class="actions">'+
-        (vid?'':'<button class="ico" title="Edit" onclick="editDua(\''+d.id+'\')">&#9999;&#65039;</button>')+
-        '<button class="ico danger" title="Delete" onclick="delDua(\''+d.id+'\')">&#128465;&#65039;</button>'+
-      '</div></div>'+
-      '<div class="meta">'+
-        badge(d.audioReady,'AUDIO READY','NO AUDIO','')+
-        badge(d.manifest,'MANIFEST','NO MANIFEST','')+
-        (vid?'<span class="b ok">RENDERED</span>':(d.audioReady?'<span class="b warn">NOT RENDERED</span>':''))+
-        (d.qc?(d.qc.pass?'<span class="b ok">&#9989; QC</span>':'<span class="b warn">&#9888;&#65039; QC FAIL</span>'):'')+
-        '<span class="b theme">&#127912; '+(THEME_LABEL[d.theme]||d.theme||'Dark Gold')+'</span>'+
-        (d.videoMB?'<span class="b mb">'+d.videoMB+' MB</span>':'')+
-      '</div>'+
-      '<div class="row">'+
-        (vid
-          ?'<button class="btn-play" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')">PLAY</button>'+
-           '<button class="btn-render" onclick="quickUpload(\''+d.id+'\')" style="background:#1f3327;border-color:#2f5a3f;color:#7dd88f">UPLOAD</button>'
-          :'<button class="btn-render" '+(busy?'disabled':'')+' onclick="startRender(\''+d.id+'\')">'+(d.audioReady?'RENDER':'TTS + RENDER')+'</button>')+
-      '</div>'+
-      (vid?'':'<label class="force"><input type="checkbox" '+(forceFlags[d.id]?'checked':'')+' onchange="forceFlags[\''+d.id+'\']=this.checked"> force re-TTS</label>')+
-    '</div>';
-  }).join('');
+    const el=document.createElement('div');
+    el.className='card'+(vid?' rendered':'')+((busy&&jobDua===d.id)?' active-job':'');
+    const thumb=d.thumbFile
+      ?'<img class="card-thumb" src="/thumb/'+encodeURIComponent(d.thumbFile)+'" loading="lazy" '+(vid?'onclick="openPlayer(\''+encodeURIComponent(vid)+'\')" style="cursor:pointer"':'')+' >'
+      :'<div class="card-thumb" style="display:flex;align-items:center;justify-content:center;color:#39445a;font-size:18px">&#9654;</div>';
+    el.innerHTML=thumb
+      +'<div class="card-body">'
+        +'<div class="card-ref">'+(d.reference||'&nbsp;')+'</div>'
+        +'<div class="card-title">'+d.title+'</div>'
+        +'<div class="card-meta">'
+          +(vid?'<span class="b ok">Done</span>':(d.audioReady?'<span class="b warn">Pending</span>':'<span class="b no">No Audio</span>'))
+          +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
+        +'</div>'
+      +'</div>'
+      +'<div class="card-actions">'
+        +(vid?'<button class="btn-play" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')">PLAY</button>'
+          :'<button class="btn-render" '+(busy?'disabled':'')+' onclick="startRender(\''+d.id+'\')">'+(d.audioReady?'Render':'TTS')+'</button>')
+      +'</div>';
+    frag.appendChild(el);
+  });
+  grid.innerHTML='';
+  grid.appendChild(frag);
 }
-function badge(ok,yes,no,warn){
-  return ok?'<span class="b ok">'+yes+'</span>':'<span class="b '+(warn?'warn':'no')+'">'+no+'</span>';
-}
+
 async function startRender(id){
   const force=!!forceFlags[id];
   const r=await fetch('/api/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaId:id,force})});
@@ -426,11 +449,13 @@ function openPlayer(enc){
   v.src='/video/'+enc+'?ts='+Date.now();
   document.getElementById('pname').textContent=name;
   document.getElementById('playerbg').classList.add('show');
+  _pushModal('player');
   v.play();
 }
 function closePlayer(){
   const v=document.getElementById('pvid'); v.pause(); v.src='';
   document.getElementById('playerbg').classList.remove('show');
+  _popModal('player');
 }
 function dismissBar(){ barHidden=true; document.getElementById('jobbar').classList.remove('show'); }
 async function poll(){
@@ -450,7 +475,7 @@ async function poll(){
     const lb=document.getElementById('jlog');
     if(lb){
       const recent=(j.logs||[]).slice(-3);
-      const html=recent.map(l=>'<span class="'+logClass(l)+'">'+l+'</span>').join('\\n');
+      const html=recent.map(l=>'<span class="'+logClass(l)+'">'+l+'</span>').join('\n');
       if(lb.dataset.prev!==html){lb.innerHTML=html;lb.scrollTop=lb.scrollHeight;lb.dataset.prev=html;}
     }
     const jb=document.getElementById('jbatch');
@@ -459,21 +484,20 @@ async function poll(){
       jc.style.display='inline-block';
       jb.style.display='inline';
       jb.textContent=(j.queue.idx)+'/'+j.queue.total+
-        ' \\u2705'+j.queue.done+' \\u274C'+(j.queue.failed?j.queue.failed.length:0)+
-        (j.queue.skipped&&j.queue.skipped.length?(' \\u23ED'+j.queue.skipped.length):'')+
+        ' \u2705'+j.queue.done+' \u274C'+(j.queue.failed?j.queue.failed.length:0)+
+        (j.queue.skipped&&j.queue.skipped.length?(' \u23ED'+j.queue.skipped.length):'')+
         ' | '+(j.duaId||'-');
     }else{jb.style.display='none';jc.style.display='none';}
     document.title = j.running ? (j.percent + '% - Dua Studio') : 'Dua Video Studio';
     if(prevStep && prevStep!=='done' && j.step==='done' && !j.running){
-      toast('\\u2705 '+(j.lastVideo||'Video').split('\\\\').pop()+' ready!','ok');
+      toast('\u2705 '+(j.lastVideo||'Video').split('\\').pop()+' ready!','ok');
       lastGridKey=''; load();
     }
     if(prevStep && prevStep!=='failed' && j.step==='failed' && !j.running){
-      toast('\\u274C Render failed: '+j.error,'err');
+      toast('\u274C Render failed: '+j.error,'err');
       lastGridKey=''; load();
     }
     prevStep=j.step;
-    render();
   }catch(e){}
 }
 document.getElementById('themegrid').addEventListener('click',e=>{
@@ -489,12 +513,13 @@ function setVoiceMode(m){
 }
 function openVoice(){
   const sel=document.getElementById('v_dua');
-  sel.innerHTML=duas.map(d=>'<option value="'+d.id+'">'+d.title+'</option>').join('');
+  sel.innerHTML=duas.map(d=>'<option value="'+d.id+'">'+escHtml(d.title)+'</option>').join('');
   document.getElementById('voiceplayer').style.display='none';
   setVoiceMsg('','');
   document.getElementById('voicebg').classList.add('show');
+  _pushModal('voice');
 }
-function closeVoice(){ document.getElementById('voicebg').classList.remove('show'); }
+function closeVoice(){ document.getElementById('voicebg').classList.remove('show'); _popModal('voice'); }
 function setVoiceMsg(t,c){ const m=document.getElementById('voicemsg'); m.textContent=t; m.className='formmsg '+c; }
 async function genVoice(){
   if(voiceMode==='custom'){
@@ -511,7 +536,7 @@ async function genVoice(){
       if(!j.ok)return setVoiceMsg(j.error||'Fail hua','err');
       document.getElementById('voiceplayer').style.display='block';
       document.getElementById('ap_voice').src='/audio/'+j.savedFile+'?v='+j.ts;
-      setVoiceMsg('\\u2705 Ban gayi! AUDIO folder me save: '+j.savedFile,'ok');
+      setVoiceMsg('\u2705 Ban gayi! AUDIO folder me save: '+j.savedFile,'ok');
     }catch(e){setVoiceMsg('Server error','err');}
     return;
   }
@@ -529,7 +554,7 @@ async function genVoice(){
       if(!s.running&&s.step==='done'){
         document.getElementById('voiceplayer').style.display='block';
         document.getElementById('ap_voice').src='/temp-voice/'+id+'?v='+Date.now();
-        setVoiceMsg('\\u2705 Ready! Neeche play dabao','ok');
+        setVoiceMsg('\u2705 Ready! Neeche play dabao','ok');
         lastGridKey='';load();
         return;
       }
@@ -543,19 +568,20 @@ function openFolder(which){
 }
 async function renderAll(){
   if(busy)return toast('Pehle chalta hua job khatam hone do','err');
-  if(!confirm('Saari duas ki videos banayen ge?\\n- Jo bani hain wo dobara banengi (naye style/voice ke sath)\\n- Fail hui wali skip ho kar aage barhegi'))return;
+  if(!confirm('Saari PENDING videos banayen ge?\nJo bani hain wo automatically skip ho jayengi'))return;
   const r=await fetch('/api/render-all',{method:'POST'});
   const j=await r.json();
-  if(j.ok){toast('\\u26A1 Batch shuru: '+j.total+' videos','ok');barHidden=false;}
+  if(j.ok){toast('\u26A1 Batch shuru: '+j.total+' videos','ok');barHidden=false;}
   else toast(j.error||'Fail hua','err');
 }
 async function cancelJob(){
   const r=await fetch('/api/cancel',{method:'POST'});
   const j=await r.json();
-  if(j.ok)toast(j.batch?'\\u23F9 Batch cancel ho raha hai...':'\\u23F9 Job cancel ho raha hai...','ok');
+  if(j.ok)toast(j.batch?'\u23F9 Batch cancel ho raha hai...':'\u23F9 Job cancel ho raha hai...','ok');
 }
 async function openHistory(){
   document.getElementById('histbg').classList.add('show');
+  _pushModal('history');
   const r=await fetch('/api/history');const j=await r.json();
   const h=j.history||[];
   document.getElementById('histlist').innerHTML=h.length?h.map(e=>{
@@ -567,14 +593,14 @@ async function openHistory(){
       '<div style="font-size:11px;color:#5a6474">'+when+(e.error?' &mdash; '+escHtml(e.error):'')+(e.look?'<div style="color:#c9a227;font-size:10.5px">&#127912; '+escHtml(e.look)+'</div>':'')+'</div></div></div>';
   }).join(''):'<div class="empty">Abhi koi render history nahi</div>';
 }
-function closeHistory(){document.getElementById('histbg').classList.remove('show');}
+function closeHistory(){document.getElementById('histbg').classList.remove('show');_popModal('history');}
 function escHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function thumbsAll(){
   if(busy)return toast('Pehle chalta hua job khatam hone do','err');
   if(!confirm('Jo videos ke thumbnails nahi hain, sab banayen ge?'))return;
   const r=await fetch('/api/thumbs-all',{method:'POST'});
   const j=await r.json();
-  if(j.ok)toast('\\uD83D\\uDDBC\\uFE0F Thumbnails ban rahe hain - log dekho','ok');
+  if(j.ok)toast('\uD83D\uDDBC\uFE0F Thumbnails ban rahe hain - log dekho','ok');
   else toast(j.error||'Fail hua','err');
 }
 function openSettings(){
@@ -591,10 +617,167 @@ function openSettings(){
   });
   setMsg2('','');
   document.getElementById('setbg').classList.add('show');
+  _pushModal('settings');
+  ytRefresh();
 }
-function closeSettings(){ document.getElementById('setbg').classList.remove('show'); }
-function openHelp(){ document.getElementById('helpbg').classList.add('show'); tabHelp('ro'); }
-function closeHelp(){ document.getElementById('helpbg').classList.remove('show'); }
+function closeSettings(){ document.getElementById('setbg').classList.remove('show'); _popModal('settings'); }
+function openHelp(){ document.getElementById('helpbg').classList.add('show'); _pushModal('help'); tabHelp('ro'); }
+function closeHelp(){ document.getElementById('helpbg').classList.remove('show'); _popModal('help'); }
+async function openUploadedList(){
+  var hub=document.getElementById('ytHub');
+  if(hub.style.display==='none'){ hub.style.display='block'; _pushModal('ytHub'); ytTab('uploaded'); }
+  var statusEl=document.getElementById('yt_up_status');
+  var statbarEl=document.getElementById('yt_up_statbar');
+  var listEl=document.getElementById('uploaded_list');
+  statusEl.innerHTML='&#128269; Loading...';
+  statbarEl.innerHTML='';
+  listEl.innerHTML='';
+  try{
+    const r=await fetch('/api/youtube/uploaded');
+    const j=await r.json();
+    if(!j.ok||!j.items.length){
+      statusEl.innerHTML='&#9898; Koi video upload nahi hui';
+      statbarEl.innerHTML='<div class="yt-stat"><div class="val">0</div><div class="lbl">Total</div></div>'
+        +'<div class="yt-stat"><div class="val">0</div><div class="lbl">Subscribers</div></div>'
+        +'<div class="yt-stat"><div class="val">0</div><div class="lbl">Ch Views</div></div>'
+        +'<div class="yt-stat"><div class="val">0</div><div class="lbl">Video Likes</div></div>';
+      listEl.innerHTML='<div style="text-align:center;padding:24px;color:#5a6474;font-size:12px">Pehle Upload tab se videos upload karo.</div>';
+      return;
+    }
+    var pcs={public:'rgba(63,185,80,.12);color:#56d364',unlisted:'rgba(212,175,55,.12);color:#e6c46a',private:'rgba(255,99,99,.1);color:#ff8585'};
+    var ch1=j.items.filter(function(u){return u.channel==='channel1';}).length;
+    var ch2=j.items.filter(function(u){return u.channel==='channel2';}).length;
+    var withLinks=j.items.filter(function(u){return u.url;}).length;
+    statusEl.innerHTML='&#9745; <b>'+j.items.length+'</b> videos uploaded ('+ch1+' ch1, '+ch2+' ch2)';
+    statbarEl.innerHTML='<div class="yt-stat"><div class="val">'+j.items.length+'</div><div class="lbl">Uploaded</div></div>'
+      +'<div class="yt-stat"><div class="val" id="yt_up_subs">...</div><div class="lbl">Subscribers</div></div>'
+      +'<div class="yt-stat"><div class="val" id="yt_up_chviews">...</div><div class="lbl">Ch Views</div></div>'
+      +'<div class="yt-stat"><div class="val" id="yt_up_vidlikes">...</div><div class="lbl">Video Likes</div></div>';
+    listEl.innerHTML='<div class="yt-uploaded-wrap"><table class="yt-uploaded"><thead><tr><th>#</th><th>Title</th><th>Ch</th><th>Views</th><th>Likes</th><th>Comments</th><th>Date</th><th></th></tr></thead><tbody>'
+      +j.items.map(function(u,i){
+      var date=u.uploadedAt?new Date(u.uploadedAt).toLocaleDateString('en-PK',{day:'numeric',month:'short'}):'';
+      var sty=pcs[u.privacy]||'';
+      return '<tr>'
+        +'<td>'+(i+1)+'</td>'
+        +'<td class="url-col"><a href="'+(u.url||'#')+'" target="_blank">'+ytEsc(u.title)+'</a></td>'
+        +'<td class="ch-col">'+(u.channel==='channel1'?'1':'2')+'</td>'
+        +'<td data-stat="views-'+u.videoId+'"><span style="color:#5a6474">-</span></td>'
+        +'<td data-stat="likes-'+u.videoId+'"><span style="color:#5a6474">-</span></td>'
+        +'<td data-stat="comments-'+u.videoId+'"><span style="color:#5a6474">-</span></td>'
+        +'<td>'+date+'</td>'
+        +'<td>'
+          +'<button class="btn-sm" onclick="ytCopySingle(\''+ytEsc(u.url||'')+'\')" title="Copy link">&#128203;</button> '
+          +'<button class="btn-sm gold" onclick="reUpload(\''+ytEsc(u.duaId)+'\',\''+ytEsc(u.channel)+'\')" title="Re-upload">&#8635;</button>'
+        +'</td>'
+      +'</tr>';
+    }).join('')
+      +'</tbody></table></div>';
+    window.ytLastLinks=j.items.filter(function(u){return u.url;}).map(function(u){return {title:u.title,url:u.url};});
+    var vidIds=j.items.map(function(u){return u.videoId;}).filter(Boolean);
+    var channels=new Set(j.items.map(function(u){return u.channel;}));
+    var activeCh=channels.has('channel1')?'channel1':'channel2';
+    fetch('/api/youtube/stats?channel='+activeCh+(vidIds.length?'&ids='+encodeURIComponent(vidIds.join(',')):'')).then(function(sr){return sr.json()}).then(function(sj){
+      if(!sj.ok)return;
+      if(sj.channel){
+        var ch=sj.channel;
+        var subEl=document.getElementById('yt_up_subs');
+        var cvEl=document.getElementById('yt_up_chviews');
+        if(subEl)subEl.textContent=ch.hiddenSubscriberCount?'Hidden':ch.subscriberCount.toLocaleString();
+        if(cvEl)cvEl.textContent=ch.viewCount.toLocaleString();
+        statusEl.innerHTML='&#9745; <b>'+j.items.length+'</b> videos uploaded &mdash; '+ch.title+' ('+ch.subscriberCount.toLocaleString()+' subs)';
+      }
+      if(sj.stats){
+        j.items.forEach(function(u){
+          if(!u.videoId||!sj.stats[u.videoId])return;
+          var st=sj.stats[u.videoId];
+          var vEl=document.querySelector('[data-stat="views-'+u.videoId+'"]');
+          var lEl=document.querySelector('[data-stat="likes-'+u.videoId+'"]');
+          var cEl=document.querySelector('[data-stat="comments-'+u.videoId+'"]');
+          if(vEl)vEl.textContent=st.viewCount!=null?st.viewCount.toLocaleString():'-';
+          if(lEl)lEl.textContent=st.likeCount!=null?st.likeCount.toLocaleString():'-';
+          if(cEl)cEl.textContent=st.commentCount!=null?st.commentCount.toLocaleString():'-';
+        });
+        var totalL=Object.values(sj.stats).reduce(function(s,x){return s+(x.likeCount||0);},0);
+        var vlEl=document.getElementById('yt_up_vidlikes');
+        if(vlEl)vlEl.textContent=totalL.toLocaleString();
+      }
+    }).catch(function(){});
+    startYtStatsAuto();
+  }catch(e){
+    statusEl.innerHTML='&#10060; Load fail';
+    listEl.innerHTML='';
+  }
+}
+
+// ── Auto-refresh YouTube stats every 30s while Uploaded tab is open ──
+var ytStatsAutoT=null;
+function startYtStatsAuto(){
+  if(!ytStatsAutoT){
+    ytStatsAutoT=setInterval(function(){
+      var hub=document.getElementById('ytHub');
+      if(!hub||hub.style.display==='none'){clearInterval(ytStatsAutoT);ytStatsAutoT=null;return;}
+      if(ytHubTab==='uploaded'){
+        refreshUploadedStatsOnly();
+      }
+    },30000);
+  }
+}
+function stopYtStatsAuto(){
+  if(ytStatsAutoT){clearInterval(ytStatsAutoT);ytStatsAutoT=null;}
+}
+// Refresh only the stats (channel + per-video) without rebuilding table.
+async function refreshUploadedStatsOnly(){
+  try{
+    const r=await fetch('/api/youtube/uploaded');
+    const j=await r.json();
+    if(!j.ok||!j.items.length)return;
+    var vidIds=j.items.map(function(u){return u.videoId;}).filter(Boolean);
+    var channels=new Set(j.items.map(function(u){return u.channel;}));
+    var activeCh=channels.has('channel1')?'channel1':'channel2';
+    fetch('/api/youtube/stats?channel='+activeCh+(vidIds.length?'&ids='+encodeURIComponent(vidIds.join(',')):'')).then(function(sr){return sr.json()}).then(function(sj){
+      if(!sj.ok)return;
+      if(sj.channel){
+        var ch=sj.channel;
+        var subEl=document.getElementById('yt_up_subs');
+        var cvEl=document.getElementById('yt_up_chviews');
+        if(subEl)subEl.textContent=ch.hiddenSubscriberCount?'Hidden':ch.subscriberCount.toLocaleString();
+        if(cvEl)cvEl.textContent=ch.viewCount.toLocaleString();
+        var statusEl=document.getElementById('yt_up_status');
+        if(statusEl)statusEl.innerHTML='&#9745; <b>'+j.items.length+'</b> videos uploaded &mdash; '+ch.title+' ('+ch.subscriberCount.toLocaleString()+' subs)';
+      }
+      if(sj.stats){
+        j.items.forEach(function(u){
+          if(!u.videoId||!sj.stats[u.videoId])return;
+          var st=sj.stats[u.videoId];
+          var vEl=document.querySelector('[data-stat="views-'+u.videoId+'"]');
+          var lEl=document.querySelector('[data-stat="likes-'+u.videoId+'"]');
+          var cEl=document.querySelector('[data-stat="comments-'+u.videoId+'"]');
+          if(vEl)vEl.textContent=st.viewCount!=null?st.viewCount.toLocaleString():'-';
+          if(lEl)lEl.textContent=st.likeCount!=null?st.likeCount.toLocaleString():'-';
+          if(cEl)cEl.textContent=st.commentCount!=null?st.commentCount.toLocaleString():'-';
+        });
+        var totalL=Object.values(sj.stats).reduce(function(s,x){return s+(x.likeCount||0);},0);
+        var vlEl=document.getElementById('yt_up_vidlikes');
+        if(vlEl)vlEl.textContent=totalL.toLocaleString();
+      }
+    }).catch(function(){});
+  }catch(e){}
+}
+async function reUpload(duaId,channel){
+  if(!confirm('"'+duaId+'" ka ledger entry hatayein?'))return;
+  try{
+    const r=await fetch('/api/youtube/re-upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaId,channel})});
+    const j=await r.json();
+    if(j.ok){ toast(duaId+' removed'); lastGridKey='';load(); openUploadedList(); }
+    else toast(j.error||'Fail','err');
+  }catch(e){toast('Network error','err');}
+}
+function ytCopySingle(url){
+  if(!url)return;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>toast('Link copied','ok'),()=>toast('Copy fail','err'));
+  }else toast('Copy not supported','err');
+}
 function tabHelp(w){
   document.getElementById('help_ro').style.display = w==='ro' ? 'block' : 'none';
   document.getElementById('help_ur').style.display = w==='ur' ? 'block' : 'none';
@@ -613,7 +796,7 @@ function setMsg2(t,c){ const m=document.getElementById('setmsg'); m.textContent=
 async function saveSettings(){
   const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channelName:document.getElementById('s_name').value,handle:document.getElementById('s_handle').value,stylePreset:document.getElementById('s_style').value,lookMode:((document.querySelector('input[name=s_look]:checked')||{}).value||'random'),artFx:document.getElementById('s_art').value,skyFx:document.getElementById('s_sky').value,borderFx:document.getElementById('s_border').value})});
   const j=await r.json();
-  if(j.ok){setMsg2('\\u2705 Save ho gaya! Agla render in settings se banega.','ok');}
+  if(j.ok){setMsg2('\u2705 Save ho gaya! Agla render in settings se banega.','ok');}
   else setMsg2('Save fail hua','err');
 }
 async function aiMetaPrompt(id){
@@ -629,14 +812,29 @@ async function aiMetaPrompt(id){
     '1. SEO Title (60 chars se kam, catchy)',
     '2. Description (2 lines: Roman Urdu + English)',
     '3. 15 tags (comma separated)',
-    '4. 5 hashtags'].join('\\n');
-  try{await navigator.clipboard.writeText(p);toast('\\uD83D\\uDCCB AI metadata prompt copy! Gemini pe paste karo','ok');}
+    '4. 5 hashtags'].join('\n');
+  try{await navigator.clipboard.writeText(p);toast('\uD83D\uDCCB AI metadata prompt copy! Gemini pe paste karo','ok');}
   catch(e){toast('Copy fail hua','err');}
 }
+let _modalStack=[];
+function _pushModal(id){_modalStack.push(id);}
+function _popModal(id){_modalStack=_modalStack.filter(x=>x!==id);}
+function _closeTopModal(){
+  if(!_modalStack.length)return;
+  var last=_modalStack.pop();
+  if(last==='player')closePlayer();
+  else if(last==='form')closeForm();
+  else if(last==='ai')closeAi();
+  else if(last==='voice')closeVoice();
+  else if(last==='settings')closeSettings();
+  else if(last==='help')closeHelp();
+  else if(last==='history')closeHistory();
+  else if(last==='ytHub')ytHubClose();
+}
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closePlayer();closeForm();closeAi();closeVoice();closeSettings();}
+  if(e.key==='Escape'){e.preventDefault();_closeTopModal();}
 });
-function openForm(){ editingId=null; document.getElementById('modaltitle').innerHTML='&#10133; Nayi Dua Add Karo'; document.getElementById('f_bis').checked=true; document.getElementById('modalbg').classList.add('show'); setMsg('',''); }
+function openForm(){ editingId=null; document.getElementById('modaltitle').innerHTML='&#10133; Nayi Dua Add Karo'; document.getElementById('f_bis').checked=true; document.getElementById('modalbg').classList.add('show'); _pushModal('form'); setMsg('',''); }
 const GEMINI_PROMPT=['Mujhe ek authentic Islamic dua ki details chahiye (Quran ya Sahih hadith se).',
 'Dua: [YAHAN DUA KA NAAM LIKHO]',
 '',
@@ -648,14 +846,15 @@ const GEMINI_PROMPT=['Mujhe ek authentic Islamic dua ki details chahiye (Quran y
 '5. category: SIRF in me se ek word: protection | rizq | forgiveness | morning_evening | guidance | health | anxiety_relief | gratitude | family | occasions | sleep | food | travel | prayer | morning | evening | bathroom | general',
 '',
 'Mujhe EXACTLY is JSON format me sirf JSON do, koi extra text nahi:',
-'{"title":"Roman Urdu short title","arabic":"harakat ke sath Arabic","urdu":"max 60 words tarjuma","reference":"Sahih Bukhari 1234","category":"travel"}'].join('\\n');
+'{"title":"Roman Urdu short title","arabic":"harakat ke sath Arabic","urdu":"max 60 words tarjuma","reference":"Sahih Bukhari 1234","category":"travel"}'].join('\n');
 function openAi(){
   document.getElementById('aimodalbg').classList.add('show');
+  _pushModal('ai');
   document.getElementById('ai_raw').value='';
   setAiMsg('','');
   detectAI();
 }
-function closeAi(){ document.getElementById('aimodalbg').classList.remove('show'); }
+function closeAi(){ document.getElementById('aimodalbg').classList.remove('show'); _popModal('ai'); }
 function setAiMsg(t,c){ const m=document.getElementById('aimsg'); m.textContent=t; m.className='formmsg '+c; }
 async function detectAI(){
   const el=document.getElementById('aiengine');
@@ -669,12 +868,12 @@ async function detectAI(){
   }catch(e){}
   el.className='aihint '+(ok?'ok':'no');
   el.innerHTML=ok
-    ?'\\u2705 <b>Chrome ka built-in Gemini mil gaya!</b> Koi bhi raw text paste karo - khud parse kar lega.'
-    :'\\u2139\\uFE0F Built-in AI nahi mila (Chrome purana hai ya off hai) - koi baat nahi, gemini.google.com wala flow use karo, wo hamesha kaam karega.';
+    ?'\u2705 <b>Chrome ka built-in Gemini mil gaya!</b> Koi bhi raw text paste karo - khud parse kar lega.'
+    :'\u2139\uFE0F Built-in AI nahi mila (Chrome purana hai ya off hai) - koi baat nahi, gemini.google.com wala flow use karo, wo hamesha kaam karega.';
 }
 function copyPrompt(){
   navigator.clipboard.writeText(GEMINI_PROMPT)
-    .then(()=>toast('\\uD83D\\uDCCB Prompt copy ho gaya! gemini.google.com pe paste karo','ok'))
+    .then(()=>toast('\uD83D\uDCCB Prompt copy ho gaya! gemini.google.com pe paste karo','ok'))
     .catch(()=>toast('Copy fail - prompt manually select karo','err'));
 }
 function extractJson(txt){
@@ -723,7 +922,7 @@ async function aiParse(){
     return setAiMsg('Arabic text nahi mila - Gemini se poora Arabic (harakat ke sath) mangwao','err');
   }
   if(urduWords>60){
-    return setAiMsg('\\u26D4 Bohot lambi dua! Tarjuma '+urduWords+' words hai (max 60). Video 40 sec se lambi banegi aur RENDER FAIL hogi. Gemini se chhoti tarjuma mangwao','err');
+    return setAiMsg('\u26D4 Bohot lambi dua! Tarjuma '+urduWords+' words hai (max 60). Video 40 sec se lambi banegi aur RENDER FAIL hogi. Gemini se chhoti tarjuma mangwao','err');
   }
   applyDua(o);
 }
@@ -738,13 +937,14 @@ function applyDua(o){
   setThemeSel(o.template&&THEME_LABEL[o.template]?o.template:'dark');
   closeAi();
   document.getElementById('modalbg').classList.add('show');
+  _pushModal('form');
   const wc=(String(o.urdu||'').trim().match(/\\S+/g)||[]).length;
-  toast('\\u2728 Form bhar diya ('+wc+' words) - check karke SAVE dabao','ok');
+  toast('\u2728 Form bhar diya ('+wc+' words) - check karke SAVE dabao','ok');
 }
 function editDua(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
   editingId=id;
-  document.getElementById('modaltitle').textContent='\\u270F\\uFE0F Edit: '+d.title;
+  document.getElementById('modaltitle').textContent='\u270F\uFE0F Edit: '+d.title;
   document.getElementById('f_title').value=d.title||'';
   document.getElementById('f_arabic').value=d.arabic||'';
   document.getElementById('f_urdu').value=d.urdu||'';
@@ -756,30 +956,41 @@ function editDua(id){
   vp.value=(d.voiceArabic==='ar-SA-ZariyahNeural')?'Zariyah + Uzma':'Hamed + Asad';
   setMsg('','');
   document.getElementById('modalbg').classList.add('show');
+  _pushModal('form');
 }
 async function copyText(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
-  const txt=[d.title,'','Arabic:',d.arabic||'','','Urdu:',d.urdu||'','','Reference: '+(d.reference||'-')].join('\\n');
-  try{await navigator.clipboard.writeText(txt);toast('\\uD83D\\uDCCB Text clipboard pe copy ho gaya','ok');}
+  const txt=[d.title,'','Arabic:',d.arabic||'','','Urdu:',d.urdu||'','','Reference: '+(d.reference||'-')].join('\n');
+  try{await navigator.clipboard.writeText(txt);toast('\uD83D\uDCCB Text clipboard pe copy ho gaya','ok');}
   catch(e){toast('Copy fail hua','err');}
 }
 async function dupDua(id){
   const r=await fetch('/api/duplicate-dua',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
   const j=await r.json();
-  if(j.ok){toast('\\u29C9 Duplicate bana: '+j.id,'ok'); lastGridKey=''; load();}
+  if(j.ok){toast('\u29C9 Duplicate bana: '+j.id,'ok'); lastGridKey=''; load();}
   else toast(j.error||'Duplicate fail','err');
 }
 async function delDua(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
-  if(!confirm('"'+d.title+'" delete karein?\\n(list se hat jayegi - audio/video files rahengi)'))return;
+  if(!confirm('"'+d.title+'" delete karein?\n(list se hat jayegi - audio/video files rahengi)'))return;
   const r=await fetch('/api/delete-dua',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
   const j=await r.json();
-  if(j.ok){toast('\\uD83D\\uDDD1\\uFE0F Deleted: '+d.title,'ok'); lastGridKey=''; load();}
+  if(j.ok){toast('\uD83D\uDDD1\uFE0F Deleted: '+d.title,'ok'); lastGridKey=''; load();}
   else toast(j.error||'Delete fail','err');
 }
 function closeForm(){ document.getElementById('modalbg').classList.remove('show'); }
 function setMsg(t,cls){ const m=document.getElementById('formmsg'); m.textContent=t; m.className='formmsg '+cls; }
 async function saveDua(){
+  var fields=[{id:'f_title',label:'Title'},{id:'f_arabic',label:'Arabic'},{id:'f_urdu',label:'Urdu'}];
+  var valid=true;
+  fields.forEach(function(f){
+    var el=document.getElementById(f.id);
+    var empty=!el.value.trim();
+    el.classList.toggle('invalid',empty);
+    if(empty)valid=false;
+  });
+  if(!valid){setMsg('Title, Arabic, aur Urdu zaroori hain','err');return;}
+  fields.forEach(function(f){document.getElementById(f.id).classList.remove('invalid');});
   const checked=document.querySelector('#themegrid input:checked');
   const vp=VOICE_PAIRS[document.getElementById('f_vpair').value]||VOICE_PAIRS['Hamed + Asad'];
   const body={
@@ -799,11 +1010,89 @@ async function saveDua(){
   const j=await r.json();
   if(j.ok){
     setMsg(editingId?'Update ho gaya!':'Ho gaya! ID: '+j.id,'ok');
-    toast(editingId?('\\u270F\\uFE0F Updated: '+editingId):('\\u2795 Nayi dua added: '+j.id),'ok');
+    toast(editingId?('\u270F\uFE0F Updated: '+editingId):('\u2795 Nayi dua added: '+j.id),'ok');
     if(!editingId)['f_title','f_arabic','f_urdu','f_ref'].forEach(i=>document.getElementById(i).value='');
     editingId=null;
     setTimeout(()=>{closeForm(); load();},800);
   }
   else setMsg(j.error||'Error','err');
 }
-poll(); setInterval(poll,900); load(); setInterval(load,8000);
+poll(); setInterval(poll,3000); load(); setInterval(load,15000);
+document.getElementById('yt_mode').addEventListener('change',function(){
+  var w=document.getElementById('yt_mode_warn');
+  var btn=document.getElementById('yt_start');
+  if(this.value==='live'){
+    w.style.display='inline';
+    btn.style.background='linear-gradient(135deg,#b91c1c,#dc2626)';
+    btn.style.boxShadow='0 0 12px rgba(220,38,38,.3)';
+  }else{
+    w.style.display='none';
+    btn.style.background='';
+    btn.style.boxShadow='';
+  }
+});
+function openAiImport(){
+  document.getElementById('aiimportbg').classList.add('show');
+  document.getElementById('ai_result').style.display='none';
+  setMsg2('aiimportmsg','','');
+  aiConfigLoad();
+}
+function closeAiImport(){document.getElementById('aiimportbg').classList.remove('show');}
+function aiConfigToggle(){
+  var box=document.getElementById('ai_cfg_box');
+  var tog=document.getElementById('ai_cfg_toggle');
+  var show=box.style.display==='none';
+  box.style.display=show?'block':'none';
+  tog.textContent=show?'Hide':'Show';
+}
+async function aiConfigLoad(){
+  try{
+    var r=await fetch('/api/ai-config');
+    var j=await r.json();
+    if(j.ok&&j.config){
+      if(j.config.base_url)document.getElementById('ai_base_url').value=j.config.base_url;
+      if(j.config.api_keys&&j.config.api_keys.length)document.getElementById('ai_keys').value=j.config.api_keys.join('\n');
+      if(j.config.models&&j.config.models.length)document.getElementById('ai_models').value=j.config.models.join(', ');
+    }
+  }catch(e){}
+}
+async function aiConfigSave(){
+  var base=document.getElementById('ai_base_url').value.trim()||'https://aihubmix.com/v1';
+  var keys=document.getElementById('ai_keys').value.split('\n').map(function(k){return k.trim();}).filter(Boolean);
+  var models=document.getElementById('ai_models').value.split(',').map(function(m){return m.trim();}).filter(Boolean);
+  if(!keys.length)return setMsg2('aicfgmsg','Kam se kam 1 API key chahiye','err');
+  try{
+    var r=await fetch('/api/ai-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({base_url:base,api_keys:keys,models:models})});
+    var j=await r.json();
+    if(j.ok)setMsg2('aicfgmsg','\u2705 API settings save ho gayen!','ok');
+    else setMsg2('aicfgmsg',j.error||'Save fail','err');
+  }catch(e){setMsg2('aicfgmsg','Network error','err');}
+}
+async function aiImport(){
+  var btn=document.getElementById('ai_gen_btn');
+  var msg=document.getElementById('aiimportmsg');
+  var res=document.getElementById('ai_result');
+  var cat=document.getElementById('ai_category').value;
+  var count=document.getElementById('ai_count').value;
+  var topic=document.getElementById('ai_topic').value;
+  btn.disabled=true;btn.textContent='Generating...';setMsg2('aiimportmsg','AI se duas generate ho rahi hain...','warn');res.style.display='none';
+  try{
+    var r=await fetch('/api/ai-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({count:parseInt(count),category:cat,topic:topic})});
+    var j=await r.json();
+    if(j.ok&&j.added>0){
+      setMsg2('aiimportmsg',j.added+' nayi duas library mein add ho gayin!','ok');
+      var html='<div style="max-height:200px;overflow-y:auto;font-size:12px">';
+      (j.duas||[]).forEach(function(d){html+='<div style="padding:6px 0;border-bottom:1px solid #1a2030"><b style="color:#d4af37">'+ytEsc(d.title)+'</b> <span style="color:#5a6474">('+ytEsc(d.id)+')</span></div>';});
+      html+='</div>';
+      res.innerHTML=html;res.style.display='block';
+      load();
+    }else{
+      setMsg2('aiimportmsg',j.error||'Koi nayi dua add nahi ho payi - check API balance','err');
+    }
+  }catch(e){setMsg2('aiimportmsg','Network error: '+e.message,'err');}
+  btn.disabled=false;btn.textContent='\u{1F916} GENERATE + ADD';
+}
+function setMsg2(id,msg,type){
+  var el=document.getElementById(id);if(!el)return;
+  el.textContent=msg;el.className='formmsg'+(type==='ok'?' ok':type==='err'?' err':type==='warn'?' warn':'');
+}

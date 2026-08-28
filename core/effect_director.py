@@ -17,13 +17,13 @@ Frame plan contract (consumed by EffectsEngine.apply_plan):
   frame_plan[frame_index] = [ {effect, params, seed}, ... ]   (ordered stack)
 """
 
+import logging
 import math
 import os
 import random
-import sys
 import zlib
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logger = logging.getLogger(__name__)
 
 from core import easing  # noqa: E402
 

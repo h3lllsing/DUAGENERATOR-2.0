@@ -5,8 +5,11 @@ AI learns from user feedback and sample videos
 
 import os
 import json
+import logging
 from datetime import datetime
 from typing import Dict, List
+
+logger = logging.getLogger(__name__)
 
 
 class SelfTrainer:
@@ -55,7 +58,7 @@ class SelfTrainer:
         # Update preferences
         self._update_preferences(entry)
         
-        print(f"Feedback saved! Rating: {rating}/5")
+        logger.info("Feedback saved! Rating: %d/5", rating)
     
     def _update_preferences(self, entry: Dict):
         """Update user preferences based on feedback."""

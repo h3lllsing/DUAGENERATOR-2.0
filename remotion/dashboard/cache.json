@@ -398,5 +398,13 @@
   "azkaar_bad_namaz": {
     "key": "a768cec2248b2a59eaef382ac664bbc8",
     "out": "Namaz Ke Baad Ke Azkaar.mp4"
+  },
+  "sleep_dua": {
+    "key": "a4a5f13677308e1cf81e35aaea407ad4",
+    "out": "Sone Ki Dua.mp4"
+  },
+  "sehat_aur_afiyat_ki_dua": {
+    "key": "e95dc826e095734099fe6d710294fd07",
+    "out": "Sehat Aur Afiyat Ki Dua.mp4"
   }
 }

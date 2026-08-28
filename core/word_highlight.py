@@ -24,7 +24,10 @@ Locked design:
 This module contains no audio, layout, or renderer logic.
 """
 
+import logging
 from typing import Callable, Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 Rect = Tuple[int, int, int, int]

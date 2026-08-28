@@ -24,7 +24,7 @@ class TestVideoResolution:
         if os.path.exists(self.tmp_dir):
             shutil.rmtree(self.tmp_dir)
         os.makedirs(self.tmp_dir)
-        self.builder = VideoBuilder(fps=24, resolution=(1080, 1920))
+        self.builder = VideoBuilder(fps=120, resolution=(1080, 1920))
         self.frame = Image.new('RGB', (1080, 1920), (20, 25, 35))
 
     def teardown_method(self):
@@ -32,7 +32,7 @@ class TestVideoResolution:
             shutil.rmtree(self.tmp_dir)
 
     def test_output_is_exact_1080x1920(self):
-        frames = [self.frame] * 24  # 1 second at 24fps
+        frames = [self.frame] * 120  # 1 second at 120fps
         output_path = os.path.join(self.tmp_dir, "test_1080.mp4")
 
         assert self.builder.build_video(frames, output_path) is True
@@ -50,11 +50,11 @@ class TestVideoResolution:
         assert ret is True, "Video must be decodable/playable"
         assert width == 1080, f"Expected width 1080, got {width}"
         assert height == 1920, f"Expected height 1920, got {height}"
-        assert fps == 24, f"Expected fps 24, got {fps}"
-        assert frame_count == 24, f"Expected 24 frames, got {frame_count}"
+        assert fps == 120, f"Expected fps 120, got {fps}"
+        assert frame_count == 120, f"Expected 120 frames, got {frame_count}"
 
     def test_quality_checker_resolution_valid(self):
-        frames = [self.frame] * 24
+        frames = [self.frame] * 120
         output_path = os.path.join(self.tmp_dir, "test_1080_qc.mp4")
 
         assert self.builder.build_video(frames, output_path) is True

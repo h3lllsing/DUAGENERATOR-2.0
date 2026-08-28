@@ -5,7 +5,9 @@ import os
 import shutil
 import sys
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, PROJECT)
+import config as project_config
 REMOTION = os.path.join(PROJECT, "remotion")
 TEMP = os.path.join(PROJECT, "temp")
 
@@ -211,7 +213,7 @@ def main(dua_id="rabbana_hasanah"):
         "dua_id": dua_id,
         "title": dua["title"],
         "reference": dua["reference"],
-        "fps": 24,
+        "fps": getattr(project_config, "VIDEO_FPS", 60),
         "width": 1080,
         "height": 1920,
         "totalDuration": round(total, 3),

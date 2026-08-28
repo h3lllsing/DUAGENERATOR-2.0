@@ -42,7 +42,7 @@ try:
 except (AttributeError, ValueError):
     pass
 
-PROJECT = r"H:\DuaVideoGenerator"
+PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(PROJECT, "remotion", "out")
 THUMB_DIR = os.path.join(OUT, "thumbs")
 DATA_DIR = os.path.join(PROJECT, "remotion", "src", "data")
@@ -574,6 +574,17 @@ def main():
                 print("  quota-log: {} units today".format(spent))
                 ok_n += 1
                 print("  UPLOADED https://youtu.be/" + vid)
+                try:
+                    mp4_path = item.get("mp4")
+                    if mp4_path and os.path.exists(mp4_path):
+                        os.remove(mp4_path)
+                        print("  CLEANUP removed MP4:", os.path.basename(mp4_path))
+                    sidecar_path = os.path.splitext(mp4_path)[0] + ".txt" if mp4_path else None
+                    if sidecar_path and os.path.exists(sidecar_path):
+                        os.remove(sidecar_path)
+                        print("  CLEANUP removed sidecar:", os.path.basename(sidecar_path))
+                except OSError as ce:
+                    print("  WARN cleanup failed:", str(ce)[:120])
                 if auto_mode:
                     auto_log(auto_runs_path,
                              "UPLOADED {} -> https://youtu.be/{} "

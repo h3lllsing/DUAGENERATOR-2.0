@@ -23,7 +23,10 @@ Audio is never stretched, duplicated, cut, or re-normalized here.
 WordBoundary absolute-offset mapping is exposed for Phase 4 but not applied.
 """
 
+import logging
 from typing import Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 from core.scene_engine import Scene, SceneRenderer, Timeline, Transition
 

@@ -228,7 +228,7 @@ class TestFullPipeline:
     def test_qc_fps(self):
         results = qc.check_video(self.output_path)
         fps = results['video_info']['fps']
-        assert abs(fps - 24.0) < 0.1, f"FPS {fps}, expected 24"
+        assert abs(fps - 120.0) < 0.1, f"FPS {fps}, expected 120"
 
     def test_qc_overall_valid(self):
         results = qc.check_video(self.output_path)
@@ -240,7 +240,7 @@ class TestFullPipeline:
         assert cap.isOpened(), "cv2 cannot open output video"
         fc = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         cap.release()
-        assert fc > 300, f"Frame count {fc} too low (expected >300 for 15s@24fps)"
+        assert fc > 300, f"Frame count {fc} too low (expected >300 for 15s@120fps)"
 
     def test_pipeline_under_300s(self):
         assert self.elapsed < 300, f"Pipeline took {self.elapsed:.0f}s, max 300s"

@@ -1,18 +1,18 @@
+import logging
 import os
 import re
 import subprocess
-import sys
 import numpy as np
-
-# Ensure project root is in path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import imageio_ffmpeg
 from moviepy import AudioFileClip, concatenate_audioclips
 
+logger = logging.getLogger(__name__)
+
 try:
     import config
 except Exception:
+    logger.debug("config not available for audio mixer")
     config = None
 
 # AUDIO-001: 48 kHz PCM/WAV downstream intermediate (lossless; single AAC at end)
@@ -167,10 +167,10 @@ class AudioMixer:
                     if gap_seconds > 0 and len(clips) < len(audio_paths):
                         clips.append(AudioMixer._make_silence(gap_seconds, sample_rate))
                 else:
-                    print(f"[AudioMixer] Warning: Audio file not found: {path}")
+                    logger.warning(f"Audio file not found: {path}")
             
             if not clips:
-                print("[AudioMixer] No valid audio clips to merge.")
+                logger.error("No valid audio clips to merge.")
                 return False
             
             # VIDEO-002: append trailing silence so the track reaches the target
@@ -179,14 +179,14 @@ class AudioMixer:
                 speech_duration = sum(c.duration for c in clips)
                 if pad_to_duration > speech_duration + 1e-6:
                     hold = pad_to_duration - speech_duration
-                    print(f"[AudioMixer] Padding track with {hold:.2f}s trailing "
-                          f"silence (speech {speech_duration:.2f}s -> "
-                          f"{pad_to_duration:.2f}s)")
+                    logger.info(f"Padding track with {hold:.2f}s trailing "
+                                f"silence (speech {speech_duration:.2f}s -> "
+                                f"{pad_to_duration:.2f}s)")
                     clips.append(AudioMixer._make_silence(hold, sample_rate))
                 elif pad_to_duration < speech_duration - 1e-6:
-                    print(f"[AudioMixer] Warning: pad_to_duration {pad_to_duration:.2f}s "
-                          f"is shorter than speech {speech_duration:.2f}s; "
-                          "speech will NOT be trimmed.")
+                    logger.warning(f"pad_to_duration {pad_to_duration:.2f}s "
+                                   f"is shorter than speech {speech_duration:.2f}s; "
+                                   "speech will NOT be trimmed.")
             
             # Concatenate all clips
             final_clip = concatenate_audioclips(clips)
@@ -204,11 +204,11 @@ class AudioMixer:
                 clip.close()
             final_clip.close()
             
-            print(f"[AudioMixer] Successfully merged audio to: {output_path}")
+            logger.info(f"Successfully merged audio to: {output_path}")
             return True
             
         except Exception as e:
-            print(f"[AudioMixer] Error merging audio: {e}")
+            logger.error(f"Error merging audio: {e}")
             import traceback
             traceback.print_exc()
             return False
@@ -243,7 +243,7 @@ class AudioMixer:
                     out[key] = float(m.group(1))
             return out
         except Exception as e:
-            print(f"[AudioMixer] loudness measurement failed: {e}")
+            logger.error(f"Loudness measurement failed: {e}")
             return {}
 
     @staticmethod
@@ -268,8 +268,7 @@ class AudioMixer:
 
             measured = AudioMixer.measure_loudness(input_path)
             if not measured.get("input_i"):
-                print("[AudioMixer] loudnorm measure failed; skipping "
-                      "normalization.")
+                logger.warning("loudnorm measure failed; skipping normalization.")
                 return False, {}
 
             # Pass 2: linear gain with measured values (no dynamic compression).
@@ -292,15 +291,14 @@ class AudioMixer:
                 encoding="utf-8", errors="replace", timeout=300,
             )
             if result.returncode != 0 or not os.path.exists(output_path):
-                print(f"[AudioMixer] loudnorm apply failed: "
-                      f"{result.stderr[-400:]}")
+                logger.error(f"loudnorm apply failed: {result.stderr[-400:]}")
                 return False, {}
 
-            print(f"[AudioMixer] Loudness normalized "
-                  f"{measured['input_i']:.1f} LUFS -> {LOUDNESS_TARGET:.0f} LUFS")
+            logger.info(f"Loudness normalized "
+                        f"{measured['input_i']:.1f} LUFS -> {LOUDNESS_TARGET:.0f} LUFS")
             return True, AudioMixer.measure_loudness(output_path)
         except Exception as e:
-            print(f"[AudioMixer] normalization error: {e}")
+            logger.error(f"Normalization error: {e}")
             return False, {}
 
     @staticmethod
