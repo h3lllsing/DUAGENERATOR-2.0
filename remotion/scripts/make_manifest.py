@@ -148,6 +148,47 @@ def resolve_theme(dua):
     return CATEGORY_THEME.get(cat, "dark")
 
 
+def resolve_bg(dua):
+    """Pick a downloaded background (photo/video) for this dua via the
+    asset registry, copy it into remotion/public/backgrounds/, and return
+    (rel_path, kind). Returns (None, None) when no loadable asset exists
+    (falls back to the procedural gradient).
+    """
+    category = (dua.get("category") or "").strip() or None
+    dua_id = dua.get("id", "")
+    try:
+        from core.asset_registry import AssetRegistry
+        reg = AssetRegistry()
+    except Exception as e:
+        print(f"[bg] asset registry unavailable: {e}")
+        return None, None
+
+    sel = reg.select_background(dua_id, category)
+    if sel.get("kind") != "asset":
+        return None, None
+
+    src_path = sel.get("path", "")
+    if not src_path or not os.path.isfile(src_path):
+        return None, None
+
+    _, ext = os.path.splitext(src_path)  # .jpg or .mp4
+    is_video = ext.lower() in (".mp4", ".webm", ".mov")
+    kind = "video" if is_video else "image"
+
+    # destination: remotion/public/backgrounds/<dua_id>.<ext>
+    bg_dir = os.path.join(REMOTION, "public", "backgrounds")
+    os.makedirs(bg_dir, exist_ok=True)
+    dst = os.path.join(bg_dir, "{}.{}".format(dua_id, ext.lstrip(".")))
+    if not os.path.exists(dst) or os.path.getsize(dst) != os.path.getsize(src_path):
+        try:
+            shutil.copyfile(src_path, dst)
+        except OSError as e:
+            print(f"[bg] copy fail: {e}")
+            return None, None
+
+    return "backgrounds/{}.{}".format(dua_id, ext.lstrip(".")), kind
+
+
 def media_duration(path):
     import imageio_ffmpeg
     import re
@@ -226,6 +267,11 @@ def main(dua_id="rabbana_hasanah"):
             "urduStart": round(urdu_start, 3),
         },
     }
+    bg_path, bg_kind = resolve_bg(dua)
+    if bg_path:
+        manifest["background"] = bg_path
+        manifest["backgroundKind"] = bg_kind
+        print("background:", bg_path, "|", bg_kind)
     if dua.get("masterpiece"):
         manifest["masterpiece"] = True
 

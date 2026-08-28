@@ -2,7 +2,7 @@
  "dua_id": "food_end",
  "title": "Khana Khatam Karne Ki Dua",
  "reference": "Abu Dawud 3850",
- "fps": 24,
+ "fps": 80,
  "width": 1080,
  "height": 1920,
  "totalDuration": 18.56,
@@ -221,6 +221,8 @@
   "arabicEnd": 6.011,
   "urduStart": 7.555
  },
+ "background": "backgrounds/food_end.jpg",
+ "backgroundKind": "image",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

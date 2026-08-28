@@ -470,9 +470,11 @@ export const DuaVideo: React.FC<{
           stylePreset={S}
           presetId={presetFinal}
           masterpiece={!!data.masterpiece || presetFinal === 'masterpiece'}
-    punchFrames={phasePunchFrames}
-    lookFrame={lookSpec?.frame}
-    />
+          punchFrames={phasePunchFrames}
+          lookFrame={lookSpec?.frame}
+          bgOverride={data.background}
+          bgKind={data.backgroundKind as 'image' | 'video' | undefined}
+        />
     {/* MASTER LOOK v2: canvas color harmony veil (preset mood ke hisab se) */}
     <LookTint tint={lookSpec?.tint} />
 

@@ -2,7 +2,7 @@
  "dua_id": "travel_start",
  "title": "Safar Ki Dua",
  "reference": "Sahih Muslim 1342",
- "fps": 24,
+ "fps": 80,
  "width": 1080,
  "height": 1920,
  "totalDuration": 23.46,
@@ -316,6 +316,8 @@
   "arabicEnd": 7.995,
   "urduStart": 9.532
  },
+ "background": "backgrounds/travel_start.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

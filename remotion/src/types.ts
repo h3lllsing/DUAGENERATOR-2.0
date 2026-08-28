@@ -21,6 +21,10 @@ export interface DuaManifest {
   masterpiece?: boolean;
   arabicWords: WordTiming[];
   urduWords: WordTiming[];
+  // Optional photo/video background path (relative to remotion/public/).
+  // e.g. "backgrounds/prayer_29832018.jpg" — set by make_manifest via asset_registry.
+  background?: string;
+  backgroundKind?: 'image' | 'video';
   sections: {
     arabicEnd: number;
     urduStart: number;

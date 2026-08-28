@@ -7,7 +7,9 @@ import type {DuaManifest} from './types';
 
 const manifestFiles = (require as any).context('./data', false, /\.json$/);
 
-const manifests: DuaManifest[] = manifestFiles.keys().map((k: string) => {
+const manifests: DuaManifest[] = manifestFiles.keys()
+  .filter((k: string) => !k.endsWith('ai_api_config.json'))
+  .map((k: string) => {
   return manifestFiles(k) as DuaManifest;
 });
 

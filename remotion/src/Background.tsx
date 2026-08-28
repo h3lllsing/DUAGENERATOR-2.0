@@ -4,6 +4,7 @@ import {
   continueRender,
   delayRender,
   interpolate,
+  OffthreadVideo,
   spring,
   staticFile,
   useCurrentFrame,
@@ -1372,7 +1373,11 @@ export const Background: React.FC<{
   masterpiece?: boolean;
   punchFrames?: number[];
   lookFrame?: string | null;
-}> = ({theme, stylePreset, presetId, masterpiece, punchFrames, lookFrame}) => {
+  // Dua-specific background photo/video (relative to public/), e.g.
+  // "backgrounds/prayer_29832018.jpg" — set by make_manifest.
+  bgOverride?: string | null;
+  bgKind?: 'image' | 'video';
+}> = ({theme, stylePreset, presetId, masterpiece, punchFrames, lookFrame, bgOverride, bgKind}) => {
   const S: ResolvedStyle = stylePreset || resolveStyle();
   const aurora: AuroraConfig = getAurora(presetId);
   // MASTER LOOK v2: non-classic frame variant => purana hairline+corner band
@@ -1382,18 +1387,20 @@ export const Background: React.FC<{
   const {width, height, durationInFrames, fps} = useVideoConfig();
   const t = frame / 24;
 
-  // optional AI/photo background (public/backgrounds/<theme>.jpg) — graceful fallback
+  // Photo/video background — dua-specific first (staticFile(public/)),
+  // else theme-based (public/backgrounds/<theme>.jpg). If bgKind is 'video'
+  // it renders an <OffthreadVideo>; otherwise the existing image layer.
   const [bgImage, setBgImage] = React.useState<string | null>(null);
   React.useEffect(() => {
     const handle = delayRender('bg-img-' + theme.id);
-    const url = staticFile(`backgrounds/${theme.id}.jpg`);
+    const url = bgOverride ? staticFile(bgOverride) : staticFile(`backgrounds/${theme.id}.jpg`);
     fetch(url, {method: 'HEAD'})
       .then((r) => {
         setBgImage(r.ok ? url : null);
         continueRender(handle);
       })
       .catch(() => continueRender(handle));
-  }, [theme.id]);
+  }, [theme.id, bgOverride]);
 
   const zoom = interpolate(frame, [0, durationInFrames], [1.0, 1.055]);
   // organic camera drift (Perlin noise wander, smooth -1..1)
@@ -1538,7 +1545,21 @@ export const Background: React.FC<{
         }}
       >
         <AbsoluteFill style={{background: theme.bgGradient}} />
-        {bgImage && (
+        {bgImage && bgKind === 'video' && (
+          <div style={{position: 'absolute', inset: 0, overflow: 'hidden'}}>
+            <OffthreadVideo
+              src={bgImage}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+            />
+          </div>
+        )}
+        {bgImage && bgKind !== 'video' && (
           <div
             style={{
               position: 'absolute',

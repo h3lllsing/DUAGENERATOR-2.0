@@ -66,6 +66,11 @@ remotion/src/data/ai_api_config.json
 # --- Downloaded background media (regenerate via download_backgrounds.py) ---
 assets/backgrounds/images/
 assets/backgrounds/videos/
+# Remotion render copies of Pexels media (copied by make_manifest.resolve_bg)
+remotion/public/backgrounds/*.mp4
+remotion/public/backgrounds/*.jpg
+remotion/public/backgrounds/*.webm
+remotion/public/backgrounds/*.png
 
 # --- Tools (NSSM binary) ---
 tools/

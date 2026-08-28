@@ -2,7 +2,7 @@
  "dua_id": "bathroom_exit",
  "title": "Bathroom Se Bahar Aanay Ki Dua",
  "reference": "Sahih Muslim 375",
- "fps": 60,
+ "fps": 80,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -136,6 +136,8 @@
   "arabicEnd": 2.818,
   "urduStart": 4.234
  },
+ "background": "backgrounds/bathroom_exit.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"
