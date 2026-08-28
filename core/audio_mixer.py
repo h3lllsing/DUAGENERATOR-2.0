@@ -53,7 +53,7 @@ class AudioMixer:
         Args:
             speech_duration: Duration of the merged spoken audio (Arabic+gap+Urdu).
             min_duration: Minimum video duration (default: config VIDEO_MIN_DURATION=15).
-            max_duration: Maximum video duration (default: config VIDEO_MAX_DURATION=25).
+            max_duration: Maximum video duration (default: config VIDEO_MAX_DURATION=50).
             default_hold: Preferred visual hold applied when speech is within range.
 
         Returns:
@@ -63,7 +63,7 @@ class AudioMixer:
         if min_duration is None:
             min_duration = float(getattr(config, "VIDEO_MIN_DURATION", 15))
         if max_duration is None:
-            max_duration = float(getattr(config, "VIDEO_MAX_DURATION", 25))
+            max_duration = float(getattr(config, "VIDEO_MAX_DURATION", 50))
 
         if speech_duration < 0:
             return {
@@ -253,10 +253,11 @@ class AudioMixer:
         AUDIO-001: two-pass LINEAR ffmpeg loudnorm.
 
         Pass 1 measures EBU R128 loudness (print_format=json). Pass 2 applies
-        a LINEAR gain (linear=true with measured values) targeting -16 LUFS
-        integrated and -1.5 dBTP true peak. Linear mode preserves sample
-        positions exactly, so speech duration and WordBoundary timing are
-        unchanged. Dynamic loudnorm is never used.
+        a LINEAR gain (linear=true with measured values) targeting
+        LOUDNESS_TARGET (-14 LUFS) integrated and TRUE_PEAK_TARGET (-1 dBTP)
+        true peak. Linear mode preserves sample positions exactly, so speech
+        duration and WordBoundary timing are unchanged. Dynamic loudnorm is
+        never used.
 
         Returns:
             (bool ok, dict measured_out). measured_out contains the measured

@@ -124,8 +124,8 @@ class DuaVideoPipeline:
         duration so the video builder never trims visual hold time.
 
         AUDIO-001: downstream audio is lossless 48 kHz WAV; the SPEECH-ONLY
-        track is loudness-normalized (two-pass LINEAR loudnorm, -16 LUFS /
-        -1.5 dBTP) BEFORE VIDEO-002 padding, so the hold silence is never
+        track is loudness-normalized (two-pass LINEAR loudnorm, -14 LUFS /
+        -1.0 dBTP) BEFORE VIDEO-002 padding, so the hold silence is never
         normalized and speech timing is preserved.
 
         Speech is never stretched, duplicated, or truncated.
@@ -179,8 +179,8 @@ class DuaVideoPipeline:
 
     def _enforce_quality_gate(self, quality_results: dict) -> bool:
         """
-        VIDEO-002 hard gate. Resolution (VIDEO-001), duration (15-25s), and
-        FPS (exactly 24) failures abort generation. Other checks (e.g. file
+        VIDEO-002 hard gate. Resolution (VIDEO-001), duration (15-50s), and
+        FPS (exactly 80) failures abort generation. Other checks (e.g. file
         size) remain advisory.
         """
         if quality_results["valid"]:
@@ -202,10 +202,10 @@ class DuaVideoPipeline:
             return False
         if not self.quality_checker.validate_duration(duration):
             logger.error(f"Video duration {duration:.1f}s is outside the required "
-                  f"15-25 second window. Generation FAILED.")
+                  f"15-50 second window. Generation FAILED.")
             return False
         if not self.quality_checker.validate_fps(fps):
-            logger.error(f"Video FPS {fps:.1f} is not exactly 24. "
+            logger.error(f"Video FPS {fps:.1f} is not exactly 80. "
                   "Generation FAILED.")
             return False
         return True

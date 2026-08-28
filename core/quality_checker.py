@@ -25,13 +25,13 @@ class QualityChecker:
 
     # Float tolerance for boundary checks (e.g. 14.99 must fail, 15.00 must pass)
     EPS = 1e-6
-    # FPS is written as exactly 60 by the pipeline; this only absorbs binary
-    # float representation noise (59.98/60.04 from other tools still FAIL).
+    # FPS is written as exactly 80 by the pipeline; this only absorbs binary
+    # float representation noise (79.98/80.04 from other tools still FAIL).
     FPS_EPS = 1e-4
 
     def __init__(self):
         """Initialize quality checker."""
-        # VIDEO-002: 15-50 second product window, exactly 60 FPS.
+        # VIDEO-002: 15-50 second product window, exactly 80 FPS.
         # Values come from config.py (single source of truth) with safe fallbacks.
         self.min_duration = float(getattr(_config, "VIDEO_MIN_DURATION", 15))
         self.max_duration = float(getattr(_config, "VIDEO_MAX_DURATION", 50))
@@ -119,7 +119,7 @@ class QualityChecker:
                     f"File size: {file_size_mb:.1f}MB (must be under {self.max_file_size_mb}MB)"
                 )
             
-            # Check FPS (VIDEO-002: exactly 60, container-rounding tolerant)
+            # Check FPS (VIDEO-002: exactly 80, container-rounding tolerant)
             if abs(fps - self.required_fps) <= self.FPS_EPS:
                 results["passed"].append(f"FPS: {fps:.1f} (OK)")
             else:
@@ -151,7 +151,7 @@ class QualityChecker:
 
     def validate_fps(self, fps: float) -> bool:
         """
-        Validate video FPS is exactly 60 (VIDEO-002).
+        Validate video FPS is exactly 80 (VIDEO-002).
 
         Args:
             fps: Frames per second

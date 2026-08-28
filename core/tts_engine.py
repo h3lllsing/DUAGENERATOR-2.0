@@ -80,6 +80,16 @@ class TTSEngine:
 
     MAX_RETRIES = 3
     RETRY_DELAY_BASE = 2  # seconds
+    SAVE_TIMEOUT = 25  # seconds; abort a hung edge-tts connection
+
+    @staticmethod
+    async def _save_with_timeout(communicate, output_file, **kwargs):
+        try:
+            return await asyncio.wait_for(
+                communicate.save(output_file, **kwargs), timeout=TTSEngine.SAVE_TIMEOUT)
+        except asyncio.TimeoutError:
+            logger.error("edge-tts save timed out")
+            raise
 
     @staticmethod
     async def _async_generate(text: str, voice: str, output_file: str,
@@ -103,7 +113,8 @@ class TTSEngine:
                     communicate = edge_tts.Communicate(
                         text, voice, boundary="WordBoundary",
                         rate=rate, pitch=pitch)
-                    await communicate.save(output_file, metadata_fname=timing_path)
+                    await TTSEngine._save_with_timeout(
+                        communicate, output_file, metadata_fname=timing_path)
                     return True
                 except Exception as e:
                     logger.warning(f"Word boundary capture failed ({e}); "
@@ -115,7 +126,7 @@ class TTSEngine:
                             pass
             communicate = edge_tts.Communicate(
                 text, voice, rate=rate, pitch=pitch)
-            await communicate.save(output_file)
+            await TTSEngine._save_with_timeout(communicate, output_file)
             return True
         except Exception as e:
             logger.error(f"{e}")
@@ -163,12 +174,15 @@ class TTSEngine:
             try:
                 # Async function ko sync mein run karna
                 loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                result = loop.run_until_complete(
-                    TTSEngine._async_generate(text, voice, output_path,
-                                              timing_path, rate, pitch)
-                )
-                loop.close()
+                try:
+                    asyncio.set_event_loop(loop)
+                    result = loop.run_until_complete(
+                        TTSEngine._async_generate(text, voice, output_path,
+                                                  timing_path, rate, pitch)
+                    )
+                finally:
+                    loop.close()
+                asyncio.set_event_loop(None)
                 
                 if result:
                     return True

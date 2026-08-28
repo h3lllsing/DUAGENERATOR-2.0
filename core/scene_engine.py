@@ -2,7 +2,7 @@
 Scene Engine (VISUAL Phase 2).
 
 Deterministic procedural SceneEngine that produces visual variety for
-1080x1920 @ 24 FPS dua Shorts WITHOUT requiring any background image
+1080x1920 @ 80 FPS dua Shorts WITHOUT requiring any background image
 assets. Everything is generated procedurally from a seed (dua_id) so the
 same dua always looks the same and different duas can look different.
 

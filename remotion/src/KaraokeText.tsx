@@ -45,14 +45,25 @@ export const KaraokeText: React.FC<{
 
   // PILLAR 2: word state is computed in the FRAME domain (floor-snapped
   // boundaries) so a word never flickers on/off inside a single frame.
-  const activeIndex = words.findIndex((w) => {
-    const startF = Math.floor(w.start * fps);
-    const endF = Math.ceil(w.end * fps);
-    return frame >= startF && frame < endF;
-  });
+  // Active word = the LATEST word that has started; this guarantees exactly
+  // one active word per frame and never overlaps the previous word (no
+  // ceil(end) extension bleeding into the next word's start frame).
+  let activeIndex = -1;
+  for (let i = words.length - 1; i >= 0; i--) {
+    if (frame >= Math.floor(words[i].start * fps)) {
+      activeIndex = i;
+      break;
+    }
+  }
 
   const lastEnd = words.length ? words[words.length - 1].end : 0;
   const holdT = t >= lastEnd ? Math.min(1, (t - lastEnd) / 0.8) : 0;
+
+  // Readability (2026 short-form standard): har word par black outline taake
+  // bright/light backgrounds par bhi text crisp readable rahe. Stroke font ke
+  // saath scale hota hai (4-6px @ ~80px font). paintOrder 'stroke fill' outline
+  // ko text ke peeche paint karta hai => crisp edge, no bleed into glyph fill.
+  const strokePx = Math.max(2.5, fontSize * 0.065);
 
   return (
     <div
@@ -67,6 +78,8 @@ export const KaraokeText: React.FC<{
         wordSpacing: '0.12em',
         opacity: 1 - 0.3 * holdT,
         filter: holdT > 0 ? `brightness(${1 - 0.15 * holdT})` : undefined,
+        WebkitTextStroke: `${strokePx.toFixed(2)}px rgba(0,0,0,0.88)`,
+        paintOrder: 'stroke fill',
         transition: 'none',
       }}
     >

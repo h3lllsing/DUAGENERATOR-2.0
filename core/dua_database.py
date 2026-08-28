@@ -114,20 +114,6 @@ class DuaDatabase:
         """Returns the list of all categories."""
         return self.categories
 
-    def get_optional_field_coverage(self) -> Dict[str, int]:
-        """
-        PILLAR 1 · counts how many duas carry each additive optional field.
-        Useful for migration progress reporting; always safe on legacy data.
-        """
-        return {
-            field: sum(1 for d in self.duas if d.get(field))
-            for field in OPTIONAL_SCHEMA_FIELDS
-        }
-
-    def get_category_names(self) -> List[str]:
-        """Returns a simple list of category names (strings)."""
-        return [cat.get('name') for cat in self.categories if cat.get('name')]
-
     def get_dua_summary(self) -> str:
         """
         Returns a human-readable summary of loaded data.

@@ -31,7 +31,12 @@ module.exports = function duaRoutes(deps) {
 
     // ── GET /api/duas ──
     if (method === 'GET' && p === '/api/duas') {
-      const raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8').replace(/^\uFEFF/, ''));
+      let raw;
+      try {
+        raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8').replace(/^\uFEFF/, ''));
+      } catch (e) {
+        return send(res, 500, JSON.stringify({ok: false, error: 'duas.json missing or corrupt'}));
+      }
       const all = Array.isArray(raw) ? raw : raw.duas;
       const normRef = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
       const refCount = {};

@@ -292,8 +292,11 @@ const WaveBands: React.FC = () => {
   const frame = useCurrentFrame();
   const {width} = useVideoConfig();
   const drift = (frame * 0.6) % width;
-  const waveSvg = (op: number) =>
-    `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${width}' height='200' viewBox='0 0 ${width} 200'%3E%3Cpath d='M0 90 Q ${width * 0.125} 30 ${width * 0.25} 90 T ${width * 0.5} 90 T ${width * 0.75} 90 T ${width} 90 L ${width} 200 L 0 200 Z' fill='%23020810' fill-opacity='${op}'/%3E%3C/svg%3E")`;
+  const {waveA, waveB} = React.useMemo(() => {
+    const waveSvg = (op: number) =>
+      `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${width}' height='200' viewBox='0 0 ${width} 200'%3E%3Cpath d='M0 90 Q ${width * 0.125} 30 ${width * 0.25} 90 T ${width * 0.5} 90 T ${width * 0.75} 90 T ${width} 90 L ${width} 200 L 0 200 Z' fill='%23020810' fill-opacity='${op}'/%3E%3C/svg%3E")`;
+    return {waveA: waveSvg(0.55), waveB: waveSvg(0.85)};
+  }, [width]);
   return (
     <>
       <div
@@ -304,7 +307,7 @@ const WaveBands: React.FC = () => {
           right: -width + drift,
           top: undefined,
           height: 200,
-          backgroundImage: waveSvg(0.55),
+          backgroundImage: waveA,
           backgroundRepeat: 'repeat-x',
         }}
       />
@@ -315,7 +318,7 @@ const WaveBands: React.FC = () => {
           left: -drift * 1.6,
           right: -width + drift * 1.6,
           height: 170,
-          backgroundImage: waveSvg(0.85),
+          backgroundImage: waveB,
           backgroundRepeat: 'repeat-x',
         }}
       />
@@ -1526,6 +1529,30 @@ export const Background: React.FC<{
     return Array.from({length: GRAIN_SIZE}, () => rand());
   }, []);
 
+  // Grain SVG tiles are frame-independent (only backgroundPosition flickers
+  // per frame), so build the data-URIs once instead of every frame.
+  const grainUris = useMemo(
+    () => ({
+      dark:
+        `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${GRAIN_SIZE}' height='2'%3E%3Crect width='100%25' height='100%25' fill='white' fill-opacity='0'/%3E${Array.from(
+          {length: GRAIN_SIZE},
+          (_, i) =>
+            `%3Crect x='${i}' y='0' width='1' height='1' fill='%23ffffff' fill-opacity='${
+              grainTiles[i] * 0.9
+            }'/%3E`,
+        ).join('')}%3C/svg%3E")`,
+      paper:
+        `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${GRAIN_SIZE}' height='2'%3E${Array.from(
+          {length: GRAIN_SIZE},
+          (_, i) =>
+            `%3Crect x='${i}' y='0' width='1' height='1' fill='%235a4416' fill-opacity='${
+              grainTiles[i] * 0.8
+            }'/%3E`,
+        ).join('')}%3C/svg%3E")`,
+    }),
+    [grainTiles],
+  );
+
   const isPaper = theme.decor === 'paper';
 
   return (
@@ -1567,6 +1594,20 @@ export const Background: React.FC<{
               backgroundImage: `url("${bgImage}")`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
+            }}
+          />
+        )}
+        {/* Readability scrim (2026 short-form standard): jab koi real
+            photo/video background hota hai, iske upar halka dark gradient
+            taake text ke peeche contrast rahe aur bright/faded backgrounds
+            (jese Pexels white skylines) uniform cinematic tone me a jayen. */}
+        {bgImage && (
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background:
+                'linear-gradient(180deg, rgba(6,9,18,0.35) 0%, rgba(6,9,18,0.18) 22%, rgba(6,9,18,0.16) 50%, rgba(6,9,18,0.34) 78%, rgba(6,9,18,0.5) 100%)',
             }}
           />
         )}
@@ -1672,13 +1713,7 @@ export const Background: React.FC<{
             inset: 0,
             opacity: S.grainOpacityDark,
             backgroundPosition: GRAIN_FLICKER[frame % 3],
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${GRAIN_SIZE}' height='2'%3E%3Crect width='100%25' height='100%25' fill='white' fill-opacity='0'/%3E${Array.from(
-              {length: GRAIN_SIZE},
-              (_, i) =>
-                `%3Crect x='${i}' y='0' width='1' height='1' fill='%23ffffff' fill-opacity='${
-                  grainTiles[i] * 0.9
-                }'/%3E`,
-            ).join('')}%3C/svg%3E")`,
+            backgroundImage: grainUris.dark,
             mixBlendMode: 'overlay',
           }}
         />
@@ -1692,13 +1727,7 @@ export const Background: React.FC<{
               S.grainOpacityPaper *
               (S.paperTreatment === 'minimal' ? 0.55 : 1),
             backgroundPosition: GRAIN_FLICKER[frame % 3],
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${GRAIN_SIZE}' height='2'%3E${Array.from(
-              {length: GRAIN_SIZE},
-              (_, i) =>
-                `%3Crect x='${i}' y='0' width='1' height='1' fill='%235a4416' fill-opacity='${
-                  grainTiles[i] * 0.8
-                }'/%3E`,
-            ).join('')}%3C/svg%3E")`,
+            backgroundImage: grainUris.paper,
           }}
         />
       )}

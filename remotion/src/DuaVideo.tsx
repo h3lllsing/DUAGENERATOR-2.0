@@ -338,26 +338,30 @@ export const DuaVideo: React.FC<{
   const urduStartFrame = urduStart * fps + INTRO_FRAMES;
 
   // auto-fit font sizes (long duas shrink instead of overflowing)
-  const arabicPlain = data.arabicWords.map((w) => w.t).join(' ');
-  const urduPlain = data.urduWords.map((w) => w.t).join(' ');
-  const arSize = fitFontSize({
-    text: arabicPlain,
-    fontFamily: ARABIC_FONT,
-    baseSize: 104,
-    minSize: 58,
-    maxWidth: 850,
-    maxHeight: 1150,
-    lineHeight: 1.95,
-  });
-  const urSize = fitFontSize({
-    text: urduPlain,
-    fontFamily: URDU_FONT,
-    baseSize: 50,
-    minSize: 32,
-    maxWidth: 850,
-    maxHeight: 1250,
-    lineHeight: 2.3,
-  });
+  const {arSize, urSize} = React.useMemo(() => {
+    const arabicPlain = data.arabicWords.map((w) => w.t).join(' ');
+    const urduPlain = data.urduWords.map((w) => w.t).join(' ');
+    return {
+      arSize: fitFontSize({
+        text: arabicPlain,
+        fontFamily: ARABIC_FONT,
+        baseSize: 104,
+        minSize: 58,
+        maxWidth: 850,
+        maxHeight: 1150,
+        lineHeight: 1.95,
+      }),
+      urSize: fitFontSize({
+        text: urduPlain,
+        fontFamily: URDU_FONT,
+        baseSize: 50,
+        minSize: 32,
+        maxWidth: 850,
+        maxHeight: 1250,
+        lineHeight: 2.3,
+      }),
+    };
+  }, [data]);
 
   // light sweep window around phase change (bright pulse)
   const sweepProgress = interpolate(

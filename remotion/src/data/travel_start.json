@@ -316,8 +316,8 @@
   "arabicEnd": 7.995,
   "urduStart": 9.532
  },
- "background": "backgrounds/travel_start.mp4",
- "backgroundKind": "video",
+ "background": "backgrounds/travel_start.jpg",
+ "backgroundKind": "image",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

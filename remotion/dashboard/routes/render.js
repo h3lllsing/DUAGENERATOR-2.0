@@ -6,7 +6,7 @@
 module.exports = function renderRoutes(deps) {
   const {PROJECT, REMOTION, TEMP, OUT, DATA, PY, CHROME, FFMPEG, CFG_PATH,
     fs, path, crypto, spawn, process, send,
-    lookspec, fxg, themeMap} = deps;
+    lookspec, fxg, themeMap, cacheStore, saveCache, qcStore, saveQc} = deps;
 
   // ── Mutable state (shared by reference with server.js) ──
   const job = {running: false, duaId: null, step: '', percent: 0,
@@ -14,15 +14,10 @@ module.exports = function renderRoutes(deps) {
     child: null, cancelFlag: false};
   const queue = {active: false, items: [], idx: 0, done: [], failed: [],
     skipped: [], cancelRequested: false};
+  const children = new Set();
 
   // ── Constants ──
   const HIST_PATH = path.join(__dirname, '..', 'history.json');
-  const QC_PATH = path.join(__dirname, '..', 'qc.json');
-  const CACHE_PATH = path.join(__dirname, '..', 'cache.json');
-  let qcStore = {};
-  try { qcStore = JSON.parse(fs.readFileSync(QC_PATH, 'utf8')); } catch (_) { qcStore = {}; }
-  let cacheStore = {};
-  try { cacheStore = JSON.parse(fs.readFileSync(CACHE_PATH, 'utf8')); } catch (_) { cacheStore = {}; }
   const STYLE_PRESETS = ['auto', 'classic', 'royal', 'minimal', 'cinematic',
     'masterpiece', 'volumetric', 'raytrace', 'embernight', 'glitterroyal',
     'desertmirage', 'waterripple', 'silkmarble', 'cinemafocus',
@@ -56,11 +51,18 @@ module.exports = function renderRoutes(deps) {
       .trim().replace(/\.mp4$/i, '').replace(/[. ]+$/, '') || 'Dua';
   }
 
+  function registerChild(p) {
+    children.add(p.pid);
+    p.on('close', () => children.delete(p.pid));
+    p.on('error', () => children.delete(p.pid));
+  }
+
   function run(cmd, args, opts) {
     return new Promise((resolve) => {
       log('$ ' + path.basename(cmd) + ' ' + args.join(' ').slice(0, 300));
       const p = spawn(cmd, args, Object.assign({cwd: REMOTION, windowsHide: true}, opts));
       if (job) job.child = p;
+      registerChild(p);
       let buf = '';
       const pump = (d) => {
         buf += d.toString();
@@ -82,6 +84,7 @@ module.exports = function renderRoutes(deps) {
     return new Promise((resolve) => {
       log('$ ' + path.basename(cmd) + ' ' + args.join(' ').slice(0, 300));
       const p = spawn(cmd, args, {cwd: REMOTION, windowsHide: true});
+      registerChild(p);
       let buf = '';
       const pump = (d) => {
         buf += d.toString();
@@ -99,6 +102,7 @@ module.exports = function renderRoutes(deps) {
   async function runCapture(cmd, args) {
     return new Promise((resolve, reject) => {
       const p = spawn(cmd, args, {cwd: REMOTION, windowsHide: true});
+      registerChild(p);
       let out = '';
       p.stdout.on('data', (d) => out += d.toString());
       p.stderr.on('data', () => {});
@@ -201,7 +205,7 @@ module.exports = function renderRoutes(deps) {
       const args = ['render', compId,
         'out/' + outName,
         '--browser-executable=' + CHROME,
-        '--crf=15', '--jpeg-quality=100', '--log=error',
+        '--crf=18', '--jpeg-quality=100', '--log=error',
         ...stylePropsArgs(duaId)];
       log('$ node remotion-cli ' + args.join(' '));
       const p = spawn(process.execPath, [cli, ...args], {cwd: REMOTION, windowsHide: true});
@@ -274,7 +278,7 @@ module.exports = function renderRoutes(deps) {
       const lines = out.trim().split(/\r?\n/).filter(Boolean);
       const j = JSON.parse(lines[lines.length - 1]);
       qcStore[duaId] = {pass: !!j.pass, ts: Date.now(), reason: j.reason || null};
-      try { writeAtomic(QC_PATH, JSON.stringify(qcStore, null, 2)); } catch (_) {}
+      saveQc();
       log('QC ' + (j.pass ? 'PASS' : 'FAIL') + ': ' + duaId +
         (j.reason ? ' (' + j.reason + ')' : ' (' + j.checks.loudness_lufs + ' LUFS)'));
       return j;
@@ -296,10 +300,6 @@ module.exports = function renderRoutes(deps) {
     try { cfg = fs.readFileSync(cfgPath, 'utf8'); } catch (_) {}
     return crypto.createHash('md5').update(
       JSON.stringify(dua) + '|' + audSig + '|' + cfg + '|' + sfx).digest('hex');
-  }
-
-  function saveCache() {
-    try { writeAtomic(CACHE_PATH, JSON.stringify(cacheStore, null, 2)); } catch (_) {}
   }
 
   async function genThumb(duaId, outName, force) {
@@ -751,24 +751,28 @@ module.exports = function renderRoutes(deps) {
       if (job.running || queue.active) return send(res, 409, JSON.stringify({ok: false, error: 'Job already running'}));
       send(res, 200, JSON.stringify({ok: true}));
       (async () => {
-        const raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
-        const list = Array.isArray(raw) ? raw : raw.duas;
-        const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
-        fs.mkdirSync(path.join(OUT, 'thumbs'), {recursive: true});
-        let n = 0;
-        for (const d of list) {
-          const t = d.id + '.png';
-          const tp = path.join(OUT, 'thumbs', t);
-          if (fs.existsSync(tp)) continue;
-          const leg = path.join(OUT, 'thumbs', safeTitle(d.title) + '.png');
-          if (fs.existsSync(leg)) { fs.copyFileSync(leg, tp); continue; }
-          const compId = d.id.replace(/_/g, '-');
-          log('THUMB [' + (++n) + ']: ' + d.id);
-          await run(process.execPath, [cli, 'still', compId,
-            'out/thumbs/' + t, '--frame=100',
-            '--browser-executable=' + CHROME, '--log=error']);
+        try {
+          const raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
+          const list = Array.isArray(raw) ? raw : raw.duas;
+          const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
+          fs.mkdirSync(path.join(OUT, 'thumbs'), {recursive: true});
+          let n = 0;
+          for (const d of list) {
+            const t = d.id + '.png';
+            const tp = path.join(OUT, 'thumbs', t);
+            if (fs.existsSync(tp)) continue;
+            const leg = path.join(OUT, 'thumbs', safeTitle(d.title) + '.png');
+            if (fs.existsSync(leg)) { fs.copyFileSync(leg, tp); continue; }
+            const compId = d.id.replace(/_/g, '-');
+            log('THUMB [' + (++n) + ']: ' + d.id);
+            await run(process.execPath, [cli, 'still', compId,
+              'out/thumbs/' + t, '--frame=100',
+              '--browser-executable=' + CHROME, '--log=error']);
+          }
+          log('THUMBS COMPLETE');
+        } catch (e) {
+          log('THUMBS ERROR: ' + (e && e.message || e));
         }
-        log('THUMBS COMPLETE');
       })();
       return true;
     }
@@ -814,6 +818,10 @@ module.exports = function renderRoutes(deps) {
       if (job.child && job.child.pid) {
         log('CANCEL: killing pid ' + job.child.pid);
         spawn('taskkill', ['/PID', String(job.child.pid), '/T', '/F']);
+      }
+      for (const pid of children) {
+        log('CANCEL: killing helper pid ' + pid);
+        spawn('taskkill', ['/PID', String(pid), '/T', '/F']);
       }
       send(res, 200, JSON.stringify({ok: true, batch: wasBatch}));
       return true;

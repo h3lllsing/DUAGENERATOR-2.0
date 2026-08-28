@@ -109,10 +109,7 @@ const configHandler = require('./routes/config')(deps);
 
 function verifyAuth(req) {
   const auth = req.headers.authorization || '';
-  if (auth.startsWith('Bearer ') && auth.slice(7) === AUTH_TOKEN) return true;
-  const url = new URL(req.url, 'http://localhost');
-  if (url.searchParams.get('token') === AUTH_TOKEN) return true;
-  return false;
+  return auth.startsWith('Bearer ') && auth.slice(7) === AUTH_TOKEN;
 }
 
 const server = http.createServer((req, res) => {
@@ -150,7 +147,8 @@ const server = http.createServer((req, res) => {
   }
   const ext = path.extname(url.pathname);
   if (ext && ['.css', '.js', '.png', '.jpg', '.ico', '.svg', '.json'].includes(ext)) {
-    const fp = path.join(PUBLIC_DIR, url.pathname.slice(1));
+    const fp = path.resolve(PUBLIC_DIR, '.' + url.pathname);
+    if (!fp.startsWith(PUBLIC_DIR + path.sep) && fp !== PUBLIC_DIR) return send(res, 403, '{"error":"forbidden"}');
     if (fs.existsSync(fp)) {
       const types = {'.css':'text/css','.js':'application/javascript','.png':'image/png',
         '.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.ico':'image/x-icon'};

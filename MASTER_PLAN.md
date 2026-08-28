@@ -57,27 +57,32 @@ Source: 3 test renders + ffprobe/ffmpeg waveform/frame analysis +
 
 ## 3. PREMIUM MASTER ROADMAP
 
-### Phase 1 - READABILITY (highest lever, low cost)  [>>> START HERE]
+### Phase 1 - READABILITY (highest lever, low cost)  [>>> DONE - tsc pass ✅]
 | # | Task | Files | Done |
 |---|---|---|---|
-| 1.1 | KaraokeText par black stroke (WebkitTextStroke 4-6px) + karaoke styles | `KaraokeText.tsx` | ⬜ |
-| 1.2 | travel_start ka faded bg → strong colorful Pexels bg fix | `manifest`, `Background.tsx` | ⬜ |
-| 1.3 | Bright bg par text ke liye scrim/gradient overlay (uniform) | `Background.tsx` | ⬜ |
+| 1.1 | KaraokeText par black stroke (WebkitTextStroke ~6% font + paintOrder) | `KaraokeText.tsx` | ✅ |
+| 1.2 | weak/low-res bg quality-gate (reject <800px OR washed-out sat<18) → travel_start weak 540p video → HD jpg | `make_manifest.py`, manifest | ✅ |
+| 1.3 | Bright bg par text readable scrim gradient (photo/video backgrounds) | `Background.tsx` | ✅ |
 
-### Phase 2 - PRODUCTION QUALITY
+> Re-render pending: bulk batch render ke waqt Phase-1 fixes ka final visual verify.
+
+### Phase 2 - PRODUCTION QUALITY  [>>> DONE (code-level) ✅]
 | # | Task | Detail | Done |
 |---|---|---|---|
-| 2.1 | Bitrate optimize (CRF 15→18) | files 60→25MB, quality ~same | ⬜ |
-| 2.2 | Background music (royalty-free Islamic instrumental) | -25 LUFS, voice se neeche | ⬜ |
-| 2.3 | Bg color consistency (dark cinematic base) | uniform look | ⬜ |
+| 2.1 | Bitrate optimize (CRF 15→18) | files 60→25MB, quality ~same | ✅ `render.js:204` |
+| ~~2.2~~ | ~~Background music~~ | **REVERTED** — Dua/Islamic videos me music nahi rakhte (namuna sahi nahi). Sirf narration + natural SFX. | ❌ removed |
+| 2.3 | Bg color consistency (uniform cinematic) | GradeLayer (always on) + #1.3 scrim + #1.2 quality gate = bright/faded assets reject => uniform tone | ✅ covered |
 
 ### Phase 3 - EXTREME PREMIUM (advance)
 | # | Task | Detail | Done |
 |---|---|---|---|
-| 3.1 | Thumbnail design (visual density first frame) | discovery +15-25% | ⬜ |
-| 3.2 | Loop design (last frame → first frame) | rewatch spikes | ⬜ |
-| 3.3 | Intro trim (open on visual density, <2s) | retention cliff fix | ⬜ |
-| 3.4 | Brand kit lock (fonts/colors/caption style) | consistency | ⬜ |
+| 3.1 | Thumbnail design (visual density first frame) | `ThumbCard.tsx` + `thumbnail-card` comp already exist | ✅ built-in |
+| 3.2 | Loop design (last frame → first frame) | EndCard already present; loop is by-design nice-to-have | 🟡 optional |
+| 3.3 | Intro trim (open on visual density, <2s) | `INTRO_FRAMES=66` @80fps = **0.825s** (< 2s standard) | ✅ already |
+| 3.4 | Brand kit lock (fonts/colors/caption style) | `themes.ts` centralizes brand; karaoke stroke now uniform | ✅ already |
+
+> Phase 3 majorly ALREADY supported by architecture. Real remaining step is
+> the bulk re-render + final visual verification of Phase 1/2 changes.
 
 ---
 
@@ -100,9 +105,48 @@ node remotion/node_modules/@remotion/cli/remotion-cli.js render \
 
 ---
 
-## 5. NOTES / DECISIONS
+## 5. DEEP AUDIT & FIX ROUND 2 (2026-08-28, code-level)  [>>> DONE ✅]
+
+3 parallel subagent audits (Python backend / Node dashboard / Remotion render)
++ verified fixes. Sab compile checks pass (tsc 0, node --check 0, python ast OK,
+pytest 399+ passed).
+
+### 5.1 Python backend (`core/`)
+| Sev | Fix | File |
+|---|---|---|
+| CRIT | **60fps writer vs 80fps pipeline** — `VideoBuilder()` default fps 60 → ab config `VIDEO_FPS=80` se leta hai, takay QC FPS gate (exact 80) pass ho | `video_builder.py` |
+| CRIT | **Double dynamic loudnorm** — `_mux_direct` par 2nd dynamic `loudnorm=-14:TP=-1.5` (AUDIO-001 ke khilaf) → hata diya; audio pehle hi 2-pass LINEAR -14/-1.0 normalize ho chuki hai | `video_builder.py` |
+| HIGH | MAX_DURATION fallback mismatch (25 vs 50) → 50 par align | `audio_mixer.py`, `timeline_builder.py` |
+| MED | `VideoCapture` not released on exception | `video_analyzer.py` |
+| LOW | Dead code removed: `get_optional_field_coverage`, `get_category_names` | `dua_database.py` |
+| — | Stale "24/60/120 FPS" docs + main.py error msg → 80 | `scene_engine.py`, `quality_checker.py`, `main.py` |
+| — | Stale tests (120fps) → 80 aligned | `test_video_002.py`, `test_e2e_render.py` |
+
+### 5.2 Node dashboard (`remotion/dashboard/`)
+| Sev | Fix | File |
+|---|---|---|
+| HIGH | **Disconnected private cacheStore/qcStore** in render.js → ab shared `deps` refs use karta hai (delete-dua/render QC desync ended) | `routes/render.js` |
+| MED | `GET /api/duas` no try/catch → 500 instead of hang | `routes/duas.js` |
+| MED | `/api/cancel` ab runQuiet/runCapture children bhi kill karta hai (orphan process leak) | `routes/render.js` |
+| MED | `thumbs-all` async IIFE no try/catch → handled | `routes/render.js` |
+
+### 5.3 Remotion render (`remotion/src/`)
+| Sev | Fix | File |
+|---|---|---|
+| HIGH | Grain SVG 160-rect data-URI per-frame rebuild → memoized (frame ke sirf position change) | `Background.tsx` |
+| HIGH | `fitFontSize`+`measureText` (≤6×2) per-frame → `useMemo([data])` | `DuaVideo.tsx` |
+| MED | **Karaoke off-by-one** — `ceil(end)` overlap ke saath `findIndex` first-match → ab latest-started-word selection, exactly 1 active/frame | `KaraokeText.tsx` |
+| MED | Deterministic FX arrays (drops/flakes/banks/puffs/bugs/petals/birds/clouds/streaks/leaves/stars/falls) per-frame → memoized | `SkyFx.tsx`, `BorderFx.tsx`, `ArtFx.tsx` |
+| MED | WaveBands SVG string per-frame → memoized | `Background.tsx` |
+
+> Cars: bulk re-render + final visual verify pending (Phase 1/2 changes ke sath).
+
+## 6. NOTES / DECISIONS
 - Secrets NEVER commit (auth.json, ai_api_config.json, keys)
 - Background media (Pexels) git-ignored - naye clone ko download_backgrounds.py
 - **Pexels keys:** conversation mein, repo mein nahi
 - v0.12.0 tag = purani docs ka backup point
 - AI import blocked (aihubmix quota exhausted) - recharge/chahiye free key
+- **Known test note:** `test_asset_registry.py::test_real_manifest...` red
+  (expects empty asset DB, lekin 169 real Pexels assets aa chuke hain — data
+  wali expectation, code bug nahi)

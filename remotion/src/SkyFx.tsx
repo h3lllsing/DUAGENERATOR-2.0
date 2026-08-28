@@ -18,16 +18,18 @@ const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 // ---- RAIN: tez jhukti baarish ki lakeeren ----
 const Rain: React.FC<{seed: number; heavy: boolean}> = ({seed, heavy}) => {
   const frame = useCurrentFrame();
-  const rng = mulberry32((seed || 17) + (heavy ? 500 : 100));
-  const n = heavy ? 95 : 70;
-  const drops = Array.from({length: n}, (_, i) => ({
-    x: rng() * 1160 - 40,
-    sp: (heavy ? 20 : 15) + rng() * 8,
-    off: rng() * 2200,
-    len: 18 + rng() * 16,
-    a: 0.22 + rng() * 0.3,
-    id: i,
-  }));
+  const drops = React.useMemo(() => {
+    const rng = mulberry32((seed || 17) + (heavy ? 500 : 100));
+    const n = heavy ? 95 : 70;
+    return Array.from({length: n}, (_, i) => ({
+      x: rng() * 1160 - 40,
+      sp: (heavy ? 20 : 15) + rng() * 8,
+      off: rng() * 2200,
+      len: 18 + rng() * 16,
+      a: 0.22 + rng() * 0.3,
+      id: i,
+    }));
+  }, [seed, heavy]);
   return (
     <AbsoluteFill>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"
@@ -51,9 +53,11 @@ const Rain: React.FC<{seed: number; heavy: boolean}> = ({seed, heavy}) => {
 const Storm: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
   const {durationInFrames: dur} = useVideoConfig();
-  const rng = mulberry32((seed || 19) + 77);
-  const strikes = [Math.floor(dur * (0.2 + rng() * 0.1)),
-    Math.floor(dur * (0.55 + rng() * 0.12))];
+  const strikes = React.useMemo(() => {
+    const rng = mulberry32((seed || 19) + 77);
+    return [Math.floor(dur * (0.2 + rng() * 0.1)),
+      Math.floor(dur * (0.55 + rng() * 0.12))];
+  }, [seed, dur]);
   let flash = 0;
   let bolt: string | null = null;
   strikes.forEach((f0, i) => {
@@ -87,16 +91,18 @@ const Storm: React.FC<{seed: number}> = ({seed}) => {
 // ---- SNOW: halke barfe tukde sway ke sath ----
 const Snow: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
-  const rng = mulberry32((seed || 23) + 31);
-  const flakes = Array.from({length: 60}, (_, i) => ({
-    x: rng() * 1120 - 20,
-    r: 2 + rng() * 4,
-    sp: 1.3 + rng() * 1.2,
-    ph: rng() * 6.28,
-    sw: 14 + rng() * 26,
-    a: 0.45 + rng() * 0.45,
-    id: i,
-  }));
+  const flakes = React.useMemo(() => {
+    const rng = mulberry32((seed || 23) + 31);
+    return Array.from({length: 60}, (_, i) => ({
+      x: rng() * 1120 - 20,
+      r: 2 + rng() * 4,
+      sp: 1.3 + rng() * 1.2,
+      ph: rng() * 6.28,
+      sw: 14 + rng() * 26,
+      a: 0.45 + rng() * 0.45,
+      id: i,
+    }));
+  }, [seed]);
   return (
     <AbsoluteFill>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"
@@ -117,16 +123,18 @@ const Snow: React.FC<{seed: number}> = ({seed}) => {
 // ---- FOG: dhundhli paratein neeche/oopar drift karti hain ----
 const Fog: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
-  const rng = mulberry32((seed || 29) + 13);
-  const banks = Array.from({length: 4}, (_, i) => ({
-    y: [1560, 1700, 320, 180][i] + rng() * 60,
-    sp: 0.35 + rng() * 0.4,
-    w: 700 + rng() * 500,
-    h: 150 + rng() * 120,
-    a: 0.10 + rng() * 0.10,
-    dir: i % 2 === 0 ? 1 : -1,
-    id: i,
-  }));
+  const banks = React.useMemo(() => {
+    const rng = mulberry32((seed || 29) + 13);
+    return Array.from({length: 4}, (_, i) => ({
+      y: [1560, 1700, 320, 180][i] + rng() * 60,
+      sp: 0.35 + rng() * 0.4,
+      w: 700 + rng() * 500,
+      h: 150 + rng() * 120,
+      a: 0.10 + rng() * 0.10,
+      dir: i % 2 === 0 ? 1 : -1,
+      id: i,
+    }));
+  }, [seed]);
   return (
     <AbsoluteFill>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"
@@ -154,19 +162,21 @@ const Fog: React.FC<{seed: number}> = ({seed}) => {
 const Smoke: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
   const {durationInFrames: dur} = useVideoConfig();
-  const rng = mulberry32((seed || 37) + 59);
+  const puffs = React.useMemo(() => {
+    const rng = mulberry32((seed || 37) + 59);
+    return Array.from({length: 22}, (_, i) => ({
+      src: i % 2,
+      off: (i / 2) * (dur / 11),
+      grow: 14 + rng() * 26,
+      wig: 20 + rng() * 34,
+      ph: rng() * 6.28,
+      id: i,
+    }));
+  }, [seed, dur]);
   const sources = [
     {x: 130, side: 1},
     {x: 950, side: -1},
   ];
-  const puffs = Array.from({length: 22}, (_, i) => ({
-    src: i % 2,
-    off: (i / 2) * (dur / 11),
-    grow: 14 + rng() * 26,
-    wig: 20 + rng() * 34,
-    ph: rng() * 6.28,
-    id: i,
-  }));
   return (
     <AbsoluteFill style={{opacity: 0.95}}>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"
@@ -207,19 +217,21 @@ const Smoke: React.FC<{seed: number}> = ({seed}) => {
 // ---- FIREFLIES: jugnoo ghoome aur chamke ----
 const Fireflies: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
-  const rng = mulberry32((seed || 41) + 7);
-  const bugs = Array.from({length: 18}, (_, i) => ({
-    bx: rng(),
-    by: 0.42 + rng() * 0.52,
-    ax: 40 + rng() * 110,
-    ay: 26 + rng() * 60,
-    fx: 0.017 + rng() * 0.02,
-    fy: 0.021 + rng() * 0.024,
-    ph: rng() * 6.28,
-    tw: 0.05 + rng() * 0.06,
-    r: 2.6 + rng() * 3.4,
-    id: i,
-  }));
+  const bugs = React.useMemo(() => {
+    const rng = mulberry32((seed || 41) + 7);
+    return Array.from({length: 18}, (_, i) => ({
+      bx: rng(),
+      by: 0.42 + rng() * 0.52,
+      ax: 40 + rng() * 110,
+      ay: 26 + rng() * 60,
+      fx: 0.017 + rng() * 0.02,
+      fy: 0.021 + rng() * 0.024,
+      ph: rng() * 6.28,
+      tw: 0.05 + rng() * 0.06,
+      r: 2.6 + rng() * 3.4,
+      id: i,
+    }));
+  }, [seed]);
   return (
     <AbsoluteFill>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"
@@ -249,20 +261,22 @@ const Fireflies: React.FC<{seed: number}> = ({seed}) => {
 // ---- PETALS: phool ki pankhudiyan girti hain ----
 const Petals: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
-  const rng = mulberry32((seed || 43) + 97);
-  const colors = ['#f3c6d3', '#f8dde4', '#ead1c0', '#f5cfd9'];
-  const petals = Array.from({length: 16}, (_, i) => ({
-    x: rng() * 1100 - 10,
-    sp: 1.6 + rng() * 1.6,
-    off: rng() * 2100,
-    rot: rng() * 360,
-    rs: 1.2 + rng() * 2.2,
-    sw: 40 + rng() * 70,
-    ph: rng() * 6.28,
-    sz: 7 + rng() * 7,
-    col: colors[i % colors.length],
-    id: i,
-  }));
+  const petals = React.useMemo(() => {
+    const rng = mulberry32((seed || 43) + 97);
+    const colors = ['#f3c6d3', '#f8dde4', '#ead1c0', '#f5cfd9'];
+    return Array.from({length: 16}, (_, i) => ({
+      x: rng() * 1100 - 10,
+      sp: 1.6 + rng() * 1.6,
+      off: rng() * 2100,
+      rot: rng() * 360,
+      rs: 1.2 + rng() * 2.2,
+      sw: 40 + rng() * 70,
+      ph: rng() * 6.28,
+      sz: 7 + rng() * 7,
+      col: colors[i % colors.length],
+      id: i,
+    }));
+  }, [seed]);
   return (
     <AbsoluteFill style={{opacity: 0.85}}>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"

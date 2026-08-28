@@ -88,21 +88,25 @@ const RosetteBorder: React.FC<{theme: Theme}> = ({theme}) => {
 const SitareSparkles: React.FC<{seed: number; theme: Theme}> = ({seed, theme}) => {
   const frame = useCurrentFrame();
   const {durationInFrames: dur} = useVideoConfig();
-  const rng = mulberry32(seed || 7);
-  const stars = Array.from({length: 16}, (_, i) => ({
-    x: 0.08 + rng() * 0.84,
-    y: 0.10 + rng() * 0.50,
-    ph: rng() * Math.PI * 2,
-    sp: 0.07 + rng() * 0.06,
-    sz: 7 + rng() * 11,
-    id: i,
-  }));
-  const falls = Array.from({length: 9}, () => ({
-    x: 0.12 + rng() * 0.76,
-    off: rng() * dur,
-    fall: 240 + rng() * 320,
-    r: 3 + rng() * 3,
-  }));
+  const {stars, falls} = React.useMemo(() => {
+    const rng = mulberry32(seed || 7);
+    return {
+      stars: Array.from({length: 16}, (_, i) => ({
+        x: 0.08 + rng() * 0.84,
+        y: 0.10 + rng() * 0.50,
+        ph: rng() * Math.PI * 2,
+        sp: 0.07 + rng() * 0.06,
+        sz: 7 + rng() * 11,
+        id: i,
+      })),
+      falls: Array.from({length: 9}, () => ({
+        x: 0.12 + rng() * 0.76,
+        off: rng() * dur,
+        fall: 240 + rng() * 320,
+        r: 3 + rng() * 3,
+      })),
+    };
+  }, [seed, dur]);
   return (
     <AbsoluteFill>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"
@@ -138,7 +142,6 @@ const SitareSparkles: React.FC<{seed: number; theme: Theme}> = ({seed, theme}) =
 const VineCorners: React.FC<{seed: number; theme: Theme}> = ({seed, theme}) => {
   const frame = useCurrentFrame();
   const {durationInFrames: dur} = useVideoConfig();
-  const rng = mulberry32((seed || 3) + 91);
   const W = 1080;
   const H = 1920;
   const growP = easeOut(frame / 140);
@@ -147,11 +150,14 @@ const VineCorners: React.FC<{seed: number; theme: Theme}> = ({seed, theme}) => {
     'M0,0 C120,40 150,150 130,290 S170,520 120,650',
     'M1080,0 C960,40 930,150 950,290 S910,520 960,650',
   ];
-  const leaves = Array.from({length: 7}, (_, i) => ({
-    t: 0.18 + i * 0.11,
-    side: rng() > 0.5 ? 1 : -1,
-    sz: 9 + rng() * 7,
-  }));
+  const leaves = React.useMemo(() => {
+    const rng = mulberry32((seed || 3) + 91);
+    return Array.from({length: 7}, (_, i) => ({
+      t: 0.18 + i * 0.11,
+      side: rng() > 0.5 ? 1 : -1,
+      sz: 9 + rng() * 7,
+    }));
+  }, [seed]);
   const stemLen = 900;
   return (
     <AbsoluteFill style={{opacity: 0.8 * outFade}}>

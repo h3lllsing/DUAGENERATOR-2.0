@@ -24,12 +24,16 @@ class VideoBuilder:
     Uses imageio for fast frame writing and moviepy for audio mixing.
     """
     
-    def __init__(self, fps: int = 60, resolution: tuple = (1080, 1920)):
+    def __init__(self, fps: int = None, resolution: tuple = (1080, 1920)):
         """
         Args:
-            fps: Frames per second (60fps for smooth YouTube Shorts playback).
+            fps: Frames per second. Defaults to config.VIDEO_FPS (80) so the
+                container framerate always matches the pipeline's render FPS;
+                a mismatch would fail the exact-FPS quality gate.
             resolution: (width, height) for output video.
         """
+        if fps is None:
+            fps = int(getattr(config, "VIDEO_FPS", 80) or 80)
         self.fps = fps
         self.width, self.height = resolution
 
@@ -74,10 +78,12 @@ class VideoBuilder:
                 vf_parts.append("eq=saturation=1.15:contrast=1.05:brightness=0.02")
             vf_str = ",".join(vf_parts) if vf_parts else None
 
-            # Build audio filter for loudness normalization
+            # Build audio filter for loudness normalization. The spoken track is
+            # ALREADY normalized upstream (AudioMixer.normalize_loudness, two-pass
+            # LINEAR -14 LUFS / -1.0 dBTP, AUDIO-001). Re-running loudnorm here
+            # would double-normalize AND switch to DYNAMIC mode (violating
+            # AUDIO-001), so the mux pass leaves audio untouched.
             af_str = None
-            if self.loudness:
-                af_str = "loudnorm=I=-14:TP=-1.5:LRA=11"
 
             cmd = [
                 ffmpeg, "-y", "-hide_banner", "-loglevel", "error",
@@ -193,7 +199,7 @@ class VideoBuilder:
                 ffmpeg_params=[
                     '-crf', '10',        # Near-lossless intermediate (re-encode in mux)
                     '-preset', 'ultrafast',  # Fast intermediate, quality in mux pass
-                    '-g', '30',          # GOP = half of 60fps
+                    '-g', '30',          # GOP anchor every 30 frames
                 ]
             ) as writer:
                 for frame in numpy_frames:

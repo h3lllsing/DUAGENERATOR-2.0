@@ -18,16 +18,18 @@ const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
 // ---- CLOUDS: upar halki baadal paratein drift karti hain ----
 const CloudsDrift: React.FC<{seed: number; theme: Theme}> = ({seed, theme}) => {
   const frame = useCurrentFrame();
-  const rng = mulberry32((seed || 53) + 21);
   const light = theme.decor === 'paper';
-  const clouds = Array.from({length: 5}, (_, i) => ({
-    y: 60 + rng() * 260,
-    sp: (0.4 + rng() * 0.5) * (i % 2 === 0 ? 1 : -1),
-    s: 0.8 + rng() * 0.9,
-    off: rng() * 2000,
-    a: 0.10 + rng() * 0.12,
-    id: i,
-  }));
+  const clouds = React.useMemo(() => {
+    const rng = mulberry32((seed || 53) + 21);
+    return Array.from({length: 5}, (_, i) => ({
+      y: 60 + rng() * 260,
+      sp: (0.4 + rng() * 0.5) * (i % 2 === 0 ? 1 : -1),
+      s: 0.8 + rng() * 0.9,
+      off: rng() * 2000,
+      a: 0.10 + rng() * 0.12,
+      id: i,
+    }));
+  }, [seed]);
   const CloudBlob: React.FC<{a: number}> = ({a}) => (
     <g fill={light ? `rgba(255,255,255,${a + 0.25})` : `rgba(226,232,244,${a})`}>
       <ellipse cx={0} cy={0} rx={150} ry={44} />
@@ -59,16 +61,18 @@ const CloudsDrift: React.FC<{seed: number; theme: Theme}> = ({seed, theme}) => {
 const BirdsFlock: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
   const {durationInFrames: dur} = useVideoConfig();
-  const rng = mulberry32((seed || 59) + 67);
-  const birds = Array.from({length: 8}, (_, i) => ({
-    yBase: 170 + rng() * 330,
-    lag: i * (dur * 0.018) + rng() * 40,
-    sp: dur * (0.62 + rng() * 0.08),
-    ph: rng() * 6.28,
-    s: 0.75 + rng() * 0.6,
-    bob: 10 + rng() * 22,
-    id: i,
-  }));
+  const birds = React.useMemo(() => {
+    const rng = mulberry32((seed || 59) + 67);
+    return Array.from({length: 8}, (_, i) => ({
+      yBase: 170 + rng() * 330,
+      lag: i * (dur * 0.018) + rng() * 40,
+      sp: dur * (0.62 + rng() * 0.08),
+      ph: rng() * 6.28,
+      s: 0.75 + rng() * 0.6,
+      bob: 10 + rng() * 22,
+      id: i,
+    }));
+  }, [seed, dur]);
   return (
     <AbsoluteFill style={{opacity: 0.8}}>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"
@@ -134,23 +138,27 @@ const FlagsSwing: React.FC<{seed: number; theme: Theme}> = ({theme}) => {
 // ---- WIND: hawa ke jhonke + urte patte ----
 const WindStreaks: React.FC<{seed: number}> = ({seed}) => {
   const frame = useCurrentFrame();
-  const rng = mulberry32((seed || 61) + 83);
-  const streaks = Array.from({length: 6}, (_, i) => ({
-    y: 200 + rng() * 1300,
-    off: rng() * 1800,
-    len: 220 + rng() * 300,
-    curve: 40 + rng() * 70,
-    a: 0.10 + rng() * 0.10,
-    id: i,
-  }));
-  const leaves = Array.from({length: 7}, (_, i) => ({
-    y: 320 + rng() * 1150,
-    sp: 5 + rng() * 4,
-    off: rng() * 1400,
-    ph: rng() * 6.28,
-    col: ['#7fae6f', '#a3b86b', '#c9a84c'][i % 3],
-    id: i,
-  }));
+  const {streaks, leaves} = React.useMemo(() => {
+    const rng = mulberry32((seed || 61) + 83);
+    return {
+      streaks: Array.from({length: 6}, (_, i) => ({
+        y: 200 + rng() * 1300,
+        off: rng() * 1800,
+        len: 220 + rng() * 300,
+        curve: 40 + rng() * 70,
+        a: 0.10 + rng() * 0.10,
+        id: i,
+      })),
+      leaves: Array.from({length: 7}, (_, i) => ({
+        y: 320 + rng() * 1150,
+        sp: 5 + rng() * 4,
+        off: rng() * 1400,
+        ph: rng() * 6.28,
+        col: ['#7fae6f', '#a3b86b', '#c9a84c'][i % 3],
+        id: i,
+      })),
+    };
+  }, [seed]);
   return (
     <AbsoluteFill style={{opacity: 0.9}}>
       <svg viewBox="0 0 1080 1920" width="100%" height="100%"

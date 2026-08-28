@@ -14,6 +14,26 @@ TEMP = os.path.join(PROJECT, "temp")
 TICKS = 10_000_000
 GAP_SECONDS = 0.30
 
+# ffmpeg/ffprobe binaries (imageio_ffmpeg bundling — ffprobe sits beside exe).
+def _media_bins():
+    import imageio_ffmpeg
+    exe = imageio_ffmpeg.get_ffmpeg_exe()
+    return exe, os.path.join(os.path.dirname(exe), "ffprobe.exe")
+
+FFMPEG, FFPROBE = None, None
+def _init_bins():
+    global FFMPEG, FFPROBE
+    if FFMPEG is None:
+        FFMPEG, FFPROBE = _media_bins()
+
+def _ffprobe():
+    _init_bins()
+    return FFPROBE if os.path.isfile(FFPROBE) else "ffprobe"
+
+def _ffmpeg():
+    _init_bins()
+    return FFMPEG if os.path.isfile(FFMPEG) else "ffmpeg"
+
 # PILLAR 2 · broadcast loudness targets (mirrors core/audio_mixer.py).
 # Master chain is now: tonal/dynamics filters -> TWO-PASS LINEAR loudnorm
 # (via AudioMixer) -> mp3 encode. Dynamic single-pass loudnorm is gone,
@@ -59,19 +79,6 @@ CATEGORY_THEME = {
     "family": "royal",
     "occasions": "ramadan",
 }
-
-# Studio mastering: rumble cut + warmth + clarity + compression +
-# light masjid ambience + YouTube loudness standard (-16 LUFS).
-# Timing-safe: no time-stretch, karaoke sync untouched.
-MASTER_FILTER = (
-    "highpass=f=70,"
-    "bass=g=2.5,"
-    "equalizer=f=3000:t=q:w=1:g=1.5,"
-    "acompressor=threshold=-18dB:ratio=3:attack=10:release=200,"
-    "aecho=0.6:0.25:60|120:0.12|0.08,"
-    "loudnorm=I=-16:TP=-1.5:LRA=11"
-)
-
 
 def master_audio(wav_src, audio_dst):
     """merged.wav -> mastered mp3 (PILLAR 2 three-stage master).
@@ -148,11 +155,77 @@ def resolve_theme(dua):
     return CATEGORY_THEME.get(cat, "dark")
 
 
+def _probe_stream(path):
+    """Return (w, h) video dimensions or (w, h) image size using ffprobe.
+    Returns (0, 0) on any failure."""
+    try:
+        import subprocess
+        cmd = [_ffprobe(), "-v", "error", "-select_streams", "v:0",
+               "-show_entries", "stream=width,height",
+               "-of", "default=noprint_wrappers=1:nokey=1", path]
+        out = subprocess.run(cmd, capture_output=True, text=True,
+                             timeout=20).stdout.split()
+        if len(out) >= 2:
+            return int(out[0]), int(out[1])
+    except Exception:
+        pass
+    return 0, 0
+
+
+def _washed_out_score(path):
+    """Return 0-100 saturation of a representative frame using ffmpeg's
+    signalstats SATAVG metadata (0 = grey, 100 = fully saturated).
+    Returns None on failure so caller can fall back to resolution-only."""
+    try:
+        import subprocess
+        tmp = os.path.join(TEMP, "bg_gate_frame.png")
+        os.makedirs(TEMP, exist_ok=True)
+        r = subprocess.run(
+            [_ffmpeg(), "-v", "error", "-ss", "3", "-i", path, "-frames:v", "1",
+             "-vf", "signalstats,metadata=print:file=-", tmp],
+            capture_output=True, text=True, timeout=25)
+        for line in (r.stderr or "").splitlines():
+            if "SATAVG=" in line:
+                return float(line.split("=")[-1].strip())
+    except Exception:
+        pass
+    return None
+
+
+def _bg_quality_ok(src_path, is_video):
+    """Premium quality gate for a background candidate.
+
+    - Resolution: chhoti media (e.g. 540p stock) ko reject karte hain taake
+      upscale mush (blurry) na ho.
+    - Washed-out: faded/grey-white stock (saturation < ~18%) ko reject
+      karte hain taake text readable rahe (retention lever).
+    """
+    w, h = _probe_stream(src_path)
+    # Shorts 1080x1920 ke liye portrait cover: smallest side bhi HD honi
+    # chahiye taake upscale blur na ho (540p stock => reject).
+    min_dim = 800
+    if min(w, h) < min_dim:
+        return False
+    if is_video:
+        sat = _washed_out_score(src_path)
+        if sat is not None and sat < 18:
+            return False
+    else:
+        sat = _washed_out_score(src_path)
+        if sat is not None and sat < 18:
+            return False
+    return True
+
+
 def resolve_bg(dua):
-    """Pick a downloaded background (photo/video) for this dua via the
+    """Pick a DOWNLOADED background (photo/video) for this dua via the
     asset registry, copy it into remotion/public/backgrounds/, and return
     (rel_path, kind). Returns (None, None) when no loadable asset exists
     (falls back to the procedural gradient).
+
+    Quality gate: candidates jo low-res (blurry) ya washed-out (faded) hain
+    unhe exclude kiya jata hai, taake har dua ko vibrant + readable backdrop
+    mile. Deterministic (dua_id seeded) rehta hai.
     """
     category = (dua.get("category") or "").strip() or None
     dua_id = dua.get("id", "")
@@ -163,11 +236,22 @@ def resolve_bg(dua):
         print(f"[bg] asset registry unavailable: {e}")
         return None, None
 
-    sel = reg.select_background(dua_id, category)
-    if sel.get("kind") != "asset":
+    excluded = set()
+    sel = reg.select_background(dua_id, category, exclude_ids=tuple(excluded))
+    src_path = ""
+    while sel.get("kind") == "asset":
+        p = sel.get("path", "")
+        ext = os.path.splitext(p)[1].lower() if p else ""
+        is_video = ext in (".mp4", ".webm", ".mov")
+        if p and os.path.isfile(p) and _bg_quality_ok(p, is_video):
+            src_path = p
+            break
+        # candidate fail → agli best category asset try karo
+        excluded.add(sel.get("asset_id", ""))
+        sel = reg.select_background(dua_id, category, exclude_ids=tuple(excluded))
+    else:
         return None, None
 
-    src_path = sel.get("path", "")
     if not src_path or not os.path.isfile(src_path):
         return None, None
 
