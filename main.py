@@ -8,6 +8,7 @@ import re
 import shutil
 import sys
 import time
+import json
 
 from core.project_info import PROJECT
 from core.dua_database import DB
@@ -35,17 +36,43 @@ setup_logging()
 import atexit
 import signal
 
+def _load_known_dua_ids():
+    """Return the set of dua ids so the dashboard cache in temp/ is protected."""
+    try:
+        db = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          'data', 'duas.json')
+        if not os.path.exists(db):
+            return set()
+        raw = json.load(open(db, encoding='utf-8-sig'))
+        arr = raw if isinstance(raw, list) else raw.get('duas', [])
+        return {str(d.get('id') or '') for d in arr if d.get('id')}
+    except Exception:
+        return set()
+
+
 def _cleanup_temp():
-    """Remove stale temp files from previous crashed runs (older than 1 hour)."""
+    """Remove stale temp files from previous crashed runs (older than 1 hour).
+
+    NEVER deletes temp files that belong to a known dua — the Remotion/dashboard
+    pipeline reuses those as its audio/timing/look cache and source of truth.
+    Only removes leftover clutter that matches no known dua id.
+    """
     try:
         temp_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
         if not os.path.exists(temp_dir):
             return
         now = time.time()
+        known = _load_known_dua_ids()
         cleaned = 0
         for f in os.listdir(temp_dir):
             fp = os.path.join(temp_dir, f)
-            if os.path.isfile(fp) and (now - os.path.getmtime(fp)) > 3600:
+            if not os.path.isfile(fp):
+                continue
+            base = f.rsplit('_', 1)[0]
+            if base in known:
+                # belongs to a produced dua -> dashboard cache, DO NOT touch
+                continue
+            if (now - os.path.getmtime(fp)) > 3600:
                 try:
                     os.remove(fp)
                     cleaned += 1

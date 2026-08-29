@@ -199,3 +199,30 @@ process.on('unhandledRejection', (e) => {
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`Dua Video Studio v0.10 -> http://127.0.0.1:${PORT}`);
 });
+
+// ── Auto disk cleanup ──
+// Reclaims temp/ artifacts for duas whose final MP4 already exists (the
+// cleanup_temp.py logic only touches RENDERED duas), so disk stays healthy
+// without deleting anything still needed for queued/upcoming renders.
+function runCleanup(logLine) {
+  const script = path.join(PROJECT, 'scripts', 'cleanup_temp.py');
+  if (!fs.existsSync(script)) return;
+  const child = spawn(PY, [script]);
+  let out = '';
+  child.stdout.on('data', (d) => { out += d.toString(); });
+  child.stderr.on('data', (d) => { out += d.toString(); });
+  child.on('close', (code) => {
+    const tail = String(out).split(/\r?\n/).filter(Boolean).join(' | ');
+    log('CLEANUP [' + logLine + '] exit=' + code + ' :: ' + tail);
+  });
+}
+
+// startup scrub: regenerate-able gate frame that leaks each manifest run
+try {
+  const g = path.join(TEMP, 'bg_gate_frame.png');
+  if (fs.existsSync(g)) fs.rmSync(g, {force: true});
+} catch (_) {}
+runCleanup('boot');
+
+// park a periodic sweep every 6 hours
+setInterval(() => runCleanup('tick'), 6 * 60 * 60 * 1000);
