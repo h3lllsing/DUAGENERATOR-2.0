@@ -46,6 +46,10 @@ PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file
 OUT = os.path.join(PROJECT, "remotion", "out")
 THUMB_DIR = os.path.join(OUT, "thumbs")
 DATA_DIR = os.path.join(PROJECT, "remotion", "src", "data")
+PUBLIC = os.path.join(PROJECT, "remotion", "public")
+PUBLIC_AUDIO = os.path.join(PUBLIC, "audio")
+PUBLIC_BG = os.path.join(PUBLIC, "backgrounds")
+TEMP = os.path.join(PROJECT, "temp")
 LEDGER_PATH = os.path.join(PROJECT, "data", "upload_state.json")
 METADATA_PY = os.path.join(PROJECT, "remotion", "scripts", "metadata.py")
 
@@ -281,6 +285,50 @@ def resolve_item(dua_id):
     return {"dua_id": dua_id, "mp4": mp4, "thumb": thumb,
             "reference": ref_raw,
             "meta": meta}, reasons
+
+
+def full_cleanup_after_upload(dua_id, title):
+    """Remove ALL build artifacts after a successful upload.
+
+    Only the durable record remains: duas.json (Arabic/Urdu text) and the
+    upload ledger (upload_state.json). Everything else — narration mp3,
+    manifest, background, thumb and temp audio/timing/look files — is
+    deleted so no disk space is wasted and nothing can be double-reused.
+    Safe: only touched for a video that was just uploaded (success path).
+    """
+    removed = 0
+    paths = []
+
+    try:
+        # mastered narration
+        paths.append(os.path.join(PUBLIC_AUDIO, dua_id + ".mp3"))
+        # manifest (composition spec)
+        paths.append(os.path.join(DATA_DIR, dua_id + ".json"))
+        # id-based thumbnail
+        paths.append(os.path.join(THUMB_DIR, dua_id + ".png"))
+        # background assets copied for this dua
+        if os.path.isdir(PUBLIC_BG):
+            for bf in os.listdir(PUBLIC_BG):
+                if bf.startswith(dua_id + "."):
+                    paths.append(os.path.join(PUBLIC_BG, bf))
+        # temp build files: audio + timing + merged wav + look spec
+        if os.path.isdir(TEMP):
+            for tf in os.listdir(TEMP):
+                if tf.startswith(dua_id + "_"):
+                    paths.append(os.path.join(TEMP, tf))
+    except OSError as e:
+        print("  WARN cleanup enumerate fail:", str(e)[:120])
+
+    for p in paths:
+        try:
+            if os.path.exists(p):
+                os.remove(p)
+                removed += 1
+        except OSError as ce:
+            print("  WARN cleanup failed:", os.path.basename(p), "-",
+                  str(ce)[:100])
+    print("  FULL-CLEANUP removed {} file(s) for {}".format(removed, dua_id))
+    return removed
 
 
 def uniqueness_audit(entries):
@@ -583,6 +631,7 @@ def main():
                     if sidecar_path and os.path.exists(sidecar_path):
                         os.remove(sidecar_path)
                         print("  CLEANUP removed sidecar:", os.path.basename(sidecar_path))
+                    full_cleanup_after_upload(item["dua_id"], item["meta"].get("title") or "")
                 except OSError as ce:
                     print("  WARN cleanup failed:", str(ce)[:120])
                 if auto_mode:
