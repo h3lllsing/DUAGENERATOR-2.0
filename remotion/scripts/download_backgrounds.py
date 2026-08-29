@@ -21,7 +21,7 @@ import urllib.request
 PEXELS_IMAGES = "https://api.pexels.com/v1/search"
 PEXELS_VIDEOS = "https://api.pexels.com/videos/search"
 PEXELS_PAGE = 1
-PEXELS_PER_PAGE = 8
+PEXELS_PER_PAGE = 80  # Pexels soft max per_page
 
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 # location: <root>/remotion/scripts/<file> -> root is 3 dirname up. But we want
@@ -125,8 +125,10 @@ def main():
     ap.add_argument("--videos", action="store_true",
                     help="also download moving video backgrounds (Option C)")
     ap.add_argument("--category", default="all")
-    ap.add_argument("--per-category", type=int, default=8,
-                    help="number of images per category (default 8)")
+    ap.add_argument("--per-category", type=int, default=32,
+                    help="number of images per category (default 32)")
+    ap.add_argument("--videos-per-category", type=int, default=8,
+                    help="number of videos per category (default 8)")
     args = ap.parse_args()
 
     if not args.key:
@@ -150,100 +152,128 @@ def main():
     for cat in categories:
         query = queries.get(cat, "nature")
         print(f"\n=== category: {cat} (query: {query}) ===")
-        url = (f"{PEXELS_IMAGES}?query={urllib.parse.quote(query)}"
-               f"&orientation=portrait&per_page={args.per_category}&page={PEXELS_PAGE}")
-        try:
-            resp = json.loads(http_request(
-                url, {"Authorization": args.key}).read().decode("utf-8"))
-        except Exception as e:
-            print(f"  ! search failed {cat}: {e}")
-            continue
-        photos = resp.get("photos", [])
-        print(f"  found {len(photos)} portrait photos")
-
-        for i, ph in enumerate(photos):
-            ph_id = ph.get("id")
-            asset_id = f"pix_{cat}_{ph_id}"
-            if asset_id in existing_ids:
-                continue
-            # prefer portrait large2x (up to ~4x) -> crop as needed; webformat is safe too
-            url_large = (ph.get("src", {}).get("portrait")
-                         or ph.get("src", {}).get("large2x")
-                         or ph.get("src", {}).get("large")
-                         or ph.get("src", {}).get("original")) or ""
-            if not url_large:
-                continue
-            fname = f"{cat}_{ph_id}.jpg"
-            path = os.path.join(IMG_DIR, fname)
+        page = 1
+        got_new = 0
+        while got_new < args.per_category:
+            url = (f"{PEXELS_IMAGES}?query={urllib.parse.quote(query)}"
+                   f"&orientation=portrait&per_page={PEXELS_PER_PAGE}&page={page}")
             try:
-                download(path, url_large)
+                resp = json.loads(http_request(
+                    url, {"Authorization": args.key}).read().decode("utf-8"))
             except Exception as e:
-                print(f"  ! dl fail {fname}: {e}")
-                continue
-            new_assets.append({
-                "id": asset_id,
-                "file": os.path.join("images", fname),
-                "categories": [cat],
-                "license": LICENSE,
-                "checksum_sha256": sha256(path),
-                "approved": True,
-                "resolution_width": ph.get("width", 0),
-                "resolution_height": ph.get("height", 0),
-                "source_url": ph.get("url", ""),
-                "author": (ph.get("photographer") or ""),
-                "notes": "downloaded by download_backgrounds.py",
-            })
-            existing_ids.add(asset_id)
-            added += 1
-            print(f"  + {fname} ({ph.get('width')}x{ph.get('height')})")
+                print(f"  ! search failed {cat} page {page}: {e}")
+                break
+            photos = resp.get("photos", [])
+            print(f"  page {page}: {len(photos)} portrait photos "
+                  f"(total results {resp.get('total_results', '?')})")
+            if not photos:
+                break
 
-        # videos (Option C)
-        if args.videos:
-            vquery = CATEGORY_VIDEO_QUERIES.get(cat, "nature")
-            vurl = (f"{PEXELS_VIDEOS}?query={urllib.parse.quote(vquery)}"
-                    f"&orientation=portrait&per_page=4&page={PEXELS_PAGE}")
-            try:
-                vresp = json.loads(http_request(
-                    vurl, {"Authorization": args.key}).read().decode("utf-8"))
-            except Exception as e:
-                print(f"  ! video search failed {cat}: {e}")
-                vresp = {}
-            for vi, vid in enumerate(vresp.get("videos", [])):
-                # pick the smallest file that is >= 720 height (keep size sane)
-                vfiles = vid.get("video_files", [])
-                vfiles = [f for f in vfiles if f.get("height", 0) >= 720 and f.get("link")]
-                vfiles.sort(key=lambda f: (f["width"] * f["height"]))
-                if not vfiles:
-                    continue
-                vfile = vfiles[0]
-                asset_id = f"vid_{cat}_{vid.get('id')}"
+            for i, ph in enumerate(photos):
+                if got_new >= args.per_category:
+                    break
+                ph_id = ph.get("id")
+                asset_id = f"pix_{cat}_{ph_id}"
                 if asset_id in existing_ids:
                     continue
-                url_v = vfile["link"]
-                fname = f"{cat}_{vid.get('id')}.mp4"
-                path = os.path.join(VID_DIR, fname)
+                # prefer portrait large2x (up to ~4x) -> crop as needed; webformat is safe too
+                url_large = (ph.get("src", {}).get("portrait")
+                             or ph.get("src", {}).get("large2x")
+                             or ph.get("src", {}).get("large")
+                             or ph.get("src", {}).get("original")) or ""
+                if not url_large:
+                    continue
+                fname = f"{cat}_{ph_id}.jpg"
+                path = os.path.join(IMG_DIR, fname)
                 try:
-                    download(path, url_v)
+                    download(path, url_large)
                 except Exception as e:
-                    print(f"  ! video dl fail {fname}: {e}")
+                    print(f"  ! dl fail {fname}: {e}")
                     continue
                 new_assets.append({
                     "id": asset_id,
-                    "file": os.path.join("videos", fname),
+                    "file": os.path.join("images", fname),
                     "categories": [cat],
                     "license": LICENSE,
                     "checksum_sha256": sha256(path),
                     "approved": True,
-                    "resolution_width": vfile.get("width", 0),
-                    "resolution_height": vfile.get("height", 0),
-                    "source_url": vid.get("url", ""),
-                    "author": (vid.get("user", {}).get("name", "") or ""),
-                    "notes": "video background by download_backgrounds.py",
+                    "resolution_width": ph.get("width", 0),
+                    "resolution_height": ph.get("height", 0),
+                    "source_url": ph.get("url", ""),
+                    "author": (ph.get("photographer") or ""),
+                    "notes": "downloaded by download_backgrounds.py",
                 })
                 existing_ids.add(asset_id)
+                got_new += 1
                 added += 1
-                print(f"  + VIDEO {fname} ({vfile.get('width')}x{vfile.get('height')})")
-                time.sleep(0.5)
+                print(f"  + {fname} ({ph.get('width')}x{ph.get('height')})")
+
+            # Pexels caps at 80 results per query via paging; stop when done
+            page += 1
+            if page > 40:
+                break
+            time.sleep(0.3)
+
+        # videos (Option C)
+        if args.videos:
+            vquery = CATEGORY_VIDEO_QUERIES.get(cat, "nature")
+            vpage = 1
+            vgot = 0
+            while vgot < args.videos_per_category:
+                vurl = (f"{PEXELS_VIDEOS}?query={urllib.parse.quote(vquery)}"
+                        f"&orientation=portrait&per_page={PEXELS_PER_PAGE}&page={vpage}")
+                try:
+                    vresp = json.loads(http_request(
+                        vurl, {"Authorization": args.key}).read().decode("utf-8"))
+                except Exception as e:
+                    print(f"  ! video search failed {cat} page {vpage}: {e}")
+                    vresp = {}
+                vids = vresp.get("videos", [])
+                if not vids:
+                    break
+                for vi, vid in enumerate(vids):
+                    if vgot >= args.videos_per_category:
+                        break
+                    # pick the smallest file that is >= 720 height (keep size sane)
+                    vfiles = vid.get("video_files", [])
+                    vfiles = [f for f in vfiles if f.get("height", 0) >= 720 and f.get("link")]
+                    vfiles.sort(key=lambda f: (f["width"] * f["height"]))
+                    if not vfiles:
+                        continue
+                    vfile = vfiles[0]
+                    asset_id = f"vid_{cat}_{vid.get('id')}"
+                    if asset_id in existing_ids:
+                        continue
+                    url_v = vfile["link"]
+                    fname = f"{cat}_{vid.get('id')}.mp4"
+                    path = os.path.join(VID_DIR, fname)
+                    try:
+                        download(path, url_v)
+                    except Exception as e:
+                        print(f"  ! video dl fail {fname}: {e}")
+                        continue
+                    new_assets.append({
+                        "id": asset_id,
+                        "file": os.path.join("videos", fname),
+                        "categories": [cat],
+                        "license": LICENSE,
+                        "checksum_sha256": sha256(path),
+                        "approved": True,
+                        "resolution_width": vfile.get("width", 0),
+                        "resolution_height": vfile.get("height", 0),
+                        "source_url": vid.get("url", ""),
+                        "author": (vid.get("user", {}).get("name", "") or ""),
+                        "notes": "video background by download_backgrounds.py",
+                    })
+                    existing_ids.add(asset_id)
+                    vgot += 1
+                    added += 1
+                    print(f"  + VIDEO {fname} ({vfile.get('width')}x{vfile.get('height')})")
+                    time.sleep(0.5)
+                vpage += 1
+                if vpage > 40:
+                    break
+                time.sleep(0.3)
 
         time.sleep(0.5)
 

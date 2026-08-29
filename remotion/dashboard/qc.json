@@ -488,5 +488,40 @@
     "pass": true,
     "ts": 1787748523723,
     "reason": null
+  },
+  "rahmat_ki_talab_ki_dua": {
+    "pass": true,
+    "ts": 1787979265058,
+    "reason": null
+  },
+  "maghfirat_aur_reham_ki_dua": {
+    "pass": true,
+    "ts": 1787979873719,
+    "reason": null
+  },
+  "kapde_pehanne_ki_dua": {
+    "pass": true,
+    "ts": 1787980286358,
+    "reason": null
+  },
+  "kapde_utaarne_ki_dua": {
+    "pass": true,
+    "ts": 1787980551406,
+    "reason": null
+  },
+  "la_ilaha_illa_anta_subhanaka": {
+    "pass": true,
+    "ts": 1787981004861,
+    "reason": null
+  },
+  "musibat_me_parhne_ki_dua": {
+    "pass": true,
+    "ts": 1787981694755,
+    "reason": null
+  },
+  "musibat_aur_rinj_se_najaat_ki_dua": {
+    "pass": true,
+    "ts": 1787982601916,
+    "reason": null
   }
 }

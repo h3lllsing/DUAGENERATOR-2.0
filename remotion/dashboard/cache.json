@@ -406,5 +406,33 @@
   "sehat_aur_afiyat_ki_dua": {
     "key": "e95dc826e095734099fe6d710294fd07",
     "out": "Sehat Aur Afiyat Ki Dua.mp4"
+  },
+  "rahmat_ki_talab_ki_dua": {
+    "key": "65b166e70c080eb68faac96ece377180",
+    "out": "Rahmat Ki Talab Ki Dua.mp4"
+  },
+  "maghfirat_aur_reham_ki_dua": {
+    "key": "8db325790797d469cf3712cdb1d65373",
+    "out": "Maghfirat Aur Reham Ki Dua.mp4"
+  },
+  "kapde_pehanne_ki_dua": {
+    "key": "0687c3db763de7cc82d755dfc2e9fff6",
+    "out": "Kapde Pehanne Ki Dua.mp4"
+  },
+  "kapde_utaarne_ki_dua": {
+    "key": "a461a1dd3c5ba873bd6e03b5462c87a0",
+    "out": "Kapde Utaarne Ki Dua.mp4"
+  },
+  "la_ilaha_illa_anta_subhanaka": {
+    "key": "0689f712799ee7d47f6cfe77a525b25b",
+    "out": "La Ilaha Illa Anta Subhanaka.mp4"
+  },
+  "musibat_me_parhne_ki_dua": {
+    "key": "187f24fcc36947ce443749780baed829",
+    "out": "Musibat Me Parhne Ki Dua.mp4"
+  },
+  "musibat_aur_rinj_se_najaat_ki_dua": {
+    "key": "4e38e1054225fc962379e30d991b12e3",
+    "out": "Musibat Aur Rinj Se Najaat Ki Dua.mp4"
   }
 }

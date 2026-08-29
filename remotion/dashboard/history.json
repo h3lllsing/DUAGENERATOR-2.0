@@ -1,5 +1,54 @@
 [
   {
+    "ts": "2026-08-29T05:50:05.043Z",
+    "duaId": "musibat_aur_rinj_se_najaat_ki_dua",
+    "title": "Musibat Aur Rinj Se Najaat Ki Dua",
+    "result": "PASS",
+    "look": "glitterroyal / wind / rain / sitare / deco / t:typewriter / m:star8 / g:sepia / o:lanternjhumka"
+  },
+  {
+    "ts": "2026-08-29T05:34:58.334Z",
+    "duaId": "musibat_me_parhne_ki_dua",
+    "title": "Musibat Me Parhne Ki Dua",
+    "result": "PASS",
+    "look": "volumetric / flags / petals / vines / classic / m:rehal / i:crescentfade"
+  },
+  {
+    "ts": "2026-08-29T05:23:28.421Z",
+    "duaId": "la_ilaha_illa_anta_subhanaka",
+    "title": "La Ilaha Illa Anta Subhanaka",
+    "result": "PASS",
+    "look": "auroranova / none / snow / rosette / deco / m:kaaba / g:warmgold / c:driftbreathe / i:crescentfade / o:lanternjhumka"
+  },
+  {
+    "ts": "2026-08-29T05:15:54.870Z",
+    "duaId": "kapde_utaarne_ki_dua",
+    "title": "Kapde Utaarne Ki Dua",
+    "result": "PASS",
+    "look": "desertmirage / none / snow / sitare / deco / m:kaaba / c:panx / i:patternwipe"
+  },
+  {
+    "ts": "2026-08-29T05:11:30.048Z",
+    "duaId": "kapde_pehanne_ki_dua",
+    "title": "Kapde Pehanne Ki Dua",
+    "result": "PASS",
+    "look": "cinemafocus / none / smoke / rosette / arch / t:blurin / g:sepia / c:kenburns / i:patternwipe"
+  },
+  {
+    "ts": "2026-08-29T05:04:36.625Z",
+    "duaId": "maghfirat_aur_reham_ki_dua",
+    "title": "Maghfirat Aur Reham Ki Dua",
+    "result": "PASS",
+    "look": "volumetric / none / smoke / sitare / deco / t:popwave / m:tasbih / i:patternwipe / o:geostar"
+  },
+  {
+    "ts": "2026-08-29T04:54:28.306Z",
+    "duaId": "rahmat_ki_talab_ki_dua",
+    "title": "Rahmat Ki Talab Ki Dua",
+    "result": "PASS",
+    "look": "embernight / wind / smoke / none / rosette / m:tasbih / g:sepia / c:zoomin / i:patternwipe / o:lanternjhumka"
+  },
+  {
     "ts": "2026-08-26T12:48:47.107Z",
     "duaId": "sehat_aur_afiyat_ki_dua",
     "title": "Sehat Aur Afiyat Ki Dua",
