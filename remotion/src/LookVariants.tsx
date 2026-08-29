@@ -6,8 +6,10 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
+import {noise2D} from '@remotion/noise';
 import type {Theme} from './themes';
 import {ARABIC_FONT} from './fonts';
+import {easeInOut, easeOut} from './easing';
 
 // ==========================================================================
 // LOOK VARIANTS - plugin module (MASTER LOOK v3)
@@ -235,6 +237,12 @@ export const OrnamentLayer: React.FC<{
 const hashDir = (seed?: number): number =>
   ((seed || 12345) % 2 === 0 ? 1 : -1);
 
+// M1 · "koi frame static nahi" — even 'static' gets an imperceptible slow
+// push-in + micro organic noise so a scene never reads dead. Extreme premium
+// short-form standard. `static` = pure no-move (legacy/backward-safe).
+const BASE_DRIFT = 0.030; // ~3.0% total push-in across the clip (M1 depth)
+const NOISE_AMP_PX = 5; // sub-pixel organic wander amplitude (slightly livelier)
+
 // Poore visual stack ko cinematic camera move deta hai. Scale hamesha >= 1
 // rakha hai taake koi kinaara khali na dikhe. static = purana behavior.
 export const CameraMove: React.FC<{
@@ -245,18 +253,43 @@ export const CameraMove: React.FC<{
   const frame = useCurrentFrame();
   const {durationInFrames, fps} = useVideoConfig();
   if (!id || id === 'static') {
-    return <div style={{position: 'absolute', inset: 0}}>{children}</div>;
+    // M1 · base cinematic drift: halka push-in + micro noise. Abhi bhi
+    // "nyaa Andar kitna bhi" nahi — negligible motion, premium feel.
+    const nd = hashDir(seed);
+    const driftScale = 1 + BASE_DRIFT * Math.min(1, frame / 40);
+    const nx = noise2D('cam-static-x', frame * 0.004, 7.3) * NOISE_AMP_PX;
+    const ny = noise2D('cam-static-y', frame * 0.004, 13.9) * NOISE_AMP_PX;
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          transform: `translate(${nx.toFixed(2)}px, ${ny.toFixed(2)}px) scale(${driftScale.toFixed(4)})`,
+          willChange: 'transform',
+        }}
+      >
+        {children}
+      </div>
+    );
   }
-  const p = Math.min(1, Math.max(0, frame / Math.max(1, durationInFrames)));
+  // M1 · eased cinematic progress (start/end smooth, beech mein flow)
+  const raw = Math.min(1, Math.max(0, frame / Math.max(1, durationInFrames)));
+  const p = easeInOut(raw);
   const dir = hashDir(seed);
   let tf = 'none';
   if (id === 'zoomin') {
     tf = `scale(${(1 + 0.055 * p).toFixed(4)})`;
   } else if (id === 'panx') {
-    tf = `translateX(${(dir * (p - 0.5) * 2.6).toFixed(3)}%) scale(1.045)`;
+    // ease + subtle perlin micro-drift on the perpendicular axis
+    const sway = noise2D('cam-panx', frame * 0.008, 21.5) * 3;
+    tf = `translateX(${(dir * (p - 0.5) * 2.6).toFixed(3)}%) translateY(${sway.toFixed(2)}px) scale(1.045)`;
   } else if (id === 'kenburns') {
+    // eased double-axis + slight rotation + micro-drift; scale eases in
+    const swayX = noise2D('cam-kb-x', frame * 0.006, 31.2) * 3;
+    const swayY = noise2D('cam-kb-y', frame * 0.006, 43.4) * 3;
     tf =
       `translateY(${(-(p - 0.5) * 1.4).toFixed(3)}%) ` +
+      `translate(${swayX.toFixed(2)}px, ${swayY.toFixed(2)}px) ` +
       `rotate(${(dir * (p - 0.5) * 0.7).toFixed(3)}deg) ` +
       `scale(${(1.03 + 0.05 * p).toFixed(4)})`;
   } else if (id === 'driftbreathe') {
@@ -265,8 +298,23 @@ export const CameraMove: React.FC<{
       `translateX(${(Math.sin(t * 0.22) * 0.9).toFixed(3)}%) ` +
       `scale(${(1 + 0.02 + 0.016 * Math.sin(t * 0.31)).toFixed(4)})`;
   } else {
-    // unknown id => static fallback
-    return <div style={{position: 'absolute', inset: 0}}>{children}</div>;
+    // unknown id => static-safe (with base drift via the static branch above)
+    const nd = hashDir(seed);
+    const driftScale = 1 + BASE_DRIFT * Math.min(1, frame / 40);
+    const nx = noise2D('cam-unk-x', frame * 0.004, 57.8) * NOISE_AMP_PX;
+    const ny = noise2D('cam-unk-y', frame * 0.004, 61.1) * NOISE_AMP_PX;
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          transform: `translate(${nx.toFixed(2)}px, ${ny.toFixed(2)}px) scale(${driftScale.toFixed(4)})`,
+          willChange: 'transform',
+        }}
+      >
+        {children}
+      </div>
+    );
   }
   return (
     <div
@@ -330,6 +378,77 @@ const MotifSvg: React.FC<{kind: string; accent: string}> = ({kind, accent}) => {
           <circle cx="100" cy="100" r="10" fill="none" stroke={accent} strokeWidth="2.4" />
         </svg>
       );
+    // M5 · 12-point dodecagram: 3 squares @ 0/30/60deg => classic Star of
+    // Laylat, universally recognized premium Islamic geometry.
+    case 'dodecagram':
+      return (
+        <svg width="420" height="420" viewBox="0 0 200 200">
+          {[0, 30, 60].map((a) => (
+            <rect
+              key={a}
+              x="58"
+              y="58"
+              width="84"
+              height="84"
+              fill="none"
+              stroke={accent}
+              strokeWidth="2.6"
+              transform={`rotate(${a} 100 100)`}
+            />
+          ))}
+          <circle cx="100" cy="100" r="12" fill="none" stroke={accent} strokeWidth="2.2" />
+          <circle cx="100" cy="100" r="3.4" fill={accent} />
+        </svg>
+      );
+    // M5 · 16-point rosette (Lee construction): n petals radiating from center
+    case 'rosette':
+      return (
+        <svg width="420" height="420" viewBox="0 0 200 200">
+          {Array.from({length: 16}, (_, i) => {
+            const a = (i / 16) * Math.PI * 2;
+            const cx = 100 + Math.cos(a) * 46;
+            const cy = 100 + Math.sin(a) * 46;
+            return (
+              <g key={i}>
+                <circle cx={cx} cy={cy} r="15" fill="none" stroke={accent} strokeWidth="2.6" />
+                <circle cx={cx} cy={cy} r="5" fill={accent} fillOpacity="0.5" stroke="none" />
+              </g>
+            );
+          })}
+          <circle cx="100" cy="100" r="58" fill="none" stroke={accent} strokeWidth="2" />
+          <circle cx="100" cy="100" r="26" fill="none" stroke={accent} strokeWidth="2.4" />
+        </svg>
+      );
+    // M5 · 8-fold strapwork: interlaced 8-point star over rotated squares
+    case 'strapwork':
+      return (
+        <svg width="420" height="420" viewBox="0 0 200 200">
+          {[0, 45].map((a) => (
+            <rect
+              key={a}
+              x="50"
+              y="50"
+              width="100"
+              height="100"
+              fill="none"
+              stroke={accent}
+              strokeWidth="3"
+              transform={`rotate(${a} 100 100)`}
+            />
+          ))}
+          {Array.from({length: 8}, (_, i) => {
+            const a = (i / 8) * Math.PI * 2;
+            const r1 = 70;
+            const r2 = 26;
+            const x1 = 100 + Math.cos(a) * r1;
+            const y1 = 100 + Math.sin(a) * r1;
+            const x2 = 100 + Math.cos(a) * r2;
+            const y2 = 100 + Math.sin(a) * r2;
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={accent} strokeWidth="2.4" />;
+          })}
+          <circle cx="100" cy="100" r="14" fill="none" stroke={accent} strokeWidth="2.6" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -386,6 +505,65 @@ export const MotifLayer: React.FC<{
         <MotifSvg kind={id} accent={accent} />
       </div>
     </MotifDrift>
+  );
+};
+
+// M5 · full-frame ambient geometric backdrop. A tiled interlace rendered
+// behind the text at very low opacity + slow rotate = premium "lattice
+// light" depth with zero readability impact. Pure background decor.
+export const GeometricBackdrop: React.FC<{
+  kind?: string;
+  accent?: string;
+  opacity?: number;
+}> = ({kind, accent = '#d4af37', opacity = 0.06}) => {
+  const frame = useCurrentFrame();
+  if (!kind || kind === 'none') return null;
+  const rot = ((frame / 600) % 1) * 360;
+  const steps =
+    kind === 'rosette'
+      ? {petals: 16, r1: 70, r2: 24}
+      : kind === 'dodecagram'
+      ? {petals: 0, r1: 0, r2: 0}
+      : {petals: 8, r1: 62, r2: 20}; // strapwork
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        opacity,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'none',
+        willChange: 'transform',
+      }}
+    >
+      <svg
+        width="1600"
+        height="1600"
+        viewBox="0 0 400 400"
+        style={{
+          transform: `scale(1.35) rotate(${rot.toFixed(2)}deg)`,
+          filter: `drop-shadow(0 0 20px ${accent}44)`,
+        }}
+      >
+        <rect x="30" y="30" width="340" height="340" fill="none" stroke={accent} strokeWidth="1.4" />
+        <rect x="30" y="30" width="340" height="340" fill="none" stroke={accent} strokeWidth="1.4" transform="rotate(45 200 200)" />
+        {steps.petals > 0 &&
+          Array.from({length: steps.petals}, (_, i) => {
+            const a = (i / steps.petals) * Math.PI * 2;
+            const x = 200 + Math.cos(a) * ((steps.r1 + steps.r2) / 2);
+            const y = 200 + Math.sin(a) * ((steps.r1 + steps.r2) / 2);
+            return <circle key={i} cx={x} cy={y} r={(steps.r1 - steps.r2) / 4} fill="none" stroke={accent} strokeWidth="1.2" />;
+          })}
+        {steps.r1 > 0 && (
+          <>
+            <circle cx="200" cy="200" r={(steps.r1 + steps.r2) / 2 + 26} fill="none" stroke={accent} strokeWidth="1.2" />
+            <circle cx="200" cy="200" r={steps.r2} fill="none" stroke={accent} strokeWidth="1.2" />
+          </>
+        )}
+      </svg>
+    </div>
   );
 };
 

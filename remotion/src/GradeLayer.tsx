@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill} from 'remotion';
+import {AbsoluteFill, useCurrentFrame} from 'remotion';
 
 interface Grade {
   tint: string;
@@ -167,16 +167,22 @@ export const GradeLayer: React.FC<{themeId?: string; moodId?: string}> = ({
   themeId,
   moodId,
 }) => {
+  const frame = useCurrentFrame();
   const g = GRADES[themeId || 'dark'] || GRADES.dark;
   const m =
     moodId && moodId !== 'auto' ? MOOD_GRADES[moodId] : undefined;
+  // M7 · grade breathing: ambient micro-pulse (base ± amp) so the grade
+  // feels alive — bloom swells and the tint film lifts, never static.
+  const t = frame / 30;
+  const breath = (base: number, amp: number) =>
+    base + amp * Math.sin(t * 0.11);
   return (
     <>
       <AbsoluteFill
         style={{
           background: g.tint,
           mixBlendMode: g.blend as React.CSSProperties['mixBlendMode'],
-          opacity: g.opacity,
+          opacity: breath(g.opacity, 0.07),
           pointerEvents: 'none',
         }}
       />
@@ -185,7 +191,7 @@ export const GradeLayer: React.FC<{themeId?: string; moodId?: string}> = ({
           style={{
             background: g.bloom.gradient,
             mixBlendMode: 'screen',
-            opacity: g.bloom.opacity,
+            opacity: breath(g.bloom.opacity, 0.08),
             pointerEvents: 'none',
           }}
         />
@@ -195,7 +201,7 @@ export const GradeLayer: React.FC<{themeId?: string; moodId?: string}> = ({
           style={{
             background: m.tint,
             mixBlendMode: m.blend as React.CSSProperties['mixBlendMode'],
-            opacity: m.opacity,
+            opacity: breath(m.opacity, 0.07),
             pointerEvents: 'none',
           }}
         />
@@ -205,7 +211,7 @@ export const GradeLayer: React.FC<{themeId?: string; moodId?: string}> = ({
           style={{
             background: m.bloom.gradient,
             mixBlendMode: 'screen',
-            opacity: m.bloom.opacity,
+            opacity: breath(m.bloom.opacity, 0.08),
             pointerEvents: 'none',
           }}
         />

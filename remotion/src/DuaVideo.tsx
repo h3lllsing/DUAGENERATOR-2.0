@@ -24,6 +24,7 @@ import {BorderFxLayer} from './BorderFx';
 import {LookTint} from './FrameStyles';
 import {
   CameraMove,
+  GeometricBackdrop,
   IntroCard,
   MotifLayer,
   OrnamentLayer,
@@ -488,6 +489,13 @@ export const DuaVideo: React.FC<{
       seed={lookSpec?.seed}
       accent={theme.accent}
       decor={theme.decor}
+    />
+
+    {/* MASTER LOOK v3: full-frame geometric lattice backdrop (M5) */}
+    <GeometricBackdrop
+      kind={lookSpec?.motif}
+      accent={theme.accent}
+      opacity={0.06}
     />
 
       {/* PHASE A: Border FX (kinare/sky-zone) */}

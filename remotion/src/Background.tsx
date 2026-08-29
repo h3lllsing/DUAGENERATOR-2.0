@@ -116,37 +116,66 @@ export const MOON_ANCHOR = {
    same grain texture, sampled through a cycling background-position offset) */
 const GRAIN_FLICKER = ['0px 0px', '-59px 1px', '-123px 0px'] as const;
 
-/* BATCH 2 · distant starfield moved to the FAR depth plane */
+/* M3 · starfield DEPTH: 3 parallax planes, desynced per-star twinkle.
+   Plane 0 (far, tiny/slow) -> Plane 2 (near, bigger/faster drop). Every star
+   has its own speed `si` and phase `pi`, twinkle = 0.3 + 0.7*|sin(t*si+pi)|.
+   Nearer stars also drift slightly faster on a slow Perlin breeze. */
+const STAR_PLANES: {count: number; size: [number, number]; speed: number}[] = [
+  {count: 46, size: [0.8, 1.6], speed: 0.05},
+  {count: 38, size: [1.3, 2.4], speed: 0.16},
+  {count: 26, size: [1.9, 3.2], speed: 0.34},
+];
+
 const StarField: React.FC = () => {
   const frame = useCurrentFrame();
   const {width, height} = useVideoConfig();
-  const t = frame / 24;
   const stars = useMemo(() => {
     const rand = mulberry32(77);
-    return Array.from({length: 70}, () => ({
-      x: rand() * width,
-      y: rand() * height * 0.55,
-      s: 1 + rand() * 2,
-      p: rand() * Math.PI * 2,
-    }));
+    return STAR_PLANES.map((plane) =>
+      Array.from({length: plane.count}, () => ({
+        x: rand() * width,
+        y: rand() * height * 0.6,
+        s: plane.size[0] + rand() * (plane.size[1] - plane.size[0]),
+        si: 0.8 + rand() * 1.6, // per-star twinkle speed
+        pi: rand() * Math.PI * 2, // per-star phase
+        speed: plane.speed,
+      })),
+    );
   }, [width, height]);
   return (
     <>
-      {stars.map((st, i) => (
-        <div
-          key={i}
-          style={{
-            position: 'absolute',
-            left: st.x,
-            top: st.y,
-            width: st.s,
-            height: st.s,
-            borderRadius: '50%',
-            background: '#dfe8ff',
-            opacity: 0.25 + 0.45 * Math.abs(Math.sin(t * 1.4 + st.p)),
-          }}
-        />
-      ))}
+      {stars.map((plane, pIdx) =>
+        plane.map((st, i) => {
+          // desynced twinkle: different star, different rhythm
+          const t = frame / 24;
+          const twinkle = 0.3 + 0.7 * Math.abs(Math.sin(t * st.si + st.pi));
+          // slow perlin breeze drift so nearby stars feel closest
+          const breeze =
+            pIdx === 2
+              ? noise2D('star-breeze', t * 0.02, st.x * 0.01) * 6
+              : 0;
+          return (
+            <div
+              key={`${pIdx}-${i}`}
+              style={{
+                position: 'absolute',
+                left: st.x,
+                top: st.y,
+                width: st.s,
+                height: st.s,
+                borderRadius: '50%',
+                background:
+                  pIdx === 2
+                    ? 'radial-gradient(circle, #ffffff 0%, #e6ecff 50%, rgba(230,236,255,0) 75%)'
+                    : '#dfe8ff',
+                opacity: (pIdx === 0 ? 0.32 : pIdx === 1 ? 0.5 : 0.72) * twinkle,
+                transform: `translateY(${breeze.toFixed(2)}px)`,
+                filter: pIdx === 2 ? `blur(${(st.s < 2 ? 0 : 0.3).toFixed(1)}px)` : undefined,
+              }}
+            />
+          );
+        }),
+      )}
     </>
   );
 };
@@ -433,25 +462,56 @@ const RoyalOrnament: React.FC<{accent: string}> = ({accent}) => {
 };
 
 // BATCH 1: metallic gold palette — shadow -> warm base -> specular -> deep edge
-const GOLD_SHADOW = '#6e5212';
-const GOLD_BASE = '#d4af37';
-const GOLD_SPEC = '#fff3c4';
-const GOLD_DEEP = '#8a6a1f';
+const GOLD_SHADOW = '#5d4510';
+const GOLD_BASE = '#dcb93f';
+const GOLD_SPEC = '#fff6d4';
+const GOLD_DEEP = '#7c5c18';
 
-// 3.5s parametric specular sweep; backgroundSize 300% pe positionX slide karta hai
+// M4 · sine-eased 17-stop metallic gold gradient (no banding). Backbone of
+// the premium shimmer — extra stops give a buttery light-sheen instead of
+// a flat 6-band loop. backgroundSize 200% + eased position slide.
+const metallicGoldStops = (): string => {
+  const c = (hex: string) => {
+    const h = hex.replace('#', '');
+    return `${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)}`;
+  };
+  // dark -> base -> highlight -> base -> deep, wrapped as smooth sine
+  const dark = c(GOLD_SHADOW);
+  const base = c(GOLD_BASE);
+  const hi = c(GOLD_SPEC);
+  const mid = c('#ffe08a');
+  const deep = c(GOLD_DEEP);
+  const stops: string[] = [];
+  const ramp = [dark, base, hi, mid, base, deep, dark];
+  for (let i = 0; i < 17; i++) {
+    // sine-smoothed interpolation across the ramp so consecutive stops
+    // never jump — zero banding.
+    const t = i / 16;
+    const f = Math.sin(Math.PI * t);
+    const idx = Math.round(f * (ramp.length - 1));
+    stops.push(`rgba(${ramp[idx]},1) ${((i / 16) * 100).toFixed(1)}%`);
+  }
+  return stops.join(', ');
+};
+
+// 3.5s parametric specular sweep; eased in/out so the sheen accelerates
+// and decelerates like a light gliding across metal (not a teleport loop).
 const goldGrad = (
   frame: number,
   fps: number,
   phaseOffset = 0,
-): React.CSSProperties => ({
-  backgroundImage:
-    `linear-gradient(115deg, ${GOLD_SHADOW} 0%, ${GOLD_BASE} 24%, ` +
-    `${GOLD_SPEC} 40%, #ffe08a 48%, ${GOLD_BASE} 62%, ${GOLD_DEEP} 100%)`,
-  backgroundSize: '300% 100%',
-  backgroundPositionX: `${
-    (((frame / (fps * 3.5)) + phaseOffset) % 1) * 100
-  }%`,
-});
+): React.CSSProperties => {
+  const cycle = (frame / (fps * 4.0) + phaseOffset) % 1;
+  const eased =
+    cycle < 0.5
+      ? 2 * cycle * cycle
+      : 1 - Math.pow(-2 * cycle + 2, 2) / 2;
+  return {
+    backgroundImage: `linear-gradient(115deg, ${metallicGoldStops()})`,
+    backgroundSize: '200% 100%',
+    backgroundPositionX: `${(eased * 100).toFixed(2)}%`,
+  };
+};
 
 const CornerOrnaments: React.FC<{
   accent: string;
@@ -552,6 +612,21 @@ const CornerOrnaments: React.FC<{
                 transform: `rotate(${45 + Math.sin(frame / 40 + i * 1.57) * 10}deg)`,
                 left: s / 2 - 4.5,
                 top: s / 2 - 4.5,
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                width: 6,
+                height: 6,
+                left: s / 2 - 3,
+                top: s / 2 - 3,
+                background:
+                  'radial-gradient(circle, ' +
+                  'rgba(255,255,240,0.95) 0%, rgba(255,240,200,0.5) 45%, ' +
+                  'rgba(212,175,55,0) 72%)',
+                transform: `scale(${0.6 + 0.4 * Math.abs(Math.sin(frame / 34 + i * 1.9))})`,
+                filter: 'blur(0.4px)',
               }}
             />
           </div>

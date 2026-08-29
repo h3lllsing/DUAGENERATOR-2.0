@@ -373,10 +373,22 @@ def test_procedural_theme_respects_preference():
 # ----------------------------------------------------------------------
 # Real manifest integration
 # ----------------------------------------------------------------------
-def test_real_manifest_parses_and_falls_back_procedurally():
-    registry = AssetRegistry()  # real project manifest (assets/backgrounds)
+def test_real_manifest_parses_and_selects_real_asset():
+    # Real project manifest (assets/backgrounds). The production library now
+    # holds hundreds of approved Pexels assets, so the manifest must parse
+    # cleanly and selection must resolve to a real asset (no procedural
+    # fallback) when approved assets are available.
+    registry = AssetRegistry()
     assert registry.manifest_error is None, registry.manifest_error
-    assert registry.get_assets() == []
+    assets = registry.get_assets()
+    assert len(assets) > 0
+    loadable = registry.get_loadable_assets()
+    assert len(loadable) > 0
+    # everything loadable is approved (approval gate enforced on real data)
+    assert all(a.approved for a in loadable)
+    # selecting for a real dua resolves to an actual asset on disk
     result = registry.select_background("dua_real")
-    assert result["kind"] == "procedural"
-    assert result["theme"] in config.THEMES
+    assert result["kind"] == "asset"
+    assert result.get("asset_id")
+    assert result.get("path")
+    assert os.path.exists(result["path"])

@@ -1,6 +1,8 @@
 import React from 'react';
-import {useCurrentFrame, useVideoConfig} from 'remotion';
+import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {noise2D} from '@remotion/noise';
 import type {WordTiming} from './types';
+import {appleEase} from './easing';
 
 // TEXT FX MODES (MASTER LOOK v3 - registry: fx-guardrails TEXT_FX)
 // Word-level animation only (RTL/Arabic ligature-safe - research note):
@@ -95,12 +97,22 @@ export const KaraokeText: React.FC<{
         let showCaret = false;
         let txtColor = isActive ? activeColor : isPast ? pastColor : futureColor;
 
+        // M2 · organic float on the LIVE word (4-6px Perlin wander, sparse
+        // tempo). Word-level translate only => RTL/ligature-safe. Dead words
+        // sit perfectly still sa text chhalke nahi.
+        let floatX = 0;
+        let floatY = 0;
+        if (isActive) {
+          floatX = noise2D('kt-float-x', t * 0.012 + ((i * 3.7) % 1), 9.2) * 2.6;
+          floatY = noise2D('kt-float-y', t * 0.017 + ((i * 5.3) % 1), 4.4) * 2.6;
+        }
+
         if (mode === 'blurin') {
           showPill = isActive;
           if (isActive) {
-            // dhundhla -> sharp hone tak smooth sharpen
+            // dhundhla -> sharp hone tak smooth sharpen (Apple ease curve)
             const sinceStart = frame - w.start * fps;
-            const k = Math.min(1, sinceStart / 6);
+            const k = appleEase(Math.min(1, sinceStart / 6));
             blurPx = 7 * (1 - k);
             opacity = 0.2 + 0.8 * k;
             translateY = 5 * (1 - k);
@@ -127,8 +139,14 @@ export const KaraokeText: React.FC<{
         } else if (mode === 'popwave') {
           if (isActive) {
             const sinceStart = frame - w.start * fps;
-            const pop = Math.min(1, Math.max(0, sinceStart / 5));
-            scale = 1 + 0.15 * (1 - pop) + 0.012 * Math.sin(t * 9);
+            // M2 · spec spring (mass .5, stiffness 200, damping 14) + Apple tail
+            const pop = spring({
+              frame: frame - w.start * fps,
+              fps,
+              config: {mass: 0.5, stiffness: 200, damping: 14},
+            });
+            const ripple = 0.012 * Math.sin(t * 9);
+            scale = 1 + 0.15 * (1 - appleEase(Math.min(1, sinceStart / 6))) * pop + ripple;
             opacity = 1;
             txtColor = activeColor;
           } else if (isPast) {
@@ -143,11 +161,11 @@ export const KaraokeText: React.FC<{
             opacity = 0.28;
           }
         } else {
-          // glide (classic): purana exact behavior
+          // glide (classic): purana exact behavior + M2 Apple-eased pop
           showPill = isActive;
           if (isActive) {
             const sinceStart = frame - w.start * fps;
-            const pop = Math.min(1, Math.max(0, sinceStart / 4));
+            const pop = appleEase(Math.min(1, Math.max(0, sinceStart / 4)));
             scale = 1 + 0.07 * (1 - pop) + 0.02 * Math.sin(t * 9);
             opacity = 1;
           } else if (isPast) {
@@ -167,8 +185,9 @@ export const KaraokeText: React.FC<{
               borderRadius: fontSize * 0.3,
               position: 'relative',
               transform:
+                `translate(${floatX.toFixed(2)}px, ${floatY.toFixed(2)}px) ` +
                 `scale(${scale})` +
-                (translateY ? ` translateY(${translateY.toFixed(2)}px)` : ''),
+                (translateY ? ` translateY(${(translateY).toFixed(2)}px)` : ''),
               filter: blurPx > 0.05 ? `blur(${blurPx.toFixed(2)}px)` : undefined,
               whiteSpace: 'pre-wrap',
             }}
