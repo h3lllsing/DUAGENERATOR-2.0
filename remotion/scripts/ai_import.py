@@ -58,14 +58,45 @@ def api_models():
 
 API_KEYS = api_keys()
 API_URL = api_base_url() + "/chat/completions"
-FREE_MODELS = api_models() or [
-    "minimax-m3-free",
-    "gemini-3.7-flash-free",
-    "gemini-3.6-flash-free",
-    "minimax-m2.7-free",
-    "glm-5.3-flash",
-    "qwen3.8-flash",
-    "hy3-free",
+
+# Valid aihubmix FREE model IDs (live catalog 2026-08-28). Ye sirf fallback
+# candidate list hai — config ke models pehle try hote hain, phir ye sorted
+# by quality ke order me (vision-capable text models pehle). Invalid
+# `qwen3.8-flash` jaise IDs harness me nhi rakhe (403 dete hain).
+VALID_FREE_MODELS = [
+    "minimax-m3-free",          # vision, 1.05M ctx
+    "gemini-3.7-flash-free",    # vision, 1M ctx
+    "gemini-3.6-flash-free",    # vision, 1M ctx
+    "gpt-5.5-free",             # 1.05M ctx
+    "glm-5.3-flash-free",
+    "gpt-4.1-mini-free",
+    "minimax-m3-flash-free",
+    "gemini-3.5-flash-lite-free",
+    "hy3-free",                 # 256K ctx
+    "qwen3.6-plus-preview-free",  # 1M ctx
+]
+
+# Config ke models ko priority par rakho, phir valid list bhar do, dedupe.
+FREE_MODELS = list(dict.fromkeys(
+    api_models() + VALID_FREE_MODELS
+))
+
+# Quota/balance exhausted message fingerprints — insaan ko "ye free model
+# khatam hai, next try karo" batane ke liye (aur fake success se bachne ke liye).
+BLOCK_MARKERS = [
+    "try 10 times",
+    "trial is used up",
+    "prevention",
+    "insufficient_user_quota",
+    "balance is insufficient",
+    "model does not exist",
+    "model not found",
+    "invalid model",
+    "rate limit",
+    "rate_limit",
+    "quota exceeded",
+    "daily limit",
+    "per minute",
 ]
 
 CATEGORIES = [
@@ -115,8 +146,46 @@ CATEGORIES_MAP = {
 }
 
 
+def _block_reason(text):
+    """Return a marker string if `text` indicates a blocked/unusable model,
+    else None. text may be the HTTP response body OR the assistant content."""
+    if not text:
+        return None
+    low = text.lower()
+    for marker in BLOCK_MARKERS:
+        if marker in low:
+            return marker
+    return None
+
+
+def _is_empty_block(content):
+    """Free models with used-up trial return HTTP 200 whose content is just a
+    'sorry, try 10 times / recharge' note (no real answer). Detect that so we
+    DON'T treat it as a successful generation."""
+    if not content:
+        return True
+    c = content.lower()
+    if any(m in c for m in ("try 10 times", "trial is used up",
+                            "prevention", "insufficient",
+                            "balance is insufficient", "recharge")):
+        return True
+    # A real dua JSON array always has at least one { "id": ... } object.
+    if '"id"' not in content or "arabic" not in content:
+        return True
+    return False
+
+
 def call_api(messages, api_key, model=None):
-    """Call aihubmix.com API with fallback models."""
+    """Call aihubmix.com API with AUTO-FALLBACK across all FREE models.
+
+    Strategy:
+      - Config ke `models` pehle, phir valid free catalog — har model try.
+      - Agar model 10-trial/insufficient-quota/invalid ho (HTTP error ya
+        durust HTTP 200 par empty sorry-message) -> is model ko skip kar ke
+        agla valid free model try karo.
+      - Pehli GENUINE dua response (jo JSON object ho) wahi return hota hai.
+    Returns (content, model) or (None, None) agar koi model kaam na kare.
+    """
     models_to_try = [model] if model else FREE_MODELS
     for m in models_to_try:
         payload = json.dumps({
@@ -132,8 +201,15 @@ def call_api(messages, api_key, model=None):
         })
         try:
             resp = urllib.request.urlopen(req, timeout=60)
-            result = json.loads(resp.read().decode("utf-8"))
+            body = resp.read().decode("utf-8", errors="replace")
+            result = json.loads(body)
             content = result["choices"][0]["message"]["content"]
+            # Genuine JSON response check — real dua answer hona chahiye.
+            if _is_empty_block(content):
+                why = _block_reason(content) or "empty/blocked"
+                print("  [skip] model=" + m + " key=" + api_key[-6:]
+                      + " -> " + why)
+                continue
             return content, m
         except urllib.error.HTTPError as e:
             body = ""
@@ -141,13 +217,12 @@ def call_api(messages, api_key, model=None):
                 body = e.read().decode("utf-8", errors="replace")[:500]
             except Exception:
                 pass
-            if "try 10 times" in body or "prevention" in body.lower():
-                print("  [rate-limit] model=" + m + " key=" + api_key[-8:])
-                continue
-            print("  [error] model=" + m + " HTTP " + str(e.code) + ": " + body[:200])
+            why = _block_reason(body) or ("HTTP " + str(e.code))
+            print("  [skip] model=" + m + " key=" + api_key[-6:]
+                  + " -> " + why)
             continue
         except Exception as e:
-            print("  [error] model=" + m + ": " + str(e)[:200])
+            print("  [skip] model=" + m + ": " + str(e)[:200])
             continue
     return None, None
 
