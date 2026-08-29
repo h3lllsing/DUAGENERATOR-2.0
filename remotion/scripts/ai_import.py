@@ -278,6 +278,7 @@ def save_duas(new_items):
     existing_ids = {d.get("id") for d in existing}
     existing_ar = [_norm(d.get("arabic")) for d in existing if d.get("arabic")]
     existing_ur = [_norm(d.get("urdu")) for d in existing if d.get("urdu")]
+    existing_ti = [_norm(d.get("title")) for d in existing if d.get("title")]
     added = []
     for item in new_items:
         if not isinstance(item, dict):
@@ -290,30 +291,36 @@ def save_duas(new_items):
 
         ar_norm = _norm(item.get("arabic"))
         ur_norm = _norm(item.get("urdu"))
+        ti_norm = _norm(item.get("title"))
 
-        # Arabic duplicate check (fuzzy 90%+)
+        def _best_ratio(text, pool):
+            if not text or not pool:
+                return 1.0 if (not text and not pool) else 0.0
+            return max(difflib.SequenceMatcher(None, text, p).ratio()
+                       for p in pool)
+
+        # Title duplicate check (exact + fuzzy 90%+) — NEW
+        if ti_norm:
+            if ti_norm in existing_ti or _best_ratio(ti_norm, existing_ti) >= 0.90:
+                continue
+
+        # Arabic duplicate check (exact + best fuzzy 90%+)
         if ar_norm:
             dup = False
             if ar_norm in existing_ar:
                 dup = True
-            if not dup and existing_ar:
-                match = difflib.SequenceMatcher(None, ar_norm,
-                                                max(existing_ar, key=len)).ratio()
-                if match >= 0.90:
-                    dup = True
+            if not dup and existing_ar and _best_ratio(ar_norm, existing_ar) >= 0.90:
+                dup = True
             if dup:
                 continue
 
-        # Urdu duplicate check (fuzzy 90%+)
+        # Urdu duplicate check (exact + best fuzzy 90%+)
         if ur_norm:
             dup = False
             if ur_norm in existing_ur:
                 dup = True
-            if not dup and existing_ur:
-                match = difflib.SequenceMatcher(None, ur_norm,
-                                                max(existing_ur, key=len)).ratio()
-                if match >= 0.90:
-                    dup = True
+            if not dup and existing_ur and _best_ratio(ur_norm, existing_ur) >= 0.90:
+                dup = True
             if dup:
                 continue
 
@@ -332,6 +339,8 @@ def save_duas(new_items):
             existing_ar.append(ar_norm)
         if ur_norm:
             existing_ur.append(ur_norm)
+        if ti_norm:
+            existing_ti.append(ti_norm)
         added.append(entry)
     with open(DUAS_PATH, "w", encoding="utf-8") as f:
         json.dump(existing, f, ensure_ascii=False, indent=2)

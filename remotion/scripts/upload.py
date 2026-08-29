@@ -26,6 +26,7 @@ Live mode requires google libs + data/yt_token.json (youtube_auth.py login).
 """
 import argparse
 import atexit
+import difflib
 import io
 import hashlib
 import json
@@ -36,7 +37,6 @@ import subprocess
 import sys
 import time
 from datetime import date, timedelta
-
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 except (AttributeError, ValueError):
@@ -505,6 +505,45 @@ def main():
         if _rn:
             locked_refs[_rn] = _lk
 
+    # Content-level guard: collect Arabic text of already-uploaded duas
+    # so we don't re-upload the same dua content under a different id.
+    def _strip_diacritics(s):
+        return re.sub(r'[\u064B-\u065F\u0670\u0640]+', '', s or '')
+
+    def _normalize_ar(s):
+        return re.sub(r'\s+', ' ', (s or '').strip())
+
+    uploaded_arabic = []
+    duas_db = []
+    _db_path = os.path.join(PROJECT, 'data', 'duas.json')
+    if os.path.exists(_db_path):
+        try:
+            _raw = json.load(open(_db_path, encoding='utf-8'))
+            duas_db = _raw if isinstance(_raw, list) else _raw.get('duas', [])
+        except Exception:
+            duas_db = []
+    uploaded_ids = {u for u, st in ledger.items() if st.get('status') == 'uploaded'}
+    for _d in duas_db:
+        if _d.get('id') in uploaded_ids:
+            _a = _normalize_ar(_strip_diacritics(_d.get('arabic')))
+            if _a:
+                uploaded_arabic.append(_a)
+
+    def _uploaded_dup(dua_id):
+        # candidate Arabic from duas.json (manifest may already be cleaned up)
+        cand = next((x for x in duas_db if x.get('id') == dua_id), None)
+        if not cand:
+            return None
+        a = _normalize_ar(_strip_diacritics(cand.get('arabic')))
+        if not a:
+            return None
+        for ua in uploaded_arabic:
+            if a == ua:
+                return "content duplicate (same Arabic as an already-uploaded dua)"
+            if difflib.SequenceMatcher(None, a, ua).ratio() >= 0.90:
+                return "content duplicate (~90%+ same Arabic as an already-uploaded dua)"
+        return None
+
     ready, skipped, failed_parse = [], [], []
     for dua_id in ids:
         if dua_id in locks:
@@ -521,6 +560,10 @@ def main():
             continue
         if ledger.get(dua_id, {}).get("status") == "uploaded":
             skipped.append((dua_id, "already uploaded (ledger)"))
+            continue
+        dup_reason = _uploaded_dup(dua_id)
+        if dup_reason:
+            skipped.append((dua_id, dup_reason))
             continue
         item, reasons = resolve_item(dua_id)
         if item is None or any("no video" in r or "no thumb" in r

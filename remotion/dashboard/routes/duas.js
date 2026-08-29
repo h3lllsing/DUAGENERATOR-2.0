@@ -9,6 +9,59 @@ module.exports = function duaRoutes(deps) {
     cacheStore, saveCache, qcStore, saveQc,
     duaStatus, themeMap} = deps;
 
+  // ── duplicate detection (exact + fuzzy >=90%) ──
+  function _norm(s) {
+    return String(s || '').replace(/\s+/g, ' ').trim();
+  }
+  function _normArabic(s) {
+    // strip harakat/tashkeel + tatweel so identical text after diacritics counts
+    return _norm(s).replace(/[\u064B-\u065F\u0670\u0640]/g, '');
+  }
+  function _sim(a, b) {
+    const len = Math.max(a.length, b.length);
+    if (!len) return 0;
+    let m = 0;
+    for (let i = 0; i < a.length; i++) if (a[i] === b[i]) m++;
+    return m / len;
+  }
+  // Returns a list of {id, field, target} whose value collides with `value`.
+  function findDuplicates(list, fields, value, selfId) {
+    const results = [];
+    const normArabic = fields.includes('arabic');
+    for (const d of list) {
+      if (selfId && d.id === selfId) continue;
+      for (const f of fields) {
+        let a = _norm(value);
+        let b = _norm(d[f]);
+        if (!b) continue;
+        if (normArabic) { a = _normArabic(a); b = _normArabic(b); }
+        const exact = a === b;
+        const fuzzy = (!exact && a && b) && _sim(a, b) >= 0.90;
+        if (exact || fuzzy) {
+          if (!results.some((r) => r.id === d.id && r.field === f)) {
+            results.push({id: d.id, field: f});
+          }
+        }
+      }
+    }
+    return results;
+  }
+  function dedupError(list, id, title, arabic, urdu) {
+    const dup = [];
+    if (title) dup.push.apply(dup, findDuplicates(list, ['title'], title, id));
+    if (arabic) dup.push.apply(dup, findDuplicates(list, ['arabic'], arabic, id));
+    if (urdu) dup.push.apply(dup, findDuplicates(list, ['urdu'], urdu, id));
+    if (!dup.length) return null;
+    const uniq = [];
+    const seen = {};
+    for (const x of dup) {
+      const k = x.id + '::' + x.field;
+      if (!seen[k]) { seen[k] = 1; uniq.push(x); }
+    }
+    return 'Duplicate — ye info pehle se maujood hai: '
+      + uniq.map((x) => x.id + ' (' + x.field + ')').join(', ');
+  }
+
   function readBody(req, res, cb) {
     let body = '';
     req.on('data', (c) => {
@@ -98,6 +151,10 @@ module.exports = function duaRoutes(deps) {
             bismillah: f.bismillah !== false,
             duration: 15,
           };
+          const duperr = dedupError(list, null, entry.title, entry.arabic, entry.urdu);
+          if (duperr) {
+            return send(res, 409, JSON.stringify({ok: false, error: duperr}));
+          }
           list.push(entry);
           writeAtomic(dbPath, JSON.stringify(
             Array.isArray(raw) ? list : Object.assign({}, raw, {duas: list}),
@@ -145,6 +202,10 @@ module.exports = function duaRoutes(deps) {
             'qadr'].includes(f.template)) d.template = f.template;
           if (f.voiceArabic) d.voice_arabic = String(f.voiceArabic);
           if (f.voiceUrdu) d.voice_urdu = String(f.voiceUrdu);
+          const duperr = dedupError(list, f.id, d.title, d.arabic, d.urdu);
+          if (duperr) {
+            return send(res, 409, JSON.stringify({ok: false, error: duperr}));
+          }
           writeAtomic(dbPath, JSON.stringify(
             Array.isArray(raw) ? list : Object.assign({}, raw, {duas: list}),
             null, 2));

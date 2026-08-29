@@ -43,6 +43,7 @@ Desktop.ini
 remotion/node_modules/
 remotion/.cache/
 remotion/out/
+out/
 
 # --- Output / logs ---
 output/
@@ -51,6 +52,8 @@ temp/
 samples/
 backups/
 fx_proof/
+# local pre-dedup backup of duas.json
+data/duas.json.bak_before_dedup
 
 # --- Secrets / keys ---
 *.pem
