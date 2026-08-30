@@ -106,6 +106,7 @@ const duaHandler = require('./routes/duas')(Object.assign({}, deps, {
   duaStatus: renderHandler.duaStatus,
 }));
 const configHandler = require('./routes/config')(deps);
+const vfxHandler = require('./routes/vfx')(deps);
 
 function verifyAuth(req) {
   const auth = req.headers.authorization || '';
@@ -122,7 +123,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname.startsWith('/api/') && !verifyAuth(req)) {
     return send(res, 401, JSON.stringify({ok: false, error: 'unauthorized'}));
   }
-  if (req.method === 'POST' && /^\/api\/(render|tts-custom|render-all)$/.test(url.pathname)) {
+  if (req.method === 'POST' && /^\/api\/(render|tts-custom|render-all|vfx-import)$/.test(url.pathname)) {
     if (!checkRateLimit(url.pathname)) {
       return send(res, 429, JSON.stringify({ok: false,
         error: 'rate limit (30 requests per 2s)'}));
@@ -132,6 +133,7 @@ const server = http.createServer((req, res) => {
   if (renderHandler(req, url, res)) return;
   if (duaHandler(req, url, res)) return;
   if (configHandler(req, url, res)) return;
+  if (vfxHandler(req, url, res)) return;
   if (req.method === 'GET' && url.pathname === '/') {
     const htmlHash = crypto.createHash('md5').update(HTML_CACHE).digest('hex').slice(0, 16);
     const etag = '"' + htmlHash + '"';

@@ -2,6 +2,10 @@
 // Server sanitize kar chuka hota hai; yahan Remotion double-checks karta hai.
 // Frame descriptor me structural ghalti => Error (render abort, clear message).
 // Style overrides: sirf whitelist keys, sirf finite numbers (clamped).
+//
+// Limits/enums/whitelist ki single source of truth: data/vfx-schema.json
+// (npm run gen:vfx-schema → ./schema.generated). Server (dashboard/custom-vfx.js)
+// use generated .cjs ka, yahan .ts ka — tables kabhi drift nahi kar sakte.
 
 import type {
   VfxAttachment,
@@ -11,11 +15,13 @@ import type {
   VfxPatternKind,
   VfxTileZone,
 } from './types';
+import {VFX_SCHEMA} from './schema.generated';
 
-const ZONES: VfxTileZone[] = ['top', 'bottom', 'frame', 'corners'];
-const KINDS: VfxPatternKind[] = ['girih-band', 'arabesque-corners'];
-const TOKENS: VfxColorToken[] = ['accent', 'glowColor', 'particleColor', 'solid'];
-const HEX_RE = /^#[0-9A-Fa-f]{3,8}$/;
+const ZONES: VfxTileZone[] = [...VFX_SCHEMA.pattern.enums.zones];
+const KINDS: VfxPatternKind[] = [...VFX_SCHEMA.pattern.enums.kind];
+const TOKENS: VfxColorToken[] = [...VFX_SCHEMA.pattern.enums.colorToken];
+const HEX_RE = new RegExp(VFX_SCHEMA.hexColorPattern);
+const PAT = VFX_SCHEMA.pattern.fields;
 
 const isNum = (v: unknown): v is number =>
   typeof v === 'number' && Number.isFinite(v);
@@ -26,28 +32,14 @@ interface NumCfg {
   def: number;
 }
 
-const OVERRIDE_CFG: Record<keyof VfxStyleOverrides, NumCfg | 'bool'> = {
-  cornerInset: {lo: 12, hi: 140, def: 52},
-  cornerSize: {lo: 32, hi: 160, def: 76},
-  cornerOpacity: {lo: 0.2, hi: 2, def: 1},
-  frameEnabled: 'bool',
-  frameOpacity1: {lo: 0, hi: 1, def: 0.3},
-  frameOpacity2: {lo: 0, hi: 1, def: 0.16},
-  ornamentScale: {lo: 0.5, hi: 2, def: 1},
-  ornamentSwayDeg: {lo: 0, hi: 30, def: 8},
-  raysOpacity: {lo: 0, hi: 1.5, def: 0.6},
-  orbsOpacity: {lo: 0, hi: 2, def: 1},
-  particlesScale: {lo: 0.3, hi: 3, def: 1},
-  grainOpacityDark: {lo: 0, hi: 0.25, def: 0.06},
-  grainOpacityPaper: {lo: 0, hi: 0.25, def: 0.08},
-  vignetteScale: {lo: 0.5, hi: 1.6, def: 1},
-  bokehCount: {lo: 0, hi: 80, def: 0},
-  bokehOpacity: {lo: 0, hi: 1, def: 0.5},
-  chromaticAberration: {lo: 0, hi: 6, def: 0},
-  shimmerStrength: {lo: 0, hi: 1, def: 0.5},
-  noiseVeilOpacity: {lo: 0, hi: 1, def: 0},
-  raysAngleDeg: {lo: -30, hi: 60, def: 0},
-};
+const OVERRIDE_CFG = Object.fromEntries(
+  VFX_SCHEMA.overrides.map((o) => [
+    o.key,
+    o.type === 'boolean'
+      ? 'bool'
+      : {lo: o.min as number, hi: o.max as number, def: o.def as number},
+  ]),
+) as Record<keyof VfxStyleOverrides, NumCfg | 'bool'>;
 
 const clamp = (v: number, cfg: NumCfg): number =>
   Math.min(cfg.hi, Math.max(cfg.lo, v));
@@ -98,17 +90,25 @@ const normalizeFrame = (raw: unknown): VfxPatternDescriptor => {
 
   return {
     kind: strIn(o.kind, 'kind', KINDS),
-    tileSize: Math.round(numProp(o.tileSize, 'tileSize', {lo: 16, hi: 256, def: 150})),
-    strokeWidth: numProp(o.strokeWidth, 'strokeWidth', {lo: 0.25, hi: 8, def: 1.5}),
+    tileSize: Math.round(numProp(o.tileSize, 'tileSize', {
+      lo: PAT.tileSize.min, hi: PAT.tileSize.max, def: PAT.tileSize.def})),
+    strokeWidth: numProp(o.strokeWidth, 'strokeWidth', {
+      lo: PAT.strokeWidth.min, hi: PAT.strokeWidth.max, def: PAT.strokeWidth.def}),
     colorToken,
     solidColor,
-    alpha: numProp(o.alpha, 'alpha', {lo: 0.05, hi: 1, def: 0.5}),
+    alpha: numProp(o.alpha, 'alpha', {
+      lo: PAT.alpha.min, hi: PAT.alpha.max, def: PAT.alpha.def}),
     zones,
-    opacity: numProp(o.opacity, 'opacity', {lo: 0.05, hi: 1, def: 0.5}),
-    bandSize: Math.round(numProp(o.bandSize, 'bandSize', {lo: 24, hi: 160, def: 64})),
-    breathFrames: Math.max(0, Math.round(numProp(o.breathFrames, 'breathFrames', {lo: 0, hi: 1000, def: 0}))),
-    breathAmpl: numProp(o.breathAmpl, 'breathAmpl', {lo: 0, hi: 0.25, def: 0}),
-    seedSalt: Math.max(0, Math.round(numProp(o.seedSalt, 'seedSalt', {lo: 0, hi: 999, def: 0}))),
+    opacity: numProp(o.opacity, 'opacity', {
+      lo: PAT.opacity.min, hi: PAT.opacity.max, def: PAT.opacity.def}),
+    bandSize: Math.round(numProp(o.bandSize, 'bandSize', {
+      lo: PAT.bandSize.min, hi: PAT.bandSize.max, def: PAT.bandSize.def})),
+    breathFrames: Math.max(0, Math.round(numProp(o.breathFrames, 'breathFrames', {
+      lo: PAT.breathFrames.min, hi: PAT.breathFrames.max, def: PAT.breathFrames.def}))),
+    breathAmpl: numProp(o.breathAmpl, 'breathAmpl', {
+      lo: PAT.breathAmpl.min, hi: PAT.breathAmpl.max, def: PAT.breathAmpl.def}),
+    seedSalt: Math.max(0, Math.round(numProp(o.seedSalt, 'seedSalt', {
+      lo: PAT.seedSalt.min, hi: PAT.seedSalt.max, def: PAT.seedSalt.def}))),
   };
 };
 

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "description": "Single source of truth for custom VFX numeric limits, enums and the styleOverrides whitelist. Consumed by dashboard/custom-vfx.js (L1 server sanitize) via vfx-schema.generated.cjs and by remotion/src/vfx/validate.ts (L2 render fail-loud) via schema.generated.ts. Regenerate with: npm run gen:vfx-schema (remotion/).",
+  "hexColorPattern": "^#[0-9A-Fa-f]{3,8}$",
+  "pattern": {
+    "zonesExclusive": ["top", "frame"],
+    "fields": {
+      "tileSize": { "type": "int", "min": 16, "max": 256, "def": 150 },
+      "strokeWidth": { "type": "float", "min": 0.25, "max": 8, "def": 1.5 },
+      "alpha": { "type": "float", "min": 0.05, "max": 1, "def": 0.5 },
+      "opacity": { "type": "float", "min": 0.05, "max": 1, "def": 0.5 },
+      "bandSize": { "type": "int", "min": 24, "max": 160, "def": 64 },
+      "breathFrames": { "type": "int", "min": 0, "max": 1000, "def": 0 },
+      "breathAmpl": { "type": "float", "min": 0, "max": 0.25, "def": 0 },
+      "seedSalt": { "type": "int", "min": 0, "max": 999, "def": 0 }
+    },
+    "enums": {
+      "kind": ["girih-band", "arabesque-corners"],
+      "colorToken": ["accent", "glowColor", "particleColor", "solid"],
+      "zones": ["top", "bottom", "frame", "corners"]
+    }
+  },
+  "overrides": [
+    { "key": "cornerInset", "type": "number", "min": 12, "max": 140, "def": 52 },
+    { "key": "cornerSize", "type": "number", "min": 32, "max": 160, "def": 76 },
+    { "key": "cornerOpacity", "type": "number", "min": 0.2, "max": 2, "def": 1 },
+    { "key": "frameEnabled", "type": "boolean" },
+    { "key": "frameOpacity1", "type": "number", "min": 0, "max": 1, "def": 0.3 },
+    { "key": "frameOpacity2", "type": "number", "min": 0, "max": 1, "def": 0.16 },
+    { "key": "ornamentScale", "type": "number", "min": 0.5, "max": 2, "def": 1 },
+    { "key": "ornamentSwayDeg", "type": "number", "min": 0, "max": 30, "def": 8 },
+    { "key": "raysOpacity", "type": "number", "min": 0, "max": 1.5, "def": 0.6 },
+    { "key": "orbsOpacity", "type": "number", "min": 0, "max": 2, "def": 1 },
+    { "key": "particlesScale", "type": "number", "min": 0.3, "max": 3, "def": 1 },
+    { "key": "grainOpacityDark", "type": "number", "min": 0, "max": 0.25, "def": 0.06 },
+    { "key": "grainOpacityPaper", "type": "number", "min": 0, "max": 0.25, "def": 0.08 },
+    { "key": "vignetteScale", "type": "number", "min": 0.5, "max": 1.6, "def": 1 },
+    { "key": "bokehCount", "type": "number", "min": 0, "max": 80, "def": 0 },
+    { "key": "bokehOpacity", "type": "number", "min": 0, "max": 1, "def": 0.5 },
+    { "key": "chromaticAberration", "type": "number", "min": 0, "max": 6, "def": 0 },
+    { "key": "shimmerStrength", "type": "number", "min": 0, "max": 1, "def": 0.5 },
+    { "key": "noiseVeilOpacity", "type": "number", "min": 0, "max": 1, "def": 0 },
+    { "key": "raysAngleDeg", "type": "number", "min": -30, "max": 60, "def": 0 }
+  ]
+}

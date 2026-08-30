@@ -5,7 +5,8 @@
   "description": "Premium Islamic dua video generator - Remotion rendering layer",
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render DuaVideo out/video.mp4"
+    "render": "remotion render DuaVideo out/video.mp4",
+    "gen:vfx-schema": "node scripts/gen_vfx_schema.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.370",
