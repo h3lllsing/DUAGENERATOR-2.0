@@ -52,6 +52,9 @@ temp/
 samples/
 backups/
 fx_proof/
+# runtime logs from dashboard server restart
+remotion/dashboard/server.out.log
+remotion/dashboard/server.err.log
 # local pre-dedup backup of duas.json
 data/duas.json.bak_before_dedup
 
