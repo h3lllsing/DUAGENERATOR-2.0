@@ -602,19 +602,35 @@ function setVoiceMode(m){
   document.getElementById('vm_portal_btn').classList.toggle('on',m==='portal');
   document.getElementById('vm_custom_btn').classList.toggle('on',m==='custom');
 }
+let vpReady=false;
 let waveSurfer=null;
+let vpGen=0;
 function vpTimeFmt(s){ if(!isFinite(s)||s<0)s=0; const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+('0'+x).slice(-2); }
 function vpSetBtn(playing){ const b=document.getElementById('vp_play'); if(b) b.innerHTML=playing?'&#10074;&#10074; Pause':'&#9654; Play'; }
-function vpReset(){ if(waveSurfer){ waveSurfer.destroy(); waveSurfer=null; } const t=document.getElementById('vp_time'); if(t) t.textContent='0:00 / 0:00'; vpSetBtn(false); }
-function vpLoad(url){
+function vpReset(){ vpReady=false; if(waveSurfer){ try{ waveSurfer.destroy(); }catch(_){} waveSurfer=null; } const t=document.getElementById('vp_time'); if(t) t.textContent='0:00 / 0:00'; vpSetBtn(false); }
+async function vpLoad(url){
+  const gen=++vpGen;
   document.getElementById('voiceplayer').style.display='block';
   vpReset();
   const time=document.getElementById('vp_time');
-  if(typeof WaveSurfer==='undefined'){ if(time)time.textContent='Waveform library load nahi hui'; return; }
+  const fail=(msg)=>{ if(gen!==vpGen)return; if(time)time.textContent=msg; vpSetBtn(false); };
+  if(typeof WaveSurfer==='undefined')return fail('Waveform library load nahi hui');
   try{
-    waveSurfer=WaveSurfer.create({
+    const res=await fetch(url);
+    if(gen!==vpGen)return;
+    if(!res.ok)return fail('Audio file nahi mili (HTTP '+res.status+')');
+    const bl=await res.blob();
+    if(gen!==vpGen)return;
+    const ab=await bl.arrayBuffer();
+    if(!ab.byteLength)return fail('Audio file khaali hai');
+    let probe=null;
+    try{ probe=new OfflineAudioContext(1,1,8000); await probe.decodeAudioData(ab); }
+    finally{ try{ if(probe)probe.close(); }catch(_){} }
+    if(gen!==vpGen)return;
+    const blobUrl=URL.createObjectURL(bl);
+    const ws=WaveSurfer.create({
       container:'#ap_voice',
-      url:url,
+      url:blobUrl,
       height:80,
       barWidth:2,
       barGap:1,
@@ -626,25 +642,31 @@ function vpLoad(url){
       cursorWidth:1.5,
       hideScrollbar:true
     });
-    waveSurfer.on('ready',()=>{ if(time)time.textContent='0:00 / '+vpTimeFmt(waveSurfer.getDuration()); });
-    waveSurfer.on('timeupdate',(c)=>{ if(time)time.textContent=vpTimeFmt(c)+' / '+vpTimeFmt(waveSurfer.getDuration()); });
-    waveSurfer.on('play',()=>vpSetBtn(true));
-    waveSurfer.on('pause',()=>vpSetBtn(false));
-    waveSurfer.on('finish',()=>{ vpSetBtn(false); if(time)time.textContent='0:00 / '+vpTimeFmt(waveSurfer.getDuration()); });
-    waveSurfer.on('error',(e)=>{ if(time)time.textContent='Decode fail: '+(e&&e.message?e.message:e); vpSetBtn(false); });
-  }catch(e){ if(time)time.textContent='Waveform init fail'; vpSetBtn(false); }
+    if(gen!==vpGen){ try{ ws.destroy(); }catch(_){} return; }
+    waveSurfer=ws;
+    let ready=false;
+    const wd=setTimeout(()=>{ if(gen===vpGen&&!ready){ if(waveSurfer===ws){ try{ ws.destroy(); }catch(_){} waveSurfer=null; } fail('Audio load me waqt lag gaya (timeout)'); } },10000);
+    const stale=()=>gen!==vpGen||waveSurfer!==ws;
+    ws.on('ready',()=>{ ready=true; vpReady=true; clearTimeout(wd); if(stale())return; if(time)time.textContent='0:00 / '+vpTimeFmt(ws.getDuration()); });
+    ws.on('timeupdate',(c)=>{ if(stale())return; if(time)time.textContent=vpTimeFmt(c)+' / '+vpTimeFmt(ws.getDuration()); });
+    ws.on('play',()=>{ if(stale())return; vpSetBtn(true); });
+    ws.on('pause',()=>{ if(stale())return; vpSetBtn(false); });
+    ws.on('finish',()=>{ if(stale())return; vpSetBtn(false); if(time)time.textContent='0:00 / '+vpTimeFmt(ws.getDuration()); });
+    ws.on('error',()=>{ if(stale())return; ready=true; vpReady=false; clearTimeout(wd); fail('Audio load/decode fail'); });
+  }catch(e){ if(gen===vpGen)fail('Audio load fail: '+(e&&e.message?e.message:e)); }
 }
-function vpToggle(){ if(!waveSurfer)return; waveSurfer.playPause(); }
+function vpToggle(){ if(!waveSurfer||!vpReady)return; waveSurfer.playPause(); }
 function openVoice(){
   const sel=document.getElementById('v_dua');
   sel.innerHTML=duas.map(d=>'<option value="'+d.id+'">'+escHtml(d.title)+'</option>').join('');
   document.getElementById('voiceplayer').style.display='none';
+  vpGen++;
   vpReset();
   setVoiceMsg('','');
   document.getElementById('voicebg').classList.add('show');
   _pushModal('voice');
 }
-function closeVoice(){ document.getElementById('voicebg').classList.remove('show'); _popModal('voice'); }
+function closeVoice(){ vpGen++; vpReset(); document.getElementById('voicebg').classList.remove('show'); _popModal('voice'); }
 function setVoiceMsg(t,c){ const m=document.getElementById('voicemsg'); m.textContent=t; m.className='formmsg '+c; }
 async function genVoice(){
   if(voiceMode==='custom'){
