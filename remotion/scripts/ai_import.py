@@ -28,6 +28,62 @@ DUAS_PATH = os.path.join(DATA_DIR, "duas.json")
 DUAS_BACKUP_PATH = os.path.join(DATA_DIR, "duas.backup.json")
 CONFIG_PATH = os.path.join(DATA_DIR, "ai_api_config.json")
 
+LOCK_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "ai_import.lock")
+LOCK_MAX_AGE = 10 * 60  # 10 minutes: stale-lock breakout
+
+
+def _pid_alive(pid):
+    """Windows-safe liveness probe via OpenProcess (stdlib only)."""
+    try:
+        import ctypes
+        PROCESS_QUERY = 0x0400
+        h = ctypes.windll.kernel32.OpenProcess(PROCESS_QUERY, False, int(pid))
+        if not h:
+            return False
+        ctypes.windll.kernel32.CloseHandle(h)
+        return True
+    except Exception:
+        return True
+
+
+def acquire_lock():
+    """Create an exclusive lock file so concurrent ai_import runs cannot
+    clobber data/duas.json. Stale locks (owner dead or old) are broken."""
+    os.makedirs(DATA_DIR, exist_ok=True)
+    for _ in range(2):
+        try:
+            fd = os.open(LOCK_PATH, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(json.dumps({"pid": os.getpid(), "ts": time.time()}))
+            return True
+        except FileExistsError:
+            stale = False
+            try:
+                with open(LOCK_PATH, encoding="utf-8") as f:
+                    info = json.load(f)
+                age = time.time() - float(info.get("ts", 0))
+                stale = (age > LOCK_MAX_AGE) and not _pid_alive(info.get("pid"))
+            except Exception:
+                stale = True
+            if stale:
+                try:
+                    os.remove(LOCK_PATH)
+                except OSError:
+                    pass
+                continue
+            return False
+        except OSError:
+            return False
+    return False
+
+
+def release_lock():
+    try:
+        os.remove(LOCK_PATH)
+    except OSError:
+        pass
+
 
 def load_config():
     """Load AI API config from data/ai_api_config.json (portal pe save hoga)."""
@@ -457,4 +513,11 @@ def main():
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    if not acquire_lock():
+        print("ERROR: another ai_import run already holds "
+              + LOCK_PATH, file=sys.stderr)
+        raise SystemExit(3)
+    try:
+        raise SystemExit(main())
+    finally:
+        release_lock()

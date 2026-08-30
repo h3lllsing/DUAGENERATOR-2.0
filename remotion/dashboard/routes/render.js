@@ -773,7 +773,9 @@ module.exports = function renderRoutes(deps) {
           const map = {videos: OUT, audio: path.join(REMOTION, 'public', 'audio'), temp: TEMP};
           const fp = map[String(f.which || '')];
           if (!fp || !(await exists(fp))) throw err(404, 'folder nahi mila');
-          spawn('explorer', [fp]);
+          const eproc = spawn('explorer', [fp]);
+          eproc.on('error', () => log('explorer spawn fail (ige ENOENT)'));
+          eproc.unref();
           send(res, 200, JSON.stringify({ok: true}));
         });
       }, () => {});
