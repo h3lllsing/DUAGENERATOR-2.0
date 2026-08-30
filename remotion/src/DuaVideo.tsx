@@ -449,11 +449,15 @@ export const DuaVideo: React.FC<{
 
   // VFX: blur at phase change; text-layer zoom resynced to the same 18-frame
   // bell as the camera punch (camera carries the main 3.5%, text adds 2%)
+  // PHASE 1 P0: snap to discrete 1px steps + floor at 0.5px. Eliminates
+  // per-frame fractional blur radii -> fewer GPU context switches, identical
+  // visual outcome at full strength (5px at the phase boundary).
   const dPhase = Math.abs(localFrame - urduStart * fps);
-  const phaseBlur = interpolate(dPhase, [0, 10], [5, 0], {
+  const phaseBlurRaw = interpolate(dPhase, [0, 10], [5, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
+  const phaseBlur = phaseBlurRaw < 0.5 ? 0 : Math.ceil(phaseBlurRaw);
   const zpT = (localFrame - (urduStart * fps - 9)) / 18;
   const zoomPunch =
     zpT > 0 && zpT < 1 ? 1 + 0.02 * Math.sin(Math.PI * zpT) : 1;
