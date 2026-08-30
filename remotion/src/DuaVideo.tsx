@@ -18,6 +18,8 @@ import {ARABIC_FONT, EMOJI_FONT, ensureFonts, UI_FONT, URDU_FONT} from './fonts'
 import type {DuaManifest} from './types';
 import {accentTint, getTheme, type Theme} from './themes';
 import {resolveStyle, type ResolvedStyle} from './stylePresets';
+import {normalizeVfxAttachment} from './vfx/validate';
+import type {VfxAttachment} from './vfx/types';
 import {ArtFxLayer} from './ArtFx';
 import {SkyFxLayer} from './SkyFx';
 import {BorderFxLayer} from './BorderFx';
@@ -256,6 +258,9 @@ export interface LookSpec {
   camera?: string;
   introFx?: string;
   ornament?: string;
+  // DYNAMIC VFX PACK (Option B): server data/custom_vfx.json se lookSpec me
+  // attach hota hai. Custom pattern-tile frame + presentational overrides.
+  vfx?: VfxAttachment | null;
 }
 
 export const DuaVideo: React.FC<{
@@ -329,7 +334,14 @@ export const DuaVideo: React.FC<{
     ? 'masterpiece'
     : (lookSpec && lookSpec.preset) || stylePreset ||
       autoPresetFor(data.dua_id);
-  const S: ResolvedStyle = resolveStyle(presetFinal);
+  // Dynamic VFX pack: malformed frame descriptor => fail-loud (render abort).
+  // Valid presentational overrides merge over the resolved preset — timing/
+  // audio fields whitelist se bahar, kabhi touch nahi hote.
+  const vfx: VfxAttachment | null = normalizeVfxAttachment(lookSpec?.vfx);
+  const S: ResolvedStyle = {
+    ...resolveStyle(presetFinal),
+    ...(vfx?.styleOverrides ?? {}),
+  };
 
   const contentFrames = Math.ceil(data.totalDuration * data.fps);
   const localFrame = frame - INTRO_FRAMES;
@@ -483,6 +495,7 @@ export const DuaVideo: React.FC<{
           lookFrame={lookSpec?.frame}
           bgOverride={data.background}
           bgKind={data.backgroundKind as 'image' | 'video' | undefined}
+          vfx={vfx}
         />
     {/* MASTER LOOK v2: canvas color harmony veil (preset mood ke hisab se) */}
     <LookTint tint={lookSpec?.tint} />

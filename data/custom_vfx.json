@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "patterns": [
+    {
+      "id": "girih-sigil",
+      "kind": "girih-band",
+      "tileSize": 150,
+      "strokeWidth": 1.4,
+      "colorToken": "accent",
+      "alpha": 0.5,
+      "zones": ["frame", "corners"],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 7
+    },
+    {
+      "id": "arabesque-veil",
+      "kind": "arabesque-corners",
+      "tileSize": 120,
+      "strokeWidth": 1.6,
+      "colorToken": "glowColor",
+      "alpha": 0.6,
+      "zones": ["corners"],
+      "opacity": 0.45,
+      "bandSize": 84,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 3
+    }
+  ],
+  "plugins": [
+    {
+      "match": ["qadr_ki_raat_ki_dua"],
+      "frameCustomId": "girih-sigil",
+      "styleOverrides": {
+        "cornerSize": 70,
+        "cornerOpacity": 1.1,
+        "frameOpacity1": 0.2,
+        "frameOpacity2": 0.08,
+        "ornamentScale": 1.05
+      }
+    },
+    {
+      "match": ["dushman_se_hifazat"],
+      "frameCustom": {
+        "kind": "arabesque-corners",
+        "tileSize": 120,
+        "strokeWidth": 1.6,
+        "colorToken": "particleColor",
+        "alpha": 0.5,
+        "zones": ["frame", "corners"],
+        "opacity": 0.4,
+        "bandSize": 72,
+        "breathFrames": 0,
+        "breathAmpl": 0,
+        "seedSalt": 11
+      },
+      "styleOverrides": {
+        "cornerOpacity": 1.15
+      }
+    }
+  ]
+}

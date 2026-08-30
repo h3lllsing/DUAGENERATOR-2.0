@@ -15,6 +15,7 @@ import type {Theme} from './themes';
 import {accentTint} from './themes';
 import {resolveStyle, getAurora, type AuroraConfig, type ResolvedStyle} from './stylePresets';
 import {FrameDecor} from './FrameStyles';
+import type {VfxAttachment} from './vfx/types';
 
 const mulberry32 = (seed: number) => {
   let a = seed;
@@ -1465,12 +1466,22 @@ export const Background: React.FC<{
   // "backgrounds/prayer_29832018.jpg" — set by make_manifest.
   bgOverride?: string | null;
   bgKind?: 'image' | 'video';
-}> = ({theme, stylePreset, presetId, masterpiece, punchFrames, lookFrame, bgOverride, bgKind}) => {
+  // Dynamic VFX pack (Option B): lookSpec.vfx — custom pattern tile frame.
+  vfx?: VfxAttachment | null;
+}> = ({theme, stylePreset, presetId, masterpiece, punchFrames, lookFrame, bgOverride, bgKind, vfx}) => {
   const S: ResolvedStyle = stylePreset || resolveStyle();
   const aurora: AuroraConfig = getAurora(presetId);
+  // Dynamic custom frame supersedes built-in frame variants. Built-in frame
+  // variants (arch/deco/rosette) aur corner ornaments wahi rehte hain.
+  // W3 hardening: variant 'custom' bina descriptor => 'classic' fallback —
+  // silent no-border scenario nahi hota (classic hairline + corners render).
+  const customFrame = vfx?.frame ?? null;
+  const effFrame: string | null = customFrame
+    ? 'custom'
+    : (lookFrame && lookFrame !== 'custom' ? lookFrame : null);
   // MASTER LOOK v2: non-classic frame variant => purana hairline+corner band
-  // ho jata hai, FrameStyles ka naya design render hota hai.
-  const lookFrameActive = !!lookFrame && lookFrame !== 'classic';
+  // ho jata hai, FrameStyles ka design render hota hai.
+  const lookFrameActive = !!effFrame && effFrame !== 'classic';
   const frame = useCurrentFrame();
   const {width, height, durationInFrames, fps} = useVideoConfig();
   const t = frame / 24;
@@ -1897,11 +1908,14 @@ export const Background: React.FC<{
           </>
         )}
 
-        {/* MASTER LOOK v2: naya frame design (arch/deco/rosette) */}
+        {/* MASTER LOOK v2: naya frame design (arch/deco/rosette) + dynamic
+            VFX-pack custom pattern tile (variant 'custom') */}
         {lookFrameActive && (
           <FrameDecor
-            variant={lookFrame}
+            variant={effFrame}
             accent={theme.accent}
+            theme={theme}
+            vfxFrame={customFrame}
             opMult={S.cornerOpacity}
           />
         )}

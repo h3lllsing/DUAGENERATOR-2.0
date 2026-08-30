@@ -9,6 +9,7 @@ module.exports = function renderRoutes(deps) {
     fs, path, crypto, spawn, process, send,
     lookspec, fxg, themeMap, cacheStore, saveCache, qcStore, saveQc} = deps;
   const F = fs.promises;
+  const customVfx = require('../custom-vfx');
 
   // ── Mutable state (shared by reference with server.js) ──
   const job = {running: false, duaId: null, step: '', percent: 0,
@@ -192,28 +193,33 @@ module.exports = function renderRoutes(deps) {
       return null;
     }
     const lp = lookPathFor(duaId);
+    const pack = customVfx.load(PROJECT);
+    let spec = null;
     try {
       if (await exists(lp)) {
         const j = JSON.parse((await F.readFile(lp, 'utf8')).replace(/^\uFEFF/, ''));
-        if (j && j.lookSpec) return j.lookSpec;
-        try { await writeAtomic(lp, JSON.stringify({lookSpec: j}, null, 2)); } catch (_) {}
-        return j;
+        spec = (j && j.lookSpec) || j || null;
       }
-    } catch (_) {}
-    let theme = 'dark';
-    try { theme = themeMap.resolve(dua || {id: duaId}); } catch (_) {}
-    const spec = lookspec.buildLookSpec(theme);
-    const overrideFx = await readArtFxOverride();
-    if (overrideFx) spec.artFx = overrideFx;
-    const overrideSky = await readSkyFxOverride();
-    if (overrideSky) spec.skyFx = overrideSky;
-    const overrideBorder = await readBorderFxOverride();
-    if (overrideBorder) spec.borderFx = overrideBorder;
-    const explicitSp = await readStylePreset();
-    if (explicitSp && explicitSp !== 'classic' && explicitSp !== 'auto') {
-      spec.preset = explicitSp;
-      spec.tint = (fxg.PRESET_TINTS || {})[explicitSp] || spec.tint || null;
+    } catch (_) { spec = null; }
+    if (!spec) {
+      let theme = 'dark';
+      try { theme = themeMap.resolve(dua || {id: duaId}); } catch (_) {}
+      spec = lookspec.buildLookSpec(theme);
+      const overrideFx = await readArtFxOverride();
+      if (overrideFx) spec.artFx = overrideFx;
+      const overrideSky = await readSkyFxOverride();
+      if (overrideSky) spec.skyFx = overrideSky;
+      const overrideBorder = await readBorderFxOverride();
+      if (overrideBorder) spec.borderFx = overrideBorder;
+      const explicitSp = await readStylePreset();
+      if (explicitSp && explicitSp !== 'classic' && explicitSp !== 'auto') {
+        spec.preset = explicitSp;
+        spec.tint = (fxg.PRESET_TINTS || {})[explicitSp] || spec.tint || null;
+      }
     }
+    // DYNAMIC VFX PACK: data/custom_vfx.json plugins → lookSpec.vfx. Sab
+    // deterministically re-attach hota hai (seed/look file change nahi hota).
+    customVfx.attachVfx(pack, duaId, spec);
     try { await writeAtomic(lp, JSON.stringify({lookSpec: spec}, null, 2)); } catch (_) {}
     return spec;
   }

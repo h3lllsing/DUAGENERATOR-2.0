@@ -1,5 +1,8 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
+import {FrameCustom} from './vfx/Patterns';
+import type {VfxPatternDescriptor} from './vfx/types';
+import type {Theme} from './themes';
 
 // MASTER LOOK v2 (2026-08-24): ek look => poora package.
 // - FrameDecor: 4 border designs (seed se chunte hain, purana L-corner sirf
@@ -254,18 +257,24 @@ const RosetteFrame: React.FC<{accent: string; op: number}> = ({accent, op}) => {
 };
 
 // Master entry - variant 'classic' => null (Background apna purana frame
-// khud draw karta hai => backward-safe).
+// khud draw karta hai => backward-safe). Variant 'custom' => dynamic VFX pack
+// ka pattern tile (lookSpec.vfx.frame, Option B server-attached).
 export const FrameDecor: React.FC<{
   variant?: string | null;
   accent: string;
   opMult?: number;
-}> = ({variant, accent, opMult = 1}) => {
+  theme?: Theme | null;
+  vfxFrame?: VfxPatternDescriptor | null;
+}> = ({variant, accent, opMult = 1, theme, vfxFrame}) => {
   if (!variant || variant === 'classic') return null;
   return (
     <AbsoluteFill style={{pointerEvents: 'none'}}>
       {variant === 'arch' && <ArchFrame accent={accent} op={opMult} />}
       {variant === 'deco' && <DecoFrame accent={accent} op={opMult} />}
       {variant === 'rosette' && <RosetteFrame accent={accent} op={opMult} />}
+      {variant === 'custom' && vfxFrame && (
+        <FrameCustom spec={vfxFrame} accent={accent} theme={theme} opMult={opMult} />
+      )}
     </AbsoluteFill>
   );
 };
