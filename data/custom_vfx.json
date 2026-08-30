@@ -50,13 +50,276 @@
       "breathAmpl": 0.08,
       "seedSalt": 112,
       "label": "Royal Girih Frame"
+    },
+    {
+      "id": "celestial-starfield-overlay",
+      "kind": "starfield-dots",
+      "tileSize": 48,
+      "strokeWidth": 1.2,
+      "colorToken": "particleColor",
+      "alpha": 0.4,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 72,
+      "breathFrames": 320,
+      "breathAmpl": 0.15,
+      "seedSalt": 512,
+      "label": "Celestial Starfield Overlay"
+    },
+    {
+      "id": "emerald-meander-border",
+      "kind": "meander-band",
+      "tileSize": 64,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#0F5257",
+      "alpha": 0.8,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 40,
+      "breathFrames": 120,
+      "breathAmpl": 0.05,
+      "seedSalt": 234,
+      "label": "Emerald Meander Border"
+    },
+    {
+      "id": "luminous-rosette-header",
+      "kind": "geometric-rosette",
+      "tileSize": 112,
+      "strokeWidth": 1.8,
+      "colorToken": "glowColor",
+      "alpha": 0.65,
+      "zones": [
+        "top",
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 90,
+      "breathFrames": 200,
+      "breathAmpl": 0.1,
+      "seedSalt": 888,
+      "label": "Luminous Rosette Header"
+    },
+    {
+      "id": "golden-pearl-bead-border",
+      "kind": "bead-band",
+      "tileSize": 32,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#D4AF37",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 150,
+      "breathAmpl": 0.08,
+      "seedSalt": 142,
+      "label": "Golden Pearl Bead Border"
+    },
+    {
+      "id": "ruby-arabesque-strip-header",
+      "kind": "arabesque-strip",
+      "tileSize": 80,
+      "strokeWidth": 1.6,
+      "colorToken": "solid",
+      "solidColor": "#9B111E",
+      "alpha": 0.7,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 633,
+      "label": "Ruby Arabesque Strip Header"
+    },
+    {
+      "id": "glow-girih-corner-accents",
+      "kind": "girih-corners",
+      "tileSize": 96,
+      "strokeWidth": 2.5,
+      "colorToken": "glowColor",
+      "alpha": 0.6,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 180,
+      "breathAmpl": 0.06,
+      "seedSalt": 721,
+      "label": "Glow Girih Corner Accents"
+    },
+    {
+      "id": "copper-meander-corners",
+      "kind": "meander-band",
+      "tileSize": 56,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#B87333",
+      "alpha": 0.8,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 44,
+      "breathFrames": 160,
+      "breathAmpl": 0.07,
+      "seedSalt": 409,
+      "label": "Copper Meander Corners"
+    },
+    {
+      "id": "obsidian-starfield-border",
+      "kind": "starfield-dots",
+      "tileSize": 40,
+      "strokeWidth": 1.4,
+      "colorToken": "particleColor",
+      "alpha": 0.5,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 300,
+      "breathAmpl": 0.18,
+      "seedSalt": 912,
+      "label": "Obsidian Starfield Border"
+    },
+    {
+      "id": "lapis-rosette-strip",
+      "kind": "geometric-rosette",
+      "tileSize": 120,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#26619C",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 220,
+      "breathAmpl": 0.11,
+      "seedSalt": 655,
+      "label": "Lapis Rosette Strip"
+    },
+    {
+      "id": "amethyst-girih-top-border",
+      "kind": "girih-band",
+      "tileSize": 88,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#9966CC",
+      "alpha": 0.8,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 240,
+      "breathAmpl": 0.1,
+      "seedSalt": 582,
+      "label": "Amethyst Girih Top Border"
+    },
+    {
+      "id": "golden-arabesque-frame",
+      "kind": "arabesque-strip",
+      "tileSize": 104,
+      "strokeWidth": 1.75,
+      "colorToken": "solid",
+      "solidColor": "#FFD700",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 76,
+      "breathFrames": 180,
+      "breathAmpl": 0.05,
+      "seedSalt": 349,
+      "label": "Golden Arabesque Frame"
+    },
+    {
+      "id": "glow-bead-corners",
+      "kind": "bead-band",
+      "tileSize": 40,
+      "strokeWidth": 2.2,
+      "colorToken": "glowColor",
+      "alpha": 0.7,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 160,
+      "breathAmpl": 0.08,
+      "seedSalt": 815,
+      "label": "Glow Bead Corners"
+    },
+    {
+      "id": "jade-arabesque-bottom-accent",
+      "kind": "arabesque-corners",
+      "tileSize": 96,
+      "strokeWidth": 1.9,
+      "colorToken": "solid",
+      "solidColor": "#00A86B",
+      "alpha": 0.75,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 68,
+      "breathFrames": 200,
+      "breathAmpl": 0.08,
+      "seedSalt": 477,
+      "label": "Jade Arabesque Bottom Accent"
+    },
+    {
+      "id": "crimson-bead-frame",
+      "kind": "bead-band",
+      "tileSize": 48,
+      "strokeWidth": 2.1,
+      "colorToken": "solid",
+      "solidColor": "#DC143C",
+      "alpha": 0.8,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 52,
+      "breathFrames": 140,
+      "breathAmpl": 0.05,
+      "seedSalt": 289,
+      "label": "Crimson Bead Frame"
+    },
+    {
+      "id": "twilight-starfield-ambient",
+      "kind": "starfield-dots",
+      "tileSize": 64,
+      "strokeWidth": 1.5,
+      "colorToken": "glowColor",
+      "alpha": 0.45,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 360,
+      "breathAmpl": 0.16,
+      "seedSalt": 950,
+      "label": "Twilight Starfield Ambient"
     }
   ],
   "plugins": [
     {
-      "match": [
-        "qadr_ki_raat_ki_dua"
-      ],
+      "match": "*",
       "frameCustomId": "girih-sigil",
       "styleOverrides": {
         "cornerSize": 70,
@@ -67,9 +330,7 @@
       }
     },
     {
-      "match": [
-        "dushman_se_hifazat"
-      ],
+      "match": "*",
       "frameCustom": {
         "kind": "arabesque-corners",
         "tileSize": 120,
@@ -91,13 +352,70 @@
       }
     },
     {
-      "match": [
-        "subah_ki_dua_1",
-        "subah_ki_dua_2"
-      ],
+      "match": "*",
       "label": "Morning Prayer Aura",
       "frameCustomId": "arabesque-veil",
       "id": "morning-prayer-aura"
+    },
+    {
+      "match": "*",
+      "label": "Evening Protection Preset",
+      "frameCustomId": "arabesque-veil",
+      "styleOverrides": {
+        "cornerSize": 85,
+        "cornerOpacity": 0.75,
+        "shimmerStrength": 0.4,
+        "particlesScale": 1.2
+      },
+      "id": "evening-protection-preset"
+    },
+    {
+      "match": "*",
+      "label": "Night Travel Dua Accent",
+      "frameCustomId": "royal-girih-frame",
+      "styleOverrides": {
+        "frameOpacity1": 0.9,
+        "frameOpacity2": 0.4,
+        "raysOpacity": 0.3,
+        "vignetteScale": 0.8
+      },
+      "id": "night-travel-dua-accent"
+    },
+    {
+      "match": "*",
+      "label": "Healing Dua Shimmer Preset",
+      "frameCustomId": "luminous-rosette-header",
+      "styleOverrides": {
+        "frameOpacity1": 0.88,
+        "shimmerStrength": 0.6,
+        "orbsOpacity": 0.35,
+        "grainOpacityPaper": 0.15
+      },
+      "id": "healing-dua-shimmer-preset"
+    },
+    {
+      "match": "*",
+      "label": "Rizq Dua Ambient Glow",
+      "frameCustomId": "golden-pearl-bead-border",
+      "styleOverrides": {
+        "frameOpacity1": 0.9,
+        "shimmerStrength": 0.45,
+        "raysOpacity": 0.3,
+        "orbsOpacity": 0.25
+      },
+      "id": "rizq-dua-ambient-glow"
+    },
+    {
+      "match": "*",
+      "label": "Gratitude Dua Warm Shimmer",
+      "frameCustomId": "golden-arabesque-frame",
+      "styleOverrides": {
+        "frameOpacity1": 0.85,
+        "frameOpacity2": 0.5,
+        "shimmerStrength": 0.55,
+        "chromaticAberration": 0.2
+      },
+      "id": "gratitude-dua-warm-shimmer"
     }
   ]
 }

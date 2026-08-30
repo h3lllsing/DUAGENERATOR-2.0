@@ -217,8 +217,10 @@ module.exports = function renderRoutes(deps) {
         spec.tint = (fxg.PRESET_TINTS || {})[explicitSp] || spec.tint || null;
       }
     }
-    // DYNAMIC VFX PACK: data/custom_vfx.json plugins → lookSpec.vfx. Sab
-    // deterministically re-attach hota hai (seed/look file change nahi hota).
+    // DYNAMIC VFX PACK (GLOBAL POOL): data/custom_vfx.json plugins (match:"*")
+    // + standalone patterns → lookSpec.vfx deterministic seed-pick (custom-vfx.js
+    // attachVfx). Sab deterministically re-attach hota hai (seed/look file
+    // change nahi hota) — koi dua-id hardcoding. custom-vfx.js: attachVfx.
     customVfx.attachVfx(pack, duaId, spec);
     try { await writeAtomic(lp, JSON.stringify({lookSpec: spec}, null, 2)); } catch (_) {}
     return spec;

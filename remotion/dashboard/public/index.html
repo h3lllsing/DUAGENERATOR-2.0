@@ -475,7 +475,7 @@
     <div class="vfx-sec">
       <div class="vfx-sec-head"><b>Step 2 — JSON Paste + Dry-Run</b></div>
       <label for="vfx_raw">Gemini ka JSON array yahan paste karo <span style="color:#5a6474">(pehla item preview me dikhega)</span>:</label>
-      <textarea id="vfx_raw" class="raw-text" placeholder='[{"type":"pattern","label":"My Girih Border","kind":"girih-band","tileSize":150,"strokeWidth":1.4,"colorToken":"accent","alpha":0.5,"zones":["frame","corners"],"solidColor":"#D4AF37"},{"type":"plugin","label":"Qadr attach","match":["qadr_ki_raat_ki_dua"],"frameCustomId":"girih-sigil","styleOverrides":{"cornerSize":70}}]' oninput="vfxLiveCheck()"></textarea>
+      <textarea id="vfx_raw" class="raw-text" placeholder='[{"type":"pattern","label":"My Girih Border","kind":"girih-band","tileSize":150,"strokeWidth":1.4,"colorToken":"accent","alpha":0.5,"zones":["frame","corners"],"solidColor":"#D4AF37"},{"type":"plugin","label":"Global accent","match":"*","frameCustomId":"girih-sigil","styleOverrides":{"cornerSize":70}}]' oninput="vfxLiveCheck()"></textarea>
       <div class="formmsg" id="vfx_jstatus"></div>
       <div class="mbtns">
         <button class="btn-cancel" onclick="closeVfxStudio()">Cancel</button>

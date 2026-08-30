@@ -1133,7 +1133,7 @@ function vfxPromptText(){
   L.push('PATTERN: {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":'+lo('tileSize')+'-'+hi('tileSize')+',"strokeWidth":'+lo('strokeWidth')+'-'+hi('strokeWidth')+',"colorToken":"'+VFX_TOKENS+'","alpha":'+lo('alpha')+'-'+hi('alpha')+',"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB"(sirf zaruri jab colorToken="solid"; warna omit),"breathFrames":0-'+hi('breathFrames')+',"breathAmpl":0-'+hi('breathAmpl')+',"seedSalt":0-'+hi('seedSalt')+',"bandSize":'+lo('bandSize')+'-'+hi('bandSize')+'}');
   L.push('  id mat bhejo — server label se unique id khud banayega.');
   L.push('');
-  L.push('PLUGIN (existing pattern ko specific dua(s) par attach karo): {"type":"plugin","label":"...","match":["dua_id_1","dua_id_2"],"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{...} — overrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
+  L.push('PLUGIN (pool style — DEFAULT match "*" taake sab duas dynamically style milein): {"type":"plugin","label":"...","match":"*"(sab duas, global — industry default, koi dua-id hardcode nahi), ya ["dua_id_1","dua_id_2"](sirf targeted legacy),"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{...} — overrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
   L.push('');
   L.push('HARD RULES:');
   L.push('1. SIRF JSON array output do — koi extra text, markdown, ya explanation nahi.');

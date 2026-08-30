@@ -134,23 +134,41 @@ function matches(rule, duaId) {
   return rule === '*' || rule === duaId;
 }
 
+// Deterministic pick seed: look seed (per-dua random, look file me stable)
+// ya fir duaId charCode hash — koi Math.random yahan nahi.
+function stableSeed(n) {
+  if (typeof n === 'number' && Number.isFinite(n)) return Math.abs(Math.trunc(n));
+  return String(n == null ? '' : n).split('').reduce((a, c) => a + (c.charCodeAt(0) || 0), 0);
+}
+
 // Plugin rule ka attachment spec (frame + styleOverrides), san aksar ek plugin.
+// GLOBAL POOL (audit fix): targeted (array-match, legacy) > "*" wildcard plugins >
+// standalone pattern pool — seed se deterministic pick. Koi dua-id hardcoding
+// engine level par nahi; data/ custom_vfx.json plugins match:"*" rakhti hain.
 function attachVfx(pack, duaId, spec) {
   if (!pack || !spec || typeof spec !== 'object') return spec;
-  for (const pl of pack.plugins) {
-    if (!pl || typeof pl !== 'object') continue;
-    if (!matches(pl.match, duaId)) continue;
-    let frame;
+  const plugins = (pack.plugins || []).filter((pl) => pl && typeof pl === 'object');
+  const targeted = plugins.filter((pl) => Array.isArray(pl.match) && pl.match.includes(duaId));
+  const wildcard = plugins.filter((pl) => pl.match === '*');
+  const strMatch = plugins.filter((pl) => typeof pl.match === 'string' && pl.match === duaId);
+  const seed = stableSeed(spec.seed != null ? spec.seed : duaId);
+  const pickOne = (arr) => (arr.length === 1 ? arr[0] : arr[Math.floor(seed % arr.length)]);
+  let chosen = null;
+  if (targeted.length) chosen = pickOne(targeted);
+  else if (wildcard.length) chosen = pickOne(wildcard);
+  else if (strMatch.length) chosen = pickOne(strMatch);
+  if (chosen) {
+    let frame = null;
     if (
-      typeof pl.frameCustomId === 'string' &&
-      !BLOCKED_IDS.has(pl.frameCustomId) &&
-      pack.patterns[pl.frameCustomId]
+      typeof chosen.frameCustomId === 'string' &&
+      !BLOCKED_IDS.has(chosen.frameCustomId) &&
+      pack.patterns[chosen.frameCustomId]
     ) {
-      frame = pack.patterns[pl.frameCustomId];
-    } else if (pl.frameCustom && typeof pl.frameCustom === 'object') {
-      frame = sanitizePattern(pl.frameCustom);
+      frame = pack.patterns[chosen.frameCustomId];
+    } else if (chosen.frameCustom && typeof chosen.frameCustom === 'object') {
+      frame = sanitizePattern(chosen.frameCustom);
     }
-    const styleOverrides = sanitizeOverrides(pl.styleOverrides);
+    const styleOverrides = sanitizeOverrides(chosen.styleOverrides);
     if (frame || styleOverrides) {
       spec.vfx = {
         ...(frame ? {frame} : {}),
@@ -158,6 +176,14 @@ function attachVfx(pack, duaId, spec) {
       };
       return spec;
     }
+    return spec;
+  }
+  // Sab plugin pool mein bhi koi match nahi (ya patterns hi pool) →
+  // standalone pattern pool se frame-only deterministic pick (all 18+ reachable).
+  const pats = Object.keys(pack.patterns).map((k) => pack.patterns[k]).filter(Boolean);
+  if (pats.length) {
+    const pd = pickOne(pats);
+    spec.vfx = {frame: pd};
   }
   return spec;
 }
