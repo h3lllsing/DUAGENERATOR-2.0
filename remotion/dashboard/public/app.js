@@ -975,6 +975,7 @@ function _closeTopModal(){
   else if(last==='help')closeHelp();
   else if(last==='history')closeHistory();
   else if(last==='ytHub')ytHubClose();
+  else if(last==='vfx')closeVfxStudio();
 }
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){e.preventDefault();_closeTopModal();}
@@ -1096,7 +1097,203 @@ async function delDua(id){
   else toast(j.error||'Delete fail','err');
 }
 function closeForm(){ document.getElementById('modalbg').classList.remove('show'); }
-function setMsg(t,cls){ const m=document.getElementById('formmsg'); m.textContent=t; m.className='formmsg '+cls; }
+function vfxEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const VFX_KINDS=['girih-band','girih-corners','arabesque-strip','arabesque-corners','bead-band','starfield-dots','meander-band','geometric-rosette'].join('"|"');
+const VFX_TOKENS=['accent','particleColor','glowColor','solidColor','xlat0','xlat1','xlat2'].join('"|"');
+const VFX_ZONES=['whole','frame','corners','topFrame','bottomFrame','top','bottom','side','inner'].join('","');
+const VFX_OVR=['tileSize','bandSize','strokeWidth','alpha','breathFrames','breathAmpl','seedSalt','opacity','cornerSize','cornerRotation','frameOpacity1','frameOpacity2','ornamentScale','frameEnabled'].join(',');
+let _vfxRegistry=null, _vfxRawItems=[];
+function openVfxStudio(){
+  document.getElementById('vfxbg').classList.add('show');
+  _pushModal('vfx');
+  fillVfxDuaSel();
+  vfxRefresh();
+  vfxLiveCheck();
+}
+function closeVfxStudio(){ document.getElementById('vfxbg').classList.remove('show'); _popModal('vfx'); }
+function fillVfxDuaSel(){
+  const sel=document.getElementById('vfx_dua');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">(pehli dua — default)</option>'+duas.map(d=>'<option value="'+vfxEsc(d.id)+'">'+vfxEsc(d.title||d.id)+'</option>').join('');
+  sel.value=cur||'';
+}
+function vfxPromptText(){
+  const r=_vfxRegistry;
+  const L=[];
+  L.push('You design Islamic geometric VFX (SVG) presets for a Remotion dua-video app. Output: ONLY a JSON array. Har element EITHER pattern hai ya plugin:');
+  L.push('');
+  L.push('PATTERN: {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":16-256,"strokeWidth":0.25-8,"colorToken":"'+VFX_TOKENS+'","alpha":0.05-1,"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB"(optional — sirf solidColor token ke liye),"breathFrames":0-1000,"breathAmpl":0-0.25,"seedSalt":0-999,"bandSize":24-160,"frameEnabled":true|false(optional, default true)}');
+  L.push('  id mat bhejo — server label se unique id khud banayega.');
+  L.push('');
+  L.push('PLUGIN (existing pattern ko specific dua(s) par attach karo): {"type":"plugin","label":"...","match":["dua_id_1","dua_id_2"],"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{poora pattern params — keys sirf ye: '+VFX_OVR+'}}');
+  L.push('');
+  L.push('HARD RULES:');
+  L.push('1. SIRF JSON array output do — koi extra text, markdown, ya explanation nahi.');
+  L.push('2. zones mein "top" aur "frame" ek sath allowed NAHI (exclusive).');
+  L.push('3. solidColor sirf #RRGGBB hex ho; transparency ke liye "alpha" field use karo.');
+  L.push('4. Har number documented range ke andar ho (yaad raho: zyada 1 band wale me seedSalt 0-999).');
+  L.push('5. DEDUP CHECKER RUNGEGA — ye ALREADY-REGISTERED signatures duplicate/very-similar mat banao:');
+  if(r&&r.indexes){
+    L.push('   REGISTERED patterns ('+(r.patterns||[]).length+'):');
+    for(const p of (r.patterns||[])) L.push('     - "'+p.id+'" kind='+((p.descriptor&&p.descriptor.kind)||'?')+' zones='+JSON.stringify((p.descriptor&&p.descriptor.zones)||[]));
+    L.push('   REGISTERED plugins ('+(r.plugins||[]).length+'):');
+    for(const p of (r.plugins||[])) L.push('     - "'+p.id+'" match='+((p.plugin&&p.plugin.match)||[]).join(','));
+  }
+  L.push('');
+  L.push('Output: [ {pehla design}, {doosra design}, ... ]');
+  return L.join('\n');
+}
+function vfxCopyPrompt(){
+  const t=vfxPromptText();
+  const el=document.getElementById('vfx_promptbox');
+  if(el) el.textContent=t;
+  navigator.clipboard.writeText(t)
+    .then(()=>toast('AI VFX prompt copy! Gemini pe paste karo','ok'))
+    .catch(()=>toast('Copy fail — prompt box se manually copy karo','err'));
+}
+function vfxLiveCheck(){
+  const raw=document.getElementById('vfx_raw').value.trim();
+  const st=document.getElementById('vfx_jstatus');
+  const btn=document.getElementById('vfx_drybtn');
+  if(!raw){ st.textContent=''; st.className='formmsg'; btn.disabled=true; return; }
+  let items=null, errText='';
+  try{
+    const o=JSON.parse(raw);
+    items=Array.isArray(o)?o:(o&&Array.isArray(o.items)?o.items:[o]);
+  }catch(e){ errText=e.message||'Invalid JSON'; }
+  if(items){
+    st.textContent='JSON valid — '+items.length+' item(s)';
+    st.className='formmsg ok';
+    btn.disabled=false;
+  }else{
+    st.textContent='JSON error: '+errText;
+    st.className='formmsg er';
+    btn.disabled=true;
+  }
+}
+async function vfxDryRun(){
+  const raw=document.getElementById('vfx_raw').value.trim();
+  let items;
+  try{
+    const o=JSON.parse(raw);
+    items=Array.isArray(o)?o:(o&&Array.isArray(o.items)?o.items:[o]);
+  }catch(e){ toast('JSON me error hai — pehle sahi karo','err'); return; }
+  if(!items.length){ toast('Empty array','err'); return; }
+  _vfxRawItems=items;
+  const btn=document.getElementById('vfx_drybtn');
+  btn.disabled=true; const old=btn.innerHTML; btn.innerHTML='Checking...';
+  try{
+    const r=await fetch('/api/vfx/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items,dryRun:1})});
+    const j=await r.json();
+    if(!j.ok){ toast(j.error||'Dry-run fail','err'); return; }
+    vfxRenderResults(j);
+  }catch(e){ toast('Network error: '+e.message,'err'); }
+  finally{ btn.disabled=false; btn.innerHTML=old; }
+}
+function vfxBadge(status){
+  const m={added:['VALID','vfx-b vfx-ok'],duplicate:['EXACT DUPLICATE (Skipped)','vfx-b vfx-dup'],similar:['SIMILAR DESIGN WARNING','vfx-b vfx-sim'],invalid:['SCHEMA ERROR','vfx-b vfx-err']}[status];
+  const b=m||[status,'vfx-b'];
+  return '<span class="'+b[1]+'">'+b[0]+'</span>';
+}
+function vfxRenderResults(j){
+  const sec=document.getElementById('vfx_sec_results');
+  sec.style.display='block';
+  document.getElementById('vfx_result_summary').textContent=
+    (j.added||0)+' new, '+(j.similar||0)+' similar, '+(j.duplicates||0)+' duplicate, '+(j.invalid||0)+' invalid — '+(j.dryRun?'DRY-RUN (kuch save nahi hua)':'SAVED');
+  const rows=(j.results||[]).map(r=>{
+    const label=r.label||(r.id||('item '+(r.index+1)));
+    const chips=[];
+    if(r.id) chips.push('<span class="vfx-id">'+vfxEsc(r.id)+'</span>');
+    if(r.matchedId) chips.push('<span class="vfx-mtag">matches '+vfxEsc(r.matchedId)+'</span>');
+    if(r.status==='similar'&&r.dist!==undefined) chips.push('<span class="vfx-mtag">dist '+(r.dist.toFixed?r.dist.toFixed(3):r.dist)+'</span>');
+    if(r.reason) chips.push('<span class="vfx-mtag">'+vfxEsc(r.reason)+'</span>');
+    const pv=(r.status==='added'||r.status==='similar')?'<button class="chip vfx-pvbtn" onclick="vfxPreview('+r.index+')">Preview Still</button>':'';
+    return '<div class="vfx-row"><span class="vfx-rowtype">'+vfxEsc(r.type||'?')+'</span><span class="vfx-rowlabel">'+vfxEsc(label)+chips.join('')+'</span>'+vfxBadge(r.status)+pv+'</div>';
+  }).join('');
+  document.getElementById('vfx_results').innerHTML=rows||'<div class="vfx-empty">Koi result nahi</div>';
+  const canAdd=(j.added||0)+(j.similar||0);
+  const sb=document.getElementById('vfx_savebtn');
+  sb.disabled=!(canAdd>0);
+  sb.innerHTML=canAdd>0?'CONFIRM IMPORT ('+canAdd+')':'CONFIRM IMPORT';
+  setVfxPvMsg('','');
+}
+function setVfxPvMsg(t,c){ const el=document.getElementById('vfx_pvmsg'); el.textContent=t; el.className='formmsg '+c; }
+async function vfxPreview(i){
+  const item=_vfxRawItems[i];
+  if(!item){ toast('Raw item lost — dobara dry-run karo','err'); return; }
+  const box=document.getElementById('vfx_previewbox');
+  box.style.display='block';
+  const img=document.getElementById('vfx_pvimg');
+  img.removeAttribute('src');
+  document.getElementById('vfx_pvname').textContent=item.label||('item '+i);
+  setVfxPvMsg('Still render ho raha hai (Chrome) — ek minute tak lagega...','');
+  let payload=null;
+  if(item.type==='pattern'){
+    const frame=Object.assign({},item);
+    for(const k of ['type','label']) delete frame[k];
+    payload={frame};
+  }else if(item.type==='plugin'){
+    const ov=item.styleOverrides||{};
+    const frameCustom=item.frameCustom;
+    const frameCustomId=item.frameCustomId||'';
+    if(frameCustom){ payload={frame:frameCustom,styleOverrides:ov}; }
+    else if(frameCustomId){ payload={patternId:frameCustomId,styleOverrides:ov}; }
+    else{ setVfxPvMsg('Plugin ke paas frameCustom ya frameCustomId dono nahi — preview possible nahi','er'); return; }
+  }else{
+    setVfxPvMsg('Yeh item preview nahi ho sakta','er'); return;
+  }
+  const duaId=document.getElementById('vfx_dua').value;
+  if(duaId) payload.duaId=duaId;
+  try{
+    const r=await fetch('/api/vfx/preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const j=await r.json();
+    if(!j.ok){ setVfxPvMsg(j.error||'render fail','er'); return; }
+    img.src=j.url+'?t='+Date.now();
+    setVfxPvMsg('Rendered: '+j.duaId+' / frame '+j.frame+' / theme '+j.theme,'ok');
+  }catch(e){ setVfxPvMsg('Network error: '+e.message,'er'); }
+}
+async function vfxConfirm(){
+  if(!_vfxRawItems.length)return;
+  const sb=document.getElementById('vfx_savebtn');
+  const old=sb.innerHTML;
+  sb.disabled=true; sb.innerHTML='Saving...';
+  try{
+    const r=await fetch('/api/vfx/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:_vfxRawItems,dryRun:0})});
+    const j=await r.json();
+    if(!j.ok){ sb.disabled=false; sb.innerHTML=old; toast(j.error||'Save fail','err'); return; }
+    vfxRenderResults(j);
+    await vfxRefresh();
+    toast((j.added||0)+' new saved'+(j.similar>0?', '+j.similar+' similar flagged':'')+' — pack updated!','ok');
+    if((j.invalid||0)>0) toast((j.invalid)+' invalid item skip hue','warn');
+  }catch(e){ sb.disabled=false; sb.innerHTML=old; toast('Network error: '+e.message,'err'); }
+}
+async function vfxRefresh(){
+  const rc=document.getElementById('vfx_regcount');
+  if(rc) rc.textContent='(load ho raha hai...)';
+  try{
+    const r=await fetch('/api/vfx/list');
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'list fail');
+    _vfxRegistry=j;
+    if(rc) rc.textContent='('+(j.patterns.length)+' patterns / '+(j.plugins.length)+' plugins registered)';
+    const box=document.getElementById('vfx_registry');
+    box.innerHTML='';
+    const both=[];
+    for(const p of (j.patterns||[])) both.push({kind:'pattern',id:p.id,label:p.label,fp:p.fingerprint});
+    for(const p of (j.plugins||[])) both.push({kind:'plugin',id:p.id,label:p.label||p.plugin.label,fp:p.fingerprint});
+    if(!both.length){ box.innerHTML='<div class="vfx-empty">Abhi koi custom VFX registered nahi</div>'; }
+    for(const e of both){
+      const div=document.createElement('div');
+      div.className='vfx-regrow';
+      div.innerHTML='<span class="vfx-b '+(e.kind==='pattern'?'vfx-ok':'vfx-sim')+'">'+e.kind+'</span><span class="vfx-id">'+vfxEsc(e.id)+'</span><span class="vfx-fp">'+vfxEsc(e.fp||'')+'</span><span class="vfx-reglabel">'+vfxEsc(e.label||'')+'</span>';
+      box.appendChild(div);
+    }
+    const pbox=document.getElementById('vfx_promptbox');
+    if(pbox) pbox.textContent=vfxPromptText();
+  }catch(e){
+    document.getElementById('vfx_registry').innerHTML='<div class="vfx-empty">Registry load fail: '+vfxEsc(e.message)+'</div>';
+  }
+}
 async function saveDua(){
   var fields=[{id:'f_title',label:'Title'},{id:'f_arabic',label:'Arabic'},{id:'f_urdu',label:'Urdu'}];
   var valid=true;

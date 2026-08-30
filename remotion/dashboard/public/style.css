@@ -317,6 +317,30 @@ body.expert .aibtn.js-expert{display:inline-flex}
 @media(max-width:600px){header{flex-direction:column;align-items:flex-start;gap:8px}.header-actions{margin-left:0!important}.stats{margin-left:0!important}}
 @media(max-width:520px){.grid{grid-template-columns:1fr}.picker-grid{grid-template-columns:1fr}.cred-row{flex-direction:column}.form-row{flex-direction:column}.yt-tab{padding:5px 10px;font-size:11px}}
 
+/* --- VFX Studio (Phase 3) --- */
+.vfx-sec{margin-top:14px}
+.vfx-sec-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:#d4af37;margin-bottom:8px}
+.vfx-sec-head b{color:#e8e6e3;font-weight:600}
+.modal .vfx-sec textarea.raw-text{min-height:150px}
+.vfx-b{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:600;white-space:nowrap;letter-spacing:.3px}
+.vfx-ok{background:#0f2a1c;color:#4ade80;border:1px solid #2f6b45}
+.vfx-dup{background:#171d29;color:#9aa4b2;border:1px solid #2d3446}
+.vfx-sim{background:#2a2110;color:#e6c46a;border:1px solid #6b5727}
+.vfx-err{background:#2a1013;color:#ff7b72;border:1px solid #6b2737}
+.vfx-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:7px 10px;background:#0d1015;border:1px solid rgba(255,255,255,.07);border-radius:9px;margin-top:6px}
+.vfx-rowtype{font-size:10px;letter-spacing:.5px;color:#5a6474;text-transform:uppercase;min-width:52px}
+.vfx-rowlabel{font-size:13px;color:#e8e6e3;display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1}
+.vfx-err ~ .vfx-rowlabel{color:#ff9a94}
+.vfx-id{font-size:11px;color:#60a5fa;font-family:Consolas,Monaco,monospace}
+.vfx-mtag{font-size:10px;color:#5a6474}
+.vfx-fp{font-size:10px;color:#5a6474;font-family:Consolas,Monaco,monospace}
+.vfx-empty{color:#5a6474;font-size:12px;padding:8px 4px}
+.vfx-pvbtn{padding:3px 10px;font-size:11px}
+.vfx-save-bar{display:flex;align-items:flex-end;gap:10px;margin-top:12px}
+.vfx-regrow{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px}
+.vfx-regrow:nth-child(odd){background:rgba(255,255,255,.02)}
+.vfx-reglabel{font-size:12px;color:#c9c2b8;margin-left:auto;text-align:right}
+
 /* --- Scrollbar --- */
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:transparent}

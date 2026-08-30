@@ -26,6 +26,7 @@
   <button class="chip" onclick="ytToggle('upload')" title="YouTube upload manager">&#9654;&#65039; YOUTUBE</button>
   <button class="chip" onclick="openFolder('videos')" title="Videos folder kholo">&#128193; VIDEOS</button>
   <button class="chip" onclick="openSettings()" title="Settings + History + Voice">&#9881;&#65039;</button>
+  <button class="chip" onclick="openVfxStudio()" title="AI se custom VFX patterns/plugins import karo" style="background:#170f2a;border-color:#a855f7;color:#c084fc">&#10022; VFX STUDIO</button>
   <button class="chip" onclick="openHelp()" title="Kaise use karein" style="background:#1c2333;border-color:#d4af37;color:#d4af37">&#128214; HELP</button>
 </div>
 </div>
@@ -454,6 +455,51 @@
       <button class="btn-save" onclick="aiParse()">&#10024; PARSE + FORM BHARO</button>
     </div>
     <div class="formmsg" id="aimsg"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="vfxbg" onclick="if(event.target===this)closeVfxStudio()">
+  <div class="modal" style="width:min(920px,96vw)">
+    <h2>&#10022; Custom VFX Studio</h2>
+    <div class="aihint" style="margin-bottom:12px">&#9734; AI (Gemini) se geometric border/corner/particle patterns aur plugin attachments import karo. Har design schema-check + fingerprint dedup se guzarta hai.</div>
+
+    <div class="vfx-sec">
+      <div class="vfx-sec-head"><b>Step 1 — AI VFX Prompt</b><span id="vfx_regcount"></span></div>
+      <div class="mbtns"><button class="btn-save" onclick="vfxCopyPrompt()">&#128203; COPY AI VFX PROMPT</button></div>
+      <div class="ai-prompt" id="vfx_promptbox">Registry load ho raha hai...</div>
+    </div>
+
+    <div class="vfx-sec">
+      <div class="vfx-sec-head"><b>Step 2 — JSON Paste + Dry-Run</b></div>
+      <label for="vfx_raw">Gemini ka JSON array yahan paste karo <span style="color:#5a6474">(pehla item preview me dikhega)</span>:</label>
+      <textarea id="vfx_raw" class="raw-text" placeholder='[{"type":"pattern","label":"My Girih Border","kind":"girih-band","tileSize":150,"strokeWidth":1.4,"colorToken":"accent","alpha":0.5,"zones":["frame","corners"],"solidColor":"#D4AF37"},{"type":"plugin","label":"Qadr attach","match":["qadr_ki_raat_ki_dua"],"frameCustomId":"girih-sigil","styleOverrides":{"cornerSize":70}}]' oninput="vfxLiveCheck()"></textarea>
+      <div class="formmsg" id="vfx_jstatus"></div>
+      <div class="mbtns">
+        <button class="btn-cancel" onclick="closeVfxStudio()">Cancel</button>
+        <button class="btn-save" id="vfx_drybtn" onclick="vfxDryRun()" disabled>&#128269; PARSE &amp; DRY-RUN</button>
+      </div>
+    </div>
+
+    <div class="vfx-sec" id="vfx_sec_results" style="display:none">
+      <div class="vfx-sec-head"><b>Step 3 — Results</b><span id="vfx_result_summary"></span></div>
+      <div id="vfx_results"></div>
+      <div id="vfx_previewbox" style="display:none;margin-top:10px">
+        <div class="vfx-sec-head"><b>Preview Still</b><span id="vfx_pvname"></span></div>
+        <img id="vfx_pvimg" alt="preview" style="display:block;max-width:100%;max-height:320px;border:1px solid rgba(255,255,255,.12);border-radius:10px">
+        <div class="formmsg" id="vfx_pvmsg"></div>
+      </div>
+      <div class="vfx-save-bar">
+        <label style="flex:1;margin:0;font-size:12px;color:#8b949e">Dua (preview ke liye):
+          <select id="vfx_dua"></select>
+        </label>
+        <button class="btn-save" id="vfx_savebtn" onclick="vfxConfirm()" disabled>&#128190; CONFIRM IMPORT</button>
+      </div>
+    </div>
+
+    <div class="vfx-sec">
+      <div class="vfx-sec-head"><b>Registered Patterns / Plugins</b><span style="color:#8b949e;font-size:11px">(live pack — close karke dobara kholein)</span></div>
+      <div id="vfx_registry" style="max-height:180px;overflow:auto;margin-top:4px">Loading...</div>
+    </div>
   </div>
 </div>
 <script src="vendor/wavesurfer.min.js"></script>
