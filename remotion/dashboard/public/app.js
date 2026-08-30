@@ -1145,7 +1145,7 @@ function vfxPromptText(){
   L.push('1) PATTERN (geometric SVG VFX): {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":'+lo('tileSize')+'-'+hi('tileSize')+',"strokeWidth":'+lo('strokeWidth')+'-'+hi('strokeWidth')+',"colorToken":"'+VFX_TOKENS+'","alpha":'+lo('alpha')+'-'+hi('alpha')+',"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB"(sirf zaruri jab colorToken="solid"; warna omit),"breathFrames":0-'+hi('breathFrames')+',"breathAmpl":0-'+hi('breathAmpl')+',"seedSalt":0-'+hi('seedSalt')+',"bandSize":'+lo('bandSize')+'-'+hi('bandSize')+'}');
   L.push('  id mat bhejo — server label se unique id khud banayega.');
   L.push('');
-  L.push('2) PLUGIN (VFX pool attachment — DEFAULT match "*" taake sab duas dynamically style milein): {"type":"plugin","label":"...","match":"*"(sab duas, global — koi dua-id hardcode nahi), ya ["dua_id_1","dua_id_2"](sirf targeted legacy),"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{...}} — overrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
+  L.push('2) PLUGIN (VFX pool attachment — "match" STRICTLY MANDATORY): {"type":"plugin","label":"name","match":"*","frameCustomId":"existing_pattern_id","styleOverrides":{...}} — "match" ki VALUE sirf "*" (sab duas, global — koi dua-id hardcode nahi) ya ["dua_id_1","dua_id_2"] (sirf targeted legacy) ho sakti hai. frameCustomId = existing pattern ki exact id (ya inline "frameCustom": {poora Pattern object}). styleOverrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
   L.push('');
   L.push('3) THEME (naya color-mood; existing themes mutate mat karo): {"type":"theme","label":"...","match":"*","affinity":["category_or_empty_id_1","..."](optional — in categories par prioritized),"payload":{"decor":"'+_mw(MS_DECOR)+'","grade":{"brightness":0.7-1.5,"contrast":0.7-1.6,"saturate":0.5-1.8}(grade optional)} }');
   L.push('');
@@ -1173,6 +1173,7 @@ function vfxPromptText(){
       L.push('     - "'+p.id+'" match='+(Array.isArray(m)?m.join(','):(m||'any')));
     }
   }
+  L.push('6. Every PLUGIN item MUST include "match": "*" (or an array of dua IDs). NEVER omit the match field or set it to an empty string.');
   L.push('');
   L.push('Output: [ {pehla design}, {doosra design}, ... ] (sirf 6 types — unknown type reject hoga)');
   return L.join('\n');
