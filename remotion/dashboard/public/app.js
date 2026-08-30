@@ -602,10 +602,44 @@ function setVoiceMode(m){
   document.getElementById('vm_portal_btn').classList.toggle('on',m==='portal');
   document.getElementById('vm_custom_btn').classList.toggle('on',m==='custom');
 }
+let waveSurfer=null;
+function vpTimeFmt(s){ if(!isFinite(s)||s<0)s=0; const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+('0'+x).slice(-2); }
+function vpSetBtn(playing){ const b=document.getElementById('vp_play'); if(b) b.innerHTML=playing?'&#10074;&#10074; Pause':'&#9654; Play'; }
+function vpReset(){ if(waveSurfer){ waveSurfer.destroy(); waveSurfer=null; } const t=document.getElementById('vp_time'); if(t) t.textContent='0:00 / 0:00'; vpSetBtn(false); }
+function vpLoad(url){
+  document.getElementById('voiceplayer').style.display='block';
+  vpReset();
+  const time=document.getElementById('vp_time');
+  if(typeof WaveSurfer==='undefined'){ if(time)time.textContent='Waveform library load nahi hui'; return; }
+  try{
+    waveSurfer=WaveSurfer.create({
+      container:'#ap_voice',
+      url:url,
+      height:80,
+      barWidth:2,
+      barGap:1,
+      barRadius:2,
+      barMinHeight:1,
+      waveColor:'#3d4452',
+      progressColor:'#d4af37',
+      cursorColor:'#e6c46a',
+      cursorWidth:1.5,
+      hideScrollbar:true
+    });
+    waveSurfer.on('ready',()=>{ if(time)time.textContent='0:00 / '+vpTimeFmt(waveSurfer.getDuration()); });
+    waveSurfer.on('timeupdate',(c)=>{ if(time)time.textContent=vpTimeFmt(c)+' / '+vpTimeFmt(waveSurfer.getDuration()); });
+    waveSurfer.on('play',()=>vpSetBtn(true));
+    waveSurfer.on('pause',()=>vpSetBtn(false));
+    waveSurfer.on('finish',()=>{ vpSetBtn(false); if(time)time.textContent='0:00 / '+vpTimeFmt(waveSurfer.getDuration()); });
+    waveSurfer.on('error',(e)=>{ if(time)time.textContent='Decode fail: '+(e&&e.message?e.message:e); vpSetBtn(false); });
+  }catch(e){ if(time)time.textContent='Waveform init fail'; vpSetBtn(false); }
+}
+function vpToggle(){ if(!waveSurfer)return; waveSurfer.playPause(); }
 function openVoice(){
   const sel=document.getElementById('v_dua');
   sel.innerHTML=duas.map(d=>'<option value="'+d.id+'">'+escHtml(d.title)+'</option>').join('');
   document.getElementById('voiceplayer').style.display='none';
+  vpReset();
   setVoiceMsg('','');
   document.getElementById('voicebg').classList.add('show');
   _pushModal('voice');
@@ -625,8 +659,7 @@ async function genVoice(){
       const r=await fetch('/api/tts-custom',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({arabic:a,urdu:u,name:finalName})});
       const j=await r.json();
       if(!j.ok)return setVoiceMsg(j.error||'Fail hua','err');
-      document.getElementById('voiceplayer').style.display='block';
-      document.getElementById('ap_voice').src='/audio/'+j.savedFile+'?v='+j.ts;
+      vpLoad('/audio/'+j.savedFile+'?v='+j.ts);
       setVoiceMsg('\u2705 Ban gayi! AUDIO folder me save: '+j.savedFile,'ok');
     }catch(e){setVoiceMsg('Server error','err');}
     return;
@@ -643,8 +676,7 @@ async function genVoice(){
       const s=await(await fetch('/api/status')).json();
       if(s.error){setVoiceMsg('Fail: '+s.error,'err');return;}
       if(!s.running&&s.step==='done'){
-        document.getElementById('voiceplayer').style.display='block';
-        document.getElementById('ap_voice').src='/temp-voice/'+id+'?v='+Date.now();
+        vpLoad('/temp-voice/'+id+'?v='+Date.now());
         setVoiceMsg('\u2705 Ready! Neeche play dabao','ok');
         lastGridKey='';load();
         return;

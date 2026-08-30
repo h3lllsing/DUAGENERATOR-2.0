@@ -189,7 +189,11 @@
     </div>
     <div class="formmsg" id="voicemsg"></div>
     <div id="voiceplayer" style="display:none;margin-top:14px">
-      <audio id="ap_voice" controls style="width:100%"></audio>
+      <div id="ap_voice" class="waveform"></div>
+      <div class="vp-controls">
+        <button class="chip" id="vp_play" onclick="vpToggle()" title="Play / Pause">&#9654; Play</button>
+        <span id="vp_time" class="vp-time">0:00 / 0:00</span>
+      </div>
     </div>
   </div>
 </div>
@@ -452,4 +456,5 @@
     <div class="formmsg" id="aimsg"></div>
   </div>
 </div>
+<script src="vendor/wavesurfer.min.js"></script>
 <script src="app.js"></script></body></html>
