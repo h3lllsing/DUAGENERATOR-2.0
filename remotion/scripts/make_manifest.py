@@ -296,12 +296,19 @@ def read_words(path):
             ev = json.loads(line)
             if ev.get("type") != "WordBoundary":
                 continue
+            offset = ev.get("offset")
+            duration = ev.get("duration")
+            if offset is None or duration is None:
+                print("WARN: WordBoundary missing offset/duration - skipped",
+                      file=sys.stderr)
+                continue
             # PILLAR 2: shift earlier by the encoder priming window so
             # highlights land frame-accurate during AAC playback.
-            start = max(0.0, ev["offset"] / TICKS - PRIMING_COMPENSATION_S)
-            end = max(start, (ev["offset"] + ev["duration"]) / TICKS
+            start = max(0.0, offset / TICKS - PRIMING_COMPENSATION_S)
+            end = max(start, (offset + duration) / TICKS
                       - PRIMING_COMPENSATION_S)
-            words.append({"t": ev["text"], "start": round(start, 3), "end": round(end, 3)})
+            words.append({"t": ev.get("text", ""),
+                          "start": round(start, 3), "end": round(end, 3)})
     return words
 
 
@@ -325,14 +332,28 @@ def main(dua_id="rabbana_hasanah"):
     with wave.open(os.path.join(TEMP, "{}_merged.wav".format(dua_id))) as w:
         total = w.getnframes() / w.getframerate()
 
+    if total < 1.0:
+        raise RuntimeError(
+            "merged audio too short ({:.3f}s < 1.0s) - reject manifest".format(total))
+
+    wav_path = os.path.join(TEMP, "{}_merged.wav".format(dua_id))
+    if not os.path.exists(wav_path) or os.path.getsize(wav_path) <= 0:
+        raise RuntimeError("merged wav missing or zero bytes: " + wav_path)
+
+    if not ar_words:
+        raise RuntimeError("no arabic WordBoundary events for " + dua_id)
+    if not ur_words:
+        raise RuntimeError("no urdu WordBoundary events for " + dua_id)
+
     arabic_end = ar_words[-1]["end"]
     urdu_start = max(ur_words[0]["start"] - 0.05, 0.0)
 
     audio_dir = os.path.join(REMOTION, "public", "audio")
     os.makedirs(audio_dir, exist_ok=True)
     audio_dst = os.path.join(audio_dir, "{}.mp3".format(dua_id))
-    wav_src = os.path.join(TEMP, "{}_merged.wav".format(dua_id))
-    master_audio(wav_src, audio_dst)
+    master_audio(wav_path, audio_dst)
+    if not os.path.exists(audio_dst) or os.path.getsize(audio_dst) <= 0:
+        raise RuntimeError("mastered mp3 missing or zero bytes: " + audio_dst)
 
     manifest = {
         "dua_id": dua_id,
@@ -382,8 +403,10 @@ def main(dua_id="rabbana_hasanah"):
     out_dir = os.path.join(REMOTION, "src", "data")
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "{}.json".format(dua_id))
-    with open(out_path, "w", encoding="utf-8") as f:
+    tmp_path = out_path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=1)
+    os.replace(tmp_path, out_path)
 
     print("manifest:", out_path)
     print("audio:", audio_dst)

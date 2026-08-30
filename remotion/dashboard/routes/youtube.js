@@ -612,9 +612,16 @@ module.exports = function ytRoutes(deps) {
             const ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8').replace(/^\uFEFF/, ''));
             if (ledger[duaId]) {
               delete ledger[duaId];
-              fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 2), 'utf8');
-              ytLog('RE-UPLOAD: ledger entry removed for ' + duaId + ' (' + channel + ')');
-              send(res, 200, JSON.stringify({ok: true, duaId, channel}));
+              const tmpPath = ledgerPath + '.tmp';
+              fs.writeFileSync(tmpPath, JSON.stringify(ledger, null, 2), 'utf8');
+              fs.promises.rename(tmpPath, ledgerPath).then(() => {
+                ytLog('RE-UPLOAD: ledger entry removed for ' + duaId + ' (' + channel + ')');
+                send(res, 200, JSON.stringify({ok: true, duaId, channel}));
+              }).catch((e) => {
+                try { fs.unlinkSync(tmpPath); } catch (_) {}
+                ytLog('RE-UPLOAD: ledger rename fail: ' + e.message);
+                send(res, 500, JSON.stringify({ok: false, error: 'Ledger save fail'}));
+              });
             } else {
               send(res, 404, JSON.stringify({ok: false, error: 'Ledger mein ye dua nahi mili'}));
             }

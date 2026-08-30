@@ -35,6 +35,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import date, timedelta
 try:
@@ -127,11 +128,27 @@ def load_ledger(path=LEDGER_PATH):
     return {}
 
 
+def _atomic_json_write(path, data):
+    """Write JSON atomically via a unique process-safe temp file, so two
+    concurrent writers can never clobber the same .tmp inode mid-write."""
+    d = os.path.dirname(os.path.abspath(path)) or "."
+    fd, tmp = tempfile.mkstemp(dir=d, prefix="state_", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        raise
+
+
 def save_ledger(ledger, path=LEDGER_PATH):
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(ledger, f, ensure_ascii=False, indent=1)
-    os.replace(tmp, path)
+    _atomic_json_write(path, ledger)
 
 
 def uploads_today(ledger):
@@ -160,10 +177,7 @@ def load_quota(path):
 def save_quota(q, path):
     cutoff = (date.today() - timedelta(days=60)).isoformat()
     q = {k: v for k, v in q.items() if k >= cutoff}
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(q, f, ensure_ascii=False, indent=1)
-    os.replace(tmp, path)
+    _atomic_json_write(path, q)
 
 
 def units_today(quota):
@@ -248,7 +262,13 @@ def resolve_item(dua_id):
     mpath = os.path.join(DATA_DIR, dua_id + ".json")
     if not os.path.exists(mpath):
         return None, ["no manifest"]
-    manifest = json.load(open(mpath, encoding="utf-8"))
+    try:
+        with open(mpath, encoding="utf-8") as _f:
+            manifest = json.load(_f)
+    except Exception as e:
+        return None, ["corrupt manifest: " + str(e)[:80]]
+    if not isinstance(manifest, dict):
+        return None, ["manifest not an object"]
     title = manifest.get("title") or dua_id
     ref_raw = (manifest.get("reference") or "").strip()
 
