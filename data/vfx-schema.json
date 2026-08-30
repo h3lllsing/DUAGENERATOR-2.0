@@ -15,7 +15,7 @@
       "seedSalt": { "type": "int", "min": 0, "max": 999, "def": 0 }
     },
     "enums": {
-      "kind": ["girih-band", "arabesque-corners"],
+      "kind": ["girih-band", "girih-corners", "arabesque-strip", "arabesque-corners", "bead-band", "starfield-dots", "meander-band", "geometric-rosette"],
       "colorToken": ["accent", "glowColor", "particleColor", "solid"],
       "zones": ["top", "bottom", "frame", "corners"]
     }

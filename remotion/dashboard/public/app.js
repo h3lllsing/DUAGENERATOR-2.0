@@ -1098,10 +1098,15 @@ async function delDua(id){
 }
 function closeForm(){ document.getElementById('modalbg').classList.remove('show'); }
 function vfxEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-const VFX_KINDS=['girih-band','girih-corners','arabesque-strip','arabesque-corners','bead-band','starfield-dots','meander-band','geometric-rosette'].join('"|"');
-const VFX_TOKENS=['accent','particleColor','glowColor','solidColor','xlat0','xlat1','xlat2'].join('"|"');
-const VFX_ZONES=['whole','frame','corners','topFrame','bottomFrame','top','bottom','side','inner'].join('","');
-const VFX_OVR=['tileSize','bandSize','strokeWidth','alpha','breathFrames','breathAmpl','seedSalt','opacity','cornerSize','cornerRotation','frameOpacity1','frameOpacity2','ornamentScale','frameEnabled'].join(',');
+const _VS=(function(){
+  const w=(typeof window==='undefined')?null:window;
+  return (w&&w.VFX_SCHEMA_UI)||null;
+})();
+const VFX_KINDS=((_VS&&_VS.kind)||['girih-band','arabesque-corners','starfield-dots','geometric-rosette']).join('"|"');
+const VFX_TOKENS=((_VS&&_VS.colorToken)||['accent','glowColor','particleColor','solid']).join('"|"');
+const VFX_ZONES=((_VS&&_VS.zones)||['top','bottom','frame','corners']).join('","');
+const VFX_ZX=((_VS&&_VS.zonesExclusive)||['top','frame']).join('","');
+const VFX_OVR=(_VS&&_VS.overrides&&_VS.overrides.length)?_VS.overrides.map(function(o){return o.key;}).join(','):'cornerInset,cornerSize,cornerOpacity,frameEnabled,frameOpacity1,frameOpacity2,ornamentScale,ornamentSwayDeg,raysOpacity,orbsOpacity,particlesScale,grainOpacityDark,grainOpacityPaper,vignetteScale,bokehCount,bokehOpacity,chromaticAberration,shimmerStrength,noiseVeilOpacity,raysAngleDeg';
 let _vfxRegistry=null, _vfxRawItems=[];
 function openVfxStudio(){
   document.getElementById('vfxbg').classList.add('show');
@@ -1120,18 +1125,21 @@ function fillVfxDuaSel(){
 function vfxPromptText(){
   const r=_vfxRegistry;
   const L=[];
+  const fld=function(k){return (_VS&&_VS.fields&&_VS.fields.find(function(x){return x.key===k;}))||{min:0,max:999};};
+  const lo=function(k){return fld(k).min;};
+  const hi=function(k){return fld(k).max;};
   L.push('You design Islamic geometric VFX (SVG) presets for a Remotion dua-video app. Output: ONLY a JSON array. Har element EITHER pattern hai ya plugin:');
   L.push('');
-  L.push('PATTERN: {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":16-256,"strokeWidth":0.25-8,"colorToken":"'+VFX_TOKENS+'","alpha":0.05-1,"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB"(optional — sirf solidColor token ke liye),"breathFrames":0-1000,"breathAmpl":0-0.25,"seedSalt":0-999,"bandSize":24-160,"frameEnabled":true|false(optional, default true)}');
+  L.push('PATTERN: {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":'+lo('tileSize')+'-'+hi('tileSize')+',"strokeWidth":'+lo('strokeWidth')+'-'+hi('strokeWidth')+',"colorToken":"'+VFX_TOKENS+'","alpha":'+lo('alpha')+'-'+hi('alpha')+',"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB"(sirf zaruri jab colorToken="solid"; warna omit),"breathFrames":0-'+hi('breathFrames')+',"breathAmpl":0-'+hi('breathAmpl')+',"seedSalt":0-'+hi('seedSalt')+',"bandSize":'+lo('bandSize')+'-'+hi('bandSize')+'}');
   L.push('  id mat bhejo — server label se unique id khud banayega.');
   L.push('');
-  L.push('PLUGIN (existing pattern ko specific dua(s) par attach karo): {"type":"plugin","label":"...","match":["dua_id_1","dua_id_2"],"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{poora pattern params — keys sirf ye: '+VFX_OVR+'}}');
+  L.push('PLUGIN (existing pattern ko specific dua(s) par attach karo): {"type":"plugin","label":"...","match":["dua_id_1","dua_id_2"],"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{...} — overrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
   L.push('');
   L.push('HARD RULES:');
   L.push('1. SIRF JSON array output do — koi extra text, markdown, ya explanation nahi.');
-  L.push('2. zones mein "top" aur "frame" ek sath allowed NAHI (exclusive).');
-  L.push('3. solidColor sirf #RRGGBB hex ho; transparency ke liye "alpha" field use karo.');
-  L.push('4. Har number documented range ke andar ho (yaad raho: zyada 1 band wale me seedSalt 0-999).');
+  L.push('2. zones mein "'+VFX_ZX+'" ek sath allowed NAHI (exclusive).');
+  L.push('3. colorToken SIRF "'+VFX_TOKENS+'" mein se ho; "solid" token par solidColor #RRGGBB ZARURI hai.');
+  L.push('4. Har number documented range ke andar ho.');
   L.push('5. DEDUP CHECKER RUNGEGA — ye ALREADY-REGISTERED signatures duplicate/very-similar mat banao:');
   if(r&&r.indexes){
     L.push('   REGISTERED patterns ('+(r.patterns||[]).length+'):');

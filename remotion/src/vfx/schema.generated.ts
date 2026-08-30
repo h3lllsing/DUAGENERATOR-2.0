@@ -83,7 +83,13 @@ export const VFX_SCHEMA = {
     "enums": {
       "kind": [
         "girih-band",
-        "arabesque-corners"
+        "girih-corners",
+        "arabesque-strip",
+        "arabesque-corners",
+        "bead-band",
+        "starfield-dots",
+        "meander-band",
+        "geometric-rosette"
       ],
       "colorToken": [
         "accent",

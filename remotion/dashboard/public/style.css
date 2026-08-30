@@ -87,6 +87,11 @@ body.expert .aibtn.js-expert{display:inline-flex}
 .modal-bg.show{display:flex}
 .modal{background:#11161f;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;width:min(520px,94vw);max-height:92vh;overflow-y:auto;position:relative}
 .modal h2{font-size:16px;margin-bottom:12px}
+.modal .vfx-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.modal .vfx-head h2{margin-bottom:0}
+.modal .vfx-x{flex:0 0 auto;min-width:92px;padding:8px 14px;background:#7a2435;border:1px solid rgba(255,255,255,.14);border-radius:8px;color:#ffe9ec;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.modal .vfx-x:hover{background:#93303f;transform:translateY(-1px)}
+.modal .vfx-x:active{transform:translateY(0)}
 .modal label{display:block;margin-bottom:10px;font-size:13px;color:#8b949e}
 .modal label b{color:#e8e6e3;font-weight:600}
 .modal input[type=text],.modal input[type=number],.modal input[type=password],.modal textarea,.modal select{width:100%;margin-top:4px;padding:8px 10px;background:#0d1015;border:1px solid rgba(255,255,255,.08);border-radius:8px;color:#e8e6e3;font-size:13px}

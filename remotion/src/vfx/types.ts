@@ -3,7 +3,15 @@
 // lookSpec.vfx me dalta hai; Remotion sirf props se render karta hai —
 // koi runtime fs nahi, pure deterministic.
 
-export type VfxPatternKind = 'girih-band' | 'arabesque-corners';
+export type VfxPatternKind =
+  | 'girih-band'
+  | 'girih-corners'
+  | 'arabesque-strip'
+  | 'arabesque-corners'
+  | 'bead-band'
+  | 'starfield-dots'
+  | 'meander-band'
+  | 'geometric-rosette';
 
 export type VfxTileZone = 'top' | 'bottom' | 'frame' | 'corners';
 

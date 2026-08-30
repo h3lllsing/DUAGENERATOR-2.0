@@ -8,7 +8,10 @@
       "strokeWidth": 1.4,
       "colorToken": "accent",
       "alpha": 0.5,
-      "zones": ["frame", "corners"],
+      "zones": [
+        "frame",
+        "corners"
+      ],
       "opacity": 0.5,
       "bandSize": 64,
       "breathFrames": 0,
@@ -22,17 +25,38 @@
       "strokeWidth": 1.6,
       "colorToken": "glowColor",
       "alpha": 0.6,
-      "zones": ["corners"],
+      "zones": [
+        "corners"
+      ],
       "opacity": 0.45,
       "bandSize": 84,
       "breathFrames": 0,
       "breathAmpl": 0,
       "seedSalt": 3
+    },
+    {
+      "id": "royal-girih-frame",
+      "kind": "girih-band",
+      "tileSize": 64,
+      "strokeWidth": 2,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 180,
+      "breathAmpl": 0.08,
+      "seedSalt": 112,
+      "label": "Royal Girih Frame"
     }
   ],
   "plugins": [
     {
-      "match": ["qadr_ki_raat_ki_dua"],
+      "match": [
+        "qadr_ki_raat_ki_dua"
+      ],
       "frameCustomId": "girih-sigil",
       "styleOverrides": {
         "cornerSize": 70,
@@ -43,14 +67,19 @@
       }
     },
     {
-      "match": ["dushman_se_hifazat"],
+      "match": [
+        "dushman_se_hifazat"
+      ],
       "frameCustom": {
         "kind": "arabesque-corners",
         "tileSize": 120,
         "strokeWidth": 1.6,
         "colorToken": "particleColor",
         "alpha": 0.5,
-        "zones": ["frame", "corners"],
+        "zones": [
+          "frame",
+          "corners"
+        ],
         "opacity": 0.4,
         "bandSize": 72,
         "breathFrames": 0,
@@ -60,6 +89,15 @@
       "styleOverrides": {
         "cornerOpacity": 1.15
       }
+    },
+    {
+      "match": [
+        "subah_ki_dua_1",
+        "subah_ki_dua_2"
+      ],
+      "label": "Morning Prayer Aura",
+      "frameCustomId": "arabesque-veil",
+      "id": "morning-prayer-aura"
     }
   ]
 }
