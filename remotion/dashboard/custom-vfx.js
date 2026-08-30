@@ -621,19 +621,13 @@ function importBatch(PROJECT, opts) {
       }
 
       let match;
-      if (item.match === '*') {
+      if (!item.match || item.match === '' || item.match === '*') {
         match = '*';
       } else if (Array.isArray(item.match) && item.match.length) {
         match = item.match.map((m) => String(m)).filter((m) => /^[a-z0-9_\-]{1,80}$/.test(m));
-        if (!match.length) {
-          results.push({index: i, type: 'plugin', status: 'invalid',
-            reason: 'plugin.match empty ya bad ids'});
-          continue;
-        }
+        if (!match.length) match = '*'; // fallback if no valid IDs remain
       } else {
-        results.push({index: i, type: 'plugin', status: 'invalid',
-          reason: 'plugin.match required (* ya id array)'});
-        continue;
+        match = '*'; // fail-safe default
       }
 
       const entry = {match};
