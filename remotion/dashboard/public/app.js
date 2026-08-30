@@ -1168,7 +1168,10 @@ function vfxPromptText(){
     L.push('   REGISTERED patterns ('+(r.patterns||[]).length+'):');
     for(const p of (r.patterns||[])) L.push('     - "'+p.id+'" kind='+((p.descriptor&&p.descriptor.kind)||'?')+' zones='+JSON.stringify((p.descriptor&&p.descriptor.zones)||[]));
     L.push('   REGISTERED plugins ('+(r.plugins||[]).length+'):');
-    for(const p of (r.plugins||[])) L.push('     - "'+p.id+'" match='+((p.plugin&&p.plugin.match)||[]).join(','));
+    for(const p of (r.plugins||[])){
+      const m=p.plugin&&p.plugin.match;
+      L.push('     - "'+p.id+'" match='+(Array.isArray(m)?m.join(','):(m||'any')));
+    }
   }
   L.push('');
   L.push('Output: [ {pehla design}, {doosra design}, ... ] (sirf 6 types — unknown type reject hoga)');
