@@ -28,7 +28,8 @@ TESTS_DIR = os.path.join(BASE_DIR, "tests")
 # ============================================================
 VIDEO_WIDTH = 1080
 VIDEO_HEIGHT = 1920
-VIDEO_FPS = 60  # Smooth playback for YouTube Shorts
+VIDEO_FPS = 45  # Smooth playback for YouTube Shorts
+BACKGROUND_PREFER_VIDEO = True  # stock video backgrounds over stills jab available hon
 VIDEO_DURATION = 18  # seconds (15-20 range)
 
 # VIDEO-002: Product duration specification for YouTube Shorts.

@@ -203,7 +203,10 @@ def _bg_quality_ok(src_path, is_video):
     w, h = _probe_stream(src_path)
     # Shorts 1080x1920 ke liye portrait cover: smallest side bhi HD honi
     # chahiye taake upscale blur na ho (540p stock => reject).
-    min_dim = 800
+    # Videos: portrait 540x960 stock motion backgrounds accept hote hain
+    # (dark scrim + particles ke niche upscale softness negligible), images
+    # strict 800 par rehte hain.
+    min_dim = 540 if is_video else 800
     if min(w, h) < min_dim:
         return False
     if is_video:
@@ -237,7 +240,10 @@ def resolve_bg(dua):
         return None, None
 
     excluded = set()
-    sel = reg.select_background(dua_id, category, exclude_ids=tuple(excluded))
+    prefer_video = bool(getattr(project_config, "BACKGROUND_PREFER_VIDEO", True))
+    sel = reg.select_background(
+        dua_id, category, exclude_ids=tuple(excluded),
+        prefer_video=prefer_video)
     src_path = ""
     while sel.get("kind") == "asset":
         p = sel.get("path", "")
@@ -359,7 +365,7 @@ def main(dua_id="rabbana_hasanah"):
         "dua_id": dua_id,
         "title": dua["title"],
         "reference": dua["reference"],
-        "fps": getattr(project_config, "VIDEO_FPS", 60),
+        "fps": getattr(project_config, "VIDEO_FPS", 45),
         "width": 1080,
         "height": 1920,
         "totalDuration": round(total, 3),

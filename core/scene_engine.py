@@ -63,7 +63,7 @@ except Exception:
 # ----------------------------------------------------------------------
 CANVAS_WIDTH = 1080
 CANVAS_HEIGHT = 1920
-DEFAULT_FPS = 60
+DEFAULT_FPS = 45
 
 # Formal content safe rectangle (x0, y0, x1, y1). Critical Arabic/Urdu/title
 # text must ALWAYS lie fully inside this rectangle.

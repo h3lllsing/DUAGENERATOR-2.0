@@ -2,7 +2,7 @@
  "dua_id": "tashahhud_audhu",
  "title": "Tashahhud Ke Baad Ki Dua",
  "reference": "Sahih Muslim 588",
- "fps": 60,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 25.11,
@@ -321,8 +321,8 @@
   "arabicEnd": 9.816,
   "urduStart": 11.345
  },
- "background": "backgrounds/tashahhud_audhu.jpg",
- "backgroundKind": "image",
+ "background": "backgrounds/tashahhud_audhu.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

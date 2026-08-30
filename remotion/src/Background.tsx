@@ -4,7 +4,7 @@ import {
   continueRender,
   delayRender,
   interpolate,
-  OffthreadVideo,
+  Video,
   spring,
   staticFile,
   useCurrentFrame,
@@ -1671,8 +1671,10 @@ export const Background: React.FC<{
         <AbsoluteFill style={{background: theme.bgGradient}} />
         {bgImage && bgKind === 'video' && (
           <div style={{position: 'absolute', inset: 0, overflow: 'hidden'}}>
-            <OffthreadVideo
+            <Video
               src={bgImage}
+              loop
+              muted
               style={{
                 position: 'absolute',
                 inset: 0,

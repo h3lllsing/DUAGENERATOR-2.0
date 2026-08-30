@@ -40,6 +40,13 @@ ALLOWED_LICENSES = frozenset({
     "PEXELS LICENSE",
 })
 
+VIDEO_EXTS = (".mp4", ".webm", ".mov")
+
+
+def is_video_file(name: str) -> bool:
+    """True when the asset file name points to a video container."""
+    return str(name).lower().endswith(VIDEO_EXTS)
+
 
 def normalize_license(license_name) -> str:
     """Normalize a license string for comparison (uppercase, whitespace-folded)."""
@@ -238,13 +245,17 @@ class AssetRegistry:
         return score
 
     def select_background(self, dua_id: str, category: Optional[str] = None,
-                          exclude_ids=(), preferred_theme: Optional[str] = None) -> dict:
+                          exclude_ids=(), preferred_theme: Optional[str] = None,
+                          prefer_video: Optional[bool] = None) -> dict:
         """
         Deterministically choose a background for a dua.
 
         - Seed is derived from dua_id (reproducible across runs).
         - Assets are scored by category match (specific > general).
         - Among the best-scoring loadable assets, one is picked by the seed.
+        - prefer_video=True restricts the pool to video assets first; when no
+          video candidate survives (all excluded/loadable-videos exhausted) it
+          falls back to the full image pool instead of going procedural.
         - If no loadable asset matches (or none exists), returns a
           procedural fallback with a deterministic theme.
 
@@ -254,36 +265,42 @@ class AssetRegistry:
         """
         dua_id = (dua_id or "default").strip()
         excluded = set(exclude_ids or ())
+        loadable = self.get_loadable_assets()
+        vids = [a for a in loadable if is_video_file(a.file)]
 
-        candidates = [a for a in self.get_loadable_assets()
-                      if a.id not in excluded]
-
-        if candidates:
-            scored = [(self._category_score(a, category), a) for a in candidates]
+        def _pick(cands):
+            cands = [a for a in cands if a.id not in excluded]
+            if not cands:
+                return None
+            scored = [(self._category_score(a, category), a) for a in cands]
             best_score = max(score for score, _ in scored)
-            if best_score > 0:
-                pool = [a for score, a in scored if score == best_score]
-                rng = random.Random(dua_id)
-                rng.shuffle(pool)
-                chosen = pool[0]
-                return {
-                    "kind": "asset",
-                    "asset_id": chosen.id,
-                    "path": chosen.resolve_path(self.backgrounds_dir),
-                    "license": chosen.license,
-                    "reason": (
-                        f"Selected approved background '{chosen.id}' "
-                        f"(category score {best_score})."
-                    ),
-                }
-            reason = (
-                f"No approved background matches the dua category "
-                f"'{category or 'general'}'; using procedural fallback."
-            )
-        else:
-            reason = ("No approved background assets are loadable; "
-                      "using procedural fallback.")
+            if best_score <= 0:
+                return None
+            pool = [a for score, a in scored if score == best_score]
+            rng = random.Random(dua_id)
+            rng.shuffle(pool)
+            return pool[0]
 
+        chosen = None
+        if prefer_video and vids:
+            chosen = _pick(vids)
+        if chosen is None:
+            chosen = _pick(loadable)
+        if chosen is not None:
+            return {
+                "kind": "asset",
+                "asset_id": chosen.id,
+                "path": chosen.resolve_path(self.backgrounds_dir),
+                "license": chosen.license,
+                "reason": (
+                    f"Selected approved background '{chosen.id}' "
+                    f"(category score)."
+                ),
+            }
+        reason = (
+            f"No approved background matches the dua category "
+            f"'{category or 'general'}'; using procedural fallback."
+        )
         theme = self._pick_theme(dua_id, preferred_theme)
         return {"kind": "procedural", "theme": theme, "reason": reason}
 
