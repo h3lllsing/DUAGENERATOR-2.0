@@ -1368,23 +1368,27 @@ const ChromaticEdges: React.FC<{strength: number}> = ({strength}) => (
 );
 
 // Displacement shimmer: garmi ki lehrein / paani ki lahrein / resham
-// SVG feTurbulence+feDisplacementMap - Remotion har frame fresh render
-// karta hai is liye baseFrequency/seed ko frame se animate karte hain.
+// SVG feTurbulence+feDisplacementMap - turbulence seed/baseFrequency frozen
+// (noise texture ek baar ban jata hai), motion siraf cheap scalar
+// displacement scale + transform se aati hai (deterministic).
 const ShimmerVeil: React.FC<{mode: string; strength: number}> = ({
   mode,
   strength,
 }) => {
   const frame = useCurrentFrame();
-  const scale =
+  const baseScale =
     mode === 'heat'
       ? 26 * strength
       : mode === 'ripple'
         ? 34 * strength
         : 14 * strength;
-  const bfX = mode === 'heat' ? 0.012 : mode === 'ripple' ? 0.006 : 0.004;
-  const bfYBase = mode === 'heat' ? 0.09 : mode === 'ripple' ? 0.02 : 0.012;
-  const bfY = bfYBase * (1 + 0.18 * Math.sin(frame / 17));
-  const seed = 7 + (frame % 5);
+  const scale = baseScale * (1 + 0.12 * Math.sin(frame / 23));
+  const BF =
+    mode === 'heat'
+      ? '0.012 0.09'
+      : mode === 'ripple'
+        ? '0.006 0.02'
+        : '0.004 0.012';
   const bgPattern =
     mode === 'heat'
       ? 'repeating-linear-gradient(180deg, rgba(255,255,255,0.10) 0 6px, rgba(255,255,255,0.02) 6px 22px)'
@@ -1403,9 +1407,9 @@ const ShimmerVeil: React.FC<{mode: string; strength: number}> = ({
         >
           <feTurbulence
             type="fractalNoise"
-            baseFrequency={`${bfX} ${bfY.toFixed(4)}`}
+            baseFrequency={BF}
             numOctaves={2}
-            seed={seed}
+            seed={7}
           />
           <feDisplacementMap in="SourceGraphic" scale={scale} />
         </filter>
@@ -1425,11 +1429,17 @@ const ShimmerVeil: React.FC<{mode: string; strength: number}> = ({
   );
 };
 
+// 40 pre-computed fractal-noise data-URIs (seeds 100..139) — module-load
+// par ek baar banti hain, frame-path me sirf index chunta hai
+const NOISE_VEIL_URIS = Array.from({length: 40}, (_, i) => {
+  const s = 100 + i;
+  return `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='${s}'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+});
+
 // Procedural Perlin-noise veil (feTurbulence texture, soft-light)
 const NoiseVeil: React.FC<{opacity: number}> = ({opacity}) => {
   const frame = useCurrentFrame();
-  const s = 100 + (frame % 40);
-  const url = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='${s}'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+  const url = NOISE_VEIL_URIS[frame % 40];
   return (
     <div
       style={{
@@ -1583,13 +1593,14 @@ export const Background: React.FC<{
           key={i}
           style={{
             position: 'absolute',
-            left: x,
-            top: yDrift,
+            left: 0,
+            top: 0,
             width: p.size,
             height: p.size,
             borderRadius: radius,
             clipPath: clip,
-            transform: rot,
+            transform:
+              `translate3d(${x}px, ${yDrift}px, 0)` + (rot ? ` ${rot}` : ''),
             background: bgColor,
             opacity: alpha,
             filter: p.blur > 0 ? `blur(${p.blur.toFixed(2)}px)` : undefined,

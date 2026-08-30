@@ -573,12 +573,30 @@ export const DuaVideo: React.FC<{
             padding: '0 115px',
             opacity: arabicOpacity,
             transform: `translateY(${arabicY}px) scale(${zoomPunch})`,
-            filter:
-              `blur(${phaseBlur.toFixed(2)}px)` +
-              ' drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' +
-              ` drop-shadow(0px 0px 8px ${accentGlow})`,
+            filter: phaseBlur > 0 ? `blur(${phaseBlur.toFixed(2)}px)` : undefined,
           }}
         >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `radial-gradient(ellipse 60% 46% at 50% 50%, ${
+                theme.decor === 'paper'
+                  ? 'rgba(90,60,20,0.30)'
+                  : 'rgba(0,0,0,0.42)'
+              } 0%, transparent 72%)`,
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `radial-gradient(ellipse 55% 42% at 50% 50%, ${accentGlow} 0%, transparent 68%)`,
+              opacity: 0.5,
+              pointerEvents: 'none',
+            }}
+          />
           <KaraokeText
             words={data.arabicWords}
             fontSize={arSize}
@@ -602,14 +620,32 @@ export const DuaVideo: React.FC<{
             padding: `0 115px ${Math.round(height * 0.09)}px 115px`,
             opacity: urduOpacity,
             transform: `translateY(${urduY}px) scale(${zoomPunch})`,
-            filter:
-              `blur(${phaseBlur.toFixed(2)}px)` +
-              ' drop-shadow(0px 4px 12px rgba(0,0,0,0.85))' +
-              ` drop-shadow(0px 0px 8px ${accentGlow})`,
+            filter: phaseBlur > 0 ? `blur(${phaseBlur.toFixed(2)}px)` : undefined,
             maskImage: clockWipeMask,
             WebkitMaskImage: clockWipeMask,
           }}
         >
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `radial-gradient(ellipse 60% 46% at 50% 50%, ${
+                theme.decor === 'paper'
+                  ? 'rgba(90,60,20,0.30)'
+                  : 'rgba(0,0,0,0.42)'
+              } 0%, transparent 72%)`,
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: `radial-gradient(ellipse 55% 42% at 50% 50%, ${accentGlow} 0%, transparent 68%)`,
+              opacity: 0.5,
+              pointerEvents: 'none',
+            }}
+          />
           <KaraokeText
             words={data.urduWords}
             fontSize={urSize}
