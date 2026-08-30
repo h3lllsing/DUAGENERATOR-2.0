@@ -28,6 +28,16 @@ URDU_WARN_WORDS = 60   # comfort limit (VIDEO-002 40s budget)
 URDU_HARD_WORDS = 75   # server /api/add-dua cap
 ARABIC_HARAKAT_MIN_LEN = 15  # isse lambi text me harakat honi chahiye
 
+# PHASE 2 P0 · theme-aware variance floors. Light/soft scenes (manuscript
+# paper preset, bright photo/sky backgrounds) keep subtle drift, so the harsh
+# 1.0 floor falsely flags them as static. Light scenes -> 0.3 floor; rich/dark
+# scenes keep the strict 1.0 gate (encoding noise < 0.5 caught either way).
+LIGHT_VAR_FLOOR = 0.30
+DARK_VAR_FLOOR = 1.00
+LIGHT_THEMES = ("manuscript",)   # only light palette in remotion/src/themes.ts
+BRIGHTNESS_LIGHT_CUE = 128.0     # avg gray 0-255: above = light scene
+MANIFEST_DIR = os.path.join(PROJECT_ROOT, "remotion", "src", "data")
+
 _DIACRITICS = re.compile(r"[\u064b-\u0652\u0670]")
 
 
@@ -35,6 +45,19 @@ def _norm_arabic(s):
     stripped = _DIACRITICS.sub("", s or "")
     stripped = stripped.replace("\u0640", "")
     return re.sub(r"\s+", " ", stripped).strip()
+
+
+def _manifest_template(video_path):
+    """Sidecar manifest (remotion/src/data/<dua_id>.json) ka template read."""
+    stem = os.path.splitext(os.path.basename(video_path))[0]
+    mpath = os.path.join(MANIFEST_DIR, stem + ".json")
+    if not os.path.exists(mpath):
+        return None
+    try:
+        with open(mpath, encoding="utf-8") as f:
+            return (json.load(f).get("template") or "").strip().lower()
+    except (OSError, ValueError):
+        return None
 
 
 def _load_duas():
@@ -191,10 +214,18 @@ def main():
         checks["brightness_min"] = round(lo, 1)
         checks["brightness_max"] = round(hi, 1)
         bright_ok = all(8 < m < 247 for m in means)
-        # Light themes me subtle animation se variance kam hota hai;
-        # 1.0 threshold static-render (encoding noise < 0.5) se alag karta hai
-        var_ok = (hi - lo) >= 1.0
+        # PHASE 2 P0 · theme-aware variance: manuscript/light scenes use a
+        # 0.3 floor (subtle paper/aurora drift is valid), dark scenes keep the
+        # 1.0 gate. Sidecar may be cleaned up post-upload -> brightness cue.
+        tpl = _manifest_template(path)
+        light = bool(tpl and tpl in LIGHT_THEMES)
+        if not tpl:
+            light = (sum(means) / len(means)) >= BRIGHTNESS_LIGHT_CUE
+        var_floor = LIGHT_VAR_FLOOR if light else DARK_VAR_FLOOR
+        var_ok = (hi - lo) >= var_floor
         checks["bright_ok"] = bright_ok
+        checks["template"] = tpl or "unknown"
+        checks["variance_floor"] = round(var_floor, 2)
         checks["variance_ok"] = var_ok
         if not bright_ok:
             reasons.append("frame bohot dark/bright hai (blank render?)")

@@ -221,7 +221,10 @@ def main():
             failed_ids.append(vid)
             print("[{}/{}] FAIL {}".format(i, len(todo), vid))
             print("   ", str(e).replace("\n", " | ")[:400])
-        time.sleep(0.4)
+        # PHASE 2 P0: throttle cut 0.4s -> 0.1s. Still-render subprocess
+        # exit is already fully awaited (blocking wait), so 0.1s only spaces
+        # sequential chrome launches without starving process monitoring.
+        time.sleep(0.1)
 
     print("\n=== SUMMARY === {:.1f}s total | OK:{} FAIL:{} "
           "SKIP(done):{} ARCHIVED:{} UNMAPPED:{}".format(
