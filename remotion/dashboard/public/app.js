@@ -1,5 +1,5 @@
 let duas=[], busy=false, searchTerm='', activeCat='All';
-let forceFlags={}, lastGridKey='', prevStep=null, barHidden=false, editingId=null, jobDua='';
+let forceFlags={}, lastGridKey='', prevStep=null, barHidden=false, editingId=null, jobDua='', prevQueueActive=false, autoHideBarT=null;
 const _AUTH=(window.AUTH_TOKEN||'');
 const _origFetch=window.fetch;
 window.fetch=function(url,opts){
@@ -417,7 +417,7 @@ function render(){
     el.innerHTML=thumb
       +'<div class="card-body">'
         +'<div class="card-ref">'+(d.reference||'&nbsp;')+'</div>'
-        +'<div class="card-title">'+d.title+'</div>'
+        +'<div class="card-title">'+escHtml(d.title)+'</div>'
         +'<div class="card-meta">'
           +(vid?'<span class="b ok">Done</span>':(d.audioReady?'<span class="b warn">Pending</span>':'<span class="b no">No Audio</span>'))
           +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
@@ -443,6 +443,81 @@ function toast(msg,type){
   document.getElementById('toasts').appendChild(t);
   setTimeout(()=>t.remove(),5000);
 }
+// ── Live dedup alerts (add/edit form) ──
+function normDedup(s){return String(s==null?'':s).replace(/\s+/g,' ').trim().toLowerCase();}
+function normArDedup(s){return normDedup(s).replace(/[\u064B-\u065F\u0670\u0640]/g,'');}
+function simDedup(a,b){
+  const len=Math.max(a.length,b.length);
+  if(!len)return 0;
+  let m=0;
+  for(let i=0;i<a.length;i++)if(a[i]===b[i])m++;
+  return m/len;
+}
+function dedupHit(field,val){
+  const v=(field==='arabic'?normArDedup:normDedup)(val);
+  if(v.length<3)return null;
+  const norm=(field==='arabic'?normArDedup:normDedup);
+  for(const d of duas){
+    if(editingId&&d.id===editingId)continue;
+    const t=norm(d[field]);
+    if(!t||t.length<3)continue;
+    if(t===v||simDedup(v,t)>=0.90)return d;
+  }
+  return null;
+}
+function checkDedupLive(){
+  const alert=document.getElementById('dedupalert');
+  if(!alert)return;
+  const checks=[['title','f_title'],['arabic','f_arabic'],['urdu','f_urdu']];
+  for(const c of checks){
+    const el=document.getElementById(c[1]);
+    const v=el&&el.value;
+    if(v&&v.trim()){
+      const hit=dedupHit(c[0],v.trim());
+      if(hit){
+        const fieldLabel=c[0]==='title'?('title "'+hit.title+'"'):(c[0]==='arabic'?'Arabic text':'Urdu tarjuma');
+        alert.style.display='block';
+        alert.innerHTML='&#9888;&#65039; Duplicate! <b>'+escHtml(hit.title)+'</b> ('+hit.id+') me ye '+fieldLabel+' already maujood hai';
+        return;
+      }
+    }
+  }
+  alert.style.display='none';
+}
+function ensureDedupAlert(){
+  let el=document.getElementById('dedupalert');
+  if(el)return el;
+  const mb=document.querySelector('#modalbg .mbtns');
+  if(!mb)return null;
+  el=document.createElement('div');
+  el.id='dedupalert';
+  el.className='dedupalert';
+  el.style.cssText='margin:12px 0 0;padding:10px 12px;border-radius:8px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.35);color:#e6c46a;font-size:12.5px;line-height:1.5;display:none';
+  mb.parentNode.insertBefore(el,mb);
+  return el;
+}
+let dedupT=null;
+function checkDedupLiveDebounced(){
+  if(dedupT)clearTimeout(dedupT);
+  dedupT=setTimeout(()=>{dedupT=null;checkDedupLive();},350);
+}
+(function(){
+  ['f_title','f_arabic','f_urdu'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',checkDedupLiveDebounced);
+  });
+})();
+function scheduleBarHide(){
+  if(autoHideBarT)clearTimeout(autoHideBarT);
+  autoHideBarT=setTimeout(()=>{
+    autoHideBarT=null;
+    if(!busy){
+      barHidden=true;
+      const b=document.getElementById('jobbar');
+      if(b)b.classList.remove('show');
+    }
+  },6000);
+}
 function openPlayer(enc){
   const name=decodeURIComponent(enc);
   const v=document.getElementById('pvid');
@@ -462,7 +537,10 @@ async function poll(){
   try{
     const j=await (await fetch('/api/status')).json();
     window.jobDua=j.duaId; busy=j.running;
-    if(j.running)barHidden=false;
+    if(j.running){
+      barHidden=false;
+      if(autoHideBarT){clearTimeout(autoHideBarT);autoHideBarT=null;}
+    }
     const showBar=j.running||(!barHidden&&(j.step==='done'||!!j.error));
     document.getElementById('jobbar').classList.toggle('show',showBar);
     document.getElementById('jstep').textContent=(j.step||'-').toUpperCase();
@@ -483,7 +561,9 @@ async function poll(){
     if(j.queue&&j.queue.active){
       jc.style.display='inline-block';
       jb.style.display='inline';
-      jb.textContent=(j.queue.idx)+'/'+j.queue.total+
+      const qt=j.queue.total||0;
+      const qp=qt?Math.round((j.queue.done||0)*100/qt):0;
+      jb.textContent=qp+'% '+(j.queue.idx)+'/'+qt+
         ' \u2705'+j.queue.done+' \u274C'+(j.queue.failed?j.queue.failed.length:0)+
         (j.queue.skipped&&j.queue.skipped.length?(' \u23ED'+j.queue.skipped.length):'')+
         ' | '+(j.duaId||'-');
@@ -492,12 +572,23 @@ async function poll(){
     if(prevStep && prevStep!=='done' && j.step==='done' && !j.running){
       toast('\u2705 '+(j.lastVideo||'Video').split('\\').pop()+' ready!','ok');
       lastGridKey=''; load();
+      scheduleBarHide();
     }
     if(prevStep && prevStep!=='failed' && j.step==='failed' && !j.running){
       toast('\u274C Render failed: '+j.error,'err');
       lastGridKey=''; load();
+      scheduleBarHide();
     }
     prevStep=j.step;
+    const qa=!!(j.queue&&j.queue.active);
+    if(prevQueueActive&&!qa){
+      const qt=(j.queue&&j.queue.total)||0;
+      const qd=(j.queue&&j.queue.done)||0;
+      toast(qt?('\u26A1 Batch complete: '+qd+'/'+qt+' done'):'\u26A1 Batch complete','ok');
+      lastGridKey=''; load();
+      scheduleBarHide();
+    }
+    prevQueueActive=qa;
   }catch(e){}
 }
 document.getElementById('themegrid').addEventListener('click',e=>{
@@ -834,7 +925,7 @@ function _closeTopModal(){
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){e.preventDefault();_closeTopModal();}
 });
-function openForm(){ editingId=null; document.getElementById('modaltitle').innerHTML='&#10133; Nayi Dua Add Karo'; document.getElementById('f_bis').checked=true; document.getElementById('modalbg').classList.add('show'); _pushModal('form'); setMsg('',''); }
+function openForm(){ editingId=null; document.getElementById('modaltitle').innerHTML='&#10133; Nayi Dua Add Karo'; document.getElementById('f_bis').checked=true; document.getElementById('modalbg').classList.add('show'); _pushModal('form'); setMsg('',''); ensureDedupAlert(); checkDedupLive(); }
 const GEMINI_PROMPT=['Mujhe ek authentic Islamic dua ki details chahiye (Quran ya Sahih hadith se).',
 'Dua: [YAHAN DUA KA NAAM LIKHO]',
 '',
@@ -938,6 +1029,7 @@ function applyDua(o){
   closeAi();
   document.getElementById('modalbg').classList.add('show');
   _pushModal('form');
+  ensureDedupAlert(); checkDedupLive();
   const wc=(String(o.urdu||'').trim().match(/\\S+/g)||[]).length;
   toast('\u2728 Form bhar diya ('+wc+' words) - check karke SAVE dabao','ok');
 }
@@ -986,7 +1078,7 @@ async function saveDua(){
     editingId=null;
     setTimeout(()=>{closeForm(); load();},800);
   }
-  else setMsg(j.error||'Error','err');
+  else { setMsg(j.error||'Error','err'); ensureDedupAlert(); checkDedupLive(); }
 }
 poll(); setInterval(poll,3000); load(); setInterval(load,15000);
 document.getElementById('yt_mode').addEventListener('change',function(){

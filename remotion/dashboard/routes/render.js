@@ -1,12 +1,14 @@
 'use strict';
 /**
  * Render routes — extracted from server.js (v0.11 step 4b).
+ * Async I/O + strict input sanitization + graceful errors.
  * Factory: renderRoutes(deps) → handler(req, url, res) → boolean
  */
 module.exports = function renderRoutes(deps) {
   const {PROJECT, REMOTION, TEMP, OUT, DATA, PY, CHROME, FFMPEG, CFG_PATH,
     fs, path, crypto, spawn, process, send,
     lookspec, fxg, themeMap, cacheStore, saveCache, qcStore, saveQc} = deps;
+  const F = fs.promises;
 
   // ── Mutable state (shared by reference with server.js) ──
   const job = {running: false, duaId: null, step: '', percent: 0,
@@ -23,6 +25,24 @@ module.exports = function renderRoutes(deps) {
     'desertmirage', 'waterripple', 'silkmarble', 'cinemafocus',
     'auroranova', 'qadrtilt'];
 
+  // ── Graceful errors / helpers ──
+  function err(code, msg) { const e = new Error(msg); e.statusCode = code; return e; }
+  function parseJson(body, label) {
+    try { return JSON.parse(body || '{}'); }
+    catch (_) { throw err(400, 'bad JSON payload' + (label ? ' (' + label + ')' : '')); }
+  }
+  function cleanStr(v, max, label) {
+    const s = String(v == null ? '' : v)
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim();
+    if (s.length > max) {
+      const e = new Error(label + ' bahut lamba hai (max ' + max + ' chars)');
+      e.statusCode = 400;
+      throw e;
+    }
+    return s;
+  }
+  async function exists(p) { return F.access(p).then(() => true).catch(() => false); }
+
   // ── Helpers ──
   function log(line) {
     const ts = new Date().toLocaleTimeString();
@@ -31,16 +51,22 @@ module.exports = function renderRoutes(deps) {
     console.log(line);
   }
 
-  function writeAtomic(f, data) {
+  async function writeAtomic(f, data) {
     const tmp = f + '.' + Date.now() + '.tmp.json';
-    fs.writeFileSync(tmp, data, 'utf8');
-    fs.renameSync(tmp, f);
+    await F.writeFile(tmp, data, 'utf8');
+    await F.rename(tmp, f);
   }
 
-  function getDuaTitle(id) {
+  async function loadDuas() {
+    const txt = (await F.readFile(path.join(PROJECT, 'data', 'duas.json'), 'utf8'))
+      .replace(/^\uFEFF/, '');
+    const raw = JSON.parse(txt);
+    return Array.isArray(raw) ? raw : raw.duas;
+  }
+
+  async function getDuaTitle(id) {
     try {
-      const raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
-      const list = Array.isArray(raw) ? raw : raw.duas;
+      const list = await loadDuas();
       const d = list.find((x) => x.id === id);
       return d ? d.title : id;
     } catch (_) { return id; }
@@ -111,28 +137,28 @@ module.exports = function renderRoutes(deps) {
     });
   }
 
-  function readStylePreset() {
+  async function readStylePreset() {
     try {
-      const c = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'));
+      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
       return STYLE_PRESETS.includes(c.stylePreset) ? c.stylePreset : 'classic';
     } catch (_) { return 'classic'; }
   }
 
-  function readArtFxOverride() {
+  async function readArtFxOverride() {
     try {
-      const c = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'));
+      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
       return fxg.ART_SELECT.includes(c.artFx) && c.artFx !== 'auto' ? c.artFx : null;
     } catch (_) { return null; }
   }
-  function readSkyFxOverride() {
+  async function readSkyFxOverride() {
     try {
-      const c = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'));
+      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
       return fxg.SKY_SELECT.includes(c.skyFx) && c.skyFx !== 'auto' ? c.skyFx : null;
     } catch (_) { return null; }
   }
-  function readBorderFxOverride() {
+  async function readBorderFxOverride() {
     try {
-      const c = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'));
+      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
       return fxg.BORDER_SELECT.includes(c.borderFx) && c.borderFx !== 'auto' ? c.borderFx : null;
     } catch (_) { return null; }
   }
@@ -141,72 +167,73 @@ module.exports = function renderRoutes(deps) {
     return path.join(TEMP, duaId + '_look.json');
   }
 
-  function readLookMode() {
+  async function readLookMode() {
     try {
-      const c = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'));
+      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
       return c.lookMode === 'signature' ? 'signature' : 'random';
     } catch (_) { return 'random'; }
   }
 
-  function ensureLookSpec(duaId, dua) {
-    if (readLookMode() !== 'random') {
-      try { fs.rmSync(lookPathFor(duaId), {force: true}); } catch (_) {}
+  async function ensureLookSpec(duaId, dua) {
+    if ((await readLookMode()) !== 'random') {
+      try { await F.rm(lookPathFor(duaId), {force: true}); } catch (_) {}
       return null;
     }
     const lp = lookPathFor(duaId);
     try {
-      if (fs.existsSync(lp)) {
-        const j = JSON.parse(fs.readFileSync(lp, 'utf8').replace(/^\uFEFF/, ''));
+      if (await exists(lp)) {
+        const j = JSON.parse((await F.readFile(lp, 'utf8')).replace(/^\uFEFF/, ''));
         if (j && j.lookSpec) return j.lookSpec;
-        try { writeAtomic(lp, JSON.stringify({lookSpec: j}, null, 2)); } catch (_) {}
+        try { await writeAtomic(lp, JSON.stringify({lookSpec: j}, null, 2)); } catch (_) {}
         return j;
       }
     } catch (_) {}
     let theme = 'dark';
     try { theme = themeMap.resolve(dua || {id: duaId}); } catch (_) {}
     const spec = lookspec.buildLookSpec(theme);
-    const overrideFx = readArtFxOverride();
+    const overrideFx = await readArtFxOverride();
     if (overrideFx) spec.artFx = overrideFx;
-    const overrideSky = readSkyFxOverride();
+    const overrideSky = await readSkyFxOverride();
     if (overrideSky) spec.skyFx = overrideSky;
-    const overrideBorder = readBorderFxOverride();
+    const overrideBorder = await readBorderFxOverride();
     if (overrideBorder) spec.borderFx = overrideBorder;
-    const explicitSp = readStylePreset();
+    const explicitSp = await readStylePreset();
     if (explicitSp && explicitSp !== 'classic' && explicitSp !== 'auto') {
       spec.preset = explicitSp;
       spec.tint = (fxg.PRESET_TINTS || {})[explicitSp] || spec.tint || null;
     }
-    try { writeAtomic(lp, JSON.stringify({lookSpec: spec}, null, 2)); } catch (_) {}
+    try { await writeAtomic(lp, JSON.stringify({lookSpec: spec}, null, 2)); } catch (_) {}
     return spec;
   }
 
-  function stylePropsArgs(duaId) {
-    const sp = readStylePreset();
+  async function stylePropsArgs(duaId) {
+    const sp = await readStylePreset();
     if (sp && sp !== 'classic' && sp !== 'auto') {
       const f = path.join(TEMP, 'style_props.json');
       let inner = null;
       if (duaId) {
-        try { inner = JSON.parse(fs.readFileSync(lookPathFor(duaId), 'utf8')).lookSpec || null; } catch (_) {}
+        try { inner = JSON.parse((await F.readFile(lookPathFor(duaId), 'utf8'))).lookSpec || null; } catch (_) {}
       }
-      try { fs.writeFileSync(f, JSON.stringify(inner ? {stylePreset: sp, lookSpec: inner} : {stylePreset: sp})); } catch (_) {}
+      try { await F.writeFile(f, JSON.stringify(inner ? {stylePreset: sp, lookSpec: inner} : {stylePreset: sp})); } catch (_) {}
       return ['--props=' + f];
     }
     if (duaId) {
       const lf = lookPathFor(duaId);
-      if (fs.existsSync(lf)) return ['--props=' + lf];
+      if (await exists(lf)) return ['--props=' + lf];
     }
     return [];
   }
 
-  function npxRender(duaId, outName, onProgress) {
+  async function npxRender(duaId, outName, onProgress) {
+    const compId = duaId.replace(/_/g, '-');
+    const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
+    const propsArgs = await stylePropsArgs(duaId);
     return new Promise((resolve) => {
-      const compId = duaId.replace(/_/g, '-');
-      const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
       const args = ['render', compId,
         'out/' + outName,
         '--browser-executable=' + CHROME,
         '--crf=18', '--jpeg-quality=100', '--log=error',
-        ...stylePropsArgs(duaId)];
+        ...propsArgs];
       log('$ node remotion-cli ' + args.join(' '));
       const p = spawn(process.execPath, [cli, ...args], {cwd: REMOTION, windowsHide: true});
       if (job) job.child = p;
@@ -238,37 +265,38 @@ module.exports = function renderRoutes(deps) {
         '-c', 'copy',
         '-bsf:v', 'h264_metadata=colour_primaries=1:transfer_characteristics=1:matrix_coefficients=1',
         '-movflags', '+faststart', tmp], {cwd: REMOTION, windowsHide: true});
-      let err = '';
-      p.stderr.on('data', (d) => { err += d.toString(); });
+      let errStr = '';
+      p.stderr.on('data', (d) => { errStr += d.toString(); });
       p.on('close', (code) => {
-        if (code === 0 && fs.existsSync(tmp)) {
-          try {
-            fs.rmSync(vidPath, {force: true});
-            fs.renameSync(tmp, vidPath);
-            log('BT.709 tags applied (stream copy)');
-          } catch (e) {
-            try { fs.rmSync(tmp, {force: true}); } catch (_) {}
-            log('bt709 rename skip: ' + e.message);
+        (async () => {
+          if (code === 0 && (await exists(tmp))) {
+            try {
+              await F.rm(vidPath, {force: true});
+              await F.rename(tmp, vidPath);
+              log('BT.709 tags applied (stream copy)');
+            } catch (e) {
+              try { await F.rm(tmp, {force: true}); } catch (_) {}
+              log('bt709 rename skip: ' + e.message);
+            }
+          } else {
+            try { await F.rm(tmp, {force: true}); } catch (_) {}
+            log('bt709 tag skip (non-fatal): ' + errStr.slice(-160).trim());
           }
-        } else {
-          try { fs.rmSync(tmp, {force: true}); } catch (_) {}
-          log('bt709 tag skip (non-fatal): ' + err.slice(-160).trim());
-        }
-        resolve();
+        })().then(resolve);
       });
       p.on('error', () => { log('ffmpeg bt709 spawn error'); resolve(); });
     });
   }
 
-  function recordHistory(duaId, ok, extra) {
+  async function recordHistory(duaId, ok, extra) {
     try {
-      const arr = fs.existsSync(HIST_PATH)
-        ? JSON.parse(fs.readFileSync(HIST_PATH, 'utf8')) : [];
+      let arr = [];
+      try { arr = JSON.parse((await F.readFile(HIST_PATH, 'utf8')).replace(/^\uFEFF/, '')); } catch (_) { arr = []; }
       arr.unshift(Object.assign({
         ts: new Date().toISOString(), duaId,
-        title: getDuaTitle(duaId), result: ok ? 'PASS' : 'FAIL',
+        title: await getDuaTitle(duaId), result: ok ? 'PASS' : 'FAIL',
       }, extra || {}));
-      writeAtomic(HIST_PATH, JSON.stringify(arr.slice(0, 200), null, 2));
+      await writeAtomic(HIST_PATH, JSON.stringify(arr.slice(0, 200), null, 2));
     } catch (_) {}
   }
 
@@ -288,46 +316,47 @@ module.exports = function renderRoutes(deps) {
     }
   }
 
-  function cacheKey(dua) {
+  async function cacheKey(dua) {
     const aud = path.join(REMOTION, 'public', 'audio', dua.id + '.mp3');
-    const cfgPath = CFG_PATH;
     const sfxDir = path.join(REMOTION, 'public', 'sfx');
-    const sfx = ['whoosh.mp3', 'riser.mp3', 'tick.mp3']
-      .map((f) => fs.existsSync(path.join(sfxDir, f)) ? 1 : 0).join('');
+    const sfx = [];
+    for (const f of ['whoosh.mp3', 'riser.mp3', 'tick.mp3']) {
+      sfx.push((await exists(path.join(sfxDir, f))) ? 1 : 0);
+    }
     let audSig = 'none';
-    try { const st = fs.statSync(aud); audSig = st.mtimeMs + ':' + st.size; } catch (_) {}
+    try { const st = await F.stat(aud); audSig = st.mtimeMs + ':' + st.size; } catch (_) {}
     let cfg = '';
-    try { cfg = fs.readFileSync(cfgPath, 'utf8'); } catch (_) {}
+    try { cfg = await F.readFile(CFG_PATH, 'utf8'); } catch (_) {}
     return crypto.createHash('md5').update(
-      JSON.stringify(dua) + '|' + audSig + '|' + cfg + '|' + sfx).digest('hex');
+      JSON.stringify(dua) + '|' + audSig + '|' + cfg + '|' + sfx.join('')).digest('hex');
   }
 
   async function genThumb(duaId, outName, force) {
     try {
       const tname = duaId + '.png';
       const tpath = path.join(OUT, 'thumbs', tname);
-      if (!force && fs.existsSync(tpath)) return;
-      if (force && fs.existsSync(tpath)) fs.rmSync(tpath, {force: true});
+      if (!force && (await exists(tpath))) return;
+      if (force && (await exists(tpath))) await F.rm(tpath, {force: true});
       const legacy = path.join(OUT, 'thumbs', outName.replace(/\.mp4$/, '.png'));
-      if (!force && fs.existsSync(legacy)) {
-        fs.copyFileSync(legacy, tpath);
+      if (!force && (await exists(legacy))) {
+        await F.copyFile(legacy, tpath);
         return;
       }
       const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
       const compId = duaId.replace(/_/g, '-');
-      fs.mkdirSync(path.join(OUT, 'thumbs'), {recursive: true});
+      await F.mkdir(path.join(OUT, 'thumbs'), {recursive: true});
       try {
         const lf = lookPathFor(duaId);
-        if (fs.existsSync(lf)) {
-          const lk = JSON.parse(fs.readFileSync(lf, 'utf8')).lookSpec ||
-            JSON.parse(fs.readFileSync(lf, 'utf8'));
+        if (await exists(lf)) {
+          const raw = JSON.parse((await F.readFile(lf, 'utf8')).replace(/^\uFEFF/, ''));
+          const lk = raw.lookSpec || raw;
           log('THUMB LOOK: ' + [lk.preset, lk.frame, lk.camera].filter(Boolean).join('/'));
         }
       } catch (_) {}
       await run(process.execPath, [cli, 'still', compId,
         'out/thumbs/' + tname, '--frame=100',
         '--browser-executable=' + CHROME, '--log=error',
-        ...stylePropsArgs(duaId)]);
+        ...await stylePropsArgs(duaId)]);
     } catch (_) { log('thumb skip (non-fatal)'); }
   }
 
@@ -341,13 +370,12 @@ module.exports = function renderRoutes(deps) {
     return queue.cancelRequested || job.cancelFlag;
   }
 
-  function alreadyRendered(duaId) {
+  async function alreadyRendered(duaId) {
     try {
-      const raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
-      const list = Array.isArray(raw) ? raw : raw.duas;
+      const list = await loadDuas();
       const d = list.find((x) => x.id === duaId);
       if (!d) return false;
-      return fs.existsSync(path.join(OUT, safeTitle(d.title) + '.mp4'));
+      return await exists(path.join(OUT, safeTitle(d.title) + '.mp4'));
     } catch (e) { return false; }
   }
 
@@ -413,14 +441,13 @@ module.exports = function renderRoutes(deps) {
 
   // ── Core render logic ──
   async function doJob(duaId, force) {
-    const duas = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
-    const list = Array.isArray(duas) ? duas : duas.duas;
+    const list = await loadDuas();
     const dua = list.find((d) => d.id === duaId);
     const outName = safeTitle(dua && dua.title) + '.mp4';
     const vidPath = path.join(OUT, outName);
 
-    if (!force && fs.existsSync(vidPath)) {
-      const k = cacheKey(dua || {id: duaId});
+    if (!force && (await exists(vidPath))) {
+      const k = await cacheKey(dua || {id: duaId});
       const c = cacheStore[duaId];
       if (c && c.key === k && c.out === outName) {
         log('CACHE HIT: inputs unchanged - render skip');
@@ -438,7 +465,7 @@ module.exports = function renderRoutes(deps) {
 
     const arts = ['_ar.mp3', '_ur.mp3', '_ar_timing.jsonl', '_ur_timing.jsonl', '_merged.wav']
       .map((s) => path.join(TEMP, duaId + s));
-    const haveAudio = arts.every((p) => fs.existsSync(p));
+    const haveAudio = (await Promise.all(arts.map((p) => exists(p)))).every(Boolean);
 
     if (!haveAudio || force) {
       job.step = 'TTS + merge';
@@ -458,8 +485,8 @@ module.exports = function renderRoutes(deps) {
     if (cancelled()) throw new Error('Cancelled');
     if (code !== 0) throw new Error('manifest failed (exit ' + code + ')');
 
-    try { fs.rmSync(lookPathFor(duaId), {force: true}); } catch (_) {}
-    const lookSpec = ensureLookSpec(duaId, dua);
+    try { await F.rm(lookPathFor(duaId), {force: true}); } catch (_) {}
+    const lookSpec = await ensureLookSpec(duaId, dua);
     if (lookSpec) {
       const extras = [];
       if (lookSpec.textFx && lookSpec.textFx !== 'glide') extras.push('t:' + lookSpec.textFx);
@@ -480,7 +507,7 @@ module.exports = function renderRoutes(deps) {
     if (cancelled()) throw new Error('Cancelled');
     if (code !== 0) throw new Error('render failed (exit ' + code + ')');
 
-    if (!fs.existsSync(vidPath)) throw new Error('output missing: ' + outName);
+    if (!(await exists(vidPath))) throw new Error('output missing: ' + outName);
     await tagBt709(vidPath);
 
     job.step = 'qc';
@@ -488,7 +515,7 @@ module.exports = function renderRoutes(deps) {
     let qc = await qcCheck(duaId, vidPath);
     if (!qc.pass && !cancelled()) {
       log('QC FAIL - ek retry render ho raha hai');
-      try { fs.rmSync(vidPath, {force: true}); } catch (_) {}
+      try { await F.rm(vidPath, {force: true}); } catch (_) {}
       code = await npxRender(duaId, outName, (pct) => { job.percent = pct; });
       if (cancelled()) throw new Error('Cancelled');
       if (code !== 0) throw new Error('retry render failed (exit ' + code + ')');
@@ -501,7 +528,7 @@ module.exports = function renderRoutes(deps) {
     await genThumb(duaId, outName, true);
     if (cancelled()) throw new Error('Cancelled');
 
-    cacheStore[duaId] = {key: cacheKey(dua), out: outName};
+    cacheStore[duaId] = {key: await cacheKey(dua || {id: duaId}), out: outName};
     saveCache();
 
     job.step = 'metadata';
@@ -522,12 +549,12 @@ module.exports = function renderRoutes(deps) {
         await doJob(id, false);
         if (queue.cancelRequested) break;
         queue.done.push(id);
-        recordHistory(id, true, {look: job && job.lookSummary});
+        await recordHistory(id, true, {look: job && job.lookSummary});
       } catch (e) {
         const msg = String(e.message || e);
         if (msg === 'Cancelled' || queue.cancelRequested) break;
         queue.failed.push({id, error: msg});
-        recordHistory(id, false, {error: msg});
+        await recordHistory(id, false, {error: msg});
         log('BATCH item failed: ' + id + ' (' + msg + ') - aage barh rahe hain');
       }
       queue.idx++;
@@ -544,9 +571,9 @@ module.exports = function renderRoutes(deps) {
       (queue.skipped.length ? ', ' + queue.skipped.length + ' skipped' : ''));
   }
 
-  function startJob(duaId, force) {
+  async function startJob(duaId, force) {
     if (job.running || queue.active) return {ok: false, error: 'Job already running'};
-    if (!force && alreadyRendered(duaId)) {
+    if (!force && (await alreadyRendered(duaId))) {
       return {ok: false,
         error: 'Ye video pehle se RENDERED hai - dobara render se baked style/voice badal jayega. Force ke liye expert mode use karo'};
     }
@@ -554,12 +581,12 @@ module.exports = function renderRoutes(deps) {
     (async () => {
       try {
         await doJob(duaId, force);
-        recordHistory(duaId, true, {look: job && job.lookSummary});
+        await recordHistory(duaId, true, {look: job && job.lookSummary});
       } catch (e) {
         const msg = String(e.message || e);
         job.error = msg;
         job.step = msg === 'Cancelled' ? 'cancelled' : 'failed';
-        if (job.step === 'failed') recordHistory(duaId, false, {error: msg});
+        if (job.step === 'failed') await recordHistory(duaId, false, {error: msg});
         log((job.step === 'cancelled' ? 'CANCELLED: ' : 'FAILED: ') + msg);
       } finally {
         job.running = false;
@@ -568,7 +595,7 @@ module.exports = function renderRoutes(deps) {
     return {ok: true};
   }
 
-  function startVoiceJob(duaId, force) {
+  async function startVoiceJob(duaId, force) {
     if (job.running || queue.active) return {ok: false, error: 'Job already running'};
     Object.assign(job, {running: true, duaId, step: 'TTS + merge', percent: 0,
       logs: [], lastVideo: null, error: null, startedAt: Date.now()});
@@ -597,18 +624,40 @@ module.exports = function renderRoutes(deps) {
     return {ok: true};
   }
 
-  // ── Read body helper ──
-  function readBody(req, res, cb) {
-    let body = '';
-    req.on('data', (c) => {
-      if (body.length > 1e6) {
-        if (!res.headersSent) send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
-        setTimeout(() => { try { req.destroy(); } catch (e) {} }, 100);
-        return;
+  // ── Graceful route wrapper: converts any throw into a structured 4xx/5xx ──
+  function routeCatch(res, fn) {
+    return Promise.resolve().then(fn).catch((e) => {
+      const code = (e && e.statusCode) || 500;
+      const msg = (e && e.message) || String(e);
+      if (!res.headersSent && !res.writableEnded) {
+        send(res, code, JSON.stringify({ok: false, error: msg}));
+      } else {
+        log('render route error after send: ' + msg);
       }
-      body += c;
     });
-    req.on('end', () => cb(body));
+  }
+
+  // ── Read body (promise), cap 1MB, graceful 413 ──
+  function readBody(req, res) {
+    return new Promise((resolve, reject) => {
+      let body = '';
+      let settled = false;
+      const abort = () => {
+        settled = true;
+        if (!res.headersSent && !res.writableEnded) {
+          send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
+        }
+        try { req.destroy(); } catch (_) {}
+        reject(err(413, 'aborted'));
+      };
+      req.on('data', (c) => {
+        if (body.length > 1e6) return abort();
+        body += c;
+      });
+      req.on('end', () => { if (!settled) { settled = true; resolve(body); } });
+      req.on('error', (e) => { if (!settled) { settled = true; reject(e); } });
+      req.on('close', () => { if (!settled) { settled = true; reject(err(400, 'connection closed')); } });
+    });
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -620,12 +669,16 @@ module.exports = function renderRoutes(deps) {
 
     // ── POST /api/voice-only ──
     if (method === 'POST' && p === '/api/voice-only') {
-      readBody(req, res, (body) => {
-        try {
-          const {duaId, force} = JSON.parse(body);
-          send(res, 200, JSON.stringify(startVoiceJob(String(duaId), !!force)));
-        } catch (e) { send(res, 400, JSON.stringify({ok: false})); }
-      });
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'voice-only');
+          const id = String(f.duaId || '').trim();
+          if (!id || !/^[a-z0-9_\-]{1,80}$/.test(id)) {
+            throw err(400, 'duaId invalid format (a-z 0-9 _ - max 80)');
+          }
+          send(res, 200, JSON.stringify(await startVoiceJob(id, !!f.force)));
+        });
+      }, () => {});
       return true;
     }
 
@@ -653,46 +706,42 @@ module.exports = function renderRoutes(deps) {
 
     // ── POST /api/tts-custom ──
     if (method === 'POST' && p === '/api/tts-custom') {
-      readBody(req, res, (body) => {
-        try {
-          const f = JSON.parse(body);
-          const a = String(f.arabic || '').trim();
-          const u = String(f.urdu || '').trim();
-          if (!a && !u) return send(res, 400, JSON.stringify({ok: false, error: 'Arabic ya Urdu text do'}));
-          if (a.length > 5000) return send(res, 400, JSON.stringify({ok: false,
-            error: 'Arabic text bahut lamba hai (max 5000 chars)'}));
-          if (u.length > 5000) return send(res, 400, JSON.stringify({ok: false,
-            error: 'Urdu text bahut lamba hai (max 5000 chars)'}));
-          const name = /^[a-z0-9_]{1,60}$/.test(String(f.name || '')) ? String(f.name) : 'custom_' + Date.now();
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'tts-custom');
+          const a = cleanStr(f.arabic, 5000, 'Arabic text');
+          const u = cleanStr(f.urdu, 5000, 'Urdu text');
+          if (!a && !u) throw err(400, 'Arabic ya Urdu text do');
+          const rawName = String(f.name || '').trim();
+          const name = /^[a-z0-9_]{1,60}$/.test(rawName) ? rawName : 'custom_' + Date.now();
           const cdir = path.join(TEMP, 'custom');
-          fs.mkdirSync(cdir, {recursive: true});
+          await F.mkdir(cdir, {recursive: true});
           const pf = path.join(cdir, 'payload.json');
-          fs.writeFileSync(pf, JSON.stringify({arabic: a, urdu: u, name}), 'utf8');
-          runQuiet(PY, ['scripts/tts_custom.py', pf]).then((code) => {
-            if (code !== 0) return send(res, 500, JSON.stringify({ok: false, error: 'TTS fail hua'}));
-            const savedFile = name + '.mp3';
-            const savedOk = fs.existsSync(path.join(REMOTION, 'public', 'audio', savedFile));
-            log('CUSTOM TTS SAVED: ' + savedFile);
-            send(res, 200, JSON.stringify({ok: true, okA: !!a, okU: !!u,
-              merged: !!(a && u), savedFile: savedOk ? savedFile : null, ts: Date.now()}));
-          });
-        } catch (e) { send(res, 400, JSON.stringify({ok: false, error: 'bad request'})); }
-      });
+          await F.writeFile(pf, JSON.stringify({arabic: a, urdu: u, name}), 'utf8');
+          const code = await runQuiet(PY, ['scripts/tts_custom.py', pf]);
+          if (code !== 0) throw err(500, 'TTS fail hua');
+          const savedFile = name + '.mp3';
+          const savedOk = await exists(path.join(REMOTION, 'public', 'audio', savedFile));
+          log('CUSTOM TTS SAVED: ' + savedFile);
+          send(res, 200, JSON.stringify({ok: true, okA: !!a, okU: !!u,
+            merged: !!(a && u), savedFile: savedOk ? savedFile : null, ts: Date.now()}));
+        });
+      }, () => {});
       return true;
     }
 
     // ── POST /api/open-folder ──
     if (method === 'POST' && p === '/api/open-folder') {
-      readBody(req, res, (body) => {
-        try {
-          const {which} = JSON.parse(body);
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'open-folder');
           const map = {videos: OUT, audio: path.join(REMOTION, 'public', 'audio'), temp: TEMP};
-          const fp = map[which];
-          if (!fp || !fs.existsSync(fp)) return send(res, 404, JSON.stringify({ok: false, error: 'folder nahi mila'}));
+          const fp = map[String(f.which || '')];
+          if (!fp || !(await exists(fp))) throw err(404, 'folder nahi mila');
           spawn('explorer', [fp]);
           send(res, 200, JSON.stringify({ok: true}));
-        } catch (e) { send(res, 400, JSON.stringify({ok: false})); }
-      });
+        });
+      }, () => {});
       return true;
     }
 
@@ -738,12 +787,12 @@ module.exports = function renderRoutes(deps) {
 
     // ── GET /api/history ──
     if (method === 'GET' && p === '/api/history') {
-      try {
-        const arr = fs.existsSync(HIST_PATH) ? JSON.parse(fs.readFileSync(HIST_PATH, 'utf8')) : [];
-        return send(res, 200, JSON.stringify({ok: true, history: arr}));
-      } catch (_) {
-        return send(res, 200, JSON.stringify({ok: true, history: []}));
-      }
+      routeCatch(res, async () => {
+        let arr = [];
+        try { arr = JSON.parse((await F.readFile(HIST_PATH, 'utf8')).replace(/^\uFEFF/, '')); } catch (_) { arr = []; }
+        send(res, 200, JSON.stringify({ok: true, history: arr}));
+      });
+      return true;
     }
 
     // ── POST /api/thumbs-all ──
@@ -752,17 +801,16 @@ module.exports = function renderRoutes(deps) {
       send(res, 200, JSON.stringify({ok: true}));
       (async () => {
         try {
-          const raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
-          const list = Array.isArray(raw) ? raw : raw.duas;
+          const list = await loadDuas();
           const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
-          fs.mkdirSync(path.join(OUT, 'thumbs'), {recursive: true});
+          await F.mkdir(path.join(OUT, 'thumbs'), {recursive: true});
           let n = 0;
           for (const d of list) {
             const t = d.id + '.png';
             const tp = path.join(OUT, 'thumbs', t);
-            if (fs.existsSync(tp)) continue;
+            if (await exists(tp)) continue;
             const leg = path.join(OUT, 'thumbs', safeTitle(d.title) + '.png');
-            if (fs.existsSync(leg)) { fs.copyFileSync(leg, tp); continue; }
+            if (await exists(leg)) { await F.copyFile(leg, tp); continue; }
             const compId = d.id.replace(/_/g, '-');
             log('THUMB [' + (++n) + ']: ' + d.id);
             await run(process.execPath, [cli, 'still', compId,
@@ -792,21 +840,19 @@ module.exports = function renderRoutes(deps) {
     // ── POST /api/render-all ──
     if (method === 'POST' && p === '/api/render-all') {
       if (job.running || queue.active) return send(res, 409, JSON.stringify({ok: false, error: 'Job already running'}));
-      try {
-        const raw = JSON.parse(fs.readFileSync(path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
-        const list = Array.isArray(raw) ? raw : raw.duas;
-        const items = list
-          .filter((d) => !d.archived && !d.locked &&
-            !fs.existsSync(path.join(OUT, safeTitle(d.title) + '.mp4')))
-          .map((d) => d.id);
+      routeCatch(res, async () => {
+        const list = await loadDuas();
+        const items = [];
+        for (const d of list) {
+          if (d.archived || d.locked) continue;
+          if (!(await exists(path.join(OUT, safeTitle(d.title) + '.mp4')))) items.push(d.id);
+        }
         queue.active = true; queue.items = items; queue.idx = 0;
         queue.done = []; queue.failed = []; queue.skipped = []; queue.cancelRequested = false;
         processQueue();
         log('BATCH START: ' + items.length + ' videos (sirf missing - rendered skip)');
         send(res, 200, JSON.stringify({ok: true, total: items.length}));
-      } catch (e) {
-        send(res, 500, JSON.stringify({ok: false, error: String(e.message || e)}));
-      }
+      });
       return true;
     }
 
@@ -829,18 +875,16 @@ module.exports = function renderRoutes(deps) {
 
     // ── POST /api/render ──
     if (method === 'POST' && p === '/api/render') {
-      readBody(req, res, (body) => {
-        try {
-          const {duaId, force} = JSON.parse(body);
-          const id = String(duaId || '').trim();
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'render');
+          const id = String(f.duaId || '').trim();
           if (!id || !/^[a-z0-9_\-]{1,80}$/.test(id)) {
-            return send(res, 400, JSON.stringify({ok: false,
-              error: 'duaId invalid format (a-z 0-9 _ - max 80)'}));
+            throw err(400, 'duaId invalid format (a-z 0-9 _ - max 80)');
           }
-          const result = startJob(id, !!force);
-          send(res, 200, JSON.stringify(result));
-        } catch (e) { send(res, 400, JSON.stringify({ok: false, error: 'bad request'})); }
-      });
+          send(res, 200, JSON.stringify(await startJob(id, !!f.force)));
+        });
+      }, () => {});
       return true;
     }
 
