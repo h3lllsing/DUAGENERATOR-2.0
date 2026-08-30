@@ -1,6 +1,5 @@
 import React from 'react';
-import {spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {noise2D} from '@remotion/noise';
+import {useCurrentFrame, useVideoConfig} from 'remotion';
 import type {WordTiming} from './types';
 import {appleEase} from './easing';
 
@@ -97,16 +96,12 @@ export const KaraokeText: React.FC<{
         let showCaret = false;
         let txtColor = isActive ? activeColor : isPast ? pastColor : futureColor;
 
-        // M2 · organic float on the LIVE word (4-6px Perlin wander, sparse
-        // tempo). Word-level translate only => RTL/ligature-safe. Dead words
-        // sit perfectly still sa text chhalke nahi.
-        let floatX = 0;
-        let floatY = 0;
-        if (isActive) {
-          floatX = noise2D('kt-float-x', t * 0.012 + ((i * 3.7) % 1), 9.2) * 2.6;
-          floatY = noise2D('kt-float-y', t * 0.017 + ((i * 5.3) % 1), 4.4) * 2.6;
-        }
+        // M3-STABLE · 6-frame Apple-eased crossfade (fade mode ke liye)
+        const fadeK = appleEase(Math.min(1, Math.max(0, (frame - w.start * fps) / 6)));
 
+        // M3-STABLE · koi per-frame translate/scale jitter nahi — word
+        // positions bilkul static. Fade/none modes karaoke cue sirf opacity
+        // se dete hain (6-frame Apple-eased crossfade only, zero transform).
         if (mode === 'blurin') {
           showPill = isActive;
           if (isActive) {
@@ -115,8 +110,8 @@ export const KaraokeText: React.FC<{
             const k = appleEase(Math.min(1, sinceStart / 6));
             blurPx = 7 * (1 - k);
             opacity = 0.2 + 0.8 * k;
-            translateY = 5 * (1 - k);
-            scale = 1 + 0.03 * (1 - k);
+            translateY = 0;
+            scale = 1;
             txtColor = activeColor;
           } else if (!isPast) {
             // aane wale lafz: readable ghost (dim + halka blur), box ke
@@ -138,35 +133,45 @@ export const KaraokeText: React.FC<{
           }
         } else if (mode === 'popwave') {
           if (isActive) {
-            const sinceStart = frame - w.start * fps;
-            // M2 · spec spring (mass .5, stiffness 200, damping 14) + Apple tail
-            const pop = spring({
-              frame: frame - w.start * fps,
-              fps,
-              config: {mass: 0.5, stiffness: 200, damping: 14},
-            });
-            const ripple = 0.012 * Math.sin(t * 9);
-            scale = 1 + 0.15 * (1 - appleEase(Math.min(1, sinceStart / 6))) * pop + ripple;
+            // M3-STABLE · spring-pop hata di — glyphs bilkul static, sirf
+            // color/pill switch se cue milta hai (scroll-bounce jitter zero)
             opacity = 1;
             txtColor = activeColor;
           } else if (isPast) {
-            // chhoti residual wave jo peeche chhodti hai
-            const sinceEnd = t - w.end;
-            const wave = Math.exp(-sinceEnd * 2.2) *
-              Math.sin(t * 9 + i * 0.9) * 0.02;
-            scale = 1 + wave;
+            // M3-STABLE · residual sine wave hata di (micro-vibration source)
+            scale = 1;
             opacity = 1;
             txtColor = pastColor;
           } else {
             opacity = 0.28;
           }
+        } else if (mode === 'fade') {
+          // new stable default: word opacity only, no motion/blur/scale
+          showPill = isActive;
+          if (!isPast) {
+            opacity = isActive ? 0.15 + 0.85 * fadeK : 0.32;
+          } else {
+            opacity = 1;
+            txtColor = pastColor;
+          }
+          if (isActive) txtColor = activeColor;
+        } else if (mode === 'none') {
+          // fully static: instant switch, no pill, no transition
+          if (isActive) {
+            opacity = 1;
+            txtColor = activeColor;
+          } else if (isPast) {
+            opacity = 1;
+            txtColor = pastColor;
+          } else {
+            opacity = 0.32;
+          }
         } else {
-          // glide (classic): purana exact behavior + M2 Apple-eased pop
+          // glide (stable): soft Apple-eased settle, zero sine ripple
           showPill = isActive;
           if (isActive) {
-            const sinceStart = frame - w.start * fps;
-            const pop = appleEase(Math.min(1, Math.max(0, sinceStart / 4)));
-            scale = 1 + 0.07 * (1 - pop) + 0.02 * Math.sin(t * 9);
+            // M3-STABLE · 5% settle-scale hata di — word bilkul static (pill + color se active)
+            scale = 1;
             opacity = 1;
           } else if (isPast) {
             opacity = 1;
@@ -185,9 +190,10 @@ export const KaraokeText: React.FC<{
               borderRadius: fontSize * 0.3,
               position: 'relative',
               transform:
-                `translate(${floatX.toFixed(2)}px, ${floatY.toFixed(2)}px) ` +
-                `scale(${scale})` +
-                (translateY ? ` translateY(${(translateY).toFixed(2)}px)` : ''),
+                scale !== 1 || translateY !== 0
+                  ? `scale(${scale})` +
+                    (translateY ? ` translateY(${(translateY).toFixed(2)}px)` : '')
+                  : 'none',
               filter: blurPx > 0.05 ? `blur(${blurPx.toFixed(2)}px)` : undefined,
               whiteSpace: 'pre-wrap',
             }}
@@ -228,12 +234,12 @@ export const KaraokeText: React.FC<{
               {showCaret && (
                 <span
                   style={{
-                    display: 'inline-block',
+                    position: 'absolute',
+                    right: -(fontSize * 0.14),
+                    top: '0.12em',
                     width: fontSize * 0.09,
-                    height: fontSize * 0.82,
-                    marginInlineStart: fontSize * 0.08,
+                    height: fontSize * 0.8,
                     background: pillColor,
-                    verticalAlign: '-0.12em',
                     boxShadow: `0 0 12px ${pillColor}`,
                   }}
                 />

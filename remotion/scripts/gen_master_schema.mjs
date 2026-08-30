@@ -52,10 +52,10 @@ const EXPECTED_FONTS = ['amiri-quran', 'noto-nastaliq-urdu', 'scheherazade-new']
 const EXPECTED_ROLES = ['arabic', 'urdu', 'ui', 'emoji'];
 const EXPECTED_MOTION = {
   frame: ['classic', 'arch', 'deco', 'rosette'],
-  textFx: ['glide', 'blurin', 'typewriter', 'popwave'],
+  textFx: ['glide', 'fade', 'none', 'typewriter', 'popwave'],
   motif: ['none', 'tasbih', 'kaaba', 'rehal', 'star8'],
   gradeFx: ['auto', 'warmgold', 'coolnight', 'sepia', 'dreamy'],
-  camera: ['static', 'zoomin', 'panx', 'kenburns', 'driftbreathe'],
+  camera: ['static', 'zoomin', 'panx', 'kenburns'],
   introFx: ['classic', 'crescentfade', 'patternwipe'],
   ornament: ['starcrescent', 'lanternjhumka', 'medallion', 'geostar'],
   borderFx: ['none', 'clouds', 'birds', 'flags', 'wind'],

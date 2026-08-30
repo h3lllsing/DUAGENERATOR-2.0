@@ -1147,16 +1147,16 @@ function vfxPromptText(){
   L.push('');
   L.push('2) PLUGIN (VFX pool attachment — "match" STRICTLY MANDATORY): {"type":"plugin","label":"name","match":"*","frameCustomId":"existing_pattern_id","styleOverrides":{...}} — "match" ki VALUE sirf "*" (sab duas, global — koi dua-id hardcode nahi) ya ["dua_id_1","dua_id_2"] (sirf targeted legacy) ho sakti hai. frameCustomId = existing pattern ki exact id (ya inline "frameCustom": {poora Pattern object}). styleOverrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
   L.push('');
-  L.push('3) THEME (naya color-mood; existing themes mutate mat karo): {"type":"theme","label":"name","match":"*","affinity":["category_id_1","category_id_2"],"payload":{"decor":"'+_mw(MS_DECOR)+'","grade":{"brightness":0.7-1.5,"contrast":0.7-1.6,"saturate":0.5-1.8}} } — affinity optional (in categories par prioritized), grade optional.');
+  L.push('3) THEME (naya color-mood; existing themes mutate mat karo): {"type":"theme","label":"name","match":"*","affinity":["category_id_1","category_id_2"],"payload":{"decor":'+_mq(MS_DECOR)+',"grade":{"brightness":0.7-1.5,"contrast":0.7-1.6,"saturate":0.5-1.8}} } — affinity optional (in categories par prioritized), grade optional.');
   L.push('');
-  L.push('4) TYPOGRAPHY (sirf packaged families): {"type":"typography","label":"name","match":"*","fontFamily":"'+_mq(MS_FAMILY)+'","baseSize":44-160,"minSize":20-90,"lineHeight":1.2-3} — baseSize aur minSize pura integer.');
+  L.push('4) TYPOGRAPHY (sirf packaged families): {"type":"typography","label":"name","match":"*","fontFamily":'+_mq(MS_FAMILY)+',"baseSize":44-160,"minSize":20-90,"lineHeight":1.2-3} — baseSize aur minSize pura integer.');
   L.push('');
   L.push('5) MOTION (clean movement pick — enum-only, kabhi timing seconds NAHI — audio sync sacred; ek ya zyada positions): {"type":"motion","label":"name","match":"*","camera":"static","textFx":"glide","introFx":"classic"}');
   if(MS_MOTION){
     for(const k of Object.keys(MS_MOTION)) L.push('     • '+k+' = '+_mq(MS_MOTION[k]));
   }
   L.push('');
-  L.push('6) AUDIO (voice/sfx selection — recitation track kabhi override nahi): {"type":"audio","label":"...","match":"*","voiceArabic":"'+_mq(MS_AUDIO&&MS_AUDIO.voiceArabic)+'","voiceUrdu":"'+_mq(MS_AUDIO&&MS_AUDIO.voiceUrdu)+'","sfxSet":"'+_mq(MS_AUDIO&&MS_AUDIO.sfxSet)+'"}');
+  L.push('6) AUDIO (voice/sfx selection — recitation track kabhi override nahi): {"type":"audio","label":"name","match":"*","voiceArabic":'+_mq(MS_AUDIO&&MS_AUDIO.voiceArabic)+',"voiceUrdu":'+_mq(MS_AUDIO&&MS_AUDIO.voiceUrdu)+',"sfxSet":'+_mq(MS_AUDIO&&MS_AUDIO.sfxSet)+'}');
   L.push('');
   L.push('HARD RULES:');
   L.push('CRITICAL: The \'match\' property MUST BE EXACTLY "*" (e.g. "match": "*"). NEVER output an empty string like "match": "" under any circumstances.');

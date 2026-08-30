@@ -105,10 +105,10 @@ const PRESET_TINTS = {
 // ==========================================================================
 
 // Dimension pools (Remotion ke ID lists ka mirror)
-const TEXT_FX = ['glide', 'blurin', 'typewriter', 'popwave'];
+const TEXT_FX = ['glide', 'fade', 'typewriter', 'popwave'];
 const MOTIF_FX = ['none', 'tasbih', 'kaaba', 'rehal', 'star8'];
 const GRADE_MOODS = ['auto', 'warmgold', 'coolnight', 'sepia', 'dreamy'];
-const CAMERA_MOVES = ['static', 'zoomin', 'panx', 'kenburns', 'driftbreathe'];
+const CAMERA_MOVES = ['static', 'zoomin', 'panx', 'kenburns'];
 const INTRO_STYLES = ['classic', 'crescentfade', 'patternwipe'];
 const ORNAMENT_STYLES = ['starcrescent', 'lanternjhumka', 'medallion', 'geostar'];
 

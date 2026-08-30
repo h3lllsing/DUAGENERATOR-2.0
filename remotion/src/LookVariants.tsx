@@ -251,70 +251,32 @@ export const CameraMove: React.FC<{
   children: React.ReactNode;
 }> = ({id, seed, children}) => {
   const frame = useCurrentFrame();
-  const {durationInFrames, fps} = useVideoConfig();
-  if (!id || id === 'static') {
-    // M1 · base cinematic drift: halka push-in + micro noise. Abhi bhi
-    // "nyaa Andar kitna bhi" nahi — negligible motion, premium feel.
-    const nd = hashDir(seed);
-    const driftScale = 1 + BASE_DRIFT * Math.min(1, frame / 40);
-    const nx = noise2D('cam-static-x', frame * 0.004, 7.3) * NOISE_AMP_PX;
-    const ny = noise2D('cam-static-y', frame * 0.004, 13.9) * NOISE_AMP_PX;
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          transform: `translate(${nx.toFixed(2)}px, ${ny.toFixed(2)}px) scale(${driftScale.toFixed(4)})`,
-          willChange: 'transform',
-        }}
-      >
-        {children}
-      </div>
-    );
+  const {durationInFrames} = useVideoConfig();
+  // M3-STABLE · camera micro-motion hata di:
+  //   - 'static'/undefined => bilkul zero transform (koi noise/translate nahi)
+  //   - 'driftbreathe' => schema/pools se nikala; legacy look files static-safe
+  const staticLayer = () => (
+    <div style={{position: 'absolute', inset: 0}}>{children}</div>
+  );
+  if (!id || id === 'static' || id === 'driftbreathe') {
+    return staticLayer();
   }
-  // M1 · eased cinematic progress (start/end smooth, beech mein flow)
+  // Sirf smooth eased moves — per-frame values uniform (noise/sine micro
+  // vibration zero). Deterministic, glyph-crisp.
   const raw = Math.min(1, Math.max(0, frame / Math.max(1, durationInFrames)));
   const p = easeInOut(raw);
   const dir = hashDir(seed);
   let tf = 'none';
   if (id === 'zoomin') {
-    tf = `scale(${(1 + 0.055 * p).toFixed(4)})`;
+    tf = `scale(${(1 + 0.045 * p).toFixed(4)})`;
   } else if (id === 'panx') {
-    // ease + subtle perlin micro-drift on the perpendicular axis
-    const sway = noise2D('cam-panx', frame * 0.008, 21.5) * 3;
-    tf = `translateX(${(dir * (p - 0.5) * 2.6).toFixed(3)}%) translateY(${sway.toFixed(2)}px) scale(1.045)`;
+    tf = `translateX(${(dir * (p - 0.5) * 2.4).toFixed(3)}%) scale(1.035)`;
   } else if (id === 'kenburns') {
-    // eased double-axis + slight rotation + micro-drift; scale eases in
-    const swayX = noise2D('cam-kb-x', frame * 0.006, 31.2) * 3;
-    const swayY = noise2D('cam-kb-y', frame * 0.006, 43.4) * 3;
     tf =
-      `translateY(${(-(p - 0.5) * 1.4).toFixed(3)}%) ` +
-      `translate(${swayX.toFixed(2)}px, ${swayY.toFixed(2)}px) ` +
-      `rotate(${(dir * (p - 0.5) * 0.7).toFixed(3)}deg) ` +
-      `scale(${(1.03 + 0.05 * p).toFixed(4)})`;
-  } else if (id === 'driftbreathe') {
-    const t = frame / fps;
-    tf =
-      `translateX(${(Math.sin(t * 0.22) * 0.9).toFixed(3)}%) ` +
-      `scale(${(1 + 0.02 + 0.016 * Math.sin(t * 0.31)).toFixed(4)})`;
+      `translateY(${(-(p - 0.5) * 1.2).toFixed(3)}%) ` +
+      `scale(${(1.03 + 0.04 * p).toFixed(4)})`;
   } else {
-    // unknown id => static-safe (with base drift via the static branch above)
-    const nd = hashDir(seed);
-    const driftScale = 1 + BASE_DRIFT * Math.min(1, frame / 40);
-    const nx = noise2D('cam-unk-x', frame * 0.004, 57.8) * NOISE_AMP_PX;
-    const ny = noise2D('cam-unk-y', frame * 0.004, 61.1) * NOISE_AMP_PX;
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          transform: `translate(${nx.toFixed(2)}px, ${ny.toFixed(2)}px) scale(${driftScale.toFixed(4)})`,
-          willChange: 'transform',
-        }}
-      >
-        {children}
-      </div>
-    );
+    return staticLayer();
   }
   return (
     <div

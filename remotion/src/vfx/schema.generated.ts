@@ -362,7 +362,8 @@ export const MASTER_SCHEMA = {
       ],
       "textFx": [
         "glide",
-        "blurin",
+        "fade",
+        "none",
         "typewriter",
         "popwave"
       ],
@@ -384,8 +385,7 @@ export const MASTER_SCHEMA = {
         "static",
         "zoomin",
         "panx",
-        "kenburns",
-        "driftbreathe"
+        "kenburns"
       ],
       "introFx": [
         "classic",
