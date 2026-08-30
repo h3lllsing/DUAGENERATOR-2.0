@@ -27,13 +27,13 @@ class VideoBuilder:
     def __init__(self, fps: int = None, resolution: tuple = (1080, 1920)):
         """
         Args:
-            fps: Frames per second. Defaults to config.VIDEO_FPS (80) so the
+            fps: Frames per second. Defaults to config.VIDEO_FPS (60) so the
                 container framerate always matches the pipeline's render FPS;
                 a mismatch would fail the exact-FPS quality gate.
             resolution: (width, height) for output video.
         """
         if fps is None:
-            fps = int(getattr(config, "VIDEO_FPS", 80) or 80)
+            fps = int(getattr(config, "VIDEO_FPS", 60) or 60)
         self.fps = fps
         self.width, self.height = resolution
 

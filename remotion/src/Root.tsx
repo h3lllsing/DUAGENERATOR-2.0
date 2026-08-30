@@ -37,7 +37,7 @@ export const RemotionRoot: React.FC = () => {
         id="StylePreview"
         component={StylePreview}
         durationInFrames={30}
-        fps={30}
+        fps={60}
         width={1280}
         height={720}
         defaultProps={{template: 'dark'}}
@@ -46,7 +46,7 @@ export const RemotionRoot: React.FC = () => {
         id="thumbnail-card"
         component={ThumbCard}
         durationInFrames={1}
-        fps={24}
+        fps={60}
         width={1080}
         height={1920}
         defaultProps={{data: manifests[0]}}

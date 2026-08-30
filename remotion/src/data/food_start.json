@@ -2,10 +2,10 @@
  "dua_id": "food_start",
  "title": "Khana Khane Ki Dua",
  "reference": "Abu Dawud 3767",
- "fps": 24,
+ "fps": 60,
  "width": 1080,
  "height": 1920,
- "totalDuration": 15.0,
+ "totalDuration": 15,
  "audioFile": "audio/food_start.mp3",
  "template": "emerald",
  "arabicWords": [
@@ -106,6 +106,8 @@
   "arabicEnd": 4.068,
   "urduStart": 5.553
  },
+ "background": "backgrounds/food_start.jpg",
+ "backgroundKind": "image",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

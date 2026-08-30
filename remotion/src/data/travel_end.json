@@ -2,7 +2,7 @@
  "dua_id": "travel_end",
  "title": "Wapas Aanay Ki Dua",
  "reference": "Sahih Muslim 1345",
- "fps": 24,
+ "fps": 60,
  "width": 1080,
  "height": 1920,
  "totalDuration": 18.0,
@@ -231,6 +231,8 @@
   "arabicEnd": 5.264,
   "urduStart": 6.805
  },
+ "background": "backgrounds/travel_end.jpg",
+ "backgroundKind": "image",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

@@ -2,7 +2,7 @@
  "dua_id": "salah_start",
  "title": "Namaz Shuru Karne Ki Dua",
  "reference": "Sunan Abu Dawud 775, Sunan Tirmidhi 242",
- "fps": 24,
+ "fps": 60,
  "width": 1080,
  "height": 1920,
  "totalDuration": 23.15,
@@ -271,6 +271,8 @@
   "arabicEnd": 7.56,
   "urduStart": 9.115
  },
+ "background": "backgrounds/salah_start.jpg",
+ "backgroundKind": "image",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"
