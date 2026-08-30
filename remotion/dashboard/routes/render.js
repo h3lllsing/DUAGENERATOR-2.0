@@ -83,6 +83,18 @@ module.exports = function renderRoutes(deps) {
     p.on('error', () => children.delete(p.pid));
   }
 
+  function killChildren(label) {
+    const targets = new Set();
+    if (job && job.child && job.child.pid) targets.add(job.child.pid);
+    for (const pid of children) targets.add(pid);
+    for (const pid of targets) {
+      log((label || 'KILL') + ': killing pid ' + pid);
+      const k = spawn('taskkill', ['/PID', String(pid), '/T', '/F']);
+      k.on('error', () => {});
+      k.unref();
+    }
+  }
+
   function run(cmd, args, opts) {
     return new Promise((resolve) => {
       log('$ ' + path.basename(cmd) + ' ' + args.join(' ').slice(0, 300));
@@ -416,27 +428,50 @@ module.exports = function renderRoutes(deps) {
     const stat = fs.statSync(file);
     const range = req.headers.range;
     if (range) {
-      const m = range.match(/bytes=(\d*)-(\d*)/);
-      let start = m && m[1] ? parseInt(m[1]) : 0;
-      let end = m && m[2] ? parseInt(m[2]) : stat.size - 1;
-      end = Math.min(end, stat.size - 1);
-      res.writeHead(206, {
-        'Content-Type': 'video/mp4',
-        'Content-Range': 'bytes ' + start + '-' + end + '/' + stat.size,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': end - start + 1,
-        'Cache-Control': 'no-store',
-      });
-      fs.createReadStream(file, {start, end}).pipe(res);
-    } else {
-      res.writeHead(200, {
-        'Content-Type': 'video/mp4',
-        'Content-Length': stat.size,
-        'Accept-Ranges': 'bytes',
-        'Cache-Control': 'no-store',
-      });
-      fs.createReadStream(file).pipe(res);
+      const total = stat.size;
+      const m = range.match(/bytes\s*=\s*(\d*)-(\d*)/i);
+      if (m) {
+        const startStr = m[1];
+        const endStr = m[2];
+        let start = startStr !== '' ? parseInt(startStr, 10) : null;
+        let end = endStr !== '' ? parseInt(endStr, 10) : total - 1;
+        if (start === null) {
+          if (total === 0) {
+            res.writeHead(416, {'Content-Range': 'bytes */0'});
+            return res.end();
+          }
+          const suffix = Math.max(end, 1);
+          start = Math.max(total - suffix, 0);
+          end = total - 1;
+        } else {
+          if (start >= total) {
+            res.writeHead(416, {'Content-Range': 'bytes */' + total});
+            return res.end();
+          }
+          end = Math.min(end, total - 1);
+          if (end < start) end = start;
+        }
+        res.writeHead(206, {
+          'Content-Type': 'video/mp4',
+          'Content-Range': 'bytes ' + start + '-' + end + '/' + total,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': end - start + 1,
+          'Cache-Control': 'no-store',
+        });
+        fs.createReadStream(file, {start, end}).pipe(res);
+        return true;
+      }
+      res.writeHead(416, {'Content-Range': 'bytes */' + total});
+      return res.end();
     }
+    res.writeHead(200, {
+      'Content-Type': 'video/mp4',
+      'Content-Length': stat.size,
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': 'no-store',
+    });
+    fs.createReadStream(file).pipe(res);
+    return true;
   }
 
   // ── Core render logic ──
@@ -861,14 +896,7 @@ module.exports = function renderRoutes(deps) {
       const wasBatch = queue.active;
       queue.cancelRequested = true;
       job.cancelFlag = true;
-      if (job.child && job.child.pid) {
-        log('CANCEL: killing pid ' + job.child.pid);
-        spawn('taskkill', ['/PID', String(job.child.pid), '/T', '/F']);
-      }
-      for (const pid of children) {
-        log('CANCEL: killing helper pid ' + pid);
-        spawn('taskkill', ['/PID', String(pid), '/T', '/F']);
-      }
+      killChildren('CANCEL');
       send(res, 200, JSON.stringify({ok: true, batch: wasBatch}));
       return true;
     }
@@ -891,5 +919,11 @@ module.exports = function renderRoutes(deps) {
     return false; // not handled
   };
   handler.duaStatus = duaStatus;
+  handler.shutdown = function renderShutdown() {
+    queue.cancelRequested = true;
+    job.cancelFlag = true;
+    killChildren('SHUTDOWN');
+    log('SHUTDOWN: render children killed, queue cancelled');
+  };
   return handler;
 };

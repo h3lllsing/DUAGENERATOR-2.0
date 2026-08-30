@@ -322,7 +322,7 @@ module.exports = function duaRoutes(deps) {
     // ── GET /api/ai-config ──
     if (method === 'GET' && p === '/api/ai-config') {
       routeCatch(res, async () => {
-        const cfgPath = path.join(DATA, 'ai_api_config.json');
+        const cfgPath = path.join(PROJECT, 'data', 'ai_api_config.json');
         try {
           const cfg = JSON.parse((await F.readFile(cfgPath, 'utf8')).replace(/^\uFEFF/, ''));
           send(res, 200, JSON.stringify({ok: true, config: cfg}));
@@ -349,7 +349,7 @@ module.exports = function duaRoutes(deps) {
           if (!apiKeys.length) throw err(400, 'Kam se kam 1 API key chahiye');
           if (!models.length) models.push('minimax-m3-free', 'gemini-3.7-flash-free');
           const cleaned = {base_url: baseUrl, api_keys: apiKeys, models};
-          await F.writeFile(path.join(DATA, 'ai_api_config.json'),
+          await F.writeFile(path.join(PROJECT, 'data', 'ai_api_config.json'),
             JSON.stringify(cleaned, null, 2), 'utf8');
           send(res, 200, JSON.stringify({ok: true, config: cleaned}));
         });

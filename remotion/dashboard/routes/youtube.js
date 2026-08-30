@@ -313,7 +313,7 @@ module.exports = function ytRoutes(deps) {
   // ══════════════════════════════════════════════════════════════
   //  ROUTE HANDLER — returns true if request was handled
   // ══════════════════════════════════════════════════════════════
-  return function handleYouTube(req, url, res) {
+  const handleYouTube = function handleYouTube(req, url, res) {
     const method = req.method;
     const p = url.pathname;
 
@@ -630,4 +630,17 @@ module.exports = function ytRoutes(deps) {
 
     return false; // not handled
   };
+  handleYouTube.shutdown = function ytShutdown() {
+    const targets = [];
+    if (ytJob.child && ytJob.child.pid) targets.push(ytJob.child.pid);
+    if (ytauth.child && ytauth.child.pid) targets.push(ytauth.child.pid);
+    if (!targets.length) return;
+    for (const pid of targets) {
+      ytLog('SHUTDOWN: killing pid ' + pid);
+      const k = spawn('taskkill', ['/PID', String(pid), '/T', '/F']);
+      k.on('error', () => {});
+      k.unref();
+    }
+  };
+  return handleYouTube;
 };

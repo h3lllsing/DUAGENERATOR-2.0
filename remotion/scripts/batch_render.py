@@ -41,6 +41,18 @@ CHROME_CANDIDATES = [
 ]
 MIN_PNG_BYTES = 50 * 1024
 
+CREATE_NEW_PROCESS_GROUP = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+
+
+def _taskkill(pid):
+    """Force-kill a process and its whole tree on Windows. Prevents orphaned
+    Chromium child processes when a still-render is killed by timeout/crash."""
+    try:
+        subprocess.run(["taskkill", "/PID", str(pid), "/T", "/F"],
+                       capture_output=True, timeout=10)
+    except Exception:
+        pass
+
 
 def load_state():
     if os.path.exists(STATE_PATH):
@@ -179,52 +191,70 @@ def main():
     ok_n = fail_n = 0
     failed_ids = []
     t_all = time.time()
-    for i, (vid, mpath) in enumerate(todo, 1):
-        t0 = time.time()
-        try:
-            import tempfile
-            props = {"data": json.load(open(mpath, encoding="utf-8"))}
-            fd, ptmp = tempfile.mkstemp(suffix=".json",
-                                        dir=os.environ.get(
-                                            "TEMP", None))
-            with os.fdopen(fd, "w", encoding="utf-8") as f:
-                json.dump(props, f, ensure_ascii=False)
-            png_out = os.path.join(THUMB_DIR, vid + ".png")
-            cmd = [
-                "node", CLI, "still", "thumbnail-card", png_out,
-                "--props=" + ptmp, "--frame=0",
-                "--browser-executable=" + chrome, "--log=error",
-            ]
-            r = subprocess.run(cmd, cwd=REMOTION,
-                               capture_output=True, timeout=300,
-                               text=True, errors="replace")
+    cur = [None]
+    try:
+        for i, (vid, mpath) in enumerate(todo, 1):
+            t0 = time.time()
             try:
-                os.remove(ptmp)
-            except OSError:
-                pass
-            size = os.path.getsize(png_out) if os.path.exists(png_out) else 0
-            if r.returncode == 0 and size >= MIN_PNG_BYTES:
-                done[vid] = {"status": "done", "ts": time.time(),
-                             "bytes": size}
+                import tempfile
+                props = {"data": json.load(open(mpath, encoding="utf-8"))}
+                fd, ptmp = tempfile.mkstemp(suffix=".json",
+                                            dir=os.environ.get(
+                                                "TEMP", None))
+                with os.fdopen(fd, "w", encoding="utf-8") as f:
+                    json.dump(props, f, ensure_ascii=False)
+                png_out = os.path.join(THUMB_DIR, vid + ".png")
+                cmd = [
+                    "node", CLI, "still", "thumbnail-card", png_out,
+                    "--props=" + ptmp, "--frame=0",
+                    "--browser-executable=" + chrome, "--log=error",
+                ]
+                proc = subprocess.Popen(cmd, cwd=REMOTION,
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE,
+                                        text=True, errors="replace",
+                                        creationflags=CREATE_NEW_PROCESS_GROUP)
+                cur[0] = proc
+                try:
+                    _out, _err = proc.communicate(timeout=300)
+                    r = subprocess.CompletedProcess(
+                        cmd, proc.returncode, _out, _err)
+                except subprocess.TimeoutExpired:
+                    _taskkill(proc.pid)
+                    _out, _err = proc.communicate()
+                    raise RuntimeError("render timeout (tree killed)")
+                finally:
+                    cur[0] = None
+                try:
+                    os.remove(ptmp)
+                except OSError:
+                    pass
+                size = os.path.getsize(png_out) if os.path.exists(png_out) else 0
+                if r.returncode == 0 and size >= MIN_PNG_BYTES:
+                    done[vid] = {"status": "done", "ts": time.time(),
+                                 "bytes": size}
+                    save_state(state)
+                    ok_n += 1
+                    print("[{}/{}] OK  {} ({:.1f}s, {} KB)".format(
+                        i, len(todo), vid, time.time() - t0, size // 1024))
+                else:
+                    raise RuntimeError("rc={} bytes={}\n{}".format(
+                        r.returncode, size, (r.stderr or "")[-500:]))
+            except Exception as e:
+                done[vid] = {"status": "failed", "ts": time.time(),
+                             "error": str(e)[:400]}
                 save_state(state)
-                ok_n += 1
-                print("[{}/{}] OK  {} ({:.1f}s, {} KB)".format(
-                    i, len(todo), vid, time.time() - t0, size // 1024))
-            else:
-                raise RuntimeError("rc={} bytes={}\n{}".format(
-                    r.returncode, size, (r.stderr or "")[-500:]))
-        except Exception as e:
-            done[vid] = {"status": "failed", "ts": time.time(),
-                         "error": str(e)[:400]}
-            save_state(state)
-            fail_n += 1
-            failed_ids.append(vid)
-            print("[{}/{}] FAIL {}".format(i, len(todo), vid))
-            print("   ", str(e).replace("\n", " | ")[:400])
-        # PHASE 2 P0: throttle cut 0.4s -> 0.1s. Still-render subprocess
-        # exit is already fully awaited (blocking wait), so 0.1s only spaces
-        # sequential chrome launches without starving process monitoring.
-        time.sleep(0.1)
+                fail_n += 1
+                failed_ids.append(vid)
+                print("[{}/{}] FAIL {}".format(i, len(todo), vid))
+                print("   ", str(e).replace("\n", " | ")[:400])
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        p_ = cur[0]
+        if p_ is not None and p_.poll() is None:
+            _taskkill(p_.pid)
+        print("\n=== ABORTED (Ctrl+C) - current render tree killed ===")
+        return 2
 
     print("\n=== SUMMARY === {:.1f}s total | OK:{} FAIL:{} "
           "SKIP(done):{} ARCHIVED:{} UNMAPPED:{}".format(

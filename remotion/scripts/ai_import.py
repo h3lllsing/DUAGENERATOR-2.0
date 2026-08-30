@@ -11,6 +11,7 @@ import argparse
 import json
 import os
 import random
+import shutil
 import sys
 import time
 import urllib.request
@@ -24,13 +25,14 @@ PROJECT = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(PROJECT, "data")
 DUAS_PATH = os.path.join(DATA_DIR, "duas.json")
+DUAS_BACKUP_PATH = os.path.join(DATA_DIR, "duas.backup.json")
 CONFIG_PATH = os.path.join(DATA_DIR, "ai_api_config.json")
 
 
 def load_config():
     """Load AI API config from data/ai_api_config.json (portal pe save hoga)."""
     try:
-        with open(CONFIG_PATH, encoding="utf-8") as f:
+        with open(CONFIG_PATH, encoding="utf-8-sig") as f:
             return json.load(f)
     except Exception:
         return {}
@@ -254,12 +256,27 @@ def _norm(text):
 
 
 def load_existing():
-    """Load existing duas to check for duplicates."""
-    try:
-        with open(DUAS_PATH, encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
+    """Load existing duas to check for duplicates.
+
+    Returns [] only when the file does not yet exist (fresh library).
+    Returns None when the file EXISTS but is unreadable/corrupt — callers
+    MUST abort before saving so a transient read failure can never wipe
+    the whole library via an empty overwrite.
+    """
+    if not os.path.exists(DUAS_PATH):
         return []
+    try:
+        with open(DUAS_PATH, encoding="utf-8-sig") as f:
+            existing = json.load(f)
+        if isinstance(existing, dict):
+            existing = existing.get("duas")
+        if not isinstance(existing, list):
+            return None
+        return existing
+    except Exception as e:
+        print("ERROR: duas.json unreadable/corrupt (save ABORTED): "
+              + str(e)[:200], file=sys.stderr)
+        return None
 
 
 def save_duas(new_items):
@@ -275,6 +292,10 @@ def save_duas(new_items):
     import difflib
 
     existing = load_existing()
+    if existing is None:
+        print("ABORT: library load failed - no changes written",
+              file=sys.stderr)
+        return []
     existing_ids = {d.get("id") for d in existing}
     existing_ar = [_norm(d.get("arabic")) for d in existing if d.get("arabic")]
     existing_ur = [_norm(d.get("urdu")) for d in existing if d.get("urdu")]
@@ -342,8 +363,24 @@ def save_duas(new_items):
         if ti_norm:
             existing_ti.append(ti_norm)
         added.append(entry)
-    with open(DUAS_PATH, "w", encoding="utf-8") as f:
-        json.dump(existing, f, ensure_ascii=False, indent=2)
+    try:
+        if os.path.exists(DUAS_PATH):
+            shutil.copy2(DUAS_PATH, DUAS_BACKUP_PATH)
+    except Exception as e:
+        print("WARN pre-save backup fail: " + str(e)[:120], file=sys.stderr)
+    tmp = DUAS_PATH + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(existing, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, DUAS_PATH)
+    except Exception as e:
+        print("ERROR: duas.json save failed: " + str(e)[:200],
+              file=sys.stderr)
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+        return []
     return added
 
 

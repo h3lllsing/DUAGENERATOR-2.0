@@ -196,6 +196,19 @@ process.on('unhandledRejection', (e) => {
   console.error(msg); crashAppend(msg);
 });
 
+let shuttingDown = false;
+function shutdownAll(sig) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log('\n' + sig + ' received - graceful shutdown');
+  try { if (renderHandler.shutdown) renderHandler.shutdown(); } catch (_) {}
+  try { if (ytHandler.shutdown) ytHandler.shutdown(); } catch (_) {}
+  try { server.close(); } catch (_) {}
+  setTimeout(() => { try { process.exit(0); } catch (_) {} }, 2500).unref();
+}
+process.on('SIGINT', () => shutdownAll('SIGINT'));
+process.on('SIGTERM', () => shutdownAll('SIGTERM'));
+
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`Dua Video Studio v0.10 -> http://127.0.0.1:${PORT}`);
 });
