@@ -123,7 +123,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname.startsWith('/api/') && !verifyAuth(req)) {
     return send(res, 401, JSON.stringify({ok: false, error: 'unauthorized'}));
   }
-  if (req.method === 'POST' && /^\/api\/(render|tts-custom|render-all|vfx-import)$/.test(url.pathname)) {
+  if (req.method === 'POST' && /^\/api\/(render|tts-custom|render-all|vfx\/import|vfx\/preview)$/.test(url.pathname)) {
     if (!checkRateLimit(url.pathname)) {
       return send(res, 429, JSON.stringify({ok: false,
         error: 'rate limit (30 requests per 2s)'}));

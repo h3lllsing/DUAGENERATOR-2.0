@@ -70,6 +70,11 @@ function sanitizePattern(p) {
     ? p.zones.map((z) => String(z)).filter((z) => ZONE_RE.test(z))
     : ['frame', 'corners'];
   zones = Array.from(new Set(zones));
+  // validate.ts L2 rule feast-loud: 'top' band aur 'frame' band exclusive
+  // hain — dono ek sath kabhi nahi; frame (poora border) prefer karo.
+  if (zones.includes('top') && zones.includes('frame')) {
+    zones = zones.filter((z) => z !== 'top');
+  }
   if (!zones.length) zones = ['frame'];
   const colorToken =
     typeof p.colorToken === 'string' && TOKEN_RE.test(p.colorToken)
