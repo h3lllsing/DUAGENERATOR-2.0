@@ -111,6 +111,7 @@ module.exports = function vfxRoutes(deps) {
         send(res, 200, JSON.stringify({
           ok: true,
           patterns, plugins,
+          master: customVfx.masterSummary(pack),
           indexes: {
             patterns: Object.fromEntries(idx.patternFps),
             plugins: Object.fromEntries(idx.pluginFps),

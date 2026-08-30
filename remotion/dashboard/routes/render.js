@@ -347,8 +347,12 @@ module.exports = function renderRoutes(deps) {
     try { const st = await F.stat(aud); audSig = st.mtimeMs + ':' + st.size; } catch (_) {}
     let cfg = '';
     try { cfg = await F.readFile(CFG_PATH, 'utf8'); } catch (_) {}
+    // UNIFIED MASTER POOL signature — imported item (pattern/plugin/theme/...)
+    // ya koi edit → signature badla → cache stale nahi rehta (instant effect).
+    let poolSig = 'none';
+    try { poolSig = customVfx.poolSignature(PROJECT); } catch (_) {}
     return crypto.createHash('md5').update(
-      JSON.stringify(dua) + '|' + audSig + '|' + cfg + '|' + sfx.join('')).digest('hex');
+      JSON.stringify(dua) + '|' + audSig + '|' + cfg + '|' + sfx.join('') + '|' + poolSig).digest('hex');
   }
 
   async function genThumb(duaId, outName, force) {

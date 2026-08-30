@@ -7,14 +7,16 @@
 // Sakte: ye sirf JS-level shape-sanitization hai. Render-time strict validation
 // Remotion fixture me hai (src/vfx/validate.ts) — wahan fail-loud.
 //
-// Limits/enums/whitelist ki single source of truth: data/vfx-schema.json
-// (npm run gen:vfx-schema → ./vfx-schema.generated.cjs). Remotion wala twin
-// (src/vfx/schema.generated.ts) isi JSON se banti hai — tables drift nahi kar sakte.
+// Limits/enums/whitelist ki single source of truth: data/master-schema.json
+// (npm run gen:master-schema → ./master-schema.generated.cjs / vfx twin).
+// Remotion wala twin (src/vfx/schema.generated.ts) isi JSON se banta hai —
+// tables drift nahi kar sakte. VFX section byte-identical to legacy v1.
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const SCHEMA = require('./vfx-schema.generated.cjs');
+const MASTER = require('./master-schema.generated.cjs');
 
 const ID_RE = /^[A-Za-z0-9_-]{1,48}$/;
 // JS magic props — plain-object registries me kabhi lookup key nahi ban sakte.
@@ -24,6 +26,7 @@ const KIND_RE = new RegExp('^(' + SCHEMA.pattern.enums.kind.join('|') + ')$');
 const TOKEN_RE = new RegExp('^(' + SCHEMA.pattern.enums.colorToken.join('|') + ')$');
 const ZONE_RE = new RegExp('^(' + SCHEMA.pattern.enums.zones.join('|') + ')$');
 const HEX_RE = new RegExp(SCHEMA.hexColorPattern);
+const MATCH_RE = new RegExp(MASTER.plugin.matchPattern);
 
 const OVER_NUM = new Map(
   SCHEMA.overrides
@@ -37,6 +40,19 @@ const OVER_BOOL = new Set(
 );
 
 const FIELD = SCHEMA.pattern.fields;
+
+// ── UNIFIED MASTER const sets (theme/typography/motion/audio) ──
+const THEME_DECOR = new Set(MASTER.theme.enums.decor);
+const THEME_IDS = new Set(MASTER.theme.enums.id);
+const FAMILY = new Set(MASTER.typography.enums.family);
+const VOICE_AR = new Set(MASTER.audio.enums.voiceArabic);
+const VOICE_UR = new Set(MASTER.audio.enums.voiceUrdu);
+const SFX_SET = new Set(MASTER.audio.enums.sfxSet);
+const MOTION_ENUMS = MASTER.motion.enums;
+const GRADE = MASTER.theme.grade;
+const TYPO_BASE = MASTER.typography.sizes.arabicBase;
+const TYPO_MIN = MASTER.typography.sizes.arabicMin;
+const TYPO_LH = MASTER.typography.sizes.lineHeightAr;
 
 const packPath = (PROJECT) => path.join(PROJECT, 'data', 'custom_vfx.json');
 
@@ -122,10 +138,108 @@ function load(PROJECT) {
         }
       }
     }
-    return {patterns, plugins: Array.isArray(raw.plugins) ? raw.plugins : []};
+    const loadRealm = (arr, fn) =>
+      Array.isArray(arr)
+        ? arr.filter((it) => it && typeof it.id === 'string' && ID_RE.test(it.id) &&
+            !BLOCKED_IDS.has(it.id) && fn(it))
+        : [];
+    return {
+      patterns,
+      plugins: Array.isArray(raw.plugins) ? raw.plugins : [],
+      themes: loadRealm(raw.themes, sanitizeThemeItem),
+      typography: loadRealm(raw.typography, sanitizeTypographyItem),
+      motion: loadRealm(raw.motion, sanitizeMotionItem),
+      audio: loadRealm(raw.audio, sanitizeAudioItem),
+    };
   } catch (_) {
     return null;
   }
+}
+
+// ── UNIFIED MASTER item sanitizers (theme/typography/motion/audio) ──
+// Each returns a normalized file entry (id/label file-level hoti hai, yahan
+// sirf type-payload ka shape) ya null. Values MASTER schema se hi aate hain.
+const clampNum = (v, cfg) =>
+  typeof v === 'number' && Number.isFinite(v)
+    ? Math.min(cfg.max, Math.max(cfg.min, v))
+    : undefined;
+
+function sanitizeMatchField(it) {
+  if (!it || typeof it.match === 'undefined' || it.match === null) return undefined;
+  if (it.match === '*') return '*';
+  if (Array.isArray(it.match)) {
+    const m = it.match.map((x) => String(x)).filter((x) => MATCH_RE.test(x));
+    return m.length ? m : undefined;
+  }
+  return undefined;
+}
+
+function sanitizeThemeItem(it) {
+  if (!it || typeof it !== 'object' || !it.payload || typeof it.payload !== 'object') return null;
+  const payload = {};
+  if (typeof it.payload.decor !== 'string' || !THEME_DECOR.has(it.payload.decor)) return null;
+  payload.decor = it.payload.decor;
+  const grade = {};
+  if (it.payload.grade && typeof it.payload.grade === 'object') {
+    for (const k of ['brightness', 'contrast', 'saturate']) {
+      const v = clampNum(it.payload.grade[k], GRADE[k]);
+      if (v !== undefined) grade[k] = v;
+    }
+  }
+  if (Object.keys(grade).length) payload.grade = grade;
+  const entry = {payload};
+  const m = sanitizeMatchField(it);
+  if (m) entry.match = m;
+  const aff = Array.isArray(it.affinity)
+    ? it.affinity.map((a) => String(a)).filter((a) => /^[a-z0-9_\-]{1,40}$/.test(a)).slice(0, 8)
+    : [];
+  if (aff.length) entry.affinity = aff;
+  return entry;
+}
+
+function sanitizeTypographyItem(it) {
+  if (!it || typeof it !== 'object') return null;
+  if (typeof it.fontFamily !== 'string' || !FAMILY.has(it.fontFamily)) return null;
+  const entry = {fontFamily: it.fontFamily};
+  const base = clampNum(it.baseSize, TYPO_BASE);
+  if (base !== undefined) entry.baseSize = Math.round(base);
+  const mini = clampNum(it.minSize, TYPO_MIN);
+  if (mini !== undefined) entry.minSize = Math.round(mini);
+  const lh = clampNum(it.lineHeight, TYPO_LH);
+  if (lh !== undefined) entry.lineHeight = lh;
+  const m = sanitizeMatchField(it);
+  if (m) entry.match = m;
+  return entry;
+}
+
+function sanitizeMotionItem(it) {
+  if (!it || typeof it !== 'object') return null;
+  const entry = {};
+  for (const k of Object.keys(MOTION_ENUMS)) {
+    if (typeof it[k] === 'string' && MOTION_ENUMS[k].includes(it[k])) entry[k] = it[k];
+  }
+  if (!Object.keys(entry).length) return null;
+  const m = sanitizeMatchField(it);
+  if (m) entry.match = m;
+  return entry;
+}
+
+function sanitizeAudioItem(it) {
+  if (!it || typeof it !== 'object') return null;
+  const entry = {};
+  if (typeof it.voiceArabic === 'string' && VOICE_AR.has(it.voiceArabic)) entry.voiceArabic = it.voiceArabic;
+  if (typeof it.voiceUrdu === 'string' && VOICE_UR.has(it.voiceUrdu)) entry.voiceUrdu = it.voiceUrdu;
+  if (typeof it.sfxSet === 'string' && SFX_SET.has(it.sfxSet)) entry.sfxSet = it.sfxSet;
+  if (!Object.keys(entry).length) return null;
+  const m = sanitizeMatchField(it);
+  if (m) entry.match = m;
+  return entry;
+}
+
+// Generic master-item fingerprint (type-payload, id/label excluded).
+function fingerprintItem(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  return sha256(JSON.stringify(canonicalize(entry))).slice(0, 12);
 }
 
 function matches(rule, duaId) {
@@ -142,50 +256,95 @@ function stableSeed(n) {
 }
 
 // Plugin rule ka attachment spec (frame + styleOverrides), san aksar ek plugin.
-// GLOBAL POOL (audit fix): targeted (array-match, legacy) > "*" wildcard plugins >
-// standalone pattern pool — seed se deterministic pick. Koi dua-id hardcoding
-// engine level par nahi; data/ custom_vfx.json plugins match:"*" rakhti hain.
+// OPTION B GLOBAL POOL: targeted (array-match, legacy) > string-match >
+// combined pool (wildcard "*" plugins + bare standalone patterns) — seed se
+// deterministic pick. Sab 18+ patterns render-capable bina wrapper ke; koi
+// dua-id hardcoding engine level par nahi — data/custom_vfx.json hi bolti hai.
+function resolvePluginSpec(pl, pack) {
+  let frame = null;
+  if (
+    typeof pl.frameCustomId === 'string' &&
+    !BLOCKED_IDS.has(pl.frameCustomId) &&
+    pack.patterns[pl.frameCustomId]
+  ) {
+    frame = pack.patterns[pl.frameCustomId];
+  } else if (pl.frameCustom && typeof pl.frameCustom === 'object') {
+    frame = sanitizePattern(pl.frameCustom);
+  }
+  const styleOverrides = sanitizeOverrides(pl.styleOverrides);
+  if (!frame && !styleOverrides) return null;
+  return {
+    kind: 'plugin',
+    ...(frame ? {frame} : {}),
+    ...(styleOverrides ? {styleOverrides} : {}),
+  };
+}
+
+function applyVfx(spec, entry) {
+  const vfx = {};
+  if (entry && entry.frame) vfx.frame = entry.frame;
+  if (entry && entry.styleOverrides) vfx.styleOverrides = entry.styleOverrides;
+  if (!vfx.frame && !vfx.styleOverrides) return spec;
+  spec.vfx = vfx;
+  return spec;
+}
+
 function attachVfx(pack, duaId, spec) {
   if (!pack || !spec || typeof spec !== 'object') return spec;
   const plugins = (pack.plugins || []).filter((pl) => pl && typeof pl === 'object');
   const targeted = plugins.filter((pl) => Array.isArray(pl.match) && pl.match.includes(duaId));
-  const wildcard = plugins.filter((pl) => pl.match === '*');
-  const strMatch = plugins.filter((pl) => typeof pl.match === 'string' && pl.match === duaId);
+  const strMatch = plugins.filter((pl) => typeof pl.match === 'string' && pl.match === duaId && pl.match !== '*');
   const seed = stableSeed(spec.seed != null ? spec.seed : duaId);
   const pickOne = (arr) => (arr.length === 1 ? arr[0] : arr[Math.floor(seed % arr.length)]);
-  let chosen = null;
-  if (targeted.length) chosen = pickOne(targeted);
-  else if (wildcard.length) chosen = pickOne(wildcard);
-  else if (strMatch.length) chosen = pickOne(strMatch);
-  if (chosen) {
-    let frame = null;
-    if (
-      typeof chosen.frameCustomId === 'string' &&
-      !BLOCKED_IDS.has(chosen.frameCustomId) &&
-      pack.patterns[chosen.frameCustomId]
-    ) {
-      frame = pack.patterns[chosen.frameCustomId];
-    } else if (chosen.frameCustom && typeof chosen.frameCustom === 'object') {
-      frame = sanitizePattern(chosen.frameCustom);
-    }
-    const styleOverrides = sanitizeOverrides(chosen.styleOverrides);
-    if (frame || styleOverrides) {
-      spec.vfx = {
-        ...(frame ? {frame} : {}),
-        ...(styleOverrides ? {styleOverrides} : {}),
-      };
-      return spec;
-    }
-    return spec;
+
+  if (targeted.length) {
+    const e = resolvePluginSpec(pickOne(targeted), pack);
+    if (e) return applyVfx(spec, e);
+  } else if (strMatch.length) {
+    const e = resolvePluginSpec(pickOne(strMatch), pack);
+    if (e) return applyVfx(spec, e);
   }
-  // Sab plugin pool mein bhi koi match nahi (ya patterns hi pool) →
-  // standalone pattern pool se frame-only deterministic pick (all 18+ reachable).
-  const pats = Object.keys(pack.patterns).map((k) => pack.patterns[k]).filter(Boolean);
-  if (pats.length) {
-    const pd = pickOne(pats);
-    spec.vfx = {frame: pd};
+  // OPTION B combined rotation pool: wildcard "*" plugins AUR bare patterns
+  // (jinhe koi plugin frameCustomId se reference nahi karta) ek sath — doosri
+  // choti dopahar min ek pattern/plugin har dua render hota hai. Deterministic
+  // (seed), pool change = cache-bump (render.js cacheKey → poolSignature).
+  const pool = [];
+  for (const pl of plugins) {
+    if (pl.match === '*') {
+      const e = resolvePluginSpec(pl, pack);
+      if (e) pool.push(e);
+    }
   }
+  const referenced = new Set();
+  for (const pl of plugins) {
+    if (typeof pl.frameCustomId === 'string') referenced.add(pl.frameCustomId);
+  }
+  for (const id of Object.keys(pack.patterns)) {
+    if (referenced.has(id)) continue;
+    pool.push({kind: 'bare', frame: pack.patterns[id]});
+  }
+  if (pool.length) return applyVfx(spec, pickOne(pool));
   return spec;
+}
+
+// Render cache signature: master pool file ki raw bytes ka hash. Imported item
+// → signature badla → cacheKey badla → stale render nahi bach sakta.
+function poolSignature(PROJECT) {
+  try {
+    const raw = fs.readFileSync(packPath(PROJECT));
+    return crypto.createHash('sha256').update(raw).digest('hex').slice(0, 16);
+  } catch (_) {
+    return 'none';
+  }
+}
+
+function masterSummary(pack) {
+  return {
+    themes: (pack && pack.themes ? pack.themes : []).length,
+    typography: (pack && pack.typography ? pack.typography : []).length,
+    motion: (pack && pack.motion ? pack.motion : []).length,
+    audio: (pack && pack.audio ? pack.audio : []).length,
+  };
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -361,6 +520,28 @@ function importBatch(PROJECT, opts) {
   const usedPluginIds = new Set(idx.pluginRecords.map((r) => r.id));
   const pendingPatterns = [];
   const pendingPlugins = [];
+
+  // ── UNIFIED MASTER realms (theme/typography/motion/audio) ──
+  const TYPE_TO_REALM = {theme: 'themes', typography: 'typography', motion: 'motion', audio: 'audio'};
+  const SANITIZE_FN = {
+    themes: sanitizeThemeItem,
+    typography: sanitizeTypographyItem,
+    motion: sanitizeMotionItem,
+    audio: sanitizeAudioItem,
+  };
+  const MASTER_REALMS = ['themes', 'typography', 'motion', 'audio'];
+  const pendingMaster = {themes: [], typography: [], motion: [], audio: []};
+  const usedMasterIds = {};
+  const masterFpMap = {};
+  for (const realm of MASTER_REALMS) {
+    const items = (pack && pack[realm]) || [];
+    usedMasterIds[realm] = new Set(items.map((it) => it && it.id).filter(Boolean));
+    masterFpMap[realm] = new Map();
+    for (const it of items) {
+      const s = SANITIZE_FN[realm](it);
+      if (s) masterFpMap[realm].set(fingerprintItem(s), it.id);
+    }
+  }
   const results = [];
 
   for (let i = 0; i < arr.length; i++) {
@@ -489,19 +670,52 @@ function importBatch(PROJECT, opts) {
       continue;
     }
 
+    if (item.type === 'typography' || item.type === 'theme' ||
+        item.type === 'motion' || item.type === 'audio') {
+      const realm = TYPE_TO_REALM[item.type];
+      const san = SANITIZE_FN[realm];
+      const s = san(item);
+      if (!s) {
+        results.push({index: i, type: item.type, status: 'invalid',
+          reason: 'invalid ' + item.type + ' payload (schema enums par check karo)'});
+        continue;
+      }
+      const fp = fingerprintItem(s);
+      const dupId = masterFpMap[realm].get(fp);
+      if (dupId) {
+        results.push({index: i, type: item.type, id: dupId, label, status: 'duplicate',
+          fingerprint: fp, matchedId: dupId});
+        continue;
+      }
+      const id = uniqueId(slugId(label, item.type), usedMasterIds[realm]);
+      const entry = Object.assign({id}, s);
+      if (label) entry.label = label;
+      pendingMaster[realm].push(entry);
+      usedMasterIds[realm].add(id);
+      masterFpMap[realm].set(fp, id);
+      results.push({index: i, type: item.type, id, label, status: 'added', fingerprint: fp});
+      continue;
+    }
+
     results.push({index: i, type: item.type || '?', status: 'invalid',
-      reason: 'unknown type (pattern|plugin only)'});
+      reason: 'unknown type (pattern|plugin|theme|typography|motion|audio only)'});
   }
 
   let changed = false;
-  if (!dry && (pendingPatterns.length || pendingPlugins.length)) {
+  const hasMaster = MASTER_REALMS.some((r) => pendingMaster[r].length);
+  if (!dry && (pendingPatterns.length || pendingPlugins.length || hasMaster)) {
     let raw = null;
     try { raw = JSON.parse(fs.readFileSync(packPath(PROJECT), 'utf8')); } catch (_) {}
-    const base = (raw && typeof raw === 'object') ? raw : {version: 1};
+    const base = (raw && typeof raw === 'object') ? raw : {};
     const next = Object.assign({}, base, {
+      version: 2,
       patterns: (Array.isArray(base.patterns) ? base.patterns : []).concat(pendingPatterns),
       plugins: (Array.isArray(base.plugins) ? base.plugins : []).concat(pendingPlugins),
     });
+    for (const realm of MASTER_REALMS) {
+      if (!pendingMaster[realm].length) continue;
+      next[realm] = (Array.isArray(base[realm]) ? base[realm] : []).concat(pendingMaster[realm]);
+    }
     writePackAtomic(packPath(PROJECT), next);
     changed = true;
   }
@@ -517,4 +731,6 @@ function importBatch(PROJECT, opts) {
 }
 
 module.exports = {packPath, load, sanitizePattern, sanitizeOverrides, attachVfx,
-  fingerprintPattern, fingerprintPlugin, buildIndex, importBatch, slugId};
+  fingerprintPattern, fingerprintPlugin, fingerprintItem, buildIndex, importBatch,
+  slugId, poolSignature, masterSummary,
+  sanitizeThemeItem, sanitizeTypographyItem, sanitizeMotionItem, sanitizeAudioItem};

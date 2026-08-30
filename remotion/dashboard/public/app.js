@@ -1107,6 +1107,18 @@ const VFX_TOKENS=((_VS&&_VS.colorToken)||['accent','glowColor','particleColor','
 const VFX_ZONES=((_VS&&_VS.zones)||['top','bottom','frame','corners']).join('","');
 const VFX_ZX=((_VS&&_VS.zonesExclusive)||['top','frame']).join('","');
 const VFX_OVR=(_VS&&_VS.overrides&&_VS.overrides.length)?_VS.overrides.map(function(o){return o.key;}).join(','):'cornerInset,cornerSize,cornerOpacity,frameEnabled,frameOpacity1,frameOpacity2,ornamentScale,ornamentSwayDeg,raysOpacity,orbsOpacity,particlesScale,grainOpacityDark,grainOpacityPaper,vignetteScale,bokehCount,bokehOpacity,chromaticAberration,shimmerStrength,noiseVeilOpacity,raysAngleDeg';
+const _MS=(function(){
+  const w=(typeof window==='undefined')?null:window;
+  if(w&&w.MASTER_SCHEMA_UI) return w.MASTER_SCHEMA_UI;
+  return _VS||null;
+})();
+const MS_THEMES=(_MS&&_MS.theme&&_MS.theme.enums&&_MS.theme.enums.id)||['dark','mosque','sunset','manuscript','emerald','ocean','desert','royal','ramadan','eid','qadr'];
+const MS_DECOR=(_MS&&_MS.theme&&_MS.theme.enums&&_MS.theme.enums.decor)||[];
+const MS_FAMILY=(_MS&&_MS.typography&&_MS.typography.enums&&_MS.typography.enums.family)||['amiri-quran','noto-nastaliq-urdu','scheherazade-new'];
+const MS_MOTION=(_MS&&_MS.motion&&_MS.motion.enums)||null;
+const MS_AUDIO=(_MS&&_MS.audio&&_MS.audio.enums)||null;
+const _mq=function(a){return (a&&a.length)?('"'+a.join('"|"')+'"'):'?';};
+const _mw=function(a){return (a&&a.length)?('"'+a.join('","')+'"'):'?';};
 let _vfxRegistry=null, _vfxRawItems=[];
 function openVfxStudio(){
   document.getElementById('vfxbg').classList.add('show');
@@ -1128,18 +1140,29 @@ function vfxPromptText(){
   const fld=function(k){return (_VS&&_VS.fields&&_VS.fields.find(function(x){return x.key===k;}))||{min:0,max:999};};
   const lo=function(k){return fld(k).min;};
   const hi=function(k){return fld(k).max;};
-  L.push('You design Islamic geometric VFX (SVG) presets for a Remotion dua-video app. Output: ONLY a JSON array. Har element EITHER pattern hai ya plugin:');
+  L.push('You design visual presets (UNIFIED MASTER pool) for a Remotion dua-video app. Output: ONLY a JSON array. Har element EK item type follow kare — SIRF ye 6 types allow hain:');
   L.push('');
-  L.push('PATTERN: {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":'+lo('tileSize')+'-'+hi('tileSize')+',"strokeWidth":'+lo('strokeWidth')+'-'+hi('strokeWidth')+',"colorToken":"'+VFX_TOKENS+'","alpha":'+lo('alpha')+'-'+hi('alpha')+',"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB"(sirf zaruri jab colorToken="solid"; warna omit),"breathFrames":0-'+hi('breathFrames')+',"breathAmpl":0-'+hi('breathAmpl')+',"seedSalt":0-'+hi('seedSalt')+',"bandSize":'+lo('bandSize')+'-'+hi('bandSize')+'}');
+  L.push('1) PATTERN (geometric SVG VFX): {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":'+lo('tileSize')+'-'+hi('tileSize')+',"strokeWidth":'+lo('strokeWidth')+'-'+hi('strokeWidth')+',"colorToken":"'+VFX_TOKENS+'","alpha":'+lo('alpha')+'-'+hi('alpha')+',"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB"(sirf zaruri jab colorToken="solid"; warna omit),"breathFrames":0-'+hi('breathFrames')+',"breathAmpl":0-'+hi('breathAmpl')+',"seedSalt":0-'+hi('seedSalt')+',"bandSize":'+lo('bandSize')+'-'+hi('bandSize')+'}');
   L.push('  id mat bhejo — server label se unique id khud banayega.');
   L.push('');
-  L.push('PLUGIN (pool style — DEFAULT match "*" taake sab duas dynamically style milein): {"type":"plugin","label":"...","match":"*"(sab duas, global — industry default, koi dua-id hardcode nahi), ya ["dua_id_1","dua_id_2"](sirf targeted legacy),"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{...} — overrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
+  L.push('2) PLUGIN (VFX pool attachment — DEFAULT match "*" taake sab duas dynamically style milein): {"type":"plugin","label":"...","match":"*"(sab duas, global — koi dua-id hardcode nahi), ya ["dua_id_1","dua_id_2"](sirf targeted legacy),"frameCustomId":"existing_pattern_id"(ya inline "frameCustom": {poora Pattern object}),"styleOverrides":{...}} — overrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
+  L.push('');
+  L.push('3) THEME (naya color-mood; existing themes mutate mat karo): {"type":"theme","label":"...","match":"*","affinity":["category_or_empty_id_1","..."](optional — in categories par prioritized),"payload":{"decor":"'+_mw(MS_DECOR)+'","grade":{"brightness":0.7-1.5,"contrast":0.7-1.6,"saturate":0.5-1.8}(grade optional)} }');
+  L.push('');
+  L.push('4) TYPOGRAPHY (sirf packaged families): {"type":"typography","label":"...","match":"*","fontFamily":"'+_mq(MS_FAMILY)+'","baseSize":44-160(int),"minSize":20-90(int),"lineHeight":1.2-3}');
+  L.push('');
+  L.push('5) MOTION (clean movement pick — enum-only, kabhi timing seconds NAHI — audio sync sacred; ek ya zyada positions): {"type":"motion","label":"...","match":"*","camera":"static","textFx":"glide","introFx":"classic"}');
+  if(MS_MOTION){
+    for(const k of Object.keys(MS_MOTION)) L.push('     • '+k+' = '+_mq(MS_MOTION[k]));
+  }
+  L.push('');
+  L.push('6) AUDIO (voice/sfx selection — recitation track kabhi override nahi): {"type":"audio","label":"...","match":"*","voiceArabic":"'+_mq(MS_AUDIO&&MS_AUDIO.voiceArabic)+'","voiceUrdu":"'+_mq(MS_AUDIO&&MS_AUDIO.voiceUrdu)+'","sfxSet":"'+_mq(MS_AUDIO&&MS_AUDIO.sfxSet)+'"}');
   L.push('');
   L.push('HARD RULES:');
   L.push('1. SIRF JSON array output do — koi extra text, markdown, ya explanation nahi.');
-  L.push('2. zones mein "'+VFX_ZX+'" ek sath allowed NAHI (exclusive).');
+  L.push('2. VFX zones mein "'+VFX_ZX+'" ek sath allowed NAHI (exclusive).');
   L.push('3. colorToken SIRF "'+VFX_TOKENS+'" mein se ho; "solid" token par solidColor #RRGGBB ZARURI hai.');
-  L.push('4. Har number documented range ke andar ho.');
+  L.push('4. Har number documented range ke andar ho; theme/typography/motion/audio sirf listed enums/limits.');
   L.push('5. DEDUP CHECKER RUNGEGA — ye ALREADY-REGISTERED signatures duplicate/very-similar mat banao:');
   if(r&&r.indexes){
     L.push('   REGISTERED patterns ('+(r.patterns||[]).length+'):');
@@ -1148,7 +1171,7 @@ function vfxPromptText(){
     for(const p of (r.plugins||[])) L.push('     - "'+p.id+'" match='+((p.plugin&&p.plugin.match)||[]).join(','));
   }
   L.push('');
-  L.push('Output: [ {pehla design}, {doosra design}, ... ]');
+  L.push('Output: [ {pehla design}, {doosra design}, ... ] (sirf 6 types — unknown type reject hoga)');
   return L.join('\n');
 }
 function vfxCopyPrompt(){
@@ -1156,7 +1179,7 @@ function vfxCopyPrompt(){
   const el=document.getElementById('vfx_promptbox');
   if(el) el.textContent=t;
   navigator.clipboard.writeText(t)
-    .then(()=>toast('AI VFX prompt copy! Gemini pe paste karo','ok'))
+    .then(()=>toast('AI Master prompt copy! Gemini pe paste karo','ok'))
     .catch(()=>toast('Copy fail — prompt box se manually copy karo','err'));
 }
 function vfxLiveCheck(){
@@ -1283,7 +1306,7 @@ async function vfxRefresh(){
     const j=await r.json();
     if(!j.ok) throw new Error(j.error||'list fail');
     _vfxRegistry=j;
-    if(rc) rc.textContent='('+(j.patterns.length)+' patterns / '+(j.plugins.length)+' plugins registered)';
+    if(rc) rc.textContent='('+(j.patterns.length)+' patterns / '+(j.plugins.length)+' plugins'+(j.master&&(j.master.themes||0)+(j.master.typography||0)+(j.master.motion||0)+(j.master.audio||0)>0?' + '+(j.master.themes||0)+' theme / '+(j.master.typography||0)+' type / '+(j.master.motion||0)+' motion / '+(j.master.audio||0)+' audio':'')+' registered)';
     const box=document.getElementById('vfx_registry');
     box.innerHTML='';
     const both=[];
