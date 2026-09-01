@@ -1,10 +1,12 @@
 """
 Backup Script for Dua Video Generator
 Backs up vault, salt, tokens, and critical config files.
+Sensitive files (auth.json, tokens) are encrypted with Fernet.
 """
 
 import hashlib
 import json
+import os
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -15,19 +17,58 @@ DATA_DIR = PROJECT / "data"
 SECURITY_DIR = PROJECT / "security"
 REMOTION_DIR = PROJECT / "remotion"
 
-# Files to backup
+# Files to backup — (rel_path, description, encrypt?)
 BACKUP_FILES = [
     # Security
-    ("security/salt.bin", "Security salt"),
-    ("remotion/dashboard/auth.json", "Dashboard auth token"),
-    ("remotion/dashboard/config.json", "Dashboard config"),
+    ("security/salt.bin", "Security salt", False),
+    ("remotion/dashboard/auth.json", "Dashboard auth token", True),
+    ("remotion/dashboard/config.json", "Dashboard config", False),
     # YouTube tokens (if exist)
-    ("data/yt_token_main.json", "YouTube main token"),
-    ("data/yt_token_secondary.json", "YouTube secondary token"),
+    ("data/yt_token_main.json", "YouTube main token", True),
+    ("data/yt_token_secondary.json", "YouTube secondary token", True),
     # Data
-    ("data/duas.json", "Duas database"),
-    ("data/categories.json", "Categories database"),
+    ("data/duas.json", "Duas database", False),
+    ("data/categories.json", "Categories database", False),
 ]
+
+# Backup encryption key — derived from machine-specific secret
+_BACKUP_KEY_ENV = "DUA_BACKUP_KEY"
+
+
+def _get_backup_key():
+    """Get or generate a Fernet key for backup encryption."""
+    from cryptography.fernet import Fernet
+    raw = os.environ.get(_BACKUP_KEY_ENV)
+    if raw:
+        return raw.encode() if isinstance(raw, str) else raw
+    # Derive from project path + salt (stable per machine)
+    salt_path = SECURITY_DIR / "salt.bin"
+    seed = str(PROJECT).encode()
+    if salt_path.exists():
+        seed += salt_path.read_bytes()
+    else:
+        seed += b"dua-backup-fallback"
+    import base64
+    h = hashlib.sha256(seed).digest()
+    return base64.urlsafe_b64encode(h)
+
+
+def encrypt_backup_file(src_path, dst_path):
+    """Encrypt a file for backup using Fernet."""
+    from cryptography.fernet import Fernet
+    key = _get_backup_key()
+    cipher = Fernet(key)
+    data = src_path.read_bytes()
+    encrypted = cipher.encrypt(data)
+    dst_path.write_bytes(encrypted)
+
+
+def decrypt_backup_file(src_path):
+    """Decrypt a backup file. Returns decrypted bytes."""
+    from cryptography.fernet import Fernet
+    key = _get_backup_key()
+    cipher = Fernet(key)
+    return cipher.decrypt(src_path.read_bytes())
 
 def compute_checksum(file_path):
     """Compute SHA-256 checksum of a file."""
@@ -41,22 +82,28 @@ def compute_checksum(file_path):
         return None
 
 def create_backup():
-    """Create timestamped backup."""
+    """Create timestamped backup. Sensitive files are encrypted."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_path = BACKUP_DIR / f"backup_{timestamp}"
     backup_path.mkdir(parents=True, exist_ok=True)
 
     backed_up = []
     checksums = {}
-    for rel_path, description in BACKUP_FILES:
+    encrypted = []
+    for rel_path, description, do_encrypt in BACKUP_FILES:
         src = PROJECT / rel_path
         if src.exists():
             dst = backup_path / rel_path
             dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
+            if do_encrypt:
+                encrypt_backup_file(src, dst)
+                encrypted.append(rel_path)
+                backed_up.append(f"  ✓ {description}: {rel_path} [ENCRYPTED]")
+            else:
+                shutil.copy2(src, dst)
+                backed_up.append(f"  ✓ {description}: {rel_path}")
             checksum = compute_checksum(dst)
             checksums[rel_path] = checksum
-            backed_up.append(f"  ✓ {description}: {rel_path}")
         else:
             backed_up.append(f"  - {description}: {rel_path} (not found)")
 
@@ -65,6 +112,7 @@ def create_backup():
         "timestamp": timestamp,
         "files": backed_up,
         "checksums": checksums,
+        "encrypted": encrypted,
         "project": str(PROJECT)
     }
     (backup_path / "manifest.json").write_text(

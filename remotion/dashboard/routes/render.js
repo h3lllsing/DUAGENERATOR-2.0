@@ -19,6 +19,52 @@ module.exports = function renderRoutes(deps) {
     skipped: [], cancelRequested: false};
   const children = new Set();
 
+  // ── Job persistence (survive restart) ──
+  const QUEUE_STATE_PATH = path.join(TEMP, 'queue_state.json');
+
+  function saveQueueState() {
+    try {
+      const state = {
+        items: queue.items, idx: queue.idx, done: queue.done,
+        failed: queue.failed, skipped: queue.skipped,
+        savedAt: Date.now(),
+      };
+      fs.writeFileSync(QUEUE_STATE_PATH, JSON.stringify(state), 'utf8');
+    } catch (_) {}
+  }
+
+  function loadQueueState() {
+    try {
+      if (!fs.existsSync(QUEUE_STATE_PATH)) return null;
+      const raw = JSON.parse(fs.readFileSync(QUEUE_STATE_PATH, 'utf8'));
+      // Discard if older than 1 hour (stale)
+      if (Date.now() - (raw.savedAt || 0) > 3600000) {
+        try { fs.unlinkSync(QUEUE_STATE_PATH); } catch (_) {}
+        return null;
+      }
+      return raw;
+    } catch (_) { return null; }
+  }
+
+  function clearQueueState() {
+    try { if (fs.existsSync(QUEUE_STATE_PATH)) fs.unlinkSync(QUEUE_STATE_PATH); } catch (_) {}
+  }
+
+  // Restore pending queue items on startup (items not yet done/failed)
+  const _restored = loadQueueState();
+  if (_restored && _restored.items && _restored.items.length) {
+    const pending = _restored.items.slice(_restored.idx || 0);
+    const doneSet = new Set(_restored.done || []);
+    const failedSet = new Set((_restored.failed || []).map(f => f.id));
+    const remaining = pending.filter(id => !doneSet.has(id) && !failedSet.has(id));
+    if (remaining.length) {
+      queue.items = remaining;
+      queue.idx = 0;
+      log('RESTORE: ' + remaining.length + ' pending dua(s) from previous session');
+    }
+    clearQueueState();
+  }
+
   // ── Constants ──
   const HIST_PATH = path.join(__dirname, '..', 'history.json');
   const STYLE_PRESETS = ['auto', 'classic', 'royal', 'minimal', 'cinematic',
@@ -607,12 +653,14 @@ module.exports = function renderRoutes(deps) {
         log('BATCH item failed: ' + id + ' (' + msg + ') - aage barh rahe hain');
       }
       queue.idx++;
+      saveQueueState();
     }
     const wasCancel = queue.cancelRequested;
     const remaining = queue.items.slice(queue.idx);
     if (wasCancel && remaining.length) queue.skipped.push(...remaining);
     queue.active = false;
     queue.cancelRequested = false;
+    clearQueueState();
     job.running = false;
     job.child = null;
     log('BATCH ' + (wasCancel ? 'CANCELLED' : 'COMPLETE') + ': ' +
@@ -956,6 +1004,7 @@ module.exports = function renderRoutes(deps) {
         }
         queue.active = true; queue.items = items; queue.idx = 0;
         queue.done = []; queue.failed = []; queue.skipped = []; queue.cancelRequested = false;
+        saveQueueState();
         processQueue();
         log('BATCH START: ' + items.length + ' videos (sirf missing - rendered skip)');
         send(res, 200, JSON.stringify({ok: true, total: items.length}));
