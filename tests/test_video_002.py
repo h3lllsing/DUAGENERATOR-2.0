@@ -1,5 +1,5 @@
 """
-VIDEO-002 tests: 15-25s duration policy, exact 24 FPS gate, short-dua padding,
+VIDEO-002 tests: 15-50s duration policy, exact 45 FPS gate, short-dua padding,
 long-dua hold reduction, and edge-tts word-boundary parsing.
 
 Run with: python -m pytest tests/test_video_002.py -v

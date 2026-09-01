@@ -7,6 +7,7 @@ import os
 import sys
 import shutil
 import subprocess
+import json
 import pytest
 from cryptography.fernet import Fernet
 
@@ -164,7 +165,7 @@ class TestSecurityManager:
         large_data = {"key_" + str(i): "value_" + str(i) for i in range(1000)}
         encrypted = self.sm.encrypt(str(large_data))
         decrypted = self.sm.decrypt(encrypted)
-        assert eval(decrypted) == large_data, "Large data should encrypt/decrypt correctly"
+        assert json.loads(decrypted) == large_data, "Large data should encrypt/decrypt correctly"
 
 
 class TestVaultMigration:

@@ -9,6 +9,7 @@ on:
 jobs:
   python-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
@@ -50,6 +51,7 @@ jobs:
 
   syntax-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -86,6 +88,7 @@ jobs:
 
   remotion-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout

@@ -661,9 +661,10 @@ function setVoiceMode(m){
 let vpReady=false;
 let waveSurfer=null;
 let vpGen=0;
+let vpBlobUrl=null;
 function vpTimeFmt(s){ if(!isFinite(s)||s<0)s=0; const m=Math.floor(s/60),x=Math.floor(s%60); return m+':'+('0'+x).slice(-2); }
 function vpSetBtn(playing){ const b=document.getElementById('vp_play'); if(b) b.innerHTML=playing?'&#10074;&#10074; Pause':'&#9654; Play'; }
-function vpReset(){ vpReady=false; if(waveSurfer){ try{ waveSurfer.destroy(); }catch(_){} waveSurfer=null; } const t=document.getElementById('vp_time'); if(t) t.textContent='0:00 / 0:00'; vpSetBtn(false); }
+function vpReset(){ vpReady=false; if(waveSurfer){ try{ waveSurfer.destroy(); }catch(_){} waveSurfer=null; } if(vpBlobUrl){ try{ URL.revokeObjectURL(vpBlobUrl); }catch(_){} vpBlobUrl=null; } const t=document.getElementById('vp_time'); if(t) t.textContent='0:00 / 0:00'; vpSetBtn(false); }
 async function vpLoad(url){
   const gen=++vpGen;
   document.getElementById('voiceplayer').style.display='block';
@@ -684,6 +685,7 @@ async function vpLoad(url){
     finally{ try{ if(probe)probe.close(); }catch(_){} }
     if(gen!==vpGen)return;
     const blobUrl=URL.createObjectURL(bl);
+    vpBlobUrl=blobUrl;
     const ws=WaveSurfer.create({
       container:'#ap_voice',
       url:blobUrl,
@@ -1471,6 +1473,21 @@ async function saveDua(){
   else { setMsg(j.error||'Error','err'); ensureDedupAlert(); checkDedupLive(); }
 }
 poll(); setInterval(poll,3000); load(); setInterval(load,15000);
+var _pollIntervals=[3000,15000];
+var _pollTimers=[];
+function _startPolling(){
+  _stopPolling();
+  _pollTimers.push(setInterval(poll,_pollIntervals[0]));
+  _pollTimers.push(setInterval(load,_pollIntervals[1]));
+}
+function _stopPolling(){
+  _pollTimers.forEach(function(t){clearInterval(t);});
+  _pollTimers=[];
+}
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){_stopPolling();}
+  else{_startPolling();}
+});
 document.getElementById('yt_mode').addEventListener('change',function(){
   var w=document.getElementById('yt_mode_warn');
   var btn=document.getElementById('yt_start');

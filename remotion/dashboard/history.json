@@ -1,5 +1,12 @@
 [
   {
+    "ts": "2026-09-01T08:33:50.996Z",
+    "duaId": "hamd_o_sanah_ki_dua",
+    "title": "hamd_o_sanah_ki_dua",
+    "result": "FAIL",
+    "error": "render failed (exit 1)"
+  },
+  {
     "ts": "2026-09-01T08:20:42.501Z",
     "duaId": "hamd_o_sanah_ki_dua",
     "title": "Hamd O Sanah Ki Dua",
@@ -1381,12 +1388,6 @@
     "ts": "2026-08-23T15:33:17.342Z",
     "duaId": "kisi_aur_ke_yahan_iftar_ki_dua",
     "title": "Kisi Aur Ke Yahan Iftar Ki Dua",
-    "result": "PASS"
-  },
-  {
-    "ts": "2026-08-23T15:31:49.154Z",
-    "duaId": "qadr_ki_raat_ki_dua",
-    "title": "Qadr Ki Raat Ki Dua",
     "result": "PASS"
   }
 ]
