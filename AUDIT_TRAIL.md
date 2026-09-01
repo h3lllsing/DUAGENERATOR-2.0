@@ -454,7 +454,7 @@ Why ANGLE:
 ### 11.1 Encryption
 ```
 Algorithm:    AES-128-CBC (Fernet)
-Key Derivation: PBKDF2-HMAC-SHA256 (100,000 iterations)
+Key Derivation: PBKDF2-HMAC-SHA256 (600,000 iterations)
 Salt:         Random 16-byte per-installation
 Storage:      security/salt.bin + security/vault.enc
 ```

@@ -8,9 +8,14 @@ from typing import List
 
 logger = logging.getLogger(__name__)
 
-# Available effect names (used by effect_director and self_trainer)
-AVAILABLE_EFFECTS = ["neon_glow", "metallic_gold", "typewriter",
-                     "bounce", "wave", "glitch"]
+# Available effect names (synced with effects_engine.py)
+AVAILABLE_EFFECTS = [
+    # Legacy effects
+    "neon_glow", "metallic_gold", "typewriter", "bounce", "wave", "glitch",
+    # AI effects (via effect_director)
+    "bloom_glow", "gold_shimmer", "breathing", "rtl_reveal", "glitch_v2",
+    "word_pulse", "aurora", "title_hook", "summary_card",
+]
 
 # Color scheme presets
 COLOR_SCHEMES = {

@@ -255,24 +255,20 @@ class EffectsEngine:
         
         progress = frame_num / total_frames
         
-        # Create wave displacement
-        result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
-        
         # Apply fade-in
         alpha = int(255 * min(1.0, progress * 2))
         r, g, b, a = text_img.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
         
-        # Apply wave distortion using numpy (vectorized)
+        # Vectorized wave distortion using numpy advanced indexing
         arr = np.array(text_faded)
         H, W = arr.shape[:2]
         ys = np.arange(H).reshape(-1, 1)
         wave_offsets = (10 * np.sin(progress * np.pi * 4 + ys * 0.05)).astype(np.int32)
-        for y in range(H):
-            offset = wave_offsets[y, 0]
-            if offset != 0:
-                arr[y] = np.roll(arr[y], offset, axis=0)
+        cols = np.arange(W).reshape(1, -1)
+        shifted_cols = (cols + wave_offsets) % W
+        arr = arr[ys, shifted_cols]
         result = Image.fromarray(arr)
         
         return result

@@ -367,7 +367,7 @@ class SecurityManager:
     
     def save_key(self, key_name: str, key_data: str):
         """
-        Save an encrypted key.
+        Save an encrypted key (atomic write).
         
         Args:
             key_name: Name of the key
@@ -375,8 +375,12 @@ class SecurityManager:
         """
         encrypted = self.encrypt(key_data)
         key_path = os.path.join(self.keys_dir, f"{key_name}.enc")
-        with open(key_path, 'w') as f:
+        tmp_path = key_path + f".{os.getpid()}.tmp"
+        with open(tmp_path, 'w') as f:
             f.write(encrypted)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, key_path)
     
     def load_key(self, key_name: str) -> str:
         """

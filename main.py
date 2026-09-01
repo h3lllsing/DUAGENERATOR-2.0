@@ -876,7 +876,7 @@ class DuaVideoPipeline:
         elif choice == "2":
             logger.info("Security: AES-128-CBC Encryption (Fernet)")
             logger.info("Key Derivation: PBKDF2-HMAC-SHA256")
-            logger.info("Iterations: 100,000")
+            logger.info("Iterations: 600,000")
         elif choice == "3":
             return
         else:
@@ -884,10 +884,29 @@ class DuaVideoPipeline:
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Dua Video Generator")
+    parser.add_argument("--dua", type=str, help="Generate video for specific dua ID")
+    parser.add_argument("--theme", type=str, default="dark", help="Video theme (default: dark)")
+    parser.add_argument("--effect", type=str, default="auto", help="Visual effect (default: auto)")
+    parser.add_argument("--batch", action="store_true", help="Generate all missing videos")
+    parser.add_argument("--list", action="store_true", help="List all dua IDs")
+    args = parser.parse_args()
+
     try:
         pipeline = DuaVideoPipeline()
-        pipeline.interactive_menu()
+        if args.dua:
+            ok = pipeline.generate_video(args.dua, theme=args.theme, effect=args.effect)
+            sys.exit(0 if ok else 1)
+        elif args.batch:
+            pipeline._batch_generate()
+        elif args.list:
+            for dua in DB.get_all_duas():
+                print(dua.get('id', ''))
+        else:
+            pipeline.interactive_menu()
     except KeyboardInterrupt:
         logger.info("Interrupted by user.")
     except Exception as e:
         logger.error(f"Fatal error: {e}", exc_info=True)
+        sys.exit(1)
