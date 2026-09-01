@@ -37,7 +37,6 @@ _BACKUP_KEY_ENV = "DUA_BACKUP_KEY"
 
 def _get_backup_key():
     """Get or generate a Fernet key for backup encryption."""
-    from cryptography.fernet import Fernet
     raw = os.environ.get(_BACKUP_KEY_ENV)
     if raw:
         return raw.encode() if isinstance(raw, str) else raw

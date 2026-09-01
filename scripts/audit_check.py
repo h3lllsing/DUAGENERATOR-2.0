@@ -1,5 +1,4 @@
 """Quick audit script — checks for common issues."""
-import re
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent

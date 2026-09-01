@@ -5,7 +5,6 @@ import os, sys, json, tempfile, asyncio
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT)
 
-from core.tts_engine import TTSEngine
 
 SAMPLE_TEXTS = {
     "ar": "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ",

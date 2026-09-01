@@ -25,7 +25,6 @@ REQUIRED_FIELDS = {"base_url", "api_keys", "models"}
 
 def _get_encryption_key():
     """Get or derive a Fernet key for API config encryption."""
-    from cryptography.fernet import Fernet  # noqa: F811
 
     raw = os.environ.get(_API_KEY_ENV)
     if raw:
