@@ -84,6 +84,24 @@ class TTSEngine:
     SAVE_TIMEOUT = 25  # seconds; abort a hung edge-tts connection
 
     @staticmethod
+    def _load_voice_prosody() -> dict:
+        """Load per-voice prosody overrides from data/voice_prosody.json.
+
+        Returns a dict keyed by voice name with 'rate' and 'pitch' values,
+        or an empty dict if the file is missing or invalid.
+        """
+        cfg_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                'data', 'voice_prosody.json')
+        try:
+            with open(cfg_path, encoding='utf-8') as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                return data
+        except (OSError, json.JSONDecodeError):
+            pass
+        return {}
+
+    @staticmethod
     async def _save_with_timeout(communicate, output_file, **kwargs):
         try:
             return await asyncio.wait_for(
@@ -164,9 +182,11 @@ class TTSEngine:
 
         # ENGINE ROUTING: edge-tts (primary).
         voice = (voice or "").strip() or TTSEngine.VOICES[language]
-        prosody = TTSEngine.PROSODY.get(language, {})
-        rate = prosody.get('rate')
-        pitch = prosody.get('pitch')
+        # Check per-voice config first, then fall back to language defaults
+        voice_cfg = TTSEngine._load_voice_prosody().get(voice, {})
+        lang_prosody = TTSEngine.PROSODY.get(language, {})
+        rate = voice_cfg.get('rate') or lang_prosody.get('rate')
+        pitch = voice_cfg.get('pitch') or lang_prosody.get('pitch')
         # Ensure the temp folder exists
         os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
 
@@ -210,10 +230,11 @@ class TTSEngine:
         Returns:
             tuple: (ar_success: bool, ur_success: bool)
         """
-        ar_prosody = TTSEngine.PROSODY.get('ar', {})
-        ur_prosody = TTSEngine.PROSODY.get('ur', {})
+        voice_cfg = TTSEngine._load_voice_prosody()
         ar_v = (ar_voice or "").strip() or TTSEngine.VOICES['ar']
         ur_v = (ur_voice or "").strip() or TTSEngine.VOICES['ur']
+        ar_prosody = voice_cfg.get(ar_v, TTSEngine.PROSODY.get('ar', {}))
+        ur_prosody = voice_cfg.get(ur_v, TTSEngine.PROSODY.get('ur', {}))
 
         os.makedirs(os.path.dirname(os.path.abspath(ar_output)), exist_ok=True)
         os.makedirs(os.path.dirname(os.path.abspath(ur_output)), exist_ok=True)

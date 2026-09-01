@@ -60,6 +60,9 @@ module.exports = function duaRoutes(deps) {
   }
   async function exists(p) { return existsFn(p, fs); }
 
+  // Auto-clean trash older than 30 days on startup
+  cleanOldTrash();
+
   // ── duplicate detection (exact + fuzzy >=90%) ──
   function _norm(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
   function _normArabic(s) {
@@ -207,6 +210,8 @@ module.exports = function duaRoutes(deps) {
     send(res, 200, JSON.stringify({ok: true, id}));
   }
 
+  const TRASH_DIR = path.join(PROJECT, 'data', 'trash');
+
   async function doDelete(res, body) {
     const f = parseJson(body, 'delete-dua');
     const id = String(f.id || '').trim();
@@ -215,22 +220,81 @@ module.exports = function duaRoutes(deps) {
     const list = toList(raw);
     const target = list.find((d) => d.id === id);
     if (!target) throw err(404, 'dua nahi mili');
-    
-    // Soft-delete: archive the dua instead of permanent deletion
-    const ARCHIVE_PATH = path.join(PROJECT, 'data', 'duas_archive.json');
-    let archive = [];
-    try { archive = JSON.parse((await F.readFile(ARCHIVE_PATH, 'utf8')).replace(/^\uFEFF/, '')); } catch (_) {}
-    if (!Array.isArray(archive)) archive = [];
-    target._deletedAt = new Date().toISOString();
-    target._deletedBy = 'user';
-    archive.push(target);
-    await F.writeFile(ARCHIVE_PATH, JSON.stringify(archive, null, 2), 'utf8');
-    
+
+    // Soft-delete: save to data/trash/ with timestamp
+    await F.mkdir(TRASH_DIR, {recursive: true});
+    const ts = Date.now();
+    const trashFile = path.join(TRASH_DIR, `${id}_${ts}.json`);
+    const trashEntry = Object.assign({}, target, {_deletedAt: new Date().toISOString(), _deletedBy: 'user', _trashTs: ts});
+    await F.writeFile(trashFile, JSON.stringify(trashEntry, null, 2), 'utf8');
+
     // Remove from active list
     const next = list.filter((d) => d.id !== id);
     await writeDuaDb(raw, next);
-    log('DUA SOFT-DELETED (archived): ' + id);
+    log('DUA SOFT-DELETED (trashed): ' + id);
     send(res, 200, JSON.stringify({ok: true, archived: true, undoId: id}));
+  }
+
+  async function doTrashList(res) {
+    await F.mkdir(TRASH_DIR, {recursive: true});
+    const files = await F.readdir(TRASH_DIR);
+    const items = [];
+    for (const f of files) {
+      if (!f.endsWith('.json')) continue;
+      try {
+        const raw = await F.readFile(path.join(TRASH_DIR, f), 'utf8');
+        items.push(JSON.parse(raw));
+      } catch (_) {}
+    }
+    items.sort((a, b) => (b._trashTs || 0) - (a._trashTs || 0));
+    send(res, 200, JSON.stringify({ok: true, items}));
+  }
+
+  async function doTrashRestore(res, id) {
+    if (!id || !/^[a-z0-9_]{1,80}$/.test(id)) throw err(400, 'invalid dua id');
+    await F.mkdir(TRASH_DIR, {recursive: true});
+    const files = await F.readdir(TRASH_DIR);
+    // Find latest trash file for this id
+    let best = null;
+    let bestTs = 0;
+    for (const f of files) {
+      if (!f.startsWith(id + '_') || !f.endsWith('.json')) continue;
+      const ts = parseInt(f.split('_').pop().replace('.json', ''), 10);
+      if (ts > bestTs) {
+        bestTs = ts;
+        best = f;
+      }
+    }
+    if (!best) throw err(404, 'trashed dua not found');
+    const raw = await F.readFile(path.join(TRASH_DIR, best), 'utf8');
+    const dua = JSON.parse(raw);
+    delete dua._deletedAt;
+    delete dua._deletedBy;
+    delete dua._trashTs;
+    // Remove from trash
+    await F.unlink(path.join(TRASH_DIR, best));
+    // Restore to active list
+    const db = await readDuaDb();
+    const list = toList(db);
+    list.push(dua);
+    await writeDuaDb(db, list);
+    log('DUA RESTORED FROM TRASH: ' + id);
+    send(res, 200, JSON.stringify({ok: true, restored: true}));
+  }
+
+  async function cleanOldTrash() {
+    try {
+      await F.mkdir(TRASH_DIR, {recursive: true});
+      const files = await F.readdir(TRASH_DIR);
+      const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000; // 30 days
+      for (const f of files) {
+        if (!f.endsWith('.json')) continue;
+        const ts = parseInt(f.split('_').pop().replace('.json', ''), 10);
+        if (ts && ts < cutoff) {
+          try { await F.unlink(path.join(TRASH_DIR, f)); } catch (_) {}
+        }
+      }
+    } catch (_) {}
   }
 
   async function doUndoDelete(res, body) {
@@ -238,28 +302,51 @@ module.exports = function duaRoutes(deps) {
     const id = String(f.id || '').trim();
     if (!id || !/^[a-z0-9_]{1,80}$/.test(id)) throw err(400, 'invalid dua id');
     
+    // Try archive first (legacy path)
     const ARCHIVE_PATH = path.join(PROJECT, 'data', 'duas_archive.json');
     let archive = [];
     try { archive = JSON.parse((await F.readFile(ARCHIVE_PATH, 'utf8')).replace(/^\uFEFF/, '')); } catch (_) {}
-    if (!Array.isArray(archive)) throw err(404, 'archive empty');
     
     const idx = archive.findIndex((d) => d.id === id);
-    if (idx < 0) throw err(404, 'archived dua not found');
+    if (idx >= 0) {
+      const dua = archive.splice(idx, 1)[0];
+      delete dua._deletedAt;
+      delete dua._deletedBy;
+      await F.writeFile(ARCHIVE_PATH, JSON.stringify(archive, null, 2), 'utf8');
+      const raw = await readDuaDb();
+      const list = toList(raw);
+      list.push(dua);
+      await writeDuaDb(raw, list);
+      log('DUA RESTORED FROM ARCHIVE: ' + id);
+      return send(res, 200, JSON.stringify({ok: true, restored: true}));
+    }
     
-    const dua = archive.splice(idx, 1)[0];
-    delete dua._deletedAt;
-    delete dua._deletedBy;
+    // Try trash directory
+    await F.mkdir(TRASH_DIR, {recursive: true});
+    const files = await F.readdir(TRASH_DIR);
+    let best = null;
+    let bestTs = 0;
+    for (const f of files) {
+      if (!f.startsWith(id + '_') || !f.endsWith('.json')) continue;
+      const ts = parseInt(f.split('_').pop().replace('.json', ''), 10);
+      if (ts > bestTs) { bestTs = ts; best = f; }
+    }
+    if (best) {
+      const raw2 = await F.readFile(path.join(TRASH_DIR, best), 'utf8');
+      const dua = JSON.parse(raw2);
+      delete dua._deletedAt;
+      delete dua._deletedBy;
+      delete dua._trashTs;
+      await F.unlink(path.join(TRASH_DIR, best));
+      const db = await readDuaDb();
+      const list = toList(db);
+      list.push(dua);
+      await writeDuaDb(db, list);
+      log('DUA RESTORED FROM TRASH: ' + id);
+      return send(res, 200, JSON.stringify({ok: true, restored: true}));
+    }
     
-    // Write back archive
-    await F.writeFile(ARCHIVE_PATH, JSON.stringify(archive, null, 2), 'utf8');
-    
-    // Restore to active list
-    const raw = await readDuaDb();
-    const list = toList(raw);
-    list.push(dua);
-    await writeDuaDb(raw, list);
-    log('DUA RESTORED FROM ARCHIVE: ' + id);
-    send(res, 200, JSON.stringify({ok: true, restored: true}));
+    throw err(404, 'archived/trashed dua not found');
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -323,6 +410,19 @@ module.exports = function duaRoutes(deps) {
       readBody(req, res).then((body) => {
         routeCatch(res, () => doUndoDelete(res, body));
       }, () => {});
+      return true;
+    }
+
+    // ── GET /api/trash ──
+    if (method === 'GET' && p === '/api/trash') {
+      routeCatch(res, () => doTrashList(res));
+      return true;
+    }
+
+    // ── POST /api/trash/restore/:id ──
+    if (method === 'POST' && /^\/api\/trash\/restore\/[a-z0-9_]{1,80}$/.test(p)) {
+      const restoreId = p.split('/').pop();
+      routeCatch(res, () => doTrashRestore(res, restoreId));
       return true;
     }
 

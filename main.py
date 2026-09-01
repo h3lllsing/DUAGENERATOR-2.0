@@ -272,11 +272,41 @@ class DuaVideoPipeline:
             arabic_text = dua_data.get('arabic', '')
             urdu_text = dua_data.get('urdu', '')
             title = dua_data.get('title', 'Dua')
-            logger.info(f"[DRY RUN] Category: {category}")
-            logger.info(f"[DRY RUN] Title: {title}")
-            logger.info(f"[DRY RUN] Arabic length: {len(arabic_text)} chars")
-            logger.info(f"[DRY RUN] Urdu length: {len(urdu_text)} chars")
-            logger.info("[DRY RUN] Validation passed!")
+            effect = effect or 'auto'
+            # Build timeline to estimate duration
+            ar_voice = dua_data.get('voice_arabic') or self.tts.pick_voice(dua_id, 'ar')
+            ur_voice = dua_data.get('voice_urdu') or self.tts.pick_voice(dua_id, 'ur')
+            prosody_ar = TTSEngine.PROSODY.get('ar', {})
+            prosody_ur = TTSEngine.PROSODY.get('ur', {})
+            # Estimate duration from text length (~150ms/word Arabic, ~200ms/word Urdu)
+            ar_words = len(arabic_text.split())
+            ur_words = len(urdu_text.split())
+            est_ar = ar_words * 0.15
+            est_ur = ur_words * 0.20
+            est_total = est_ar + est_ur + 0.3  # gap
+            # Pad to VIDEO-002 window
+            if est_total < 15:
+                est_total = 15.0
+            elif est_total > 25:
+                est_total = min(est_total, 50.0)
+            output_category_dir = os.path.join(self.output_dir, category)
+            output_path = os.path.join(output_category_dir, dua_video_filename(dua_data))
+            logger.info("=" * 50)
+            logger.info("[DRY RUN] WHAT WOULD BE DONE:")
+            logger.info(f"  Dua title     : {title}")
+            logger.info(f"  Dua ID        : {dua_id}")
+            logger.info(f"  Category      : {category}")
+            logger.info(f"  Arabic voice  : {ar_voice}")
+            logger.info(f"  Urdu voice    : {ur_voice}")
+            logger.info(f"  Prosody AR    : rate={prosody_ar.get('rate', 'default')}, pitch={prosody_ar.get('pitch', 'default')}")
+            logger.info(f"  Prosody UR    : rate={prosody_ur.get('rate', 'default')}, pitch={prosody_ur.get('pitch', 'default')}")
+            logger.info(f"  Est. duration : ~{est_total:.1f}s (ar={est_ar:.1f}s, ur={est_ur:.1f}s)")
+            logger.info(f"  Effect        : {effect}")
+            logger.info(f"  Output path   : {output_path}")
+            logger.info(f"  Arabic length : {len(arabic_text)} chars ({ar_words} words)")
+            logger.info(f"  Urdu length   : {len(urdu_text)} chars ({ur_words} words)")
+            logger.info("[DRY RUN] TTS, video rendering, and audio SKIPPED.")
+            logger.info("=" * 50)
             return True
 
         # Pre-flight: disk space check (need ~500MB free minimum)
