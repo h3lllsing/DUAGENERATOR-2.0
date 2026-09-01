@@ -132,8 +132,6 @@ def list_backups():
             print(f"  {backup.name}")
 
 if __name__ == "__main__":
-    import sys
-    
     if len(sys.argv) > 1 and sys.argv[1] == "list":
         list_backups()
     elif len(sys.argv) > 2 and sys.argv[1] == "restore":

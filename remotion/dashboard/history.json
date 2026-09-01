@@ -1,5 +1,12 @@
 [
   {
+    "ts": "2026-09-01T08:41:09.183Z",
+    "duaId": "allah_ki_magnificence_ki_dua",
+    "title": "Allah Ki Magnificence Ki Dua",
+    "result": "PASS",
+    "look": "royal / none / fog / palms / deco / m:rehal / g:dreamy / c:zoomin / i:crescentfade"
+  },
+  {
     "ts": "2026-09-01T08:33:50.996Z",
     "duaId": "hamd_o_sanah_ki_dua",
     "title": "hamd_o_sanah_ki_dua",
@@ -1382,12 +1389,6 @@
     "ts": "2026-08-23T15:34:34.832Z",
     "duaId": "main_roza_daar_hoon",
     "title": "Main Roza Daar Hoon",
-    "result": "PASS"
-  },
-  {
-    "ts": "2026-08-23T15:33:17.342Z",
-    "duaId": "kisi_aur_ke_yahan_iftar_ki_dua",
-    "title": "Kisi Aur Ke Yahan Iftar Ki Dua",
     "result": "PASS"
   }
 ]

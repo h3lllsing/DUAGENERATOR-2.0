@@ -163,7 +163,7 @@ class TestSecurityManager:
         """Test encryption with large data"""
         # Create large dataset
         large_data = {"key_" + str(i): "value_" + str(i) for i in range(1000)}
-        encrypted = self.sm.encrypt(str(large_data))
+        encrypted = self.sm.encrypt(json.dumps(large_data))
         decrypted = self.sm.decrypt(encrypted)
         assert json.loads(decrypted) == large_data, "Large data should encrypt/decrypt correctly"
 

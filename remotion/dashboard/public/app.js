@@ -1472,7 +1472,7 @@ async function saveDua(){
   }
   else { setMsg(j.error||'Error','err'); ensureDedupAlert(); checkDedupLive(); }
 }
-poll(); setInterval(poll,3000); load(); setInterval(load,15000);
+poll(); _startPolling();
 var _pollIntervals=[3000,15000];
 var _pollTimers=[];
 function _startPolling(){
