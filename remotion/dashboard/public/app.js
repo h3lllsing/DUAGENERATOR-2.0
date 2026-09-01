@@ -1438,6 +1438,12 @@ async function saveDua(){
   });
   if(!valid){setMsg('Title, Arabic, aur Urdu zaroori hain','err');return;}
   fields.forEach(function(f){document.getElementById(f.id).classList.remove('invalid');});
+  var title=document.getElementById('f_title').value.trim();
+  var arabic=document.getElementById('f_arabic').value.trim().substring(0,50);
+  var action=editingId?'Update':'Add';
+  if(!confirm(action+' karein?\n\nTitle: '+title+'\nArabic: '+arabic+'...')){
+    return;
+  }
   const checked=document.querySelector('#themegrid input:checked');
   const vp=VOICE_PAIRS[document.getElementById('f_vpair').value]||VOICE_PAIRS['Hamed + Asad'];
   const body={
@@ -1522,9 +1528,15 @@ async function aiImport(){
   var cat=document.getElementById('ai_category').value;
   var count=document.getElementById('ai_count').value;
   var topic=document.getElementById('ai_topic').value;
+  var countNum=parseInt(count);
+  var topicText=topic?('\nTopic: '+topic):'';
+  var catText=cat?('\nCategory: '+cat):'general';
+  if(!confirm(countNum+' duas generate karke library mein add hongi:'+catText+topicText+'\n\nConfirm karo?')){
+    return;
+  }
   btn.disabled=true;btn.textContent='Generating...';setMsg2('aiimportmsg','AI se duas generate ho rahi hain...','warn');res.style.display='none';
   try{
-    var r=await fetch('/api/ai-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({count:parseInt(count),category:cat,topic:topic})});
+    var r=await fetch('/api/ai-import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({count:countNum,category:cat,topic:topic})});
     var j=await r.json();
     if(j.ok&&j.added>0){
       setMsg2('aiimportmsg',j.added+' nayi duas library mein add ho gayin!','ok');
