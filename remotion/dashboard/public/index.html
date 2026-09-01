@@ -202,9 +202,9 @@
 <div class="modal-bg" id="aiimportbg" onclick="if(event.target===this)closeAiImport()">
   <div class="modal">
     <h2>&#129302; AI Dua Import</h2>
-    <div class="ai-tabs" style="display:flex;gap:6px;margin-bottom:14px">
-      <button class="chip on" id="aitab_gen" onclick="aiTab('gen')" style="flex:1">&#129302; Generate</button>
-      <button class="chip" id="aitab_fmt" onclick="aiTab('fmt')" style="flex:1">&#128203; Paste & Format</button>
+    <div class="ai-tabs">
+      <button class="chip on" id="aitab_gen" onclick="aiTab('gen')">&#129302; Generate</button>
+      <button class="chip" id="aitab_fmt" onclick="aiTab('fmt')">&#128203; Paste & Format</button>
     </div>
 
     <div id="ai_panel_gen">
@@ -244,25 +244,25 @@
 
     <div id="ai_panel_fmt" style="display:none">
       <div class="aihint" style="margin-bottom:12px">&#9734; AI se copy kiya hua JSON yahan paste karo — sab fields auto-fill ho jayenge.</div>
-      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:8px">
-        <div style="font-size:12px;color:#60a5fa;margin-bottom:6px">&#128203; <b>Step 1:</b> AI Prompt format copy karo → ChatGPT/Gemini mein paste karo → JSON wapas yahan paste karo</div>
-        <button class="chip" onclick="copyFmtPrompt()" style="background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4);color:#60a5fa;font-size:11px">&#128203; COPY FORMAT TO CLIPBOARD</button>
-        <div id="fmt_copy_msg" style="font-size:11px;color:#5a6474;margin-top:4px;display:none"></div>
+      <div class="ai-info-box">
+        <div class="step-label">&#128203; <b>Step 1:</b> AI Prompt format copy karo → ChatGPT/Gemini mein paste karo → JSON wapas yahan paste karo</div>
+        <button class="chip ai-copy-btn" onclick="copyFmtPrompt()">&#128203; COPY FORMAT TO CLIPBOARD</button>
+        <div class="ai-copy-msg" id="fmt_copy_msg"></div>
       </div>
       <label>AI se mila JSON paste karo *</label>
-      <textarea id="fmt_json" rows="8" style="min-height:120px;font-size:12px;line-height:1.6;background:#080c14;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;color:#c9d1d9;resize:vertical;font-family:monospace" placeholder='[{"title":"Safar Ki Dua","arabic":"اللَّهُمَّ...","urdu":"اے اللہ!...","reference":"Sahih Bukhari 1234","category":"travel"}]' oninput="parseFmtJson()"></textarea>
-      <div id="fmt_parsed" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.25);border-radius:8px;font-size:12px;color:#3fb950">
+      <textarea id="fmt_json" rows="8" class="ai-json-input" placeholder='[{"title":"Safar Ki Dua","arabic":"اللَّهُمَّ...","urdu":"اے اللہ!...","reference":"Sahih Bukhari 1234","category":"travel"}]' oninput="parseFmtJson()"></textarea>
+      <div id="fmt_parsed" class="ai-parsed">
         &#10003; <b id="fmt_parsed_msg">Parsed!</b>
       </div>
-      <div id="fmt_fields" style="display:none;margin-top:12px">
+      <div id="fmt_fields" class="ai-fields">
         <div class="mrow">
           <div><label>Title</label><input id="fmt_title" readonly></div>
           <div><label>Category</label><input id="fmt_category" readonly></div>
         </div>
         <label>Arabic</label>
-        <textarea id="fmt_arabic" class="ar" dir="rtl" rows="2" readonly style="min-height:40px"></textarea>
+        <textarea id="fmt_arabic" class="ar ai-readonly" dir="rtl" rows="2" readonly></textarea>
         <label>Urdu</label>
-        <textarea id="fmt_urdu" class="ar" dir="rtl" rows="2" readonly style="min-height:40px"></textarea>
+        <textarea id="fmt_urdu" class="ar ai-readonly" dir="rtl" rows="2" readonly></textarea>
         <div class="mrow">
           <div><label>Reference</label><input id="fmt_ref" readonly></div>
           <div><label>Explanation</label><input id="fmt_explanation" readonly></div>
@@ -274,13 +274,13 @@
       </div>
     </div>
 
-    <div style="margin:14px 0;border-top:1px solid #1a2030"></div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <b style="color:#d4af37;font-size:13px">&#9881;&#65039; API Settings</b>
-      <span style="flex:1"></span>
+    <div class="ai-sep"></div>
+    <div class="ai-cfg-head">
+      <b>&#9881;&#65039; API Settings</b>
+      <span class="spacer"></span>
       <button class="chip" onclick="aiConfigToggle()" id="ai_cfg_toggle" style="font-size:11px">Show</button>
     </div>
-    <div id="ai_cfg_box" style="display:none;margin-top:8px">
+    <div id="ai_cfg_box" class="ai-cfg-box">
       <label>API Base URL</label>
       <input id="ai_base_url" placeholder="https://aihubmix.com/v1">
       <label>API Keys (ek ya zyada - har line pe ek)</label>

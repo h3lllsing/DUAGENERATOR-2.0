@@ -11,6 +11,7 @@ import argparse
 import json
 import os
 import random
+import re
 import shutil
 import sys
 import time
@@ -307,7 +308,6 @@ def parse_duas(text):
 
 def _norm(text):
     """Normalize text for comparison: lowercase, strip punctuation, collapse whitespace."""
-    import re
     return re.sub(r"[\s\u200c\u200f]+", " ", str(text or "").strip().lower())
 
 
@@ -463,8 +463,7 @@ def main():
         "IDs must be unique snake_case starting with '{cat}_' prefix.\n"
         "Return JSON array only."
     ).format(n=count, cat=args.category,
-             topic=topic_line,
-             cat_prefix=cats[0] + "_")
+             topic=topic_line)
 
     key_idx = 0
     all_new = []

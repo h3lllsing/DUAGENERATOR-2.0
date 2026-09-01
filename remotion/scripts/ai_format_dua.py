@@ -88,12 +88,15 @@ def format_and_add(text, category="general"):
                     duas = [duas]
                 # Ensure unique IDs
                 for d in duas:
-                    if d.get("id") in existing_ids:
-                        d["id"] = d["id"] + "_v2"
+                    base_id = d.get("id", "")
+                    suffix = 2
+                    while d.get("id") in existing_ids:
+                        d["id"] = base_id + "_v" + str(suffix)
+                        suffix += 1
                 added = save_duas(duas)
                 return {"ok": True, "added": len(added),
                         "duas": [{"id": d["id"], "title": d["title"]} for d in added]}
-            except (urllib.error.HTTPError, json.JSONDecodeError, KeyError, Exception):
+            except Exception:
                 continue
         time.sleep(0.5)
 

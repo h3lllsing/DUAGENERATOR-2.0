@@ -88,7 +88,7 @@ def fill_metadata(title, reference="", category="general"):
                     return {"ok": True, "arabic": data.get("arabic", ""),
                             "urdu": data.get("urdu", ""),
                             "explanation": data.get("explanation", "")}
-            except (urllib.error.HTTPError, json.JSONDecodeError, KeyError, Exception):
+            except Exception:
                 continue
         time.sleep(0.5)
 

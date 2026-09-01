@@ -1633,6 +1633,7 @@ function aiTab(tab){
   if(tab==='fmt'){
     document.getElementById('fmt_json').value='';
     document.getElementById('fmt_parsed').style.display='none';
+    document.getElementById('fmt_parsed').className='ai-parsed';
     document.getElementById('fmt_fields').style.display='none';
     document.getElementById('ai_fmt_btn').disabled=true;
   }
@@ -1708,12 +1709,17 @@ function _parseFmtJsonInner(){
   var fields=document.getElementById('fmt_fields');
   var btn=document.getElementById('ai_fmt_btn');
   var raw=el.value.trim();
-  if(!raw){parsed.style.display='none';parsed.className='';fields.style.display='none';btn.disabled=true;return;}
+  if(!raw){parsed.style.display='none';parsed.className='ai-parsed';fields.style.display='none';btn.disabled=true;return;}
+  if(raw.length>512000){
+    document.getElementById('fmt_parsed_msg').textContent='\u274C JSON bohot bada hai ('+Math.round(raw.length/1024)+'KB, max 500KB)';
+    parsed.style.display='block';parsed.className='ai-parsed err';
+    fields.style.display='none';btn.disabled=true;return;
+  }
   try{
     var data=JSON.parse(raw);
     if(!Array.isArray(data))data=[data];
     var d=data[0];
-    if(!d||(!d.title&&!d.arabic&&!d.urdu))throw new Error('Invalid');
+    if(!d||!d.title||!d.arabic||!d.urdu)throw new Error('Invalid');
     document.getElementById('fmt_title').value=d.title||'';
     document.getElementById('fmt_arabic').value=d.arabic||'';
     document.getElementById('fmt_urdu').value=d.urdu||'';
@@ -1721,23 +1727,16 @@ function _parseFmtJsonInner(){
     document.getElementById('fmt_category').value=d.category||'general';
     document.getElementById('fmt_explanation').value=d.explanation||'';
     document.getElementById('fmt_parsed_msg').textContent='\u2713 Parsed! '+data.length+' dua(s) found';
-    parsed.style.display='block';
-    parsed.style.background='rgba(63,185,80,.08)';
-    parsed.style.borderColor='rgba(63,185,80,.25)';
-    parsed.style.color='#3fb950';
+    parsed.style.display='block';parsed.className='ai-parsed ok';
     fields.style.display='block';btn.disabled=false;
   }catch(e){
     document.getElementById('fmt_parsed_msg').textContent='\u274C Invalid JSON — valid JSON paste karo';
-    parsed.style.display='block';
-    parsed.style.background='rgba(255,99,99,.08)';
-    parsed.style.borderColor='rgba(255,99,99,.25)';
-    parsed.style.color='#ff8585';
+    parsed.style.display='block';parsed.className='ai-parsed err';
     fields.style.display='none';btn.disabled=true;
   }
 }
 async function aiFormatSave(){
   var btn=document.getElementById('ai_fmt_btn');
-  var msg=document.getElementById('aiimportmsg');
   var raw=document.getElementById('fmt_json').value.trim();
   if(!raw)return setMsg2('aiimportmsg','JSON paste karo pehle','err');
   var data;
@@ -1765,6 +1764,7 @@ async function aiFormatSave(){
     document.getElementById('fmt_fields').style.display='none';
     btn.disabled=true;
     load();
+    aiTab('gen');
   }else{
     setMsg2('aiimportmsg','Koi dua add nahi ho payi: '+errors.join('; '),'err');
   }
