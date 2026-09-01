@@ -1722,6 +1722,44 @@ async function aiFormatSave(){
   }catch(e){setMsg2('aiimportmsg','Network error: '+e.message,'err');}
   btn.disabled=false;btn.textContent='\u2713 SAVE TO LIBRARY';
 }
+function copyFmtPrompt(){
+  var prompt='You are an expert Islamic Sunni scholar. I will give you a dua name/topic. Generate the metadata in EXACTLY this JSON format:\n\n'+
+'[{\n'+
+'  "id": "unique_english_snake_case_id",\n'+
+'  "title": "Roman Urdu short title (2-5 words)",\n'+
+'  "titleEn": "English title",\n'+
+'  "arabic": "Full Arabic dua text WITH harakat/tashkeel",\n'+
+'  "urdu": "Complete Urdu translation in Urdu script",\n'+
+'  "reference": "Authentic hadith source (e.g. Sahih Bukhari 1234)",\n'+
+'  "explanation": "1-2 line Urdu explanation about when this dua is read",\n'+
+'  "category": "prayer|travel|food|sleep|health|study|safety|parents|ramadan|morning_evening|mosque|work|clothing|weather|protection|rizq|forgiveness|guidance|anxiety_relief|gratitude|family|occasions|bathroom|morning|evening|general"\n'+
+'}]\n\n'+
+'RULES:\n'+
+'1. ONLY authentic Sunni duas from Quran/Hadith\n'+
+'2. Arabic MUST be original text with diacritics, NOT transliteration\n'+
+'3. Urdu MUST be accurate and respectful\n'+
+'4. Return ONLY valid JSON array, no markdown, no explanation\n'+
+'5. Category must be EXACTLY one of the values listed above\n\n'+
+'---\n\n'+
+'NOW GENERATE FOR: [yahan dua ka naam/topic likho]';
+  navigator.clipboard.writeText(prompt).then(function(){
+    var el=document.getElementById('fmt_copy_msg');
+    el.textContent='Copied! Ab kisi bhi AI (ChatGPT/Gemini) mein paste karo';
+    el.style.display='block';
+    el.style.color='#3fb950';
+    setTimeout(function(){el.style.display='none';},3000);
+  }).catch(function(){
+    var ta=document.createElement('textarea');
+    ta.value=prompt;document.body.appendChild(ta);
+    ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    var el=document.getElementById('fmt_copy_msg');
+    el.textContent='Copied!';
+    el.style.display='block';
+    el.style.color='#3fb950';
+    setTimeout(function(){el.style.display='none';},3000);
+  });
+}
 function setMsg2(id,msg,type){
   var el=document.getElementById(id);if(!el)return;
   el.textContent=msg;el.className='formmsg'+(type==='ok'?' ok':type==='err'?' err':type==='warn'?' warn':'');

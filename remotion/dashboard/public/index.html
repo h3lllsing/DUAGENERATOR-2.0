@@ -244,6 +244,11 @@
 
     <div id="ai_panel_fmt" style="display:none">
       <div class="aihint" style="margin-bottom:12px">&#9734; Dua ka metadata manually fill karo ya paste karo. Seedha library mein add hoga.</div>
+      <div style="margin-bottom:14px;padding:10px 12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:8px">
+        <div style="font-size:12px;color:#60a5fa;margin-bottom:6px">&#128203; <b>AI Prompt Copy karo</b> — ChatGPT/Gemini ko ye format do:</div>
+        <button class="chip" onclick="copyFmtPrompt()" style="background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4);color:#60a5fa;font-size:11px">&#128203; COPY FORMAT TO CLIPBOARD</button>
+        <div id="fmt_copy_msg" style="font-size:11px;color:#5a6474;margin-top:4px;display:none"></div>
+      </div>
       <label>Title (Roman Urdu) *</label>
       <input id="fmt_title" placeholder="e.g. Safar Ki Dua">
       <label>Arabic Text * <span style="color:#5a6474">(harakat ke sath)</span></label>
