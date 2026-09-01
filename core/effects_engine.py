@@ -4,10 +4,10 @@ Effects Engine Module
 """
 
 import logging
-import numpy as np
+
 import cv2
-from PIL import Image, ImageDraw, ImageFilter, ImageEnhance, ImageFont
-from typing import List
+import numpy as np
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class EffectsEngine:
     5. Wave - Wave animation
     6. Glitch - Modern glitch effect
     """
-    
+
     def __init__(self, width: int = None, height: int = None):
         """Initialize effects engine."""
         self.width = width or PROJECT.VIDEO_WIDTH
@@ -38,7 +38,7 @@ class EffectsEngine:
             "glitch": self.glitch
         }
         self._summary_cache = {}
-    
+
     def apply_effect(self, effect_name: str, text_img: Image.Image,
                      frame_num: int, total_frames: int) -> Image.Image:
         """
@@ -58,20 +58,20 @@ class EffectsEngine:
         else:
             # Default: return original with fade-in
             return self._default_fade(text_img, frame_num, total_frames)
-    
+
     def _default_fade(self, text_img: Image.Image, frame_num: int,
                       total_frames: int) -> Image.Image:
         """Default fade-in effect."""
         alpha = int(255 * min(1.0, (frame_num / total_frames) * 2))
-        
+
         if text_img.mode != 'RGBA':
             text_img = text_img.convert('RGBA')
-        
+
         r, g, b, a = text_img.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
-        
+
         return Image.merge('RGBA', (r, g, b, a))
-    
+
     def neon_glow(self, text_img: Image.Image, frame_num: int,
                   total_frames: int) -> Image.Image:
         """
@@ -87,37 +87,37 @@ class EffectsEngine:
         """
         if text_img.mode != 'RGBA':
             text_img = text_img.convert('RGBA')
-        
+
         # Calculate glow intensity (pulsing)
         progress = frame_num / total_frames
         glow_intensity = 0.5 + 0.5 * np.sin(progress * np.pi * 4)
-        
+
         # Create glow layer
         glow = text_img.copy()
-        
+
         # Apply blur for glow effect
         glow = glow.filter(ImageFilter.GaussianBlur(radius=5))
-        
+
         # Enhance brightness for glow
         enhancer = ImageEnhance.Brightness(glow)
         glow = enhancer.enhance(1.5 + glow_intensity)
-        
+
         # Create main text layer
         main_text = text_img.copy()
-        
+
         # Apply alpha based on fade-in
         alpha = int(255 * min(1.0, progress * 2))
         r, g, b, a = main_text.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         main_text = Image.merge('RGBA', (r, g, b, a))
-        
+
         # Combine glow and main text
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
         result = Image.alpha_composite(result, glow)
         result = Image.alpha_composite(result, main_text)
-        
+
         return result
-    
+
     def metallic_gold(self, text_img: Image.Image, frame_num: int,
                       total_frames: int) -> Image.Image:
         """
@@ -133,10 +133,10 @@ class EffectsEngine:
         """
         if text_img.mode != 'RGBA':
             text_img = text_img.convert('RGBA')
-        
+
         progress = frame_num / total_frames
         W, H = text_img.size
-        
+
         # Create gold gradient effect using numpy (vectorized)
         gold_layer = np.zeros((H, W, 4), dtype=np.uint8)
         ys = np.arange(H).reshape(-1, 1)
@@ -150,20 +150,20 @@ class EffectsEngine:
         gold_layer[:, :, 2] = b
         gold_layer[:, :, 3] = 128
         gold_layer_img = Image.fromarray(gold_layer)
-        
+
         # Apply fade-in
         alpha = int(255 * min(1.0, progress * 2))
         r, g, b, a = text_img.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
-        
+
         # Combine gold gradient with text
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
         result = Image.alpha_composite(result, gold_layer_img)
         result = Image.alpha_composite(result, text_faded)
-        
+
         return result
-    
+
     def typewriter(self, text_img: Image.Image, frame_num: int,
                    total_frames: int) -> Image.Image:
         """
@@ -179,23 +179,23 @@ class EffectsEngine:
         """
         if text_img.mode != 'RGBA':
             text_img = text_img.convert('RGBA')
-        
+
         progress = frame_num / total_frames
-        
+
         # Calculate visible width
         visible_width = int(text_img.size[0] * min(1.0, progress * 2))
-        
+
         # Create mask for visible portion
         mask = Image.new('L', text_img.size, 0)
         draw = ImageDraw.Draw(mask)
         draw.rectangle([(0, 0), (visible_width, text_img.size[1])], fill=255)
-        
+
         # Apply mask to text
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
         result.paste(text_img, (0, 0), mask)
-        
+
         return result
-    
+
     def bounce(self, text_img: Image.Image, frame_num: int,
                total_frames: int) -> Image.Image:
         """
@@ -211,9 +211,9 @@ class EffectsEngine:
         """
         if text_img.mode != 'RGBA':
             text_img = text_img.convert('RGBA')
-        
+
         progress = frame_num / total_frames
-        
+
         # Calculate bounce position
         if progress < 0.5:
             # Bounce down
@@ -223,20 +223,20 @@ class EffectsEngine:
             # Bounce up slightly
             bounce_progress = (progress - 0.5) * 2
             offset_y = int(-20 * bounce_progress)
-        
+
         # Apply fade-in
         alpha = int(255 * min(1.0, progress * 2))
         r, g, b, a = text_img.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
-        
+
         # Create result with offset (clamped to canvas)
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
         paste_y = max(0, offset_y)  # Clamp to prevent off-screen clipping
         result.paste(text_faded, (0, paste_y), text_faded)
-        
+
         return result
-    
+
     def wave(self, text_img: Image.Image, frame_num: int,
              total_frames: int) -> Image.Image:
         """
@@ -252,15 +252,15 @@ class EffectsEngine:
         """
         if text_img.mode != 'RGBA':
             text_img = text_img.convert('RGBA')
-        
+
         progress = frame_num / total_frames
-        
+
         # Apply fade-in
         alpha = int(255 * min(1.0, progress * 2))
         r, g, b, a = text_img.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
-        
+
         # Vectorized wave distortion using numpy advanced indexing
         arr = np.array(text_faded)
         H, W = arr.shape[:2]
@@ -270,9 +270,9 @@ class EffectsEngine:
         shifted_cols = (cols + wave_offsets) % W
         arr = arr[ys, shifted_cols]
         result = Image.fromarray(arr)
-        
+
         return result
-    
+
     def glitch(self, text_img: Image.Image, frame_num: int,
                total_frames: int) -> Image.Image:
         """
@@ -288,42 +288,42 @@ class EffectsEngine:
         """
         if text_img.mode != 'RGBA':
             text_img = text_img.convert('RGBA')
-        
+
         progress = frame_num / total_frames
-        
+
         # Apply fade-in
         alpha = int(255 * min(1.0, progress * 2))
         r, g, b, a = text_img.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
-        
+
         # Random glitch offset
         rng = np.random.default_rng(frame_num)  # Deterministic glitch
         glitch_offset = int(5 * np.sin(progress * np.pi * 10))
-        
+
         # Create color channels with offset
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
-        
+
         # Red channel
         r, g, b, a = text_faded.split()
         red_channel = Image.merge('RGBA', (r, Image.new('L', r.size, 128),
                                            Image.new('L', r.size, 128), a))
         result.paste(red_channel, (glitch_offset, 0), red_channel)
-        
+
         # Green channel
         green_channel = Image.merge('RGBA', (Image.new('L', g.size, 128), g,
                                              Image.new('L', g.size, 128), a))
         result.paste(green_channel, (0, 0), green_channel)
-        
+
         # Blue channel
         blue_channel = Image.merge('RGBA', (Image.new('L', b.size, 128),
                                             Image.new('L', b.size, 128), b, a))
         result.paste(blue_channel, (-glitch_offset, 0), blue_channel)
-        
+
         return result
-    
-    def apply_to_frames(self, frames: List[Image.Image],
-                        effect_name: str = "neon_glow") -> List[Image.Image]:
+
+    def apply_to_frames(self, frames: list[Image.Image],
+                        effect_name: str = "neon_glow") -> list[Image.Image]:
         """
         Apply a frame-level effect to a whole list of frames.
         'none'/'empty' returns the frames untouched.
@@ -343,7 +343,7 @@ class EffectsEngine:
                 # Return original frame on failure
                 out.append(frame.convert('RGB') if frame.mode != 'RGB' else frame)
         return out
-    
+
     # ------------------------------------------------------------------
     # NEW: AI Director effects (whole-frame, numpy/opencv, high-end look)
     # ------------------------------------------------------------------
@@ -665,8 +665,7 @@ class EffectsEngine:
         Modern glass style: soft drop shadow, translucent panel with top
         sheen, gold gradient border, gradient-gold Arabic, clean Urdu.
         """
-        from core.arabic_renderer import (ArabicRenderer, _is_arabic,
-                                          apply_vertical_gradient)
+        from core.arabic_renderer import ArabicRenderer, _is_arabic, apply_vertical_gradient
         ar = ArabicRenderer()
         W, H = self.width, self.height
         card_w, card_h = int(W * 0.86), int(H * 0.58)
@@ -797,23 +796,23 @@ class EffectsEngine:
 # Test function
 if __name__ == "__main__":
     print("Testing Effects Engine...")
-    
+
     engine = EffectsEngine()
-    
+
     # Create test image
     test_img = Image.new('RGBA', (400, 200), (0, 0, 0, 0))
     draw = ImageDraw.Draw(test_img)
     draw.text((50, 80), "Test Text", fill=(255, 215, 0, 255))
-    
+
     # Test each effect
     effects = ['neon_glow', 'metallic_gold', 'typewriter', 'bounce', 'wave', 'glitch']
-    
+
     for effect_name in effects:
         print(f"\nTesting effect: {effect_name}")
-        
+
         # Apply effect at different frames
         for frame in [0, 30, 60, 90]:
             result = engine.apply_effect(effect_name, test_img, frame, 100)
             print(f"  Frame {frame}: Applied successfully")
-    
+
     print("\nEffects Engine Test Complete!")

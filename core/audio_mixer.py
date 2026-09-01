@@ -2,9 +2,9 @@ import logging
 import os
 import re
 import subprocess
-import numpy as np
 
 import imageio_ffmpeg
+import numpy as np
 from moviepy import AudioFileClip, concatenate_audioclips
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class AudioMixer:
     Currently supports sequential concatenation (Arabic plays first, then Urdu).
     Also computes the VIDEO-002 duration policy (15-25 seconds) from speech audio.
     """
-    
+
     @staticmethod
     def compute_video_timeline(
         speech_duration: float,
@@ -117,7 +117,7 @@ class AudioMixer:
             "visual_hold": round(hold, 6),
             "reason": reason,
         }
-    
+
     @staticmethod
     def _get_sample_rate(sample_rate):
         if sample_rate:
@@ -156,20 +156,20 @@ class AudioMixer:
 
             # Ensure temp directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            
+
             clips = []
             try:
                 for path in audio_paths:
                     if os.path.exists(path):
                         clip = AudioFileClip(path, fps=sample_rate)
                         clips.append(clip)
-                        
+
                         # Add a silent gap after each clip except the last
                         if gap_seconds > 0 and len(clips) < len(audio_paths):
                             clips.append(AudioMixer._make_silence(gap_seconds, sample_rate))
                     else:
                         logger.warning(f"Audio file not found: {path}")
-            except Exception as e:
+            except Exception:
                 # Clean up any clips already opened on partial failure
                 for clip in clips:
                     try:
@@ -177,11 +177,11 @@ class AudioMixer:
                     except Exception:
                         pass
                 raise
-            
+
             if not clips:
                 logger.error("No valid audio clips to merge.")
                 return False
-            
+
             # VIDEO-002: append trailing silence so the track reaches the target
             # duration. This creates the visual-hold window; speech is unchanged.
             if pad_to_duration is not None:
@@ -196,10 +196,10 @@ class AudioMixer:
                     logger.warning(f"pad_to_duration {pad_to_duration:.2f}s "
                                    f"is shorter than speech {speech_duration:.2f}s; "
                                    "speech will NOT be trimmed.")
-            
+
             # Concatenate all clips
             final_clip = concatenate_audioclips(clips)
-            
+
             # Write lossless PCM/WAV (AUDIO-001: no lossy re-encode here)
             final_clip.write_audiofile(
                 output_path,
@@ -207,15 +207,15 @@ class AudioMixer:
                 fps=sample_rate,
                 logger=None
             )
-            
+
             # Clean up
             for clip in clips:
                 clip.close()
             final_clip.close()
-            
+
             logger.info(f"Successfully merged audio to: {output_path}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error merging audio: {e}")
             import traceback

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """PILLAR 1 · Bulk build engine — sequential audio+manifest factory.
 
 Wraps the proven per-dua pipeline for scale:

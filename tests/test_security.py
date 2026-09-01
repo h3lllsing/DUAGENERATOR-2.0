@@ -3,18 +3,19 @@ Unit tests for Security Module
 Tests encryption/decryption, key derivation, and vault operations
 """
 
+import json
 import os
-import sys
 import shutil
 import subprocess
-import json
+import sys
+
 import pytest
 from cryptography.fernet import Fernet
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.security import SecurityManager, LEGACY_SALT, VaultWriteError
+from core.security import LEGACY_SALT, SecurityManager, VaultWriteError
 
 
 def _make_manager(password, salt, vault_path, keys_dir, salt_path):
@@ -38,7 +39,7 @@ def _make_manager(password, salt, vault_path, keys_dir, salt_path):
 
 class TestSecurityManager:
     """Test cases for SecurityManager class"""
-    
+
     def setup_method(self):
         """Setup test fixtures"""
         self.test_password = "test_password_123"
@@ -48,7 +49,7 @@ class TestSecurityManager:
         self.sm.keys_dir = os.path.join(os.path.dirname(__file__), "test_keys")
         self.sm.salt_path = os.path.join(os.path.dirname(__file__), "test_salt.bin")
         os.makedirs(self.sm.keys_dir, exist_ok=True)
-    
+
     def teardown_method(self):
         """Cleanup test files"""
         if os.path.exists(self.sm.vault_path):
@@ -58,7 +59,7 @@ class TestSecurityManager:
             shutil.rmtree(self.sm.keys_dir)
         if os.path.exists(self.sm.salt_path):
             os.remove(self.sm.salt_path)
-    
+
     def test_key_derivation(self):
         """Test that key derivation produces consistent results"""
         key1 = self.sm._derive_key("password123")
@@ -66,73 +67,73 @@ class TestSecurityManager:
         assert key1 == key2, "Same password should produce same key"
         # Key is base64-encoded, so it's 44 bytes (32 bytes raw + base64 encoding)
         assert len(key1) == 44, "Base64-encoded key should be 44 bytes"
-    
+
     def test_different_passwords_different_keys(self):
         """Test that different passwords produce different keys"""
         key1 = self.sm._derive_key("password1")
         key2 = self.sm._derive_key("password2")
         assert key1 != key2, "Different passwords should produce different keys"
-    
+
     def test_encryption_decryption_round_trip(self):
         """Test that encrypt/decrypt round-trip works"""
         original_data = "Test data for encryption"
         encrypted = self.sm.encrypt(original_data)
         decrypted = self.sm.decrypt(encrypted)
         assert decrypted == original_data, "Decrypted data should match original"
-    
+
     def test_encryption_produces_different_output(self):
         """Test that encryption produces different ciphertext each time"""
         data = "Same data"
         encrypted1 = self.sm.encrypt(data)
         encrypted2 = self.sm.encrypt(data)
         assert encrypted1 != encrypted2, "Encryption should use random IV"
-    
+
     def test_encryption_with_empty_string(self):
         """Test encryption with empty string"""
         original = ""
         encrypted = self.sm.encrypt(original)
         decrypted = self.sm.decrypt(encrypted)
         assert decrypted == original
-    
+
     def test_encryption_with_unicode(self):
         """Test encryption with Unicode characters (Arabic/Urdu)"""
         original = "بسم الله الرحمن الرحيم"  # Arabic text
         encrypted = self.sm.encrypt(original)
         decrypted = self.sm.decrypt(encrypted)
         assert decrypted == original
-    
+
     def test_vault_save_and_load(self):
         """Test vault save and load operations"""
         test_data = {"theme": "dark", "voice_speed": 1.0}
-        
+
         # Save vault
         self.sm.save_vault(test_data)
         assert os.path.exists(self.sm.vault_path), "Vault file should exist"
-        
+
         # Load vault
         loaded_data = self.sm.load_vault()
         assert loaded_data == test_data, "Loaded data should match saved data"
-    
+
     def test_load_vault_nonexistent(self):
         """Test loading vault when file doesn't exist"""
         # Remove vault if it exists
         if os.path.exists(self.sm.vault_path):
             os.remove(self.sm.vault_path)
-        
+
         loaded = self.sm.load_vault()
         assert loaded == {}, "Loading nonexistent vault should return empty dict"
-    
+
     def test_vault_exists(self):
         """Test vault_exists method"""
         assert not self.sm.vault_exists(), "Vault should not exist initially"
-        
+
         self.sm.save_vault({"test": True})
         assert self.sm.vault_exists(), "Vault should exist after saving"
-    
+
     def test_security_info(self):
         """Test get_security_info method"""
         info = self.sm.get_security_info()
-        
+
         assert "encryption" in info
         assert "key_derivation" in info
         assert "iterations" in info
@@ -140,25 +141,25 @@ class TestSecurityManager:
         assert info["encryption"] == "AES-128-CBC (Fernet)"
         assert info["key_derivation"] == "PBKDF2-HMAC-SHA256"
         assert info["iterations"] == 600000
-    
+
     def test_wrong_password_fails_decryption(self):
         """Test that wrong password fails to decrypt"""
         # Encrypt with one password
         original_data = "Secret data"
         encrypted = self.sm.encrypt(original_data)
-        
+
         # Try to decrypt with different password
         sm2 = SecurityManager("wrong_password")
         sm2.vault_path = self.sm.vault_path
-        
+
         # Manually save vault with wrong encryption
         sm2.save_vault({"encrypted": encrypted})
-        
+
         # Loading should fail or return corrupted data
         loaded = sm2.load_vault()
         # Note: This test depends on implementation - might raise exception or return None
         assert loaded != original_data, "Wrong password should not decrypt correctly"
-    
+
     def test_large_data_encryption(self):
         """Test encryption with large data"""
         # Create large dataset

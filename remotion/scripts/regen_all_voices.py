@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Full voice regeneration: fresh solemn TTS + mastering for all duas.
 
 Order per dua: prepare_dua(--force) -> make_manifest (master+manifest).
@@ -28,7 +27,7 @@ def main():
     ok, blocked, fail = [], [], []
     for i, dua in enumerate(duas, 1):
         did = dua["id"]
-        print("[{}/{}] {}".format(i, len(duas), did), flush=True)
+        print(f"[{i}/{len(duas)}] {did}", flush=True)
         p = run([os.path.join(SCRIPTS, "prepare_dua.py"), did, "--force"])
         if p.returncode == 3:
             print("  POLICY BLOCKED (>25s)")

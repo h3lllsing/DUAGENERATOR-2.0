@@ -3,31 +3,32 @@ Dua Video Generator - Main Orchestrator
 End-to-end pipeline for generating dua videos
 """
 
+import json
+import logging
 import os
 import re
 import shutil
 import sys
 import time
-import json
 
-from core.project_info import PROJECT
-from core.dua_database import DB
-from core.tts_engine import TTSEngine
-from core.audio_mixer import AudioMixer
-from core.effects_engine import EffectsEngine as EffectEngine
-from core.video_builder import VideoBuilder
-from core.revamp_engine import RevampEngine
-from core.quality_checker import QualityChecker
-from core.metadata_generator import MetadataGenerator
-from core.self_trainer import SelfTrainer
-from core.video_analyzer import VideoAnalyzer
-from core.scene_engine import SceneRenderer
-from core.timeline_builder import TimelineBuilder
-from core.effect_director import EffectDirector, premium_palette
-from core.logging_config import setup_logging
 from moviepy import AudioFileClip
 
-import logging
+from core.audio_mixer import AudioMixer
+from core.dua_database import DB
+from core.effect_director import EffectDirector, premium_palette
+from core.effects_engine import EffectsEngine as EffectEngine
+from core.logging_config import setup_logging
+from core.metadata_generator import MetadataGenerator
+from core.project_info import PROJECT
+from core.quality_checker import QualityChecker
+from core.revamp_engine import RevampEngine
+from core.scene_engine import SceneRenderer
+from core.self_trainer import SelfTrainer
+from core.timeline_builder import TimelineBuilder
+from core.tts_engine import TTSEngine
+from core.video_analyzer import VideoAnalyzer
+from core.video_builder import VideoBuilder
+
 logger = logging.getLogger(__name__)
 
 setup_logging()
@@ -35,6 +36,7 @@ setup_logging()
 # ── Temp cleanup on crash/exit ──
 import atexit
 import signal
+
 
 def _load_known_dua_ids():
     """Return the set of dua ids so the dashboard cache in temp/ is protected."""
@@ -115,7 +117,7 @@ class DuaVideoPipeline:
     """
     End-to-end pipeline to generate a Dua video from start to finish.
     """
-    
+
     def __init__(self):
         """Initialize pipeline components."""
         self.tts = TTSEngine()
@@ -264,7 +266,7 @@ class DuaVideoPipeline:
         if not dua_data:
             logger.error(f"Dua with ID '{dua_id}' not found in database.")
             return False
-        
+
         if dry_run:
             category = dua_data.get('category', 'general')
             arabic_text = dua_data.get('arabic', '')
@@ -288,16 +290,16 @@ class DuaVideoPipeline:
                 return False
         except Exception:
             pass  # non-critical on exotic filesystems
-        
+
         category = dua_data.get('category', 'general')
         arabic_text = dua_data.get('arabic', '')
         urdu_text = dua_data.get('urdu', '')
         title = dua_data.get('title', 'Dua')
-        
+
         logger.info(f"Category    : {category}")
         logger.info(f"Title       : {title}")
-        logger.info(f"Arabic      : [Arabic text loaded]")
-        logger.info(f"Urdu        : [Urdu text loaded]")
+        logger.info("Arabic      : [Arabic text loaded]")
+        logger.info("Urdu        : [Urdu text loaded]")
 
         # 2. Generate TTS (Arabic + Urdu)
         # Word-boundary timing is captured (optional, backward compatible) to
@@ -425,13 +427,13 @@ class DuaVideoPipeline:
         output_category_dir = os.path.join(self.output_dir, category)
         os.makedirs(output_category_dir, exist_ok=True)
         output_path = os.path.join(output_category_dir, dua_video_filename(dua_data))
-        
+
         success = self.video_builder.build_video(
             frames=frames,
             output_path=output_path,
             audio_path=merged_audio
         )
-        
+
         if not success:
             logger.error("Failed to build video.")
             return False
@@ -443,13 +445,13 @@ class DuaVideoPipeline:
         # 6. Quality Check (VIDEO-002 hard gate: resolution + duration + FPS)
         logger.info("[5/5] Quality check...")
         quality_results = self.quality_checker.check_video(output_path)
-        
+
         if not self._enforce_quality_gate(quality_results):
             return False
-        
+
         # 7. Generate Metadata
         metadata = self.metadata_generator.generate(arabic_text, urdu_text, category)
-        
+
         elapsed = time.time() - start_time
         logger.info("=" * 50)
         logger.info("[SUCCESS] Video saved to:")
@@ -481,10 +483,10 @@ class DuaVideoPipeline:
         logger.info("GENERATING CUSTOM DUA VIDEO")
         logger.info("=" * 50)
         start_time = time.time()
-        
+
         # Local AI agent removed: category uses the deterministic safe default.
         category = "general"
-        
+
         # Pre-flight: disk space check
         try:
             usage = shutil.disk_usage(self.temp_dir)
@@ -496,14 +498,14 @@ class DuaVideoPipeline:
                 return False
         except Exception:
             pass
-        
+
         # Generate TTS
         logger.info("[1/5] Generating TTS...")
         ar_audio = os.path.join(self.temp_dir, "custom_ar.mp3")
         ur_audio = os.path.join(self.temp_dir, "custom_ur.mp3")
         ar_timing = os.path.join(self.temp_dir, "custom_ar_timing.jsonl")
         ur_timing = os.path.join(self.temp_dir, "custom_ur_timing.jsonl")
-        
+
         temp_files = [ar_audio, ur_audio, ar_timing, ur_timing]
         try:
             return self._run_custom_pipeline(
@@ -520,7 +522,7 @@ class DuaVideoPipeline:
     def _run_custom_pipeline(self, arabic_text, urdu_text, title, effect,
                              category, ar_audio, ur_audio, ar_timing, ur_timing,
                              start_time):
-        
+
         ar_ok, ur_ok = self.tts.generate_both(
             arabic_text, urdu_text, ar_audio, ur_audio,
             ar_timing=ar_timing, ur_timing=ur_timing)
@@ -531,7 +533,7 @@ class DuaVideoPipeline:
             logger.error("Failed to generate Urdu TTS.")
             return False
         logger.info("[1/5] TTS Generated (parallel).")
-        
+
         # Merge Audio + apply VIDEO-002 duration policy (15-25s, padded hold)
         logger.info("[2/5] Merging Audio...")
         merged_audio = os.path.join(self.temp_dir, "custom_merged.wav")
@@ -541,7 +543,7 @@ class DuaVideoPipeline:
             return False
         duration_seconds = timeline["final_duration"]
         logger.info(f"[2/5] Video duration target: {duration_seconds:.2f}s")
-        
+
         # Generate Frames (TimelineBuilder + SceneEngine, VISUAL Phase 3)
         #    Audio is immutable; the visual timeline adapts to measured TTS
         #    durations + VIDEO-002 final_duration. Speech text is never altered.
@@ -597,41 +599,41 @@ class DuaVideoPipeline:
             else:
                 frames = self.effect_engine.apply_to_frames(frames, effect)
                 logger.info(f"[3/5] Effect applied: {effect}")
-        
+
         # Build Video
         logger.info("[4/5] Assembling video...")
         custom_dir = os.path.join(self.output_dir, "custom")
         os.makedirs(custom_dir, exist_ok=True)
-        
+
         import datetime
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         output_path = os.path.join(custom_dir, f"custom_{timestamp}.mp4")
-        
+
         success = self.video_builder.build_video(
             frames=frames,
             output_path=output_path,
             audio_path=merged_audio
         )
-        
+
         if not success:
             logger.error("Failed to build video.")
             return False
         logger.info("[4/5] Video assembled.")
-        
+
         # Quality Check (VIDEO-002 hard gate: resolution + duration + FPS)
         logger.info("[5/5] Quality check...")
         quality_results = self.quality_checker.check_video(output_path)
-        
+
         if not self._enforce_quality_gate(quality_results):
             return False
-        
+
         # Generate Metadata
         metadata = self.metadata_generator.generate(arabic_text, urdu_text, category)
-        
+
         # Save metadata
         metadata_path = os.path.join(custom_dir, f"metadata_{timestamp}.json")
         self.metadata_generator.save_metadata(metadata, metadata_path)
-        
+
         elapsed = time.time() - start_time
         logger.info("=" * 50)
         logger.info("[SUCCESS] Video saved to:")
@@ -654,9 +656,9 @@ class DuaVideoPipeline:
         logger.info("=" * 50)
         logger.info(f"Place your sample videos in: {self.video_analyzer.samples_dir}")
         logger.info("Supported formats: .mp4, .avi, .mov, .mkv, .webm")
-        
+
         styles = self.video_analyzer.scan_all_samples()
-        
+
         if styles:
             logger.info("Scanning complete!")
             logger.info(f"Total styles learned: {len(styles)}")
@@ -668,24 +670,24 @@ class DuaVideoPipeline:
         logger.info("=" * 50)
         logger.info("AI LEARNING STATISTICS")
         logger.info("=" * 50)
-        
+
         stats = self.self_trainer.get_learning_stats()
-        
+
         logger.info(f"Total Feedback: {stats['total_feedback']}")
         logger.info(f"Average Rating: {stats['average_rating']:.1f}/5")
         logger.info(f"Best Effect: {stats['best_effect']}")
         logger.info(f"Best Color: {stats['best_color']}")
-        
+
         if stats['effect_averages']:
             logger.info("Effect Ratings:")
             for effect, rating in stats['effect_averages'].items():
                 logger.info(f"  {effect}: {rating:.1f}/5")
-        
+
         if stats['color_averages']:
             logger.info("Color Ratings:")
             for color, rating in stats['color_averages'].items():
                 logger.info(f"  {color}: {rating:.1f}/5")
-        
+
         logger.info("=" * 50)
 
     def interactive_menu(self):
@@ -698,7 +700,7 @@ class DuaVideoPipeline:
             logger.info("     Author: MASOOD NASIR")
             logger.info("     Channel: @bushranasir1075")
             logger.info("=" * 50)
-            
+
             logger.info("Available Options:")
             logger.info("-" * 40)
             logger.info(" 1. Select Dua from Database")
@@ -710,60 +712,60 @@ class DuaVideoPipeline:
             logger.info(" 7. Settings")
             logger.info(" 0. Exit")
             logger.info("-" * 40)
-            
+
             choice = input("\nSelect an option (0-7): ").strip()
-            
+
             if choice == "0":
                 logger.info("Exiting. Goodbye!")
                 return
-            
+
             elif choice == "1":
                 self._select_from_database()
-            
+
             elif choice == "2":
                 self._enter_custom_dua()
-            
+
             elif choice == "3":
                 self._batch_mode()
-            
+
             elif choice == "4":
                 self._ai_mode()
-            
+
             elif choice == "5":
                 self.scan_sample_videos()
-            
+
             elif choice == "6":
                 self.show_learning_stats()
-            
+
             elif choice == "7":
                 self._show_settings()
-            
+
             else:
                 logger.info("Invalid option. Please enter 0-7.")
-    
+
     def _select_from_database(self):
         """Select dua from database."""
         duas = DB.get_all_duas()
         if not duas:
             logger.info("No Duas found in the database.")
             return
-        
+
         logger.info("Available Duas:")
         logger.info("-" * 40)
         for idx, dua in enumerate(duas, 1):
             title = dua.get('title', 'Unknown')
             category = dua.get('category', 'general')
             logger.info(f"{idx:3}. {title}  [{category}]")
-        
+
         logger.info("-" * 40)
         logger.info(" 0. Back to Main Menu")
-        
+
         while True:
             try:
                 choice = input("\nSelect a Dua (enter number): ").strip()
                 if choice == "0":
                     return
-                
+
                 idx = int(choice)
                 if 1 <= idx <= len(duas):
                     selected = duas[idx-1]
@@ -776,88 +778,88 @@ class DuaVideoPipeline:
                     logger.info(f"Please enter a number between 1 and {len(duas)}.")
             except ValueError:
                 logger.info("Invalid input. Please enter a number.")
-    
+
     def _enter_custom_dua(self):
         """Enter custom dua text."""
         logger.info("=" * 50)
         logger.info("ENTER CUSTOM DUA")
         logger.info("=" * 50)
-        
+
         arabic_text = input("\nEnter Arabic text: ").strip()
         if not arabic_text:
             logger.error("Arabic text is required!")
             return
-        
+
         urdu_text = input("Enter Urdu translation: ").strip()
         if not urdu_text:
             logger.error("Urdu translation is required!")
             return
-        
+
         title = input("Enter Title (optional): ").strip()
-        
+
         self.generate_custom_video(arabic_text, urdu_text, title)
-    
+
     def _batch_mode(self):
         """Generate all duas in batch mode."""
         duas = DB.get_all_duas()
         if not duas:
             logger.info("No Duas found in the database.")
             return
-        
+
         logger.info("=" * 50)
         logger.info("BATCH MODE: Generating all Duas...")
         logger.info("=" * 50)
-        
+
         total = len(duas)
         success_count = 0
-        
+
         for idx, dua in enumerate(duas, 1):
             dua_id = dua.get('id')
             title = dua.get('title', 'Unknown')
             logger.info(f"[{idx}/{total}] Processing: {title} ({dua_id})")
             logger.info("-" * 30)
-            
+
             if self.generate_video(dua_id):
                 success_count += 1
             else:
                 logger.error(f"[{idx}/{total}] Failed for {title}")
-        
+
         logger.info("=" * 50)
         logger.info(f"BATCH COMPLETE! Successfully generated {success_count}/{total} videos.")
         logger.info("=" * 50)
-    
+
     def _ai_mode(self):
         """AI mode for processing custom dua with advanced features."""
         logger.info("=" * 50)
         logger.info("AI MODE - ADVANCED DUA PROCESSING")
         logger.info("=" * 50)
-        
+
         arabic_text = input("\nEnter Arabic text: ").strip()
         if not arabic_text:
             logger.error("Arabic text is required!")
             return
-        
+
         urdu_text = input("Enter Urdu/Roman Urdu/English translation: ").strip()
         if not urdu_text:
             logger.error("Translation is required!")
             return
-        
+
         title = input("Enter Title (optional): ").strip()
-        
+
         # Ask for effect selection
         effects = self.revamp_engine.get_available_effects()
         colors = self.revamp_engine.get_available_colors()
-        
+
         logger.info("Available Effects:")
         for idx, effect in enumerate(effects, 1):
             logger.info(f"  {idx}. {effect}")
-        
+
         logger.info("Available Colors:")
         for idx, color in enumerate(colors, 1):
             logger.info(f"  {idx}. {color}")
-        
+
         effect_choice = input("\nSelect effect (number or 'ai' for recommendation): ").strip()
-        
+
         if effect_choice.lower() == "ai":
             recommendation = self.self_trainer.get_recommendation()
             effect = recommendation.get("best_effect", "neon_glow")
@@ -869,17 +871,17 @@ class DuaVideoPipeline:
                 effect = effects[effect_idx]
             except (ValueError, IndexError):
                 effect = "neon_glow"
-            
+
             color_choice = input("Select color (number): ").strip()
             try:
                 color_idx = int(color_choice) - 1
                 color = colors[color_idx]
             except (ValueError, IndexError):
                 color = "gold"
-        
+
         # Generate video
         self.generate_custom_video(arabic_text, urdu_text, title, effect)
-        
+
         # Ask for feedback
         logger.info("Rate this video (1-5 stars):")
         try:
@@ -895,19 +897,19 @@ class DuaVideoPipeline:
                 logger.info("Thank you for your feedback!")
         except ValueError:
             logger.info("Invalid rating. Skipping.")
-    
+
     def _show_settings(self):
         """Show settings menu."""
         logger.info("=" * 50)
         logger.info("SETTINGS")
         logger.info("=" * 50)
-        
+
         logger.info("1. View Project Info")
         logger.info("2. View Security Info")
         logger.info("3. Back to Main Menu")
-        
+
         choice = input("\nSelect (1-3): ").strip()
-        
+
         if choice == "1":
             logger.info(PROJECT.get_summary())
         elif choice == "2":

@@ -19,7 +19,6 @@ Frame plan contract (consumed by EffectsEngine.apply_plan):
 
 import logging
 import math
-import os
 import random
 import zlib
 

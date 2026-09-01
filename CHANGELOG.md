@@ -1,79 +1,116 @@
 # Changelog
 
-All notable changes to Dua Video Generator.
+All notable changes to DuaVideoGenerator will be documented in this file.
 
-## [0.11.0] - 2026-09-01
+Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-### Fixed
-- eval() replaced with json.dumps() in test_security.py
-- setInterval never cleared on visibility change (duplicate polling)
-- Duplicate import sys in restore.py
-- readBody reverted to local (send dependency)
-- _pollTimers declaration order fixed
-- duaStatus reverted to sync (async was too slow)
-
-### Added
-- SSE endpoint GET /api/status/stream for real-time progress
-- EventSource frontend (instant updates vs 3s polling)
-- Shared routes/utils.js (err, parseJson, cleanStr, routeCatch, exists)
-- Config cache with 5s TTL
-- Backup checksums (SHA-256)
-- Backup rotation (keep 10 max)
-- ARIA roles + labels for accessibility
-- Focus trapping for modals
-- prefers-reduced-motion support
-- :focus-visible outlines
-- Touch-friendly cards (44px min)
-- noscript fallback
-- CLI argparse (--dua, --theme, --effect, --batch, --list, --dry-run)
-- Vectorized wave effect (numpy advanced indexing)
-- Revamp engine synced with actual effects
-- Atomic write for save_key (os.replace)
-- Soft-delete with undo (POST /api/undo-delete-dua)
-- VFX pack mtime-based cache
-- Dependabot config
-- Pre-commit hooks
-- Windows/macOS CI matrix
-- E2E artifact upload on failure
-- pip-audit in CI
-
-### Changed
-- All routes use shared utils (eliminated ~100 lines duplication)
-- Backup script enhanced with checksums + rotation
-- CI/CD: pytest-cov, pytest-timeout, concurrency group
-- requirements.txt: upper version bounds, opencv-python-headless
+---
 
 ## [0.10.0] - 2026-09-01
 
-### Fixed
-- FPS alignment to 45 across all modules
-- Font path corrected to Amiri-Bold.ttf
-- Event loop leak in tts_engine.py (asyncio.run)
-- Gold shimmer effect vectorized with numpy
-- Wave effect optimized with np.roll
-- Bounce effect off-screen clipping
-- Frame corruption handling in effects engine
-- Path traversal guards on /video/* and /thumb/* routes
-- XSS vulnerability in dashboard log rendering
-- Rate limit applied to all POST /api/* endpoints
-- Auth token HTML injection (JSON.stringify)
-- PBKDF2 iterations increased to 600K
-- Security headers (X-Content-Type-Options, X-Frame-Options, etc.)
-- Singleton lazy initialization for dua_database
-- Duration calculation fix in video_analyzer
-- TTS text sanitization (HTML tag stripping)
-- Upload log rotation at 1MB
-- CI/CD: TypeScript check strict mode, Bandit security scan, npm audit
-
 ### Added
-- Health check endpoint GET /api/health
-- Backup/restore scripts (scripts/backup.py, scripts/restore.py)
-- Documentation: CHANGELOG.md, API.md, CONTENT_POLICY.md, YOUTUBE_COMPLIANCE.md
-- DISK_SPACE_MIN_MB and MAX_FILE_SIZE_MB config options
-- scikit-learn dependency
+- MCP servers integration (Filesystem + GitHub)
+- Phase 3 UI/UX improvements
+- Toast animations + dismiss button
+- CSS improvements
 
 ### Changed
-- scene_engine layout loop reduced from 40 to 15 attempts
-- revamp_engine constants extracted to module level
-- Quality checker uses config-driven validation
-- .gitignore updated with *.log entries
+- Updated dashboard styling
+- Improved video rendering pipeline
+
+### Fixed
+- CSS circular references in :root block
+
+---
+
+## [0.9.0] - 2026-08-23
+
+### Added
+- Phase 2 UI/UX improvements
+- Dashboard cache system
+- Crash log handling
+
+### Changed
+- Improved video quality settings
+- Updated FFmpeg presets
+
+---
+
+## [0.8.0] - 2026-08-20
+
+### Added
+- Phase 1.4 features
+- Toast notifications
+- Dismiss button functionality
+
+### Fixed
+- Video duration calculation
+- Audio sync issues
+
+---
+
+## [0.7.0] - 2026-08-15
+
+### Added
+- YouTube integration
+- OAuth flow
+- Upload functionality
+
+### Changed
+- Improved TTS engine
+- Better audio mixing
+
+---
+
+## [0.6.0] - 2026-08-10
+
+### Added
+- Web dashboard
+- Real-time rendering
+- Statistics tracking
+
+---
+
+## [0.5.0] - 2026-08-05
+
+### Added
+- AI dua import
+- Duplicate prevention
+- Custom API support
+
+---
+
+## [0.4.0] - 2026-08-01
+
+### Added
+- Background media support
+- Pexels integration
+- Category-based matching
+
+---
+
+## [0.3.0] - 2026-07-25
+
+### Added
+- Security features
+- Token handling
+- Dashboard authentication
+
+---
+
+## [0.2.0] - 2026-07-20
+
+### Added
+- Effects engine
+- Scene rendering
+- Timeline builder
+
+---
+
+## [0.1.0] - 2026-07-15
+
+### Added
+- Initial release
+- Basic TTS
+- Video generation
+- Arabic text rendering

@@ -41,6 +41,8 @@ select = [
 ]
 ignore = [
     "E501",   # line too long (handled by formatter)
+    "E402",   # module import not at top (intentional for sys.path)
+    "E741",   # ambiguous variable name (l is common in comprehensions)
     "B008",   # function call in default argument
 ]
 

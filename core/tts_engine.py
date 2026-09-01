@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import time
-from typing import List, Optional
 
 try:
     import edge_tts
@@ -20,7 +19,7 @@ class TTSEngine:
     Arabic Voice: ar-SA-HamedNeural
     Urdu Voice: ur-PK-AsadNeural
     """
-    
+
     VOICES = {
         'ar': 'ar-SA-HamedNeural',  # Arabic
         'ur': 'ur-PK-AsadNeural'    # Urdu
@@ -87,15 +86,15 @@ class TTSEngine:
         try:
             return await asyncio.wait_for(
                 communicate.save(output_file, **kwargs), timeout=TTSEngine.SAVE_TIMEOUT)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error("edge-tts save timed out")
             raise
 
     @staticmethod
     async def _async_generate(text: str, voice: str, output_file: str,
-                              timing_path: Optional[str] = None,
-                              rate: Optional[str] = None,
-                              pitch: Optional[str] = None) -> bool:
+                              timing_path: str | None = None,
+                              rate: str | None = None,
+                              pitch: str | None = None) -> bool:
         """Internal async helper to generate TTS audio.
 
         When timing_path is provided, WordBoundary metadata is captured as a
@@ -134,8 +133,8 @@ class TTSEngine:
 
     @staticmethod
     def generate_audio(text: str, language: str, output_path: str,
-                       timing_path: Optional[str] = None,
-                       voice: Optional[str] = None) -> bool:
+                       timing_path: str | None = None,
+                       voice: str | None = None) -> bool:
         """
         Synchronous wrapper to generate MP3 audio with retry logic.
 
@@ -168,7 +167,7 @@ class TTSEngine:
         pitch = prosody.get('pitch')
         # Ensure the temp folder exists
         os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-        
+
         # Retry logic with exponential backoff
         for attempt in range(TTSEngine.MAX_RETRIES):
             try:
@@ -177,23 +176,23 @@ class TTSEngine:
                     TTSEngine._async_generate(text, voice, output_path,
                                               timing_path, rate, pitch)
                 )
-                
+
                 if result:
                     return True
-                    
+
                 # If we got here, generation failed
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
                     logger.info(f"Attempt {attempt + 1} failed, retrying in {delay}s...")
                     time.sleep(delay)
-                    
+
             except Exception as e:
                 logger.error(f"Attempt {attempt + 1}: {e}")
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
                     logger.info(f"Retrying in {delay}s...")
                     time.sleep(delay)
-        
+
         logger.error(f"All {TTSEngine.MAX_RETRIES} attempts failed")
         return False
 
@@ -252,7 +251,7 @@ class TTSEngine:
         return (False, False)
 
     @staticmethod
-    def parse_word_boundaries(timing_path: str) -> List[dict]:
+    def parse_word_boundaries(timing_path: str) -> list[dict]:
         """
         Parse an edge-tts WordBoundary JSONL sidecar into a structured list.
 
@@ -267,11 +266,11 @@ class TTSEngine:
             list of {"word", "offset", "duration", "end"} (seconds).
             Returns an empty list if the file is absent or unparseable.
         """
-        words: List[dict] = []
+        words: list[dict] = []
         if not timing_path or not os.path.exists(timing_path):
             return words
         try:
-            with open(timing_path, "r", encoding="utf-8") as f:
+            with open(timing_path, encoding="utf-8") as f:
                 for line in f:
                     line = line.strip()
                     if not line:

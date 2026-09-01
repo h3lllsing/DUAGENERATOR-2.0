@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """AI Format Dua — paste kiya hua dua text format karke library mein add karta hai.
 
 Usage:
@@ -12,15 +11,12 @@ import json
 import os
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "remotion", "scripts"))
-from ai_import import (load_config, api_base_url, api_keys, api_models,
-                       VALID_FREE_MODELS, FREE_MODELS, API_KEYS,
-                       _is_empty_block,
-                       load_existing, save_duas)
+from ai_import import API_KEYS, FREE_MODELS, _is_empty_block, api_base_url, load_existing, save_duas
 
 SYSTEM_PROMPT = """You are an expert Islamic Sunni scholar. The user will paste a dua in any format (Arabic, Urdu, Roman Urdu, mixed). Your job:
 

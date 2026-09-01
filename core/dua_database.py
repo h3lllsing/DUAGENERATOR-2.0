@@ -1,7 +1,7 @@
+import json
 import logging
 import os
-import json
-from typing import List, Dict, Optional, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -13,23 +13,23 @@ class DuaDatabase:
     Handles loading and querying of Dua data from JSON files.
     Provides a clean interface for the CLI and GUI layers.
     """
-    
+
     def __init__(self):
         """Loads duas.json and categories.json from the data directory."""
         self.data_dir = PROJECT.DATA_DIR
         self.duas_file = os.path.join(self.data_dir, "duas.json")
         self.categories_file = os.path.join(self.data_dir, "categories.json")
-        
-        self.duas: List[Dict[str, Any]] = []
-        self.categories: List[Dict[str, Any]] = []
-        
+
+        self.duas: list[dict[str, Any]] = []
+        self.categories: list[dict[str, Any]] = []
+
         self._load_data()
-    
+
     def _load_data(self):
         """Internal method to load both JSON files."""
         # Load Duas
         try:
-            with open(self.duas_file, 'r', encoding='utf-8-sig', errors='replace') as f:
+            with open(self.duas_file, encoding='utf-8-sig', errors='replace') as f:
                 data = json.load(f)
                 # Handle nested format: {"duas": [...]}
                 if isinstance(data, dict) and 'duas' in data:
@@ -43,10 +43,10 @@ class DuaDatabase:
         except json.JSONDecodeError as e:
             logger.error(f"Invalid JSON in duas file: {e}")
             self.duas = []
-        
+
         # Load Categories
         try:
-            with open(self.categories_file, 'r', encoding='utf-8-sig', errors='replace') as f:
+            with open(self.categories_file, encoding='utf-8-sig', errors='replace') as f:
                 data = json.load(f)
                 # Handle nested format: {"categories": [...]}
                 if isinstance(data, dict) and 'categories' in data:
@@ -61,11 +61,11 @@ class DuaDatabase:
             logger.error(f"Invalid JSON in categories file: {e}")
             self.categories = []
 
-    def get_all_duas(self) -> List[Dict[str, Any]]:
+    def get_all_duas(self) -> list[dict[str, Any]]:
         """Returns the list of all duas."""
         return self.duas
 
-    def get_dua_by_id(self, dua_id: str) -> Optional[Dict[str, Any]]:
+    def get_dua_by_id(self, dua_id: str) -> dict[str, Any] | None:
         """
         Finds a dua by its 'id' field.
         
@@ -80,7 +80,7 @@ class DuaDatabase:
                 return dua
         return None
 
-    def get_duas_by_category(self, category: str) -> List[Dict[str, Any]]:
+    def get_duas_by_category(self, category: str) -> list[dict[str, Any]]:
         """
         Filters duas by category name.
         
@@ -92,7 +92,7 @@ class DuaDatabase:
         """
         return [dua for dua in self.duas if dua.get('category') == category]
 
-    def get_categories(self) -> List[Dict[str, Any]]:
+    def get_categories(self) -> list[dict[str, Any]]:
         """Returns the list of all categories."""
         return self.categories
 

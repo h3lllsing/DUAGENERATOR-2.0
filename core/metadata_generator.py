@@ -3,10 +3,9 @@ Metadata Generator Module
 Auto-generates YouTube metadata (title, description, tags, hashtags)
 """
 
+import json
 import logging
 import os
-import json
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +15,7 @@ class MetadataGenerator:
     Auto YouTube Metadata Generator.
     Generates title, description, tags, and hashtags.
     """
-    
+
     def __init__(self):
         """Initialize metadata generator."""
         # Category-specific titles
@@ -30,7 +29,7 @@ class MetadataGenerator:
             "prayer": "Prayer Dua | Salah Prayer",
             "general": "Islamic Dua | Daily Prayer"
         }
-        
+
         # Category-specific tags
         self.category_tags = {
             "bathroom": ["Bathroom Dua", "Wudu Dua", "Islamic Hygiene"],
@@ -42,7 +41,7 @@ class MetadataGenerator:
             "prayer": ["Prayer Dua", "Salah Dua", "Islamic Prayer"],
             "general": ["General Dua", "Daily Dua", "Islamic Prayer"]
         }
-        
+
         # Base tags
         self.base_tags = [
             "Islamic Dua",
@@ -54,8 +53,8 @@ class MetadataGenerator:
             "Dua",
             "Duain"
         ]
-    
-    def generate(self, arabic_text: str, urdu_text: str, category: str) -> Dict:
+
+    def generate(self, arabic_text: str, urdu_text: str, category: str) -> dict:
         """
         Generate YouTube metadata.
         
@@ -71,14 +70,14 @@ class MetadataGenerator:
         description = self.generate_description(arabic_text, urdu_text, category)
         tags = self.generate_tags(category)
         hashtags = self.generate_hashtags(category)
-        
+
         return {
             "title": title,
             "description": description,
             "tags": tags,
             "hashtags": hashtags
         }
-    
+
     def generate_title(self, category: str) -> str:
         """
         Generate YouTube title.
@@ -90,7 +89,7 @@ class MetadataGenerator:
             YouTube title
         """
         return self.titles.get(category, "Islamic Dua | Prayer")
-    
+
     def generate_description(self, arabic_text: str, urdu_text: str,
                              category: str) -> str:
         """
@@ -123,8 +122,8 @@ Like & Share if you benefited from this dua.
 #IslamicDua #UrduDua #ArabicDua #Prayer #Muslim #Islam #Dua #Duain
 """
         return description.strip()
-    
-    def generate_tags(self, category: str) -> List[str]:
+
+    def generate_tags(self, category: str) -> list[str]:
         """
         Generate YouTube tags.
         
@@ -136,7 +135,7 @@ Like & Share if you benefited from this dua.
         """
         category_specific = self.category_tags.get(category, [])
         return self.base_tags + category_specific
-    
+
     def generate_hashtags(self, category: str) -> str:
         """
         Generate YouTube hashtags.
@@ -148,7 +147,7 @@ Like & Share if you benefited from this dua.
             Hashtags string
         """
         base_hashtags = "#IslamicDua #UrduDua #ArabicDua #Prayer #Muslim"
-        
+
         category_hashtags = {
             "bathroom": "#BathroomDua #Wudu",
             "sleep": "#SleepDua #BedtimePrayer",
@@ -159,15 +158,15 @@ Like & Share if you benefited from this dua.
             "prayer": "#PrayerDua #Salah",
             "general": "#DailyDua #IslamicPrayer"
         }
-        
+
         specific = category_hashtags.get(category, "")
-        
+
         if specific:
             return f"{base_hashtags} {specific}"
         else:
             return base_hashtags
-    
-    def save_metadata(self, metadata: Dict, output_path: str):
+
+    def save_metadata(self, metadata: dict, output_path: str):
         """
         Save metadata to JSON file.
         
@@ -177,8 +176,8 @@ Like & Share if you benefited from this dua.
         """
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(metadata, f, indent=2, ensure_ascii=False)
-    
-    def load_metadata(self, metadata_path: str) -> Dict:
+
+    def load_metadata(self, metadata_path: str) -> dict:
         """
         Load metadata from JSON file.
         
@@ -190,29 +189,29 @@ Like & Share if you benefited from this dua.
         """
         if not os.path.exists(metadata_path):
             return None
-        
-        with open(metadata_path, 'r', encoding='utf-8') as f:
+
+        with open(metadata_path, encoding='utf-8') as f:
             return json.load(f)
 
 
 # Test function
 if __name__ == "__main__":
     print("Testing Metadata Generator...")
-    
+
     generator = MetadataGenerator()
-    
+
     # Test metadata generation
     test_arabic = "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ"
     test_urdu = "اللہ کے نام سے شروع جو بہت مہربان ناہے"
-    
+
     categories = ["bathroom", "sleep", "food", "travel", "general"]
-    
+
     for category in categories:
         print(f"\n{category.upper()}:")
         metadata = generator.generate(test_arabic, test_urdu, category)
-        
+
         print(f"  Title: {metadata['title']}")
         print(f"  Tags: {metadata['tags'][:5]}...")
         print(f"  Hashtags: {metadata['hashtags'][:50]}...")
-    
+
     print("\nMetadata Generator Test Complete!")

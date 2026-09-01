@@ -1,5 +1,26 @@
 [
   {
+    "ts": "2026-09-01T17:12:01.694Z",
+    "duaId": "safar_ki_dua",
+    "title": "Safar Ki Dua",
+    "result": "PASS",
+    "look": "embernight / clouds / none / sitare / arch / m:tasbih / c:panx / i:patternwipe / o:lanternjhumka"
+  },
+  {
+    "ts": "2026-09-01T17:01:15.585Z",
+    "duaId": "allah_ki_tareef_aur_hamd",
+    "title": "Allah Ki Tareef Aur Hamd",
+    "result": "PASS",
+    "look": "royal / birds / petals / none / arch / m:rehal / g:dreamy / c:kenburns / i:patternwipe / o:lanternjhumka"
+  },
+  {
+    "ts": "2026-09-01T10:27:09.687Z",
+    "duaId": "allah_ki_magnificence_ki_dua",
+    "title": "Allah Ki Magnificence Ki Dua",
+    "result": "PASS",
+    "look": "masterpiece / birds / rain / rosette / classic / t:fade / m:rehal / c:zoomin / i:crescentfade / o:lanternjhumka"
+  },
+  {
     "ts": "2026-09-01T08:41:09.183Z",
     "duaId": "allah_ki_magnificence_ki_dua",
     "title": "Allah Ki Magnificence Ki Dua",
@@ -1371,24 +1392,6 @@
     "ts": "2026-08-23T15:40:42.125Z",
     "duaId": "surah_maun",
     "title": "Surah Maun",
-    "result": "PASS"
-  },
-  {
-    "ts": "2026-08-23T15:38:24.950Z",
-    "duaId": "surah_kaferoon",
-    "title": "Surah Kaferoon",
-    "result": "PASS"
-  },
-  {
-    "ts": "2026-08-23T15:36:16.949Z",
-    "duaId": "arafa_ke_din_ki_dua",
-    "title": "Arafa Ke Din Ki Dua",
-    "result": "PASS"
-  },
-  {
-    "ts": "2026-08-23T15:34:34.832Z",
-    "duaId": "main_roza_daar_hoon",
-    "title": "Main Roza Daar Hoon",
     "result": "PASS"
   }
 ]

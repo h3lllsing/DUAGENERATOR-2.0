@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Generate Remotion manifest JSON from dua data + TTS timing sidecars."""
 import json
 import os
@@ -8,6 +7,7 @@ import sys
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT)
 import config as project_config
+
 REMOTION = os.path.join(PROJECT, "remotion")
 TEMP = os.path.join(PROJECT, "temp")
 
@@ -88,15 +88,16 @@ def master_audio(wav_src, audio_dst):
     Stage 3: transparent 192k mp3 encode. No dynamic loudnorm anywhere,
     so compressor makeup gain stays transparent (no gain-pumping).
     """
-    import imageio_ffmpeg
     import subprocess
+
+    import imageio_ffmpeg
     sys.path.append(PROJECT)
     from core.audio_mixer import AudioMixer
 
     exe = imageio_ffmpeg.get_ffmpeg_exe()
     base, _ = os.path.splitext(audio_dst)
-    chained = "{}.chain.wav".format(base)
-    normalized = "{}.norm.wav".format(base)
+    chained = f"{base}.chain.wav"
+    normalized = f"{base}.norm.wav"
     try:
         subprocess.run(
             [exe, "-y", "-hide_banner", "-loglevel", "error",
@@ -280,9 +281,10 @@ def resolve_bg(dua):
 
 
 def media_duration(path):
-    import imageio_ffmpeg
     import re
     import subprocess
+
+    import imageio_ffmpeg
     exe = imageio_ffmpeg.get_ffmpeg_exe()
     proc = subprocess.run([exe, "-i", path], capture_output=True, text=True)
     m = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", proc.stderr)
@@ -320,7 +322,7 @@ def read_words(path):
 
 def main(dua_id="rabbana_hasanah"):
     out_dir = os.path.join(REMOTION, "src", "data")
-    out_path = os.path.join(out_dir, "{}.json".format(dua_id))
+    out_path = os.path.join(out_dir, f"{dua_id}.json")
     if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
         print("manifest already exists:", out_path)
         return
@@ -330,24 +332,24 @@ def main(dua_id="rabbana_hasanah"):
         duas = duas.get("duas", [])
     dua = next(d for d in duas if d["id"] == dua_id)
 
-    ar_words = read_words(os.path.join(TEMP, "{}_ar_timing.jsonl".format(dua_id)))
-    ur_words = read_words(os.path.join(TEMP, "{}_ur_timing.jsonl".format(dua_id)))
+    ar_words = read_words(os.path.join(TEMP, f"{dua_id}_ar_timing.jsonl"))
+    ur_words = read_words(os.path.join(TEMP, f"{dua_id}_ur_timing.jsonl"))
 
-    ar_dur = media_duration(os.path.join(TEMP, "{}_ar.mp3".format(dua_id)))
+    ar_dur = media_duration(os.path.join(TEMP, f"{dua_id}_ar.mp3"))
     urdu_base = ar_dur + GAP_SECONDS
     for w in ur_words:
         w["start"] = round(w["start"] + urdu_base, 3)
         w["end"] = round(w["end"] + urdu_base, 3)
 
     import wave
-    with wave.open(os.path.join(TEMP, "{}_merged.wav".format(dua_id))) as w:
+    with wave.open(os.path.join(TEMP, f"{dua_id}_merged.wav")) as w:
         total = w.getnframes() / w.getframerate()
 
     if total < 1.0:
         raise RuntimeError(
-            "merged audio too short ({:.3f}s < 1.0s) - reject manifest".format(total))
+            f"merged audio too short ({total:.3f}s < 1.0s) - reject manifest")
 
-    wav_path = os.path.join(TEMP, "{}_merged.wav".format(dua_id))
+    wav_path = os.path.join(TEMP, f"{dua_id}_merged.wav")
     if not os.path.exists(wav_path) or os.path.getsize(wav_path) <= 0:
         raise RuntimeError("merged wav missing or zero bytes: " + wav_path)
 
@@ -361,7 +363,7 @@ def main(dua_id="rabbana_hasanah"):
 
     audio_dir = os.path.join(REMOTION, "public", "audio")
     os.makedirs(audio_dir, exist_ok=True)
-    audio_dst = os.path.join(audio_dir, "{}.mp3".format(dua_id))
+    audio_dst = os.path.join(audio_dir, f"{dua_id}.mp3")
     master_audio(wav_path, audio_dst)
     if not os.path.exists(audio_dst) or os.path.getsize(audio_dst) <= 0:
         raise RuntimeError("mastered mp3 missing or zero bytes: " + audio_dst)
@@ -374,7 +376,7 @@ def main(dua_id="rabbana_hasanah"):
         "width": 1080,
         "height": 1920,
         "totalDuration": round(total, 3),
-        "audioFile": "audio/{}.mp3".format(dua_id),
+        "audioFile": f"audio/{dua_id}.mp3",
         "template": resolve_theme(dua),
         "arabicWords": ar_words,
         "urduWords": ur_words,
@@ -407,13 +409,13 @@ def main(dua_id="rabbana_hasanah"):
     sfx = {}
     for name in ("whoosh", "riser", "tick"):
         if os.path.exists(os.path.join(sfx_dir, name + ".mp3")):
-            sfx[name] = "sfx/{}.mp3".format(name)
+            sfx[name] = f"sfx/{name}.mp3"
     if sfx:
         manifest["sfx"] = sfx
 
     out_dir = os.path.join(REMOTION, "src", "data")
     os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "{}.json".format(dua_id))
+    out_path = os.path.join(out_dir, f"{dua_id}.json")
     tmp_path = out_path + ".tmp"
     with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, ensure_ascii=False, indent=1)
@@ -422,8 +424,7 @@ def main(dua_id="rabbana_hasanah"):
     print("manifest:", out_path)
     print("audio:", audio_dst)
     print("arabic words:", len(ar_words), "| urdu words:", len(ur_words))
-    print("total: {:.2f}s | arabicEnd: {:.2f} | urduStart: {:.2f}".format(
-        total, arabic_end, urdu_start))
+    print(f"total: {total:.2f}s | arabicEnd: {arabic_end:.2f} | urduStart: {urdu_start:.2f}")
 
 
 if __name__ == "__main__":

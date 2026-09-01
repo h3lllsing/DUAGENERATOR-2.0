@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Custom Voice Only TTS: custom arabic/urdu -> mastered mp3 jo
 remotion/public/audio/ me SAVE hota hai (portal list me nahi aata).
 Server /api/tts-custom isko chalata hai."""
@@ -11,9 +10,10 @@ PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file
 sys.path.append(PROJECT)
 sys.path.append(os.path.join(PROJECT, "remotion", "scripts"))
 
-from core.tts_engine import TTSEngine  # noqa: E402
-from core.audio_mixer import AudioMixer  # noqa: E402
 from make_manifest import master_audio  # noqa: E402
+
+from core.audio_mixer import AudioMixer  # noqa: E402
+from core.tts_engine import TTSEngine  # noqa: E402
 
 
 def main():

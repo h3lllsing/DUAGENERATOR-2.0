@@ -2,9 +2,9 @@
 Tests for core.video_analyzer module
 """
 
+import json
 import os
 import sys
-import json
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 

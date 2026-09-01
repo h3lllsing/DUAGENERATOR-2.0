@@ -10,7 +10,6 @@ All duas are Islamic Sunni from authentic sources.
 import argparse
 import json
 import os
-import random
 import re
 import shutil
 import sys
@@ -458,12 +457,11 @@ def main():
         topic_line = " Topic/theme: " + args.topic + "."
 
     user_prompt = (
-        "Generate exactly {n} authentic Sunni Islamic duas for category "
-        "'{cat}'.{topic}\n"
-        "IDs must be unique snake_case starting with '{cat}_' prefix.\n"
+        f"Generate exactly {count} authentic Sunni Islamic duas for category "
+        f"'{args.category}'.{topic_line}\n"
+        f"IDs must be unique snake_case starting with '{args.category}_' prefix.\n"
         "Return JSON array only."
-    ).format(n=count, cat=args.category,
-             topic=topic_line)
+    )
 
     key_idx = 0
     all_new = []
@@ -471,8 +469,7 @@ def main():
     for attempt in range(len(API_KEYS) * 2):
         api_key = API_KEYS[key_idx % len(API_KEYS)]
         key_idx += 1
-        print("[attempt {}/2] key=...{} model=auto".format(
-            attempt + 1, api_key[-8:]))
+        print(f"[attempt {attempt + 1}/2] key=...{api_key[-8:]} model=auto")
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -485,8 +482,7 @@ def main():
             if duas:
                 added = save_duas(duas)
                 all_new.extend(added)
-                print("  [saved] {} new duas (total now {})".format(
-                    len(added), len(load_existing())))
+                print(f"  [saved] {len(added)} new duas (total now {len(load_existing())})")
                 break
             else:
                 print("  [warn] no parseable duas in response")
@@ -496,7 +492,7 @@ def main():
         time.sleep(1)
 
     if all_new:
-        print("\n=== RESULT: {} new duas added ===".format(len(all_new)))
+        print(f"\n=== RESULT: {len(all_new)} new duas added ===")
         for d in all_new:
             print("  + {} | {} | {}".format(d["id"], d["title"],
                                              d["reference"]))

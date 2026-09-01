@@ -71,8 +71,8 @@ class ArabicRenderer:
     def _load(self):
         if self._hb_font is None:
             try:
-                import uharfbuzz as hb
                 import freetype
+                import uharfbuzz as hb
             except ImportError as exc:  # pragma: no cover
                 raise RuntimeError(
                     "arabic_renderer needs uharfbuzz + freetype-py: %r" % exc)

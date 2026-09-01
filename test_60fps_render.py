@@ -1,10 +1,14 @@
 """Quick 60fps E2E render test — bathroom_exit dua."""
-import sys, os, time, re
+import os
+import re
+import sys
+import time
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from main import DuaVideoPipeline
-from core.quality_checker import QualityChecker
 from core.dua_database import DB
+from core.quality_checker import QualityChecker
+from main import DuaVideoPipeline
 
 print("=== 60fps E2E Render Test: bathroom_exit ===")
 t0 = time.time()

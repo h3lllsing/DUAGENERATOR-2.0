@@ -2,8 +2,9 @@
 Shared pytest fixtures for DuaVideoGenerator test suite.
 """
 
-import sys
 import os
+import sys
+
 import pytest
 
 # Add project root to path

@@ -15,7 +15,7 @@ from PIL import Image
 
 from core.effect_director import EffectDirector, scene_frame_ranges
 from core.effects_engine import EffectsEngine
-from core.hardware import profile_summary, pick_backend
+from core.hardware import pick_backend, profile_summary
 
 W, H = 1080, 1920
 FPS = 24

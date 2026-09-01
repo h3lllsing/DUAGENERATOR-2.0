@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.project_info import ProjectInfo, PROJECT
+from core.project_info import PROJECT, ProjectInfo
 
 
 class TestProjectInfo:

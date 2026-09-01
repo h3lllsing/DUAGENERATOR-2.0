@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Standalone TTS + audio merge for one dua (feeds Remotion pipeline).
 
 Produces in temp:
@@ -13,10 +12,11 @@ import sys
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(PROJECT)
 
+from moviepy import AudioFileClip
+
+from core.audio_mixer import AudioMixer
 from core.dua_database import DB
 from core.tts_engine import TTSEngine
-from core.audio_mixer import AudioMixer
-from moviepy import AudioFileClip
 
 # Hierarchy: har dua Bismillah se shuru hoti hai. Data me likhna zaroori
 # nahi — pipeline khud prepend karti hai (agar pehle se na ho).
@@ -83,11 +83,11 @@ def main(dua_id, force=False, only=None):
                   ", ".join(dua.get("superseded_by") or [])))
 
     temp = os.path.join(PROJECT, "temp")
-    ar = os.path.join(temp, "{}_ar.mp3".format(dua_id))
-    ur = os.path.join(temp, "{}_ur.mp3".format(dua_id))
-    ar_t = os.path.join(temp, "{}_ar_timing.jsonl".format(dua_id))
-    ur_t = os.path.join(temp, "{}_ur_timing.jsonl".format(dua_id))
-    merged = os.path.join(temp, "{}_merged.wav".format(dua_id))
+    ar = os.path.join(temp, f"{dua_id}_ar.mp3")
+    ur = os.path.join(temp, f"{dua_id}_ur.mp3")
+    ar_t = os.path.join(temp, f"{dua_id}_ar_timing.jsonl")
+    ur_t = os.path.join(temp, f"{dua_id}_ur_timing.jsonl")
+    merged = os.path.join(temp, f"{dua_id}_merged.wav")
 
     if not force and only is None and exists_all([ar, ur, ar_t, ur_t, merged]):
         print("SKIP: all audio artifacts exist for", dua_id)
@@ -151,9 +151,9 @@ def main(dua_id, force=False, only=None):
         return 3
     final_duration = timeline["final_duration"]
 
-    print("[3/3] Normalize + pad to {:.2f}s...".format(final_duration))
+    print(f"[3/3] Normalize + pad to {final_duration:.2f}s...")
     base, ext = os.path.splitext(merged)
-    normalized = "{}.normalized{}".format(base, ext)
+    normalized = f"{base}.normalized{ext}"
     if AudioMixer.normalize_loudness(merged, normalized):
         ok = AudioMixer.merge_audio_sequential(
             [normalized], merged, gap_seconds=0.0,
@@ -171,7 +171,7 @@ def main(dua_id, force=False, only=None):
         print("ERROR: pad failed")
         return 1
 
-    print("OK merged={} final={:.2f}s".format(merged, final_duration))
+    print(f"OK merged={merged} final={final_duration:.2f}s")
     return 0
 
 

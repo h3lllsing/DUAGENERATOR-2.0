@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Google OAuth 2.0 desktop flow for YouTube uploads (Pillar 4).
 
 Usage:
@@ -16,7 +15,6 @@ google-api-python-client  (imports are lazy so dry-runs work without them)
 """
 import argparse
 import glob
-import io
 import json
 import os
 import sys

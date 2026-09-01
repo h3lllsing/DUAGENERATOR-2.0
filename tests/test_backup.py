@@ -50,7 +50,7 @@ class TestRotateBackups:
             backup = backups_dir / f"backup_{i:06d}"
             os.makedirs(backup)
             (backup / "manifest.json").write_text("{}")
-        
+
         # Rotate with max 10
         try:
             rotate_backups(max_backups=10)

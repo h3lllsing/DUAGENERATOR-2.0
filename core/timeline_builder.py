@@ -24,7 +24,6 @@ WordBoundary absolute-offset mapping is exposed for Phase 4 but not applied.
 """
 
 import logging
-from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +61,8 @@ class TimelineBuilder:
     def build(self, dua_id: str, arabic_text: str, urdu_text: str,
               title: str = "", arabic_duration: float = 0.0,
               urdu_duration: float = 0.0, final_duration: float = None,
-              category: str = None, palette: Optional[dict] = None,
-              motion=None, word_events: Optional[Dict[str, list]] = None) -> dict:
+              category: str = None, palette: dict | None = None,
+              motion=None, word_events: dict[str, list] | None = None) -> dict:
         """
         Build the visual timeline.
 
@@ -126,8 +125,8 @@ class TimelineBuilder:
             F_hold = 0
 
         # ---- Build scenes --------------------------------------------
-        scenes: List[Scene] = []
-        meta: List[dict] = []
+        scenes: list[Scene] = []
+        meta: list[dict] = []
         urdu_start = ar_dur + (self.gap_seconds if gap_frames > 0 else 0.0)
         urdu_end = urdu_start + ur_dur
 
@@ -215,7 +214,7 @@ class TimelineBuilder:
     # ------------------------------------------------------------------
     @staticmethod
     def absolute_word_offset(offsets: dict, language: str,
-                             word_offset: float) -> Optional[float]:
+                             word_offset: float) -> float | None:
         """Arabic words: offset; Urdu words: ar_dur + gap + offset."""
         base = offsets["urdu_base"] if language == "ur" else \
             offsets.get("arabic_base", 0.0)
@@ -225,7 +224,7 @@ class TimelineBuilder:
 
     @staticmethod
     def map_words_absolute(offsets: dict, language: str,
-                           words: List[dict]) -> List[dict]:
+                           words: list[dict]) -> list[dict]:
         """
         Add absolute offsets to parsed WordBoundary entries (Phase 4 uses
         this; Phase 3 only exposes it). Sidecars are never modified.
@@ -243,7 +242,7 @@ class TimelineBuilder:
     # ------------------------------------------------------------------
     @staticmethod
     def _attach_events(scene, role: str,
-                       word_events: Optional[Dict[str, list]]):
+                       word_events: dict[str, list] | None):
         """
         Attach scene-relative WordBoundary events to a scene (additive).
 

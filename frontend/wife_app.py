@@ -4,27 +4,32 @@ No password, no CLI, no Arabic typing needed.
 Category -> Dua -> Generate. That's it.
 """
 
-import sys
-import os
-import re
-import json
 import glob
-import shutil
-import time
+import json
+import os
 import queue
+import re
+import shutil
+import sys
 import threading
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import customtkinter as ctk
 import tkinter as tk
 from tkinter import messagebox
-from core.project_info import PROJECT
+
+import customtkinter as ctk
+
 from core.dua_database import DuaDatabase
-from main import DuaVideoPipeline, dua_video_filename
+from core.project_info import PROJECT
 from frontend.effect_preview import (
-    EFFECT_INFO, build_effect_preview, preview_exists, preview_path,
+    EFFECT_INFO,
+    build_effect_preview,
+    preview_exists,
+    preview_path,
 )
+from main import DuaVideoPipeline, dua_video_filename
 
 EFFECT_OPTIONS = [
     ("Auto (AI)", "auto"),
@@ -471,7 +476,7 @@ class DuaApp(ctk.CTk):
         try:
             path = build_effect_preview(key)
             self.after(0, lambda: self._finish_preview(path, None))
-        except Exception as e:
+        except Exception:
             self.after(0, lambda: self._finish_preview(None, str(e)))
 
     def _finish_preview(self, path, error):
@@ -726,7 +731,7 @@ class DuaApp(ctk.CTk):
     def _read_duas_file(self):
         path = os.path.join(PROJECT.DATA_DIR, "duas.json")
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             data = {}
@@ -764,7 +769,7 @@ class DuaApp(ctk.CTk):
         self._atomic_write(path, data)
 
         cat_path = os.path.join(PROJECT.DATA_DIR, "categories.json")
-        with open(cat_path, "r", encoding="utf-8") as f:
+        with open(cat_path, encoding="utf-8") as f:
             cdata = json.load(f)
         self._backup_file(cat_path)
         for c in cdata.get("categories", []):
@@ -785,7 +790,7 @@ class DuaApp(ctk.CTk):
         self._atomic_write(path, data)
 
         cat_path = os.path.join(PROJECT.DATA_DIR, "categories.json")
-        with open(cat_path, "r", encoding="utf-8") as f:
+        with open(cat_path, encoding="utf-8") as f:
             cdata = json.load(f)
         self._backup_file(cat_path)
         for c in cdata.get("categories", []):
@@ -804,7 +809,7 @@ class DuaApp(ctk.CTk):
         self._atomic_write(path, data)
 
         cat_path = os.path.join(PROJECT.DATA_DIR, "categories.json")
-        with open(cat_path, "r", encoding="utf-8") as f:
+        with open(cat_path, encoding="utf-8") as f:
             cdata = json.load(f)
         self._backup_file(cat_path)
         for c in cdata.get("categories", []):

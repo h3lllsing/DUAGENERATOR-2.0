@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """YouTube Shorts uploader with ledger + quota safety (Pillar 4).
 
 Usage:
@@ -27,7 +26,6 @@ Live mode requires google libs + data/yt_token.json (youtube_auth.py login).
 import argparse
 import atexit
 import difflib
-import io
 import hashlib
 import json
 import os
@@ -38,6 +36,7 @@ import sys
 import tempfile
 import time
 from datetime import date, timedelta
+
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 except (AttributeError, ValueError):
@@ -72,8 +71,7 @@ def autopilot_lock_acquire():
         if os.path.exists(AUTO_LOCK):
             age = time.time() - os.path.getmtime(AUTO_LOCK)
             if age < AUTO_LOCK_STALE_SEC:
-                return False, "another run active ({:.0f}m ago)".format(
-                    age / 60.0)
+                return False, f"another run active ({age / 60.0:.0f}m ago)"
         with open(AUTO_LOCK, "w", encoding="utf-8") as f:
             f.write(str(time.time()))
         return True, ""
@@ -347,7 +345,7 @@ def full_cleanup_after_upload(dua_id, title):
         except OSError as ce:
             print("  WARN cleanup failed:", os.path.basename(p), "-",
                   str(ce)[:100])
-    print("  FULL-CLEANUP removed {} file(s) for {}".format(removed, dua_id))
+    print(f"  FULL-CLEANUP removed {removed} file(s) for {dua_id}")
     return removed
 
 
@@ -419,8 +417,7 @@ def do_live_upload(service, item, payload):
             if (code >= 500 or code == 429) and attempts < 3:
                 attempts += 1
                 wait = 2 ** attempts
-                print("  retry {}/3 in {}s (HTTP {})".format(
-                    attempts, wait, code), flush=True)
+                print(f"  retry {attempts}/3 in {wait}s (HTTP {code})", flush=True)
                 time.sleep(wait)
                 continue
             raise
@@ -428,13 +425,12 @@ def do_live_upload(service, item, payload):
             if attempts < 3:
                 attempts += 1
                 wait = 2 ** attempts
-                print("  retry {}/3 in {}s (network: {})".format(
-                    attempts, wait, str(e)[:80]), flush=True)
+                print(f"  retry {attempts}/3 in {wait}s (network: {str(e)[:80]})", flush=True)
                 time.sleep(wait)
                 continue
             raise
         if status:
-            print("\r  upload {}%".format(int(status.progress() * 100)),
+            print(f"\r  upload {int(status.progress() * 100)}%",
                   end="", flush=True)
     print()
     vid = response.get("id")
@@ -493,7 +489,7 @@ def main():
     if auto_mode:
         ok, why = autopilot_lock_acquire()
         if not ok:
-            print("AUTOPILOT: skip - {}".format(why))
+            print(f"AUTOPILOT: skip - {why}")
             auto_log(auto_runs_path, "SKIP locked-out :: " + why)
             return 0
         atexit.register(autopilot_lock_release)
@@ -507,11 +503,8 @@ def main():
 
     if auto_mode:
         auto_log(auto_runs_path,
-                 "RUN start mode=AUTO n={} live={} privacy={} "
-                 "token={} used_today={}/{} remaining={}".format(
-                     args.auto, bool(args.live), args.privacy,
-                     token_label, eff_used, DAILY_CEILING,
-                     max(remaining_today, 0)))
+                 f"RUN start mode=AUTO n={args.auto} live={bool(args.live)} privacy={args.privacy} "
+                 f"token={token_label} used_today={eff_used}/{DAILY_CEILING} remaining={max(remaining_today, 0)}")
 
     all_manifests = sorted(f[:-5] for f in os.listdir(DATA_DIR)
                            if f.endswith(".json"))
@@ -601,38 +594,31 @@ def main():
         for d_item, _dw in dropped:
             skipped.append((d_item["dua_id"],
                             "auto: deferred (N/quota cap)"))
-        print("AUTO-PICK         : {} oldest-first of {} eligible "
-              "({} deferred by N/quota)".format(
-                  len(ready), len(ready) + len(dropped), len(dropped)))
+        print(f"AUTO-PICK         : {len(ready)} oldest-first of {len(ready) + len(dropped)} eligible "
+              f"({len(dropped)} deferred by N/quota)")
         for sid, why in skipped[:5]:
-            auto_log(auto_runs_path, "SKIP {} :: {}".format(sid, why))
+            auto_log(auto_runs_path, f"SKIP {sid} :: {why}")
         if len(skipped) > 5:
             auto_log(auto_runs_path,
-                     "SKIP ... +{} more (see console)".format(
-                         len(skipped) - 5))
+                     f"SKIP ... +{len(skipped) - 5} more (see console)")
 
     plan_units = min(len(ready), max(remaining_today, 0)) * UPLOAD_UNITS
-    print("library manifests : {}".format(len(ids)))
-    print("channel token     : {}".format(token_label))
-    print("ledger            : {}".format(ledger_path))
-    print("quota log         : {} ({} units today = {} uploads)".format(
-        qpath, qunits, quploads))
-    print("READY             : {}".format(len(ready)))
-    print("skipped           : {} (archived/done)".format(len(skipped)))
-    print("not-ready         : {}".format(len(failed_parse)))
-    print("quota             : {}/{} uploads used today (ledger:{}, quota-log:{}); "
-          "this run plans {} units ({} x {})".format(
-              eff_used, DAILY_CEILING, used_today, quploads,
-              plan_units,
-              min(len(ready), max(remaining_today, 0)), UPLOAD_UNITS))
+    print(f"library manifests : {len(ids)}")
+    print(f"channel token     : {token_label}")
+    print(f"ledger            : {ledger_path}")
+    print(f"quota log         : {qpath} ({qunits} units today = {quploads} uploads)")
+    print(f"READY             : {len(ready)}")
+    print(f"skipped           : {len(skipped)} (archived/done)")
+    print(f"not-ready         : {len(failed_parse)}")
+    print(f"quota             : {eff_used}/{DAILY_CEILING} uploads used today (ledger:{used_today}, quota-log:{quploads}); "
+          f"this run plans {plan_units} units ({min(len(ready), max(remaining_today, 0))} x {UPLOAD_UNITS})")
     for sid, why in skipped[:6]:
-        print("  skip  {}: {}".format(sid, why))
+        print(f"  skip  {sid}: {why}")
     for fid, why in failed_parse[:6]:
-        print("  nrdy  {}: {}".format(fid, why))
+        print(f"  nrdy  {fid}: {why}")
 
     mode = "LIVE" if args.live else "DRY-RUN"
-    print("\n=== {} MODE | privacy={} ===".format(mode.upper(),
-                                                 args.privacy))
+    print(f"\n=== {mode.upper()} MODE | privacy={args.privacy} ===")
     if args.limit > 0:
         ready = ready[:args.limit]
 
@@ -649,21 +635,20 @@ def main():
     audit_entries = []
     for i, (item, warnings) in enumerate(ready, 1):
         if os.path.exists(cancel_flag):
-            print("[{}/{}] CANCEL requested - stopping gracefully "
-                  "(current video ke baad koi naya upload nahi)".format(
-                      i, len(ready)))
+            print(f"[{i}/{len(ready)}] CANCEL requested - stopping gracefully "
+                  "(current video ke baad koi naya upload nahi)")
             if auto_mode:
                 auto_log(auto_runs_path,
-                         "CANCELLED by user at {}/{}".format(i, len(ready)))
+                         f"CANCELLED by user at {i}/{len(ready)}")
             stop_cancel = True
             break
         if max(uploads_today(load_ledger(ledger_path)),
                units_today(load_quota(qpath)) // UPLOAD_UNITS) >= DAILY_CEILING:
-            print("[{}/{}] QUOTA CEILING reached - stopping safely"
-                  .format(i, len(ready)))
+            print(f"[{i}/{len(ready)}] QUOTA CEILING reached - stopping safely"
+                  )
             if auto_mode:
                 auto_log(auto_runs_path,
-                         "QUOTA CEILING stop at {}/{}".format(i, len(ready)))
+                         f"QUOTA CEILING stop at {i}/{len(ready)}")
             break
         payload = build_payload(item, args.privacy, args.category_id)
         tags_len = len(", ".join(payload["snippet"]["tags"]))
@@ -683,7 +668,7 @@ def main():
                     "uploaded_at": time.strftime("%Y-%m-%dT%H:%M:%S")}
                 save_ledger(ledger, ledger_path)
                 spent = record_units(qpath, UPLOAD_UNITS)
-                print("  quota-log: {} units today".format(spent))
+                print(f"  quota-log: {spent} units today")
                 ok_n += 1
                 print("  UPLOADED https://youtu.be/" + vid)
                 try:
@@ -722,27 +707,27 @@ def main():
     if audit_entries:
         dups, n_hashes = uniqueness_audit(audit_entries)
         n = len(audit_entries)
-        print("\n=== UNIQUENESS AUDIT ({}) ===".format(mode))
+        print(f"\n=== UNIQUENESS AUDIT ({mode}) ===")
         print("titles       : {} ({}/{})".format(
             "UNIQUE" if not dups["title"] else "DUPLICATES", n - len(dups["title"]), n))
         print("tag-sets     : {} ({}/{})".format(
             "UNIQUE" if not dups["tags"] else "DUPLICATES", n - len(dups["tags"]), n))
         print("descriptions : {} ({}/{}, body sans disclaimer)".format(
             "UNIQUE" if not dups["desc"] else "DUPLICATES", n - len(dups["desc"]), n))
-        print("title hashes : {}/{} distinct (sha1[:8])".format(n_hashes, n))
+        print(f"title hashes : {n_hashes}/{n} distinct (sha1[:8])")
         ref_groups = {}
         for e in audit_entries:
             rn = norm_ref(e.get("reference"))
             if rn:
                 ref_groups.setdefault(rn, []).append(e["dua_id"])
         shared = {k: v for k, v in ref_groups.items() if len(v) > 1}
-        print("references   : {} shared-ref group(s)".format(len(shared)))
+        print(f"references   : {len(shared)} shared-ref group(s)")
         for rk, members in sorted(shared.items()):
             print("  REF-SHARED [{}]: {}".format(
                 rk.title()[:40], ", ".join(members)))
         for key, pairs in dups.items():
             for a, b in pairs:
-                print("  DUP[{}]: {} == {}".format(key, a, b))
+                print(f"  DUP[{key}]: {a} == {b}")
         clean = not any(dups.values()) and n_hashes == n
         print("RESULT: {}".format("PASS" if clean else "WARN"))
 

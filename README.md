@@ -134,6 +134,35 @@ Covers audio mixing, Arabic rendering, effects, video builder, E2E render, secur
 
 ---
 
+## MCP Servers (AI Integration)
+
+This project is configured with MCP (Model Context Protocol) servers for enhanced AI-assisted development.
+
+### Installed MCP Servers
+
+| Server | Type | Purpose |
+|--------|------|---------|
+| **Filesystem** | Local | File read/write access |
+| **GitHub** | Remote | GitHub API - repos, PRs, issues |
+
+### Config Files
+
+| File | Location |
+|------|----------|
+| Global Config | `C:\Users\MASOOD NASIR\.config\opencode\opencode.json` |
+| Project Config | `H:\DuaVideoGenerator\opencode.json` |
+| Documentation | `H:\MCP\README.md` |
+
+### Usage
+
+```
+"main.py padho" → Filesystem MCP se file padhega
+"Mere repos list karo" → GitHub MCP se repos dikhayega
+"Naya PR banao" → GitHub MCP se PR banayega
+```
+
+---
+
 ## Notes
 
 - **Secrets** (`dashboard/auth.json`, `data/ai_api_config.json`, YouTube OAuth tokens) and **downloaded background media** are git-ignored — never commit them.

@@ -1,11 +1,13 @@
 """Regenerate all Remotion manifests with current config FPS."""
-import os, sys, glob, subprocess
+import os
+import subprocess
+import sys
 
 PROJECT = os.path.dirname(os.path.abspath(__file__))
 SCRIPT = os.path.join(PROJECT, "remotion", "scripts", "make_manifest.py")
 DATA_DIR = os.path.join(PROJECT, "data")
 
-with open(os.path.join(DATA_DIR, "duas.json"), "r", encoding="utf-8") as f:
+with open(os.path.join(DATA_DIR, "duas.json"), encoding="utf-8") as f:
     import json
     raw = json.load(f)
     duas = raw if isinstance(raw, list) else raw.get("duas", [])

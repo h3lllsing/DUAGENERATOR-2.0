@@ -13,18 +13,18 @@ Skip with: python -m pytest -m "not slow"
 
 import os
 import sys
-import shutil
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
+
 import cv2
 import pytest
 
-from core.quality_checker import QualityChecker
-from core.dua_database import DB
 from core.audio_mixer import AudioMixer
+from core.dua_database import DB
+from core.quality_checker import QualityChecker
 from core.tts_engine import TTSEngine
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -70,7 +70,7 @@ class TestDatabaseLookup:
             assert field in dua and dua[field], f"Missing required field: {field}"
 
     def test_dua_database_is_list(self):
-        with open(DUA_DB, 'r', encoding='utf-8') as f:
+        with open(DUA_DB, encoding='utf-8') as f:
             raw = json.load(f)
         entries = raw if isinstance(raw, list) else raw.get('duas', [])
         assert len(entries) >= 70, f"Expected >=70 duas, got {len(entries)}"

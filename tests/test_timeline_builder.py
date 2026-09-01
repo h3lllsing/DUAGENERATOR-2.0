@@ -16,11 +16,9 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
-from PIL import Image
 
 from core.audio_mixer import AudioMixer
-from core.scene_engine import SAFE_RECT, RESERVED_RECTS, SceneRenderer, \
-    rect_intersect, rect_within
+from core.scene_engine import RESERVED_RECTS, SAFE_RECT, SceneRenderer, rect_intersect, rect_within
 from core.timeline_builder import TimelineBuilder
 from core.video_builder import VideoBuilder
 

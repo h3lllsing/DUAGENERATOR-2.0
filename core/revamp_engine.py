@@ -4,7 +4,6 @@ Unlimited video revamp with effect/color/timing rotation
 """
 
 import logging
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +37,10 @@ class RevampEngine:
         self.effects = AVAILABLE_EFFECTS.copy()
         self.color_schemes = COLOR_SCHEMES.copy()
 
-    def get_available_effects(self) -> List[str]:
+    def get_available_effects(self) -> list[str]:
         """Get list of available effects."""
         return self.effects.copy()
 
-    def get_available_colors(self) -> List[str]:
+    def get_available_colors(self) -> list[str]:
         """Get list of available color schemes."""
         return list(self.color_schemes.keys())

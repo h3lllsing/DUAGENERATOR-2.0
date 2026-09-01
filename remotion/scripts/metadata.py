@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """YouTube-ready <Title>.txt sidecar generator (v2 - Pillar 4).
 
 Usage: python scripts/metadata.py <dua_id>
@@ -263,9 +262,9 @@ def ref_box(reference, rot):
     if not reference:
         return ""
     if rot.idx(2, salt=5) == 0:
-        return "\U0001f4d6 Reference: {}\n".format(reference)
+        return f"\U0001f4d6 Reference: {reference}\n"
     bar = "-" * min(38, 12 + len(reference))
-    return "{}\n\U0001f4d6 {}\n{}\n".format(bar, reference, bar)
+    return f"{bar}\n\U0001f4d6 {reference}\n{bar}\n"
 
 
 def build_description(dua, rot, cfg):
@@ -318,7 +317,7 @@ def main():
 
     title = d.get("title", "Dua")
     ref = (d.get("reference") or "").strip()
-    full_title = "{} | {}".format(title, ref) if ref else title
+    full_title = f"{title} | {ref}" if ref else title
     if len(full_title) > MAX_TITLE:
         full_title = full_title[:MAX_TITLE].rsplit(" ", 1)[0]
 

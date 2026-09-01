@@ -13,12 +13,12 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.project_info import PROJECT
-from core.timeline_builder import TimelineBuilder
-from core.scene_engine import SceneRenderer
-from core.effects_engine import EffectsEngine
-from core.video_builder import VideoBuilder
 from core.effect_director import EffectDirector, premium_palette
+from core.effects_engine import EffectsEngine
+from core.project_info import PROJECT
+from core.scene_engine import SceneRenderer
+from core.timeline_builder import TimelineBuilder
+from core.video_builder import VideoBuilder
 
 PREVIEW_FPS = 12
 PREVIEW_DURATION = 15.0

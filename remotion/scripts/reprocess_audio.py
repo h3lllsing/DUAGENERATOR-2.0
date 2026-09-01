@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Re-master existing dua audio through the studio chain (no re-TTS).
 
 Runs make_manifest.main() for every dua whose temp artifacts already
@@ -25,9 +24,9 @@ def main():
     for dua in duas:
         did = dua["id"]
         needed = [
-            os.path.join(make_manifest.TEMP, "{}_ar_timing.jsonl".format(did)),
-            os.path.join(make_manifest.TEMP, "{}_ur_timing.jsonl".format(did)),
-            os.path.join(make_manifest.TEMP, "{}_merged.wav".format(did)),
+            os.path.join(make_manifest.TEMP, f"{did}_ar_timing.jsonl"),
+            os.path.join(make_manifest.TEMP, f"{did}_ur_timing.jsonl"),
+            os.path.join(make_manifest.TEMP, f"{did}_merged.wav"),
         ]
         if not all(os.path.exists(p) for p in needed):
             print("SKIP (no artifacts):", did)
@@ -41,7 +40,7 @@ def main():
             print("FAIL:", did, "-", e)
             fail += 1
 
-    print("\nDone. mastered={} skipped={} failed={}".format(ok, skip, fail))
+    print(f"\nDone. mastered={ok} skipped={skip} failed={fail}")
     return 0 if fail == 0 else 1
 
 

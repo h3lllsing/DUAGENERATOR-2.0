@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """PILLAR 3 Task 2: batch-render dedicated YouTube thumbnails.
 
 Renders the `thumbnail-card` Remotion composition (remotion/src/ThumbCard.tsx)
@@ -206,7 +205,7 @@ def main():
         if only_set and vid not in only_set:
             continue
         if vid in archived:
-            skipped_archived.append("{} -> {}".format(stem, vid))
+            skipped_archived.append(f"{stem} -> {vid}")
             continue
         if vid in seen_ids:
             continue
@@ -248,9 +247,8 @@ def main():
         free_b, need_b = disk_headroom(len(todo))
         if free_b < need_b:
             print("ERROR: insufficient free disk space "
-                  "({:.0f} MB free < {:.0f} MB required: 20MB x {} "
-                  "renders + 1GB headroom)".format(
-                      free_b / 1e6, need_b / 1e6, len(todo)))
+                  f"({free_b / 1e6:.0f} MB free < {need_b / 1e6:.0f} MB required: 20MB x {len(todo)} "
+                  "renders + 1GB headroom)")
             print("       ABORT before any render starts")
             return 1
 
@@ -301,8 +299,7 @@ def main():
                                  "bytes": size}
                     save_state({vid: done[vid]})
                     ok_n += 1
-                    print("[{}/{}] OK  {} ({:.1f}s, {} KB)".format(
-                        i, len(todo), vid, time.time() - t0, size // 1024))
+                    print(f"[{i}/{len(todo)}] OK  {vid} ({time.time() - t0:.1f}s, {size // 1024} KB)")
                 else:
                     raise RuntimeError("rc={} bytes={}\n{}".format(
                         r.returncode, size, (r.stderr or "")[-500:]))
@@ -312,7 +309,7 @@ def main():
                 save_state({vid: done[vid]})
                 fail_n += 1
                 failed_ids.append(vid)
-                print("[{}/{}] FAIL {}".format(i, len(todo), vid))
+                print(f"[{i}/{len(todo)}] FAIL {vid}")
                 print("   ", str(e).replace("\n", " | ")[:400])
             time.sleep(0.1)
     except KeyboardInterrupt:
@@ -322,10 +319,8 @@ def main():
         print("\n=== ABORTED (Ctrl+C) - current render tree killed ===")
         return 2
 
-    print("\n=== SUMMARY === {:.1f}s total | OK:{} FAIL:{} "
-          "SKIP(done):{} ARCHIVED:{} UNMAPPED:{}".format(
-              time.time() - t_all, ok_n, fail_n, len(skipped_done),
-              len(skipped_archived), len(unmapped)))
+    print(f"\n=== SUMMARY === {time.time() - t_all:.1f}s total | OK:{ok_n} FAIL:{fail_n} "
+          f"SKIP(done):{len(skipped_done)} ARCHIVED:{len(skipped_archived)} UNMAPPED:{len(unmapped)}")
     if failed_ids:
         print("failed ids:", ", ".join(failed_ids))
     return 1 if fail_n else 0

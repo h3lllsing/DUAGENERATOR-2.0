@@ -3,8 +3,8 @@ VIDEO-001 regression tests: generated videos must be exactly 1080x1920.
 """
 
 import os
-import sys
 import shutil
+import sys
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -12,8 +12,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import cv2
 from PIL import Image
 
-from core.video_builder import VideoBuilder
 from core.quality_checker import QualityChecker
+from core.video_builder import VideoBuilder
 
 
 class TestVideoResolution:

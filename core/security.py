@@ -3,17 +3,16 @@ Security Module - AES-128-CBC Encryption (Fernet)
 All data encrypted at rest
 """
 
-import logging
-import os
-import json
 import base64
 import hmac
+import json
+import logging
+import os
 
 logger = logging.getLogger(__name__)
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-
 
 # Migration-only legacy salt used by vaults created before random-per-installation
 # salts were introduced. Kept permanently so existing legacy vaults stay recoverable.
@@ -56,12 +55,12 @@ class SecurityManager:
         # Create directories if they don't exist
         os.makedirs(os.path.dirname(self.vault_path), exist_ok=True)
         os.makedirs(self.keys_dir, exist_ok=True)
-        
+
         # Load or generate salt
         self.salt = self._load_or_generate_salt()
         self.key = self._derive_key(master_password)
         self.cipher = Fernet(self.key)
-    
+
     def _load_or_generate_salt(self) -> bytes:
         """
         Load existing salt or generate a new one.
@@ -72,15 +71,15 @@ class SecurityManager:
         if os.path.exists(self.salt_path):
             with open(self.salt_path, 'rb') as f:
                 return f.read()
-        
+
         # Generate new random salt
         salt = os.urandom(16)
         with open(self.salt_path, 'wb') as f:
             f.write(salt)
         self._salt_regenerated = True
-        
+
         return salt
-    
+
     def _derive_key(self, password: str) -> bytes:
         """
         Derive key from password using PBKDF2-HMAC-SHA256.
@@ -93,7 +92,7 @@ class SecurityManager:
             32-byte key for Fernet (uses 128 bits for AES-128-CBC)
         """
         return self._derive_key_with_salt(password, self.salt)
-    
+
     def _derive_key_with_salt(self, password: str, salt: bytes) -> bytes:
         """
         Derive key from password and an explicit salt using PBKDF2-HMAC-SHA256.
@@ -112,10 +111,10 @@ class SecurityManager:
             salt=salt,
             iterations=PBKDF2_ITERATIONS,
         )
-        
+
         key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
         return key
-    
+
     @staticmethod
     def _is_valid_fernet_token(token: str) -> bool:
         """
@@ -141,7 +140,7 @@ class SecurityManager:
         if raw[0] != 0x80:
             return False
         return True
-    
+
     def encrypt(self, data: str) -> str:
         """
         Encrypt string data.
@@ -153,7 +152,7 @@ class SecurityManager:
             Encrypted string
         """
         return self.cipher.encrypt(data.encode()).decode()
-    
+
     def decrypt(self, encrypted: str) -> str:
         """
         Decrypt encrypted data.
@@ -165,7 +164,7 @@ class SecurityManager:
             Decrypted plain text
         """
         return self.cipher.decrypt(encrypted.encode()).decode()
-    
+
     def encrypt_dict(self, data: dict) -> str:
         """
         Encrypt dictionary data.
@@ -178,7 +177,7 @@ class SecurityManager:
         """
         json_str = json.dumps(data)
         return self.encrypt(json_str)
-    
+
     def decrypt_dict(self, encrypted: str) -> dict:
         """
         Decrypt to dictionary.
@@ -191,7 +190,7 @@ class SecurityManager:
         """
         json_str = self.decrypt(encrypted)
         return json.loads(json_str)
-    
+
     def save_vault(self, data: dict):
         """
         Save encrypted vault data.
@@ -213,7 +212,7 @@ class SecurityManager:
                     "The vault may be unrecoverable.")
             # Do not overwrite an existing vault we cannot authenticate/decrypt
             try:
-                with open(self.vault_path, 'r') as f:
+                with open(self.vault_path) as f:
                     existing = f.read()
                 self.cipher.decrypt(existing.encode())
             except Exception:
@@ -222,7 +221,7 @@ class SecurityManager:
                     "authenticate/decrypt it.")
         encrypted = self.encrypt_dict(data)
         self._atomic_write_text(self.vault_path, encrypted)
-    
+
     @staticmethod
     def _atomic_write_text(path: str, content: str):
         """
@@ -241,7 +240,7 @@ class SecurityManager:
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, path)
-    
+
     def load_vault(self) -> dict:
         """
         Load encrypted vault data.
@@ -251,14 +250,14 @@ class SecurityManager:
         """
         if not os.path.exists(self.vault_path):
             return {}
-        
+
         try:
-            with open(self.vault_path, 'r') as f:
+            with open(self.vault_path) as f:
                 encrypted = f.read()
             return self.decrypt_dict(encrypted)
         except Exception:
             return {}
-    
+
     def vault_exists(self) -> bool:
         """
         Check if vault file exists.
@@ -267,7 +266,7 @@ class SecurityManager:
             True if vault exists
         """
         return os.path.exists(self.vault_path)
-    
+
     def detect_vault_state(self, password: str) -> str:
         """
         Classify the vault's state to drive startup/launcher flow.
@@ -285,7 +284,7 @@ class SecurityManager:
         if not os.path.exists(self.vault_path):
             return 'missing'
         try:
-            with open(self.vault_path, 'r') as f:
+            with open(self.vault_path) as f:
                 token = f.read()
         except Exception:
             return 'corrupt'
@@ -311,7 +310,7 @@ class SecurityManager:
         if salt_missing_now or salt_was_regenerated:
             return 'salt_lost'
         return 'wrong_password'
-    
+
     def migrate_legacy_vault(self, password: str) -> bool:
         """
         Migrate a legacy vault (encrypted under the old hardcoded salt) to the
@@ -329,7 +328,7 @@ class SecurityManager:
             return False
         backup_path = self.vault_path + '.legacy.bak'
         try:
-            with open(self.vault_path, 'r') as f:
+            with open(self.vault_path) as f:
                 legacy_token = f.read()
             if not self._is_valid_fernet_token(legacy_token):
                 logger.error("Migration failed: vault token has invalid structure.")
@@ -364,7 +363,7 @@ class SecurityManager:
                 logger.debug("Tmp file cleanup skipped")
                 pass
             return False
-    
+
     def save_key(self, key_name: str, key_data: str):
         """
         Save an encrypted key (atomic write).
@@ -381,7 +380,7 @@ class SecurityManager:
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_path, key_path)
-    
+
     def load_key(self, key_name: str) -> str:
         """
         Load an encrypted key.
@@ -393,17 +392,17 @@ class SecurityManager:
             Decrypted key data
         """
         key_path = os.path.join(self.keys_dir, f"{key_name}.enc")
-        
+
         if not os.path.exists(key_path):
             return ""
-        
+
         try:
-            with open(key_path, 'r') as f:
+            with open(key_path) as f:
                 encrypted = f.read()
             return self.decrypt(encrypted)
         except Exception:
             return ""
-    
+
     def secure_delete(self, file_path: str):
         """
         Securely delete file by overwriting with random data.
@@ -413,17 +412,17 @@ class SecurityManager:
         """
         if not os.path.exists(file_path):
             return
-        
+
         # Get file size
         size = os.path.getsize(file_path)
-        
+
         # Overwrite with random data
         with open(file_path, 'wb') as f:
             f.write(os.urandom(size))
-        
+
         # Delete the file
         os.remove(file_path)
-    
+
     def verify_password(self, password: str) -> bool:
         """
         Verify if password matches the master password.
@@ -439,7 +438,7 @@ class SecurityManager:
         return hmac.compare_digest(
             password.encode("utf-8"),
             (self.master_password or "").encode("utf-8"))
-    
+
     def get_security_info(self) -> dict:
         """
         Get security information.
@@ -461,11 +460,11 @@ class SecurityManager:
 # Self-test (NON-DESTRUCTIVE: uses temporary paths only, never touches the
 # production security/vault.enc, keys, or salt.bin).
 if __name__ == "__main__":
-    import tempfile
     import shutil
-    
+    import tempfile
+
     print("Testing Security Module (non-destructive, temp paths)...")
-    
+
     tmpdir = tempfile.mkdtemp(prefix="dv_security_selftest_")
     try:
         security = SecurityManager("test_password_123")
@@ -477,42 +476,42 @@ if __name__ == "__main__":
         security.salt = security._load_or_generate_salt()
         security.key = security._derive_key_with_salt("test_password_123", security.salt)
         security.cipher = Fernet(security.key)
-        
+
         # Test encryption/decryption
         test_data = "بسم الله الرحمن الرحيم"
         encrypted = security.encrypt(test_data)
         decrypted = security.decrypt(encrypted)
-        
+
         print(f"Original: {test_data}")
         print(f"Encrypted: {encrypted[:50]}...")
         print(f"Decrypted: {decrypted}")
         print(f"Match: {test_data == decrypted}")
-        
+
         # Test vault
         vault_data = {
             "user": "MASOOD NASIR",
             "channel": "@bushranasir1075",
             "settings": {"theme": "dark"}
         }
-        
+
         security.save_vault(vault_data)
         loaded_vault = security.load_vault()
-        
+
         print(f"\nVault saved: {vault_data}")
         print(f"Vault loaded: {loaded_vault}")
         print(f"Vault match: {vault_data == loaded_vault}")
-        
+
         # Test key storage
         security.save_key("youtube_api_key", "sample_api_key_12345")
         loaded_key = security.load_key("youtube_api_key")
-        
-        print(f"\nKey saved: sample_api_key_12345")
+
+        print("\nKey saved: sample_api_key_12345")
         print(f"Key loaded: {loaded_key}")
-        print(f"Key match: {'sample_api_key_12345' == loaded_key}")
-        
+        print(f"Key match: {loaded_key == 'sample_api_key_12345'}")
+
         # Get security info
         print(f"\nSecurity Info: {security.get_security_info()}")
-        
+
         print("\nSecurity Module Self-Test Complete (no production files touched).")
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)

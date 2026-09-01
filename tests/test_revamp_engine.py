@@ -7,7 +7,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.revamp_engine import RevampEngine, AVAILABLE_EFFECTS, COLOR_SCHEMES
+from core.revamp_engine import AVAILABLE_EFFECTS, RevampEngine
 
 
 class TestRevampEngineInit:

@@ -3,11 +3,11 @@ Restore Script for Dua Video Generator
 Restores vault, salt, tokens, and critical config files from backup.
 """
 
-import sys
-import shutil
 import json
-from pathlib import Path
+import shutil
+import sys
 from datetime import datetime
+from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
 BACKUP_DIR = PROJECT / "backups"
@@ -17,7 +17,7 @@ def auto_backup():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup_path = BACKUP_DIR / f"pre_restore_{timestamp}"
     backup_path.mkdir(parents=True, exist_ok=True)
-    
+
     # Import backup files list from backup module
     sys.path.insert(0, str(PROJECT / "scripts"))
     try:
@@ -29,7 +29,7 @@ def auto_backup():
             ("remotion/dashboard/config.json", "Dashboard config"),
             ("data/duas.json", "Duas database"),
         ]
-    
+
     backed_up = 0
     for rel_path, description in BACKUP_FILES:
         src = PROJECT / rel_path
@@ -38,7 +38,7 @@ def auto_backup():
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dst)
             backed_up += 1
-    
+
     # Save manifest
     manifest = {
         "timestamp": timestamp,
@@ -48,7 +48,7 @@ def auto_backup():
     (backup_path / "manifest.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
     )
-    
+
     print(f"Auto-backup created: {backup_path.name} ({backed_up} files)")
     return backup_path
 
@@ -57,7 +57,7 @@ def restore_backup(backup_name=None, force=False):
     if not BACKUP_DIR.exists():
         print("No backups directory found.")
         return False
-    
+
     if backup_name:
         backup_path = BACKUP_DIR / backup_name
     else:
@@ -67,11 +67,11 @@ def restore_backup(backup_name=None, force=False):
             print("No backups found.")
             return False
         backup_path = backups[-1]
-    
+
     if not backup_path.exists():
         print(f"Backup not found: {backup_path}")
         return False
-    
+
     # Load manifest
     manifest_path = backup_path / "manifest.json"
     files_to_restore = []
@@ -83,7 +83,7 @@ def restore_backup(backup_name=None, force=False):
             print(f"  - {item}")
     else:
         print(f"Restoring from: {backup_path.name}")
-    
+
     # Confirmation prompt
     if not force:
         file_count = len([f for f in backup_path.rglob("*") if f.is_file() and f.name != "manifest.json"])
@@ -92,11 +92,11 @@ def restore_backup(backup_name=None, force=False):
         if confirm != 'y':
             print("Restore cancelled.")
             return False
-    
+
     # Auto-backup current state before restore
     print("\nCreating auto-backup of current state...")
     auto_backup()
-    
+
     # Restore files
     restored = 0
     for item in backup_path.rglob("*"):
@@ -107,7 +107,7 @@ def restore_backup(backup_name=None, force=False):
             shutil.copy2(item, dst)
             restored += 1
             print(f"  Restored: {rel}")
-    
+
     print(f"\nRestored {restored} files.")
     return True
 
@@ -116,12 +116,12 @@ def list_backups():
     if not BACKUP_DIR.exists():
         print("No backups found.")
         return
-    
+
     backups = sorted([d for d in BACKUP_DIR.iterdir() if d.is_dir()])
     if not backups:
         print("No backups found.")
         return
-    
+
     print("Available backups:")
     for backup in backups:
         manifest = backup / "manifest.json"

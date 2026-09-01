@@ -1,7 +1,6 @@
 import logging
 import os
 from dataclasses import dataclass
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -12,18 +11,18 @@ class ProjectInfo:
     Centralized metadata and configuration for the Dua Video Generator.
     Loads settings from config.py if available, otherwise uses defaults.
     """
-    
+
     # Core Metadata
     PROJECT_NAME: str = "Dua Video Generator"
     VERSION: str = "0.10.0"
     CHANNEL_NAME: str = "@bushranasir1075"
     AUTHOR: str = "MASOOD NASIR"
-    
+
     # Video Standards
     VIDEO_WIDTH: int = 1080
     VIDEO_HEIGHT: int = 1920
     FPS: int = 45
-    
+
     # Folder Paths (Relative to project root)
     PROJECT_ROOT: str = ""
     OUTPUT_DIR: str = "output"
@@ -32,17 +31,17 @@ class ProjectInfo:
     DATA_DIR: str = "data"
     FONTS_DIR: str = "assets/fonts"
     LOGS_DIR: str = "logs"
-    
+
     # TTS Voices
     VOICE_AR: str = "ar-SA-HamedNeural"
     VOICE_UR: str = "ur-PK-AsadNeural"
-    
+
     def __post_init__(self):
         """Auto-calculate absolute paths relative to project root."""
         if not self.PROJECT_ROOT:
             # Get the directory where this file is located (core folder), then go up one level
             self.PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        
+
         # Convert relative paths to absolute
         self.OUTPUT_DIR = self._abs_path(self.OUTPUT_DIR)
         self.TEMP_DIR = self._abs_path(self.TEMP_DIR)
@@ -50,9 +49,9 @@ class ProjectInfo:
         self.DATA_DIR = self._abs_path(self.DATA_DIR)
         self.FONTS_DIR = self._abs_path(self.FONTS_DIR)
         self.LOGS_DIR = self._abs_path(self.LOGS_DIR)
-        
+
         # Create all directories if they don't exist
-        for dir_path in [self.OUTPUT_DIR, self.TEMP_DIR, self.ASSETS_DIR, 
+        for dir_path in [self.OUTPUT_DIR, self.TEMP_DIR, self.ASSETS_DIR,
                          self.DATA_DIR, self.FONTS_DIR, self.LOGS_DIR]:
             os.makedirs(dir_path, exist_ok=True)
 

@@ -20,3 +20,6 @@
     at Server.emit (node:events:509:28)
     at parserOnIncoming (node:_http_server:1226:12)
     at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)
+2026-09-01T10:31:39.212Z REJECTION: ReferenceError: send is not defined
+    at H:\DuaVideoGenerator\remotion\dashboard\routes\utils.js:52:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)

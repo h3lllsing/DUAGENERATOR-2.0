@@ -38,16 +38,15 @@ import logging
 import os
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 logger = logging.getLogger(__name__)
 
+from core.arabic_renderer import ArabicRenderer, _is_arabic
+from core.arabic_renderer import apply_vertical_gradient as _apply_gradient
 from core.project_info import PROJECT
-from core.arabic_renderer import (ArabicRenderer, _is_arabic,
-                                  apply_vertical_gradient as _apply_gradient)
 
 # Shared HarfBuzz renderer (proper Arabic/Urdu shaping with harakat).
 _AR_RENDERER = ArabicRenderer()
@@ -67,11 +66,11 @@ DEFAULT_FPS = 45
 
 # Formal content safe rectangle (x0, y0, x1, y1). Critical Arabic/Urdu/title
 # text must ALWAYS lie fully inside this rectangle.
-SAFE_RECT: Tuple[int, int, int, int] = (60, 110, 1020, 1810)
+SAFE_RECT: tuple[int, int, int, int] = (60, 110, 1020, 1810)
 
 # Explicit reserved rectangles for decorative zones. Decoration lives ONLY
 # inside these; text NEVER enters them (enforced before rendering).
-RESERVED_RECTS: List[Tuple[int, int, int, int]] = [
+RESERVED_RECTS: list[tuple[int, int, int, int]] = [
     (0, 0, 1080, 110),       # top decorative band
     (0, 1810, 1080, 1920),   # bottom decorative band + future watermark area
     (0, 110, 60, 1810),      # left decorative strip
@@ -85,7 +84,7 @@ TEXT_OUTLINE_WIDTH = 4
 _AR_GRADIENT_BOTTOM = (255, 222, 140)
 
 # Calm, readable palettes approved for Islamic dua Shorts.
-PALETTES: List[dict] = [
+PALETTES: list[dict] = [
     {"name": "midnight", "top": (18, 20, 42), "bottom": (9, 11, 27),
      "accent": (212, 175, 55), "text": (255, 255, 255),
      "title": (255, 215, 0), "outline": (10, 12, 20)},
@@ -106,13 +105,13 @@ PALETTES: List[dict] = [
      "title": (122, 92, 52), "outline": (255, 255, 255)},
 ]
 
-MOTION_KINDS: Tuple[str, ...] = (
+MOTION_KINDS: tuple[str, ...] = (
     "static", "zoom_in", "zoom_out",
     "pan_left", "pan_right", "pan_up", "pan_down",
 )
 
-TEXT_STYLES: Tuple[str, ...] = ("solid", "outline", "gold")
-CORNER_STYLES: Tuple[str, ...] = ("classic", "double", "dot")
+TEXT_STYLES: tuple[str, ...] = ("solid", "outline", "gold")
+CORNER_STYLES: tuple[str, ...] = ("classic", "double", "dot")
 
 
 def _resolve_font_path() -> str:
@@ -132,16 +131,16 @@ def _resolve_font_path() -> str:
 FONT_PATH = _resolve_font_path()
 
 
-def rect_intersect(a: Tuple[int, int, int, int],
-                   b: Tuple[int, int, int, int]) -> bool:
+def rect_intersect(a: tuple[int, int, int, int],
+                   b: tuple[int, int, int, int]) -> bool:
     """True when two axis-aligned rects strictly overlap (touch == no)."""
     ix = min(a[2], b[2]) - max(a[0], b[0])
     iy = min(a[3], b[3]) - max(a[1], b[1])
     return ix > 0 and iy > 0
 
 
-def rect_within(inner: Tuple[int, int, int, int],
-                outer: Tuple[int, int, int, int]) -> bool:
+def rect_within(inner: tuple[int, int, int, int],
+                outer: tuple[int, int, int, int]) -> bool:
     """True when inner rect is completely inside outer rect."""
     return (inner[0] >= outer[0] and inner[1] >= outer[1]
             and inner[2] <= outer[2] and inner[3] <= outer[3])
@@ -163,7 +162,7 @@ class MotionSpec:
     zoom: float = 0.05   # subtle max zoom delta (5%)
     pan: float = 0.04    # subtle max pan offset (4% of a dimension)
 
-    def crop(self, p: float, width: int, height: int) -> Tuple[int, int, int, int]:
+    def crop(self, p: float, width: int, height: int) -> tuple[int, int, int, int]:
         """Return the source crop rect (x0,y0,x1,y1) for progress p in [0,1]."""
         p = max(0.0, min(1.0, p))
         bg_w, bg_h = int(width * 1.12), int(height * 1.12)
@@ -209,9 +208,9 @@ class TextLayer:
     text: str
     language: str = "title"         # "ar" | "ur" | "title"
     font_size: int = 0              # 0 => auto by role
-    color: Tuple[int, int, int] = (255, 255, 255)
+    color: tuple[int, int, int] = (255, 255, 255)
     outline: bool = False
-    outline_color: Tuple[int, int, int] = (10, 12, 20)
+    outline_color: tuple[int, int, int] = (10, 12, 20)
 
 
 @dataclass
@@ -229,7 +228,7 @@ class Scene:
     duration: float = 15.0
     palette: dict = field(default_factory=dict)
     motion: MotionSpec = field(default_factory=MotionSpec)
-    layers: List[TextLayer] = field(default_factory=list)
+    layers: list[TextLayer] = field(default_factory=list)
     particle_count: int = 40
     corner_style: str = "classic"
     text_style: str = "solid"
@@ -237,7 +236,7 @@ class Scene:
     transition_out: Transition = field(default_factory=Transition)
     # VISUAL Phase 4: optional WordBoundary events per role ("arabic"/"urdu"),
     # scene-relative seconds. None => legacy rendering (no highlighting).
-    word_events: Optional[Dict[str, List[dict]]] = None
+    word_events: dict[str, list[dict]] | None = None
 
     def palette_name(self) -> str:
         return self.palette.get("name", "midnight")
@@ -248,7 +247,7 @@ class Timeline:
     """Ordered scenes filling a total duration. Frames follow fps exactly."""
 
     fps: int = DEFAULT_FPS
-    scenes: List[Scene] = field(default_factory=list)
+    scenes: list[Scene] = field(default_factory=list)
 
     @property
     def total_duration(self) -> float:
@@ -280,7 +279,7 @@ class SceneRenderer:
         self.width = width
         self.height = height
         self.fps = fps
-        self._font_cache: Dict[int, ImageFont.FreeTypeFont] = {}
+        self._font_cache: dict[int, ImageFont.FreeTypeFont] = {}
 
     # -- fonts / reshaping --------------------------------------------
     def _font(self, size: int) -> ImageFont.FreeTypeFont:
@@ -302,11 +301,11 @@ class SceneRenderer:
             return int(round(_AR_RENDERER.measure_width(text, font.size)))
         return SceneRenderer._text_w(font, text)
 
-    def _wrap(self, text: str, font, max_w: int, language: str) -> List[str]:
+    def _wrap(self, text: str, font, max_w: int, language: str) -> list[str]:
         """Wrap LOGICAL text (NOT bidi-reordered) so multi-line RTL content
         keeps start->top / end->bottom order. Widths are measured with the
         HarfBuzz shaper for Arabic/Urdu."""
-        lines: List[str] = []
+        lines: list[str] = []
         current = ""
         for word in text.split():
             test = (current + " " + word) if current else word
@@ -397,7 +396,7 @@ class SceneRenderer:
 
         start_y = sy0 + pad + max(0, (avail_h - total_h) // 2)
         cursor = start_y
-        laid: List[dict] = []
+        laid: list[dict] = []
         for layer, lines, size, line_h, _bh in blocks:
             font = self._font(size)
             layer_lines = []
@@ -430,13 +429,13 @@ class SceneRenderer:
             "fits": True,
         }
 
-    def verify_layout(self, scene: Scene, layout: dict) -> List[str]:
+    def verify_layout(self, scene: Scene, layout: dict) -> list[str]:
         """
         Mathematically verify every critical text bbox is inside SAFE_RECT
         and disjoint from every reserved rect. Returns a list of issues
         (empty == clean).
         """
-        issues: List[str] = []
+        issues: list[str] = []
         for layer in layout["layers"]:
             for line in layer["lines"]:
                 b = line["bbox"]
@@ -451,7 +450,7 @@ class SceneRenderer:
                             f"{b} intersects reserved rect {r}")
         return issues
 
-    def _build_text_surfaces(self, scene: Scene, layout: dict) -> List[dict]:
+    def _build_text_surfaces(self, scene: Scene, layout: dict) -> list[dict]:
         """Pre-render each text line to an RGBA surface (fixed position)."""
         surfaces = []
         layer_by_role = {l.role: l for l in scene.layers}
@@ -618,7 +617,7 @@ class SceneRenderer:
 
     # -- word highlighting (VISUAL Phase 4, additive) ---------------------
     def _build_highlight(self, scene: Scene, layout: dict,
-                         surfaces: Optional[List[dict]] = None):
+                         surfaces: list[dict] | None = None):
         """
         Build per-role highlight data once per scene: normalized events,
         word geometry, accent. Returns None when there is nothing to draw.
@@ -639,7 +638,7 @@ class SceneRenderer:
             lines = layer["lines"]
             # Consume one surface per line to stay in sync with the flat
             # surfaces list, regardless of early skips below.
-            line_spans: Optional[List[list]] = []
+            line_spans: list[list] | None = []
             for line in lines:
                 s = next(surf_iter, None) if surf_iter is not None else None
                 ws = (s or {}).get("words") if s is not None else None
@@ -687,8 +686,8 @@ class SceneRenderer:
     # -- scene construction ---------------------------------------------
     def build_single_scene(self, seed: str, arabic: str, urdu: str,
                            title: str = "", duration: float = None,
-                           palette: Optional[dict] = None,
-                           motion: Optional[MotionSpec] = None) -> Scene:
+                           palette: dict | None = None,
+                           motion: MotionSpec | None = None) -> Scene:
         """
         Deterministically build one procedural Scene from content + seed.
         This is NOT TimelineBuilder (Phase 3); it renders a single timed
@@ -786,7 +785,7 @@ class SceneRenderer:
             self._apply_transition(frame, scene, i, frame_count, self.fps)
             yield frame.convert("RGB")
 
-    def render(self, timeline: Timeline, seed: str = "default") -> List[Image.Image]:
+    def render(self, timeline: Timeline, seed: str = "default") -> list[Image.Image]:
         """Render a full Timeline into a list (backward compatible)."""
         return list(self.render_stream(timeline, seed))
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Download HD portrait background images + videos from Pexels (free, monetization-safe)
 for each dua category, save them locally, and register them in the asset manifest.
 
@@ -13,7 +12,6 @@ import argparse
 import hashlib
 import json
 import os
-import sys
 import time
 import urllib.parse
 import urllib.request
@@ -93,7 +91,7 @@ def download(path, url, retries=2):
             if len(data) < 1000:
                 raise ValueError("too small download (likely error)")
             return path
-        except Exception as e:
+        except Exception:
             if attempt >= retries:
                 raise
             time.sleep(2)

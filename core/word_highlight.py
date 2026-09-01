@@ -25,18 +25,18 @@ This module contains no audio, layout, or renderer logic.
 """
 
 import logging
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 logger = logging.getLogger(__name__)
 
 
-Rect = Tuple[int, int, int, int]
+Rect = tuple[int, int, int, int]
 
 
 # ----------------------------------------------------------------------
 # Event normalization + active-word resolution (pure timing)
 # ----------------------------------------------------------------------
-def normalize_events(events: Optional[List[dict]]) -> List[dict]:
+def normalize_events(events: list[dict] | None) -> list[dict]:
     """
     Return a stable, start-sorted copy of WordBoundary events.
 
@@ -67,7 +67,7 @@ def normalize_events(events: Optional[List[dict]]) -> List[dict]:
     ]
 
 
-def resolve_active_word(events: List[dict], t: float) -> Optional[int]:
+def resolve_active_word(events: list[dict], t: float) -> int | None:
     """
     Return the ``orig`` index of the active event at scene time ``t``.
 
@@ -93,11 +93,11 @@ def resolve_active_word(events: List[dict], t: float) -> Optional[int]:
 def build_word_geometry(
     language: str,
     logical_text: str,
-    display_lines: List[dict],
+    display_lines: list[dict],
     n_events: int,
     measure: Callable[[str], int],
     outline_pad: int = 4,
-    line_spans: Optional[List[List[Tuple[int, int, int]]]] = None,
+    line_spans: list[list[tuple[int, int, int]]] | None = None,
 ) -> dict:
     """
     Map each word event to a deterministic highlight rectangle.
@@ -124,11 +124,11 @@ def build_word_geometry(
           targets    {event_index: rect}  rect = (x0, y0, x1, y1) in pixels
           line_boxes [rect, ...]  per display line, in order
     """
-    line_boxes: List[Rect] = [tuple(int(v) for v in ln["bbox"])
+    line_boxes: list[Rect] = [tuple(int(v) for v in ln["bbox"])
                               for ln in display_lines]
 
     def line_fallback() -> dict:
-        targets: Dict[int, Rect] = {}
+        targets: dict[int, Rect] = {}
         n_lines = len(line_boxes)
         if n_lines and n_events:
             for e in range(n_events):
@@ -151,7 +151,7 @@ def build_word_geometry(
     # consumed by POSITION: the j-th span of a line belongs to that line's
     # j-th logical token (span idx values are line-local and informational).
     # Any count mismatch or hard-break fragment -> fallback.
-    targets: Dict[int, Rect] = {}
+    targets: dict[int, Rect] = {}
     ti = 0
     for li, ln in enumerate(display_lines):
         toks = ln["text"].split()
@@ -172,8 +172,8 @@ def build_word_geometry(
     return {"mode": "word", "targets": targets, "line_boxes": line_boxes}
 
 
-def highlight_targets(events: List[dict], geometry: dict,
-                      t: float) -> Optional[Rect]:
+def highlight_targets(events: list[dict], geometry: dict,
+                      t: float) -> Rect | None:
     """Rect (or None) for the active event at scene time ``t`` seconds."""
     active = resolve_active_word(events, t)
     if active is None:
@@ -184,7 +184,7 @@ def highlight_targets(events: List[dict], geometry: dict,
 # ----------------------------------------------------------------------
 # Overlay generation
 # ----------------------------------------------------------------------
-def make_word_overlay(rect: Rect, accent_rgb: Tuple[int, int, int],
+def make_word_overlay(rect: Rect, accent_rgb: tuple[int, int, int],
                       fill_alpha: int = 46,
                       outline_alpha: int = 165) -> "Image.Image":
     """

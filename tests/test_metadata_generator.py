@@ -6,9 +6,9 @@ Run with: python -m pytest tests/test_metadata_generator.py -v
 
 import json
 import os
+import shutil
 import sys
 import tempfile
-import shutil
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -442,7 +442,7 @@ class TestSaveLoad:
         m = g.generate("arabic_unicode", "urdu_unicode", "sleep")
         path = os.path.join(self.tmpdir, "meta.json")
         g.save_metadata(m, path)
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             raw = json.load(f)
         assert raw["title"] == m["title"]
 
@@ -450,7 +450,7 @@ class TestSaveLoad:
         g = MetadataGenerator()
         path = os.path.join(self.tmpdir, "meta.json")
         g.save_metadata({"arabic": "\u0628\u0633\u0645"}, path)
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             raw = f.read()
         assert "\u0628\u0633\u0645" in raw
         assert "\\u0628" not in raw

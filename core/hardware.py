@@ -14,8 +14,8 @@ Nothing here is ever imported from the frozen render modules.
 """
 
 import logging
-import os
 import multiprocessing as mp
+import os
 
 logger = logging.getLogger(__name__)
 

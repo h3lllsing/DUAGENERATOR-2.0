@@ -16,7 +16,6 @@ import logging
 import os
 import random
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +65,7 @@ class BackgroundAsset:
 
     id: str
     file: str
-    categories: List[str] = field(default_factory=list)
+    categories: list[str] = field(default_factory=list)
     license: str = ""
     checksum_sha256: str = ""
     approved: bool = False
@@ -99,8 +98,8 @@ class AssetRegistry:
     MANIFEST_NAME = "manifest.json"
     SCHEMA_VERSION = 1
 
-    def __init__(self, manifest_path: Optional[str] = None,
-                 backgrounds_dir: Optional[str] = None):
+    def __init__(self, manifest_path: str | None = None,
+                 backgrounds_dir: str | None = None):
         if backgrounds_dir is None:
             backgrounds_dir = (
                 getattr(config, "BACKGROUNDS_DIR", None)
@@ -110,9 +109,9 @@ class AssetRegistry:
             manifest_path = os.path.join(backgrounds_dir, self.MANIFEST_NAME)
         self.backgrounds_dir = os.path.abspath(backgrounds_dir)
         self.manifest_path = os.path.abspath(manifest_path)
-        self.manifest_error: Optional[str] = None
-        self._raw: Optional[dict] = None
-        self._assets: List[BackgroundAsset] = []
+        self.manifest_error: str | None = None
+        self._raw: dict | None = None
+        self._assets: list[BackgroundAsset] = []
         self.load_manifest()
 
     # ------------------------------------------------------------------
@@ -129,7 +128,7 @@ class AssetRegistry:
             return
 
         try:
-            with open(self.manifest_path, "r", encoding="utf-8") as f:
+            with open(self.manifest_path, encoding="utf-8") as f:
                 self._raw = json.load(f)
         except Exception as e:
             self.manifest_error = f"Manifest parse failed: {e}"
@@ -150,7 +149,7 @@ class AssetRegistry:
                 self._assets.append(asset)
 
     @staticmethod
-    def _parse_entry(entry) -> Optional[BackgroundAsset]:
+    def _parse_entry(entry) -> BackgroundAsset | None:
         """Parse one manifest entry into a BackgroundAsset (skip if invalid)."""
         if not isinstance(entry, dict):
             return None
@@ -185,7 +184,7 @@ class AssetRegistry:
     # ------------------------------------------------------------------
     # Asset listing / verification
     # ------------------------------------------------------------------
-    def get_assets(self) -> List[BackgroundAsset]:
+    def get_assets(self) -> list[BackgroundAsset]:
         """All parsed assets (regardless of approval)."""
         return list(self._assets)
 
@@ -224,7 +223,7 @@ class AssetRegistry:
             return False
         return self.verify_checksum(asset)
 
-    def get_loadable_assets(self) -> List[BackgroundAsset]:
+    def get_loadable_assets(self) -> list[BackgroundAsset]:
         """Only assets that pass the full approval gate."""
         return [a for a in self._assets if self.is_loadable(a)]
 
@@ -232,7 +231,7 @@ class AssetRegistry:
     # Deterministic category-based selection
     # ------------------------------------------------------------------
     @staticmethod
-    def _category_score(asset: BackgroundAsset, category: Optional[str]) -> int:
+    def _category_score(asset: BackgroundAsset, category: str | None) -> int:
         cat = (category or "").strip().lower()
         asset_cats = {c.lower() for c in asset.categories}
         if not cat:
@@ -244,9 +243,9 @@ class AssetRegistry:
             score += 1
         return score
 
-    def select_background(self, dua_id: str, category: Optional[str] = None,
-                          exclude_ids=(), preferred_theme: Optional[str] = None,
-                          prefer_video: Optional[bool] = None) -> dict:
+    def select_background(self, dua_id: str, category: str | None = None,
+                          exclude_ids=(), preferred_theme: str | None = None,
+                          prefer_video: bool | None = None) -> dict:
         """
         Deterministically choose a background for a dua.
 
@@ -304,7 +303,7 @@ class AssetRegistry:
         theme = self._pick_theme(dua_id, preferred_theme)
         return {"kind": "procedural", "theme": theme, "reason": reason}
 
-    def _pick_theme(self, dua_id: str, preferred_theme: Optional[str] = None) -> str:
+    def _pick_theme(self, dua_id: str, preferred_theme: str | None = None) -> str:
         """Deterministically pick a procedural theme seeded by dua_id."""
         themes = list(getattr(config, "THEMES", {}) or {})
         if preferred_theme and preferred_theme in themes:

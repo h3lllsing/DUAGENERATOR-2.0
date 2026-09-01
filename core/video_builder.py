@@ -3,13 +3,12 @@ import os
 import shutil
 import subprocess
 import traceback
-import numpy as np
-from typing import List, Optional, Union
-from PIL import Image
 
 import imageio
 import imageio_ffmpeg
-from moviepy import VideoFileClip, AudioFileClip
+import numpy as np
+from moviepy import AudioFileClip, VideoFileClip
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ class VideoBuilder:
     Assembles frames into a video and syncs audio.
     Uses imageio for fast frame writing and moviepy for audio mixing.
     """
-    
+
     def __init__(self, fps: int = None, resolution: tuple = (1080, 1920)):
         """
         Args:
@@ -137,10 +136,10 @@ class VideoBuilder:
 
     def build_video(
         self,
-        frames: Union[List[Union[Image.Image, np.ndarray]], any],
+        frames: list[Image.Image | np.ndarray] | any,
         output_path: str,
-        audio_path: Optional[str] = None,
-        temp_video_path: Optional[str] = None
+        audio_path: str | None = None,
+        temp_video_path: str | None = None
     ) -> bool:
         """
         Converts frames into an MP4 video. Accepts list or generator.
@@ -170,20 +169,20 @@ class VideoBuilder:
             # Convert generator to list if needed for counting
             if hasattr(frames, '__iter__') and not isinstance(frames, (list, tuple)):
                 frames = list(frames)
-            
+
             if not frames:
                 logger.error("No frames provided.")
                 return False
 
             logger.info(f"Processing {len(frames)} frames...")
-            
+
             # Write video WITHOUT audio using imageio
             logger.info(f"Writing temporary video: {temp_video_path}")
             with imageio.get_writer(
-                temp_video_path, 
-                fps=self.fps, 
-                format='FFMPEG', 
-                codec='libx264', 
+                temp_video_path,
+                fps=self.fps,
+                format='FFMPEG',
+                codec='libx264',
                 pixelformat='yuv420p',
                 macro_block_size=2,
                 ffmpeg_params=[
@@ -203,7 +202,7 @@ class VideoBuilder:
                         raise TypeError(f"Unsupported frame type: {type(frame)}")
                     if (i + 1) % 100 == 0:
                         logger.info(f"  Written {i + 1} frames...")
-            
+
             logger.info("Temp video created successfully.")
 
             # Add audio if provided (AUDIO-001 direct mux, no re-encode)

@@ -12,7 +12,6 @@ import config
 from core.asset_registry import (
     ALLOWED_LICENSES,
     AssetRegistry,
-    BackgroundAsset,
     normalize_license,
 )
 

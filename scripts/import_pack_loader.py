@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """PILLAR 1 · Import-pack loader & validation gate for data/duas.json.
 
 Pipeline readiness tool (audit area 3):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """AI Fill Metadata — existing dua ka missing Arabic/Urdu/Explanation generate karta hai.
 
 Usage:
@@ -12,14 +11,12 @@ import json
 import os
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.request
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "remotion", "scripts"))
-from ai_import import (load_config, api_base_url, api_keys, api_models,
-                       VALID_FREE_MODELS, FREE_MODELS, API_KEYS,
-                       _is_empty_block)
+from ai_import import API_KEYS, FREE_MODELS, _is_empty_block, api_base_url
 
 SYSTEM_PROMPT = """You are an expert Islamic Sunni scholar. The user will give you a dua title, reference, and category.
 

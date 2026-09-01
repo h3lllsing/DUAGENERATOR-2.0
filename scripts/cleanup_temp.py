@@ -1,5 +1,4 @@
-﻿# -*- coding: utf-8 -*-
-"""Delete useless temp build-files of RENDERED videos.
+﻿"""Delete useless temp build-files of RENDERED videos.
 
 After an MP4 is baked, the TTS audio / merged wav / timing sidecars in
 temp folder serve no purpose (they are only needed to BUILD the video).
@@ -124,15 +123,14 @@ def main():
               and f.rsplit("_", 1)[0] not in known
               and f not in FIXED_JUNK]
 
-    print("rendered dua       : {}".format(len(arr) - skipped_ids - skipped_locked))
-    print("unrendered (kept)  : {}".format(skipped_ids))
-    print("locked/uploaded    : {} (skipped)".format(skipped_locked))
+    print(f"rendered dua       : {len(arr) - skipped_ids - skipped_locked}")
+    print(f"unrendered (kept)  : {skipped_ids}")
+    print(f"locked/uploaded    : {skipped_locked} (skipped)")
     print("files {}        : {}".format("scanned (would del)" if
           args.dry_run else "deleted", deleted[0]))
     print("space {}           : {:.1f} MB".format(
         "reclaimable" if args.dry_run else "freed", freed[0] / 1048576.0))
-    print("stray temp files   : {} (untouched - check manually)".format(
-        len(strays)))
+    print(f"stray temp files   : {len(strays)} (untouched - check manually)")
     return 0
 
 

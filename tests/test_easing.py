@@ -8,9 +8,19 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.easing import (
-    clamp01, ease_out, ease_out_cubic, ease_out_quart,
-    ease_out_quint, ease_out_expo, ease_in, ease_in_out,
-    ease_out_back, apple, material, apply, CURVES
+    CURVES,
+    apple,
+    apply,
+    clamp01,
+    ease_in,
+    ease_in_out,
+    ease_out,
+    ease_out_back,
+    ease_out_cubic,
+    ease_out_expo,
+    ease_out_quart,
+    ease_out_quint,
+    material,
 )
 
 

@@ -6,7 +6,6 @@ two-pass LINEAR ffmpeg loudnorm (-16 LUFS / -1.5 dBTP), direct video mux
 Run with: python -m pytest tests/test_audio_001.py -v
 """
 
-import json
 import os
 import re
 import shutil
@@ -19,9 +18,9 @@ import numpy as np
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import imageio_ffmpeg
 from PIL import Image
 
-import imageio_ffmpeg
 from core.audio_mixer import AudioMixer
 from core.tts_engine import TTSEngine
 from core.video_builder import VideoBuilder
@@ -326,6 +325,7 @@ class TestPublicApi:
 
     def test_generate_video_signature_unchanged(self):
         import inspect
+
         import main as m
         sig = inspect.signature(m.DuaVideoPipeline.generate_video)
         params = list(sig.parameters)
@@ -335,6 +335,7 @@ class TestPublicApi:
 
     def test_generate_custom_video_signature_unchanged(self):
         import inspect
+
         import main as m
         sig = inspect.signature(m.DuaVideoPipeline.generate_custom_video)
         params = list(sig.parameters)

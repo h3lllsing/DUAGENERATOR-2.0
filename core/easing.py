@@ -18,9 +18,8 @@ Named after the motion-design industry standard (Apple/Lightroom/GSAP):
   - ease_out_expo   : exponential ease-out (fast start, long tail)
 """
 
-import math
-
 import logging
+import math
 
 logger = logging.getLogger(__name__)
 
