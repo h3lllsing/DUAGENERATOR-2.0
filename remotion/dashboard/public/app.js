@@ -36,7 +36,15 @@ function setThemeSel(v){
     l.querySelector('input').checked=on;
   });
 }
+/**
+ * Load all dua data from the server, populate the grid, update stats,
+ * and refresh the YouTube upload picker if visible.
+ */
 let _loaded=false;
+/**
+ * Load dua list from server and refresh the card grid.
+ * Called on boot and after render/voice jobs complete.
+ */
 async function load(){
   if(!_loaded){
     var sk='';for(var i=0;i<8;i++)sk+='<div class="skeleton skel-card"></div>';
@@ -512,6 +520,15 @@ function render(){
   grid.appendChild(frag);
 }
 
+/**
+ * Start rendering a dua video by ID. Sends a POST to /api/render with
+ * optional force flag. Shows a toast on error.
+ * @param {string} id - The dua ID to render
+ */
+/**
+ * Start rendering a video for the given dua ID.
+ * @param {string} id - Dua identifier (e.g. "bismillah_001")
+ */
 async function startRender(id){
   const force=!!forceFlags[id];
   const r=await fetch('/api/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaId:id,force})});
@@ -640,6 +657,14 @@ function closePlayer(){
   _popModal('player');
 }
 function dismissBar(){ barHidden=true; document.getElementById('jobbar').classList.remove('show'); }
+/**
+ * Poll the server for current render job status. Updates the progress bar,
+ * step indicator, batch info, and triggers toasts on completion/failure.
+ */
+/**
+ * Poll server for render/voice job status and update UI accordingly.
+ * Called periodically while a job is running.
+ */
 async function poll(){
   try{
     const j=await (await fetch('/api/status')).json();
@@ -766,6 +791,14 @@ async function vpLoad(url){
   }catch(e){ if(gen===vpGen)fail('Audio load fail: '+(e&&e.message?e.message:e)); }
 }
 function vpToggle(){ if(!waveSurfer||!vpReady)return; waveSurfer.playPause(); }
+/**
+ * Open the voice preview/generation modal. Populates the dua selector
+ * dropdown and resets the voice player state.
+ */
+/**
+ * Open the voice generation modal.
+ * Populates dua dropdown and resets player state.
+ */
 function openVoice(){
   const sel=document.getElementById('v_dua');
   sel.innerHTML=duas.map(d=>'<option value="'+d.id+'">'+escHtml(d.title)+'</option>').join('');
@@ -778,6 +811,16 @@ function openVoice(){
 }
 function closeVoice(){ vpGen++; vpReset(); document.getElementById('voicebg').classList.remove('show'); _popModal('voice'); }
 function setVoiceMsg(t,c){ const m=document.getElementById('voicemsg'); m.textContent=t; m.className='formmsg '+c; }
+/**
+ * Preview a TTS voice sample for the given language. Sends a request to
+ * /api/voice-preview with the selected voice pair and plays the result.
+ * @param {string} lang - Language code: 'ar' for Arabic or 'ur' for Urdu
+ */
+/**
+ * Play a 3-second voice preview for the selected language (ar/ur).
+ * Uses the current voice pair from the config dropdown.
+ * @param {string} lang - "ar" for Arabic or "ur" for Urdu
+ */
 async function previewVoice(lang){
 const vpSel=document.getElementById('f_vpair');
 const pair=VOICE_PAIRS[vpSel?vpSel.value:'Hamed + Asad']||VOICE_PAIRS['Hamed + Asad'];
@@ -793,6 +836,16 @@ a.oncanplay=function(){setVoiceMsg('Playing '+lang.toUpperCase()+' preview...','
 a.play();
 }catch(e){setVoiceMsg('Server error','err');}
 }
+/**
+ * Generate voice audio for a selected dua or custom text. In portal mode
+ * it calls /api/voice-only; in custom mode it sends text to /api/tts-custom.
+ * Polls status until complete, then loads the result into the voice player.
+ */
+/**
+ * Generate voice for selected dua (portal mode) or custom text.
+ * Portal mode: calls /api/voice-only, polls /api/status until done.
+ * Custom mode: calls /api/tts-custom with arabic/urdu text + name.
+ */
 async function genVoice(){
   if(voiceMode==='custom'){
     const a=document.getElementById('v_arabic').value.trim();
