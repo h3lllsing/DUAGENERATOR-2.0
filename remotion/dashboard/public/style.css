@@ -366,3 +366,16 @@ body.expert .aibtn.js-expert{display:inline-flex}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#232a36;border-radius:99px}
 ::-webkit-scrollbar-thumb:hover{background:#333d4c}
+
+/* --- Accessibility --- */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
+  .ring{animation:none!important}
+}
+:focus-visible{outline:2px solid #d4af37;outline-offset:2px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #d4af37;outline-offset:2px}
+@media(hover:none)and(pointer:coarse){
+  .chip{min-height:44px;min-width:44px;padding:10px 16px}
+  .dua-row{min-height:44px;padding:12px}
+}
+noscript{display:block;padding:20px;text-align:center;color:#d4af37;font-size:16px}

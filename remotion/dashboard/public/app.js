@@ -1060,8 +1060,36 @@ async function aiMetaPrompt(id){
   catch(e){toast('Copy fail hua','err');}
 }
 let _modalStack=[];
-function _pushModal(id){_modalStack.push(id);}
-function _popModal(id){_modalStack=_modalStack.filter(x=>x!==id);}
+let _previousFocus=null;
+function _pushModal(id){
+  _previousFocus=document.activeElement;
+  _modalStack.push(id);
+  _trapFocus(id);
+}
+function _popModal(id){
+  _modalStack=_modalStack.filter(x=>x!==id);
+  if(_previousFocus&&_previousFocus.focus){_previousFocus.focus();_previousFocus=null;}
+}
+function _trapFocus(modalId){
+  var modal=document.getElementById(modalId==='form'?'modalbg':
+    modalId==='ai'?'aimodalbg':modalId==='voice'?'voicebg':
+    modalId==='settings'?'setbg':modalId==='help'?'helpbg':
+    modalId==='history'?'histbg':modalId==='vfx'?'vfxbg':null);
+  if(!modal)return;
+  var focusable=modal.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+  if(!focusable.length)return;
+  var first=focusable[0];
+  var last=focusable[focusable.length-1];
+  modal.addEventListener('keydown',function(e){
+    if(e.key!=='Tab')return;
+    if(e.shiftKey){
+      if(document.activeElement===first){e.preventDefault();last.focus();}
+    }else{
+      if(document.activeElement===last){e.preventDefault();first.focus();}
+    }
+  });
+  setTimeout(function(){first.focus();},100);
+}
 function _closeTopModal(){
   if(!_modalStack.length)return;
   var last=_modalStack.pop();

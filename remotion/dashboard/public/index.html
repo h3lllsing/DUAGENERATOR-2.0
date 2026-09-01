@@ -6,40 +6,41 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head><!--INJECT_AUTH--><body>
-<header>
+<noscript><div style="padding:20px;text-align:center;color:#d4af37;font-size:16px">JavaScript disable hai. Dashboard use karne ke liye JavaScript enable karein.</div></noscript>
+<header role="banner">
 <h1>Dua Video <span class="gold">Studio</span> <sup style="font-size:11px;color:#5a6474;font-weight:normal">v0.10</sup></h1>
 <div class="header-actions">
-  <button class="chip" onclick="openForm()">+ NAYI DUA</button>
+  <button class="chip" onclick="openForm()" aria-label="Nayi dua add karein">+ NAYI DUA</button>
 </div>
-<div class="stats">
+<div class="stats" role="status" aria-live="polite">
 <span class="statnum" id="statline"></span>
 <div class="ring" id="ring"><i id="ringtxt">0%</i></div>
 </div>
 </header>
-<div class="toolbar">
-<div class="searchwrap"><span>&#128269;</span><input id="search" placeholder="Dua dhundo... (naam ya reference)" oninput="onSearch(this.value)"></div>
-<div class="chips" id="chips"></div>
-<div class="chips toolbar-actions">
-  <button class="chip" onclick="openAiImport()" title="AI se nayi duas import karo" style="background:#0d1a2e;border-color:#3b82f6;color:#60a5fa">&#129302; AI IMPORT</button>
-  <button class="chip chip-uploaded" onclick="ytToggle('uploaded')" title="Uploaded videos dekho" id="btn_uploaded">&#10003; Uploaded (<span id="uploaded_count">0</span>)</button>
-  <button class="chip" onclick="ytToggle('upload')" title="YouTube upload manager">&#9654;&#65039; YOUTUBE</button>
-  <button class="chip" onclick="openFolder('videos')" title="Videos folder kholo">&#128193; VIDEOS</button>
-  <button class="chip" onclick="openSettings()" title="Settings + History + Voice">&#9881;&#65039;</button>
-  <button class="chip" onclick="openVfxStudio()" title="AI se custom VFX patterns/plugins import karo" style="background:#170f2a;border-color:#a855f7;color:#c084fc">&#10022; VFX STUDIO</button>
-  <button class="chip" onclick="openHelp()" title="Kaise use karein" style="background:#1c2333;border-color:#d4af37;color:#d4af37">&#128214; HELP</button>
+<nav class="toolbar" role="navigation" aria-label="Main navigation">
+<div class="searchwrap"><span aria-hidden="true">&#128269;</span><input id="search" placeholder="Dua dhundo... (naam ya reference)" oninput="onSearch(this.value)" aria-label="Dua search"></div>
+<div class="chips" id="chips" role="toolbar" aria-label="Category filters"></div>
+<div class="chips toolbar-actions" role="toolbar" aria-label="Quick actions">
+  <button class="chip" onclick="openAiImport()" title="AI se nayi duas import karo" aria-label="AI Import" style="background:#0d1a2e;border-color:#3b82f6;color:#60a5fa">&#129302; AI IMPORT</button>
+  <button class="chip chip-uploaded" onclick="ytToggle('uploaded')" title="Uploaded videos dekho" id="btn_uploaded" aria-label="Uploaded videos">&#10003; Uploaded (<span id="uploaded_count">0</span>)</button>
+  <button class="chip" onclick="ytToggle('upload')" title="YouTube upload manager" aria-label="YouTube upload">&#9654;&#65039; YOUTUBE</button>
+  <button class="chip" onclick="openFolder('videos')" title="Videos folder kholo" aria-label="Open videos folder">&#128193; VIDEOS</button>
+  <button class="chip" onclick="openSettings()" title="Settings + History + Voice" aria-label="Settings">&#9881;&#65039;</button>
+  <button class="chip" onclick="openVfxStudio()" title="AI se custom VFX patterns/plugins import karo" aria-label="VFX Studio" style="background:#170f2a;border-color:#a855f7;color:#c084fc">&#10022; VFX STUDIO</button>
+  <button class="chip" onclick="openHelp()" title="Kaise use karein" aria-label="Help" style="background:#1c2333;border-color:#d4af37;color:#d4af37">&#128214; HELP</button>
 </div>
-</div>
-<div class="jobbar" id="jobbar">
-  <div class="jrow"><span class="jstep" id="jstep">-</span><span class="jdua" id="jdua"></span><span id="jbatch" style="display:none"></span><div class="track"><div class="fill" id="jfill"></div></div><span class="jpct" id="jpct"></span><button class="chip" id="jcancel" onclick="cancelJob()" style="display:none;background:#3a1520;color:#ff7b72;border-color:#6b2737;padding:4px 10px;font-size:11px">&#9209; CANCEL</button><button class="jx" onclick="dismissBar()" title="Dismiss">&#10005;</button></div>
+</nav>
+<div class="jobbar" id="jobbar" role="progressbar" aria-label="Render progress">
+  <div class="jrow"><span class="jstep" id="jstep">-</span><span class="jdua" id="jdua"></span><span id="jbatch" style="display:none"></span><div class="track"><div class="fill" id="jfill"></div></div><span class="jpct" id="jpct"></span><button class="chip" id="jcancel" onclick="cancelJob()" style="display:none;background:#3a1520;color:#ff7b72;border-color:#6b2737;padding:4px 10px;font-size:11px" aria-label="Cancel render">&#9209; CANCEL</button><button class="jx" onclick="dismissBar()" title="Dismiss" aria-label="Dismiss progress bar">&#10005;</button></div>
 </div>
 
-<div id="ytHub" class="panel" style="display:none">
+<div id="ytHub" class="panel" style="display:none" role="dialog" aria-label="YouTube Manager">
   <div class="panel-head">
-    <div class="yt-tabs">
-      <button class="yt-tab active" data-tab="upload" onclick="ytTab('upload')">&#128640; Upload</button>
-      <button class="yt-tab" data-tab="uploaded" onclick="ytTab('uploaded')">&#10003; Uploaded</button>
+    <div class="yt-tabs" role="tablist">
+      <button class="yt-tab active" data-tab="upload" onclick="ytTab('upload')" role="tab" aria-selected="true">&#128640; Upload</button>
+      <button class="yt-tab" data-tab="uploaded" onclick="ytTab('uploaded')" role="tab" aria-selected="false">&#10003; Uploaded</button>
     </div>
-    <button class="btn-sm red" onclick="ytHubClose()">&#10005;</button>
+    <button class="btn-sm red" onclick="ytHubClose()" aria-label="Close YouTube panel">&#10005;</button>
   </div>
 
   <div class="panel-body" id="ytTab_upload">
