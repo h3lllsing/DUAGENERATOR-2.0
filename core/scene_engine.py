@@ -739,8 +739,8 @@ class SceneRenderer:
 
     # -- rendering -------------------------------------------------------
     def render_scene(self, scene: Scene, frame_count: int, seed: str,
-                     scene_index: int = 0) -> List[Image.Image]:
-        """Render one scene into `frame_count` deterministic frames."""
+                     scene_index: int = 0):
+        """Render one scene as a generator (memory-efficient streaming)."""
         layout = self.compute_layout(scene)
         issues = self.verify_layout(scene, layout)
         if issues:
@@ -767,7 +767,6 @@ class SceneRenderer:
             particles.append((x, y, r, phase, alpha))
 
         accent = scene.palette["accent"]
-        frames: List[Image.Image] = []
         for i in range(frame_count):
             p = 0.0 if frame_count <= 1 else i / (frame_count - 1)
             crop = scene.motion.crop(p, self.width, self.height)
@@ -785,13 +784,14 @@ class SceneRenderer:
                 t = i / self.fps
                 self._apply_highlight(frame, highlight, t)
             self._apply_transition(frame, scene, i, frame_count, self.fps)
-            frames.append(frame.convert("RGB"))
-        return frames
+            yield frame.convert("RGB")
 
     def render(self, timeline: Timeline, seed: str = "default") -> List[Image.Image]:
-        """Render a full Timeline into the VideoBuilder List[Image] contract."""
-        frames: List[Image.Image] = []
+        """Render a full Timeline into a list (backward compatible)."""
+        return list(self.render_stream(timeline, seed))
+
+    def render_stream(self, timeline: Timeline, seed: str = "default"):
+        """Render a full Timeline as a generator (memory-efficient streaming)."""
         for idx, scene in enumerate(timeline.scenes):
-            frames.extend(self.render_scene(scene, timeline.frames_for_scene(idx),
-                                            seed, idx))
-        return frames
+            yield from self.render_scene(scene, timeline.frames_for_scene(idx),
+                                         seed, idx)

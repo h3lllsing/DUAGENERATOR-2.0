@@ -137,16 +137,16 @@ class VideoBuilder:
 
     def build_video(
         self,
-        frames: List[Union[Image.Image, np.ndarray]],
+        frames: Union[List[Union[Image.Image, np.ndarray]], any],
         output_path: str,
         audio_path: Optional[str] = None,
         temp_video_path: Optional[str] = None
     ) -> bool:
         """
-        Converts a list of PIL images or numpy arrays into an MP4 video.
+        Converts frames into an MP4 video. Accepts list or generator.
         
         Args:
-            frames: List of PIL Image objects or numpy arrays (RGB).
+            frames: List of PIL Image objects, numpy arrays, or a generator/iterable.
             output_path: Full path for the final .mp4 file.
             audio_path: Optional path to .mp3 audio file to add.
             temp_video_path: Optional path for temp video (without audio). 
@@ -155,29 +155,8 @@ class VideoBuilder:
         Returns:
             bool: True if successful, False otherwise.
         """
-        if not frames:
-            logger.error("No frames provided.")
-            return False
-
         try:
-            # Step 1: Convert PIL images to numpy arrays if needed
-            logger.info(f"Processing {len(frames)} frames...")
-            numpy_frames = []
-            for i, frame in enumerate(frames):
-                if isinstance(frame, Image.Image):
-                    # Ensure RGB and resize to exact dimensions
-                    if frame.size != (self.width, self.height):
-                        frame = frame.resize((self.width, self.height), Image.Resampling.LANCZOS)
-                    numpy_frames.append(np.array(frame))
-                elif isinstance(frame, np.ndarray):
-                    # Ensure correct shape
-                    if frame.shape[:2] != (self.height, self.width):
-                        logger.warning(f"Frame {i} shape mismatch. Expected ({self.height}, {self.width}) got {frame.shape[:2]}")
-                    numpy_frames.append(frame)
-                else:
-                    raise TypeError(f"Unsupported frame type: {type(frame)}")
-            
-            # Step 2: Determine temp video path
+            # Determine temp video path
             if temp_video_path is None:
                 base, ext = os.path.splitext(output_path)
                 temp_video_path = f"{base}_temp{ext}"
@@ -188,8 +167,17 @@ class VideoBuilder:
             os.makedirs(out_dir, exist_ok=True)
             os.makedirs(tmp_dir, exist_ok=True)
 
-            # Step 3: Write video WITHOUT audio using imageio
-            # Phase 2: Use raw frames, re-encoding happens in _mux_direct
+            # Convert generator to list if needed for counting
+            if hasattr(frames, '__iter__') and not isinstance(frames, (list, tuple)):
+                frames = list(frames)
+            
+            if not frames:
+                logger.error("No frames provided.")
+                return False
+
+            logger.info(f"Processing {len(frames)} frames...")
+            
+            # Write video WITHOUT audio using imageio
             logger.info(f"Writing temporary video: {temp_video_path}")
             with imageio.get_writer(
                 temp_video_path, 
@@ -204,12 +192,21 @@ class VideoBuilder:
                     '-g', '30',          # GOP anchor every 30 frames
                 ]
             ) as writer:
-                for frame in numpy_frames:
-                    writer.append_data(frame)
+                for i, frame in enumerate(frames):
+                    if isinstance(frame, Image.Image):
+                        if frame.size != (self.width, self.height):
+                            frame = frame.resize((self.width, self.height), Image.Resampling.LANCZOS)
+                        writer.append_data(np.array(frame))
+                    elif isinstance(frame, np.ndarray):
+                        writer.append_data(frame)
+                    else:
+                        raise TypeError(f"Unsupported frame type: {type(frame)}")
+                    if (i + 1) % 100 == 0:
+                        logger.info(f"  Written {i + 1} frames...")
             
             logger.info("Temp video created successfully.")
 
-            # Step 4: Add audio if provided (AUDIO-001 direct mux, no re-encode)
+            # Add audio if provided (AUDIO-001 direct mux, no re-encode)
             if audio_path and os.path.exists(audio_path):
                 logger.info(f"Adding audio: {audio_path}")
                 if not self._mux_direct(temp_video_path, audio_path,

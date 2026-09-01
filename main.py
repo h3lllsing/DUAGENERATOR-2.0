@@ -390,14 +390,20 @@ class DuaVideoPipeline:
             logger.error(f"TimelineBuilder failed: {plan['reason']}")
             return False
 
-        frames = SceneRenderer(fps=PROJECT.FPS).render(
-            plan["timeline"], seed=dua_id)
-        logger.info(f"[3/5] Frames generated: {len(frames)}")
+        has_effect = effect and effect != "none"
+        if has_effect:
+            frames = SceneRenderer(fps=PROJECT.FPS).render(
+                plan["timeline"], seed=dua_id)
+            logger.info(f"[3/5] Frames generated: {len(frames)}")
+        else:
+            frames = SceneRenderer(fps=PROJECT.FPS).render_stream(
+                plan["timeline"], seed=dua_id)
+            logger.info("[3/5] Frames generated (streaming mode)")
 
         # Optional visual effect post-processing (frame-level).
         # "auto" + the new AI effects use the EffectDirector brain; legacy
         # effect names keep the original frame-level path for compatibility.
-        if effect and effect != "none":
+        if has_effect:
             if effect in ("auto", "bloom_glow", "gold_shimmer", "breathing",
                           "rtl_reveal", "glitch_v2", "word_pulse"):
                 fxplan = self.director.plan(
@@ -564,12 +570,18 @@ class DuaVideoPipeline:
             logger.error(f"TimelineBuilder failed: {plan['reason']}")
             return False
 
-        frames = SceneRenderer(fps=PROJECT.FPS).render(
-            plan["timeline"], seed="custom")
-        logger.info(f"[3/5] Frames generated: {len(frames)}")
+        has_effect = effect and effect != "none"
+        if has_effect:
+            frames = SceneRenderer(fps=PROJECT.FPS).render(
+                plan["timeline"], seed="custom")
+            logger.info(f"[3/5] Frames generated: {len(frames)}")
+        else:
+            frames = SceneRenderer(fps=PROJECT.FPS).render_stream(
+                plan["timeline"], seed="custom")
+            logger.info("[3/5] Frames generated (streaming mode)")
 
         # Optional visual effect post-processing (frame-level).
-        if effect and effect != "none":
+        if has_effect:
             dua_data = {"id": "custom", "category": category,
                         "arabic": arabic_text, "urdu": urdu_text,
                         "title": title or "Custom Dua"}
