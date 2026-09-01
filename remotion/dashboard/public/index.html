@@ -202,34 +202,74 @@
 <div class="modal-bg" id="aiimportbg" onclick="if(event.target===this)closeAiImport()">
   <div class="modal">
     <h2>&#129302; AI Dua Import</h2>
-    <div class="aihint" style="margin-bottom:12px">&#9734; AI se Sunni Islamic duas generate karke seedha library mein add karein. Authentic sources (Bukhari, Muslim, Tirmidhi etc.) se.</div>
-    <label>Category</label>
-    <select id="ai_category">
-      <option value="general">General (Sab ke liye)</option>
-      <option value="food">Khana / Food</option>
-      <option value="travel">Safar / Travel</option>
-      <option value="sleep">Neend / Sleep</option>
-      <option value="health">Sehat / Health</option>
-      <option value="study">Parhai / Study</option>
-      <option value="prayer">Namaz / Prayer</option>
-      <option value="morning_evening">Subah / Shaam</option>
-      <option value="safety">Hifazat / Safety</option>
-      <option value="parents">Walidain / Parents</option>
-      <option value="ramadan">Ramzan / Ramadan</option>
-      <option value="mosque">Masjid / Mosque</option>
-      <option value="work">Kaam / Work</option>
-      <option value="clothing">Kapray / Clothing</option>
-      <option value="weather">Mousam / Weather</option>
-    </select>
-    <label>Kitni duas? (1-10)</label>
-    <select id="ai_count">
-      <option value="3">3</option>
-      <option value="5" selected>5</option>
-      <option value="7">7</option>
-      <option value="10">10</option>
-    </select>
-    <label>Custom Topic (optional)</label>
-    <input id="ai_topic" placeholder="e.g. bachon ki dua, shaadi ki dua, buhtang door karne ki dua...">
+    <div class="ai-tabs" style="display:flex;gap:6px;margin-bottom:14px">
+      <button class="chip on" id="aitab_gen" onclick="aiTab('gen')" style="flex:1">&#129302; Generate</button>
+      <button class="chip" id="aitab_fmt" onclick="aiTab('fmt')" style="flex:1">&#128203; Paste & Format</button>
+    </div>
+
+    <div id="ai_panel_gen">
+      <div class="aihint" style="margin-bottom:12px">&#9734; AI se Sunni Islamic duas generate karke seedha library mein add karein. Authentic sources (Bukhari, Muslim, Tirmidhi etc.) se.</div>
+      <label>Category</label>
+      <select id="ai_category">
+        <option value="general">General (Sab ke liye)</option>
+        <option value="food">Khana / Food</option>
+        <option value="travel">Safar / Travel</option>
+        <option value="sleep">Neend / Sleep</option>
+        <option value="health">Sehat / Health</option>
+        <option value="study">Parhai / Study</option>
+        <option value="prayer">Namaz / Prayer</option>
+        <option value="morning_evening">Subah / Shaam</option>
+        <option value="safety">Hifazat / Safety</option>
+        <option value="parents">Walidain / Parents</option>
+        <option value="ramadan">Ramzan / Ramadan</option>
+        <option value="mosque">Masjid / Mosque</option>
+        <option value="work">Kaam / Work</option>
+        <option value="clothing">Kapray / Clothing</option>
+        <option value="weather">Mousam / Weather</option>
+      </select>
+      <label>Kitni duas? (1-10)</label>
+      <select id="ai_count">
+        <option value="3">3</option>
+        <option value="5" selected>5</option>
+        <option value="7">7</option>
+        <option value="10">10</option>
+      </select>
+      <label>Custom Topic (optional)</label>
+      <input id="ai_topic" placeholder="e.g. bachon ki dua, shaadi ki dua, buhtang door karne ki dua...">
+      <div class="mbtns" style="margin-top:14px">
+        <button class="btn-cancel" onclick="closeAiImport()">Cancel</button>
+        <button class="btn-save" id="ai_gen_btn" onclick="aiImport()">&#129302; GENERATE + ADD</button>
+      </div>
+    </div>
+
+    <div id="ai_panel_fmt" style="display:none">
+      <div class="aihint" style="margin-bottom:12px">&#9734; Dua ka text paste karo (Arabic, Urdu, reference - jo bhi hai). AI automatically format karke library mein add karega.</div>
+      <label>Paste Dua Text</label>
+      <textarea id="ai_paste_text" rows="8" style="min-height:140px;font-size:13px;line-height:1.8;background:#080c14;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;color:#c9d1d9;resize:vertical" placeholder="Yahan dua ka text paste karo...&#10;&#10;Example:&#10;Arabic: اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَافِيَةَ&#10;Urdu: اے اللہ! میں تجھ سے عافیت مانگتا ہوں&#10;Reference: Sahih Bukhari 6313"></textarea>
+      <label>Category</label>
+      <select id="ai_fmt_category">
+        <option value="general">General (Sab ke liye)</option>
+        <option value="food">Khana / Food</option>
+        <option value="travel">Safar / Travel</option>
+        <option value="sleep">Neend / Sleep</option>
+        <option value="health">Sehat / Health</option>
+        <option value="study">Parhai / Study</option>
+        <option value="prayer">Namaz / Prayer</option>
+        <option value="morning_evening">Subah / Shaam</option>
+        <option value="safety">Hifazat / Safety</option>
+        <option value="parents">Walidain / Parents</option>
+        <option value="ramadan">Ramzan / Ramadan</option>
+        <option value="mosque">Masjid / Mosque</option>
+        <option value="work">Kaam / Work</option>
+        <option value="clothing">Kapray / Clothing</option>
+        <option value="weather">Mousam / Weather</option>
+      </select>
+      <div class="mbtns" style="margin-top:14px">
+        <button class="btn-cancel" onclick="closeAiImport()">Cancel</button>
+        <button class="btn-save" id="ai_fmt_btn" onclick="aiFormat()">&#129302; FORMAT + ADD</button>
+      </div>
+    </div>
+
     <div style="margin:14px 0;border-top:1px solid #1a2030"></div>
     <div style="display:flex;align-items:center;gap:8px">
       <b style="color:#d4af37;font-size:13px">&#9881;&#65039; API Settings</b>
@@ -247,10 +287,6 @@
         <button class="btn-save" onclick="aiConfigSave()">SAVE API</button>
       </div>
       <div class="formmsg" id="aicfgmsg"></div>
-    </div>
-    <div class="mbtns">
-      <button class="btn-cancel" onclick="closeAiImport()">Cancel</button>
-      <button class="btn-save" id="ai_gen_btn" onclick="aiImport()">&#129302; GENERATE + ADD</button>
     </div>
     <div class="formmsg" id="aiimportmsg"></div>
     <div id="ai_result" style="display:none;margin-top:12px"></div>

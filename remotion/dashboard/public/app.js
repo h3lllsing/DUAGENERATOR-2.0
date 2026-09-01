@@ -481,9 +481,6 @@ function render(){
           +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
           +(d.category?'<span class="b cat">'+escHtml(d.category)+'</span>':'')
         +'</div>'
-        +'<div class="cpop-actions">'
-          +'<button class="btn-ai-fill" onclick="aiFillCard(\''+d.id+'\')" title="AI se Arabic/Urdu/Explanation generate karo">&#129302; AI Fill</button>'
-        +'</div>'
       +'</div>';
     frag.appendChild(el);
   });
@@ -1626,6 +1623,14 @@ function openAiImport(){
   aiConfigLoad();
 }
 function closeAiImport(){document.getElementById('aiimportbg').classList.remove('show');}
+function aiTab(tab){
+  document.getElementById('aitab_gen').className=tab==='gen'?'chip on':'chip';
+  document.getElementById('aitab_fmt').className=tab==='fmt'?'chip on':'chip';
+  document.getElementById('ai_panel_gen').style.display=tab==='gen'?'block':'none';
+  document.getElementById('ai_panel_fmt').style.display=tab==='fmt'?'block':'none';
+  setMsg2('aiimportmsg','','');
+  document.getElementById('ai_result').style.display='none';
+}
 function aiConfigToggle(){
   var box=document.getElementById('ai_cfg_box');
   var tog=document.getElementById('ai_cfg_toggle');
@@ -1685,6 +1690,34 @@ async function aiImport(){
     }
   }catch(e){setMsg2('aiimportmsg','Network error: '+e.message,'err');}
   btn.disabled=false;btn.textContent='\u{1F916} GENERATE + ADD';
+}
+async function aiFormat(){
+  var btn=document.getElementById('ai_fmt_btn');
+  var msg=document.getElementById('aiimportmsg');
+  var res=document.getElementById('ai_result');
+  var text=document.getElementById('ai_paste_text').value.trim();
+  var cat=document.getElementById('ai_fmt_category').value;
+  if(!text)return setMsg2('aiimportmsg','Pehle dua ka text paste karo','err');
+  if(!confirm('AI se format karwa ke library mein add karein?\n\nText: '+text.substring(0,80)+'...'))return;
+  btn.disabled=true;btn.textContent='Formatting...';
+  setMsg2('aiimportmsg','AI se format ho raha hai...','warn');res.style.display='none';
+  try{
+    var r=await fetch('/api/ai-format',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:text,category:cat})});
+    var j=await r.json();
+    if(j.ok&&j.added>0){
+      setMsg2('aiimportmsg',j.added+' dua format ho ke library mein add ho gayi!','ok');
+      var html='<div style="max-height:200px;overflow-y:auto;font-size:12px">';
+      (j.duas||[]).forEach(function(d){html+='<div style="padding:6px 0;border-bottom:1px solid #1a2030"><b style="color:#d4af37">'+ytEsc(d.title)+'</b> <span style="color:#5a6474">('+ytEsc(d.id)+')</span></div>';});
+      html+='</div>';
+      res.innerHTML=html;res.style.display='block';
+      document.getElementById('ai_paste_text').value='';
+      load();
+    }else{
+      setMsg2('aiimportmsg',j.error||'Format nahi ho paya - check API balance','err');
+    }
+  }catch(e){setMsg2('aiimportmsg','Network error: '+e.message,'err');}
+  btn.disabled=false;btn.textContent='\u{1F916} FORMAT + ADD';
 }
 function setMsg2(id,msg,type){
   var el=document.getElementById(id);if(!el)return;

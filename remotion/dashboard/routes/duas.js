@@ -452,6 +452,47 @@ module.exports = function duaRoutes(deps) {
       return true;
     }
 
+    // ── POST /api/ai-format ──
+    if (method === 'POST' && p === '/api/ai-format') {
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'ai-format');
+          const text = cleanStr(f.text, 5000, 'text');
+          const category = cleanStr(f.category, 60, 'category') || 'general';
+          const py = spawn(process.env.PYTHON || 'python',
+            [path.join('scripts', 'ai_format_dua.py'),
+              '--text', text,
+              '--category', category],
+            {cwd: REMOTION, windowsHide: true});
+          let out = '';
+          let procErr = '';
+          py.stdout.on('data', (d) => { out += d.toString(); });
+          py.stderr.on('data', (d) => { procErr += d.toString(); });
+          py.on('close', (code) => {
+            try {
+              const last = out.trim().split(/\r?\n/).pop() || '{}';
+              const result = JSON.parse(last);
+              if (!res.headersSent && !res.writableEnded) {
+                send(res, 200, JSON.stringify(result));
+              }
+            } catch (e) {
+              if (!res.headersSent && !res.writableEnded) {
+                send(res, code === 0 ? 200 : 500, JSON.stringify({
+                  ok: false, error: procErr.slice(0, 500) || 'parse error',
+                }));
+              }
+            }
+          });
+          py.on('error', (e) => {
+            if (!res.headersSent && !res.writableEnded) {
+              send(res, 500, JSON.stringify({ok: false, error: String(e.message)}));
+            }
+          });
+        });
+      }, () => {});
+      return true;
+    }
+
     return false; // not handled
   };
 };
