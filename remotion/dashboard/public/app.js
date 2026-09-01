@@ -1558,6 +1558,7 @@ function _handleJobUpdate(j){
 function _startPolling(){
   _stopPolling();
   _startSSE();
+  _pollTimers.push(setInterval(poll,_pollIntervals[0]));
   _pollTimers.push(setInterval(load,_pollIntervals[1]));
 }
 function _stopPolling(){
