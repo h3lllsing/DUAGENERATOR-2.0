@@ -403,27 +403,21 @@ module.exports = function renderRoutes(deps) {
     } catch (e) { return false; }
   }
 
-  async function duaStatus(d) {
+  function duaStatus(d) {
     const id = d.id;
-    const arts = await Promise.all(['_ar.mp3', '_ur.mp3', '_ar_timing.jsonl', '_ur_timing.jsonl', '_merged.wav']
-      .map(async (s) => { try { await F.access(path.join(TEMP, id + s)); return true; } catch (_) { return false; } }));
+    const arts = ['_ar.mp3', '_ur.mp3', '_ar_timing.jsonl', '_ur_timing.jsonl', '_merged.wav']
+      .map((s) => fs.existsSync(path.join(TEMP, id + s)));
     const audioReady = arts.every(Boolean);
-    let manifest = false;
-    try { await F.access(path.join(DATA, id + '.json')); manifest = true; } catch (_) {}
+    const manifest = fs.existsSync(path.join(DATA, id + '.json'));
     const title = safeTitle(d.title) + '.mp4';
     const vfile = path.join(OUT, title);
-    let videoFile = null;
-    let videoMB = null;
-    try {
-      const st = await F.stat(vfile);
-      videoFile = title;
-      videoMB = Math.round(st.size / 1048576 * 10) / 10;
-    } catch (_) {}
+    const videoFile = fs.existsSync(vfile) ? title : null;
+    const videoMB = videoFile ? Math.round(fs.statSync(vfile).size / 1048576 * 10) / 10 : null;
     let thumbName = id + '.png';
-    try { await F.access(path.join(OUT, 'thumbs', thumbName)); }
-    catch (_) { thumbName = safeTitle(d.title) + '.png'; }
-    let thumbFile = null;
-    try { await F.access(path.join(OUT, 'thumbs', thumbName)); thumbFile = thumbName; } catch (_) {}
+    if (!fs.existsSync(path.join(OUT, 'thumbs', thumbName))) {
+      thumbName = safeTitle(d.title) + '.png';
+    }
+    const thumbFile = fs.existsSync(path.join(OUT, 'thumbs', thumbName)) ? thumbName : null;
     const qcs = qcStore[id];
     return {id, title: d.title, reference: d.reference,
       category: d.category || '', audioReady, manifest, videoFile, videoMB,
