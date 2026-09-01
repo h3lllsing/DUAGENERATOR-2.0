@@ -1,0 +1,71 @@
+# ============================================================
+# Dua Video Generator - Project Configuration
+# ============================================================
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "dua-video-generator"
+version = "0.10.0"
+description = "YouTube Shorts generator for Islamic Duas"
+requires-python = ">=3.11"
+
+# ============================================================
+# Pytest Configuration
+# ============================================================
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 30
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+]
+
+# ============================================================
+# Ruff Linter Configuration
+# ============================================================
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "I",    # isort
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # function call in default argument
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core"]
+
+# ============================================================
+# Mypy Type Checker Configuration
+# ============================================================
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+check_untyped_defs = true
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = [
+    "cv2",
+    "numpy",
+    "PIL",
+    "moviepy.*",
+    "edge_tts",
+    "arabic_reshaper",
+    "bidi",
+]
+ignore_missing_imports = true

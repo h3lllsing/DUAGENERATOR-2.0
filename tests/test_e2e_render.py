@@ -8,6 +8,7 @@ Validates the entire generation pipeline end-to-end:
 Uses the shortest dua (bathroom_exit) for speed.
 
 Run with: python -m pytest tests/test_e2e_render.py -v
+Skip with: python -m pytest -m "not slow"
 """
 
 import os
@@ -19,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
 import cv2
+import pytest
 
 from core.quality_checker import QualityChecker
 from core.dua_database import DB
@@ -54,6 +56,7 @@ def _temp_files_for(dua_id):
 # ──────────────────────────────────────────────────────────────────
 #  Phase 1: Database Lookup
 # ──────────────────────────────────────────────────────────────────
+@pytest.mark.slow
 class TestDatabaseLookup:
     """E2E Phase 1 — DuaDatabase returns valid dua entry."""
 
@@ -82,6 +85,7 @@ class TestDatabaseLookup:
 # ──────────────────────────────────────────────────────────────────
 #  Phase 2: TTS Generation
 # ──────────────────────────────────────────────────────────────────
+@pytest.mark.slow
 class TestTTSGeneration:
     """E2E Phase 2 — edge-tts produces Arabic + Urdu audio."""
 
@@ -136,8 +140,9 @@ class TestTTSGeneration:
 
 
 # ──────────────────────────────────────────────────────────────────
-#  Phase 3: Audio Merge + Duration Policy
+#  Phase 3: Audio Merge
 # ──────────────────────────────────────────────────────────────────
+@pytest.mark.slow
 class TestAudioMerge:
     """E2E Phase 3 — AudioMixer merge + VIDEO-002 duration policy."""
 
@@ -188,8 +193,9 @@ class TestAudioMerge:
 
 
 # ──────────────────────────────────────────────────────────────────
-#  Phase 4: Full Pipeline (TTS -> .mp4)
+#  Phase 4: Full Pipeline ( dua.json -> .mp4 )
 # ──────────────────────────────────────────────────────────────────
+@pytest.mark.slow
 class TestFullPipeline:
     """E2E Phase 4 — DuaVideoPipeline.generate_video() -> .mp4."""
 
@@ -247,8 +253,9 @@ class TestFullPipeline:
 
 
 # ──────────────────────────────────────────────────────────────────
-#  Phase 5: Custom Dua (non-DB entry)
+#  Phase 5: Custom Dua Pipeline
 # ──────────────────────────────────────────────────────────────────
+@pytest.mark.slow
 class TestCustomDua:
     """E2E Phase 5 — generate_custom_video with inline text."""
 
@@ -291,6 +298,7 @@ class TestCustomDua:
 # ──────────────────────────────────────────────────────────────────
 #  Phase 6: Error Handling
 # ──────────────────────────────────────────────────────────────────
+@pytest.mark.slow
 class TestErrorHandling:
     """E2E Phase 6 — Pipeline rejects invalid inputs."""
 
@@ -308,8 +316,9 @@ class TestErrorHandling:
 
 
 # ──────────────────────────────────────────────────────────────────
-#  Cleanup
+#  Phase 7: Cleanup
 # ──────────────────────────────────────────────────────────────────
+@pytest.mark.slow
 class TestCleanup:
     """Remove temp files created by E2E tests."""
 
