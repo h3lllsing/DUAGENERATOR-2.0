@@ -1,6 +1,8 @@
 import logging
 import os
+import shutil
 import subprocess
+import traceback
 import numpy as np
 from typing import List, Optional, Union
 from PIL import Image
@@ -33,7 +35,7 @@ class VideoBuilder:
             resolution: (width, height) for output video.
         """
         if fps is None:
-            fps = int(getattr(config, "VIDEO_FPS", 45) or 45)
+            fps = int(getattr(config, "VIDEO_FPS", 45))
         self.fps = fps
         self.width, self.height = resolution
 
@@ -214,7 +216,6 @@ class VideoBuilder:
                                         output_path):
                     logger.error("Audio mixing failed. "
                                  "Falling back to video without audio.")
-                    import shutil
                     shutil.copy2(temp_video_path, output_path)
 
                 # Delete temp video
@@ -222,7 +223,6 @@ class VideoBuilder:
                     os.remove(temp_video_path)
             else:
                 # No audio: just rename/move temp file
-                import shutil
                 logger.info(f"No audio provided. Saving final video: {output_path}")
                 shutil.copy2(temp_video_path, output_path)
                 if os.path.exists(temp_video_path):
@@ -233,6 +233,5 @@ class VideoBuilder:
 
         except Exception as e:
             logger.error(f"Critical error building video: {e}")
-            import traceback
             traceback.print_exc()
             return False

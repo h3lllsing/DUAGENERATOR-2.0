@@ -25,6 +25,11 @@ module.exports = function ytRoutes(deps) {
   function ytFileLog(line) {
     try {
       const p = path.join(PROJECT, 'data', 'upload_log.txt');
+      // Rotate if file exceeds 1MB
+      if (fs.existsSync(p) && fs.statSync(p).size > 1024 * 1024) {
+        const backup = p + '.old';
+        try { fs.renameSync(p, backup); } catch (_) {}
+      }
       fs.appendFileSync(p,
         new Date().toISOString().replace('T', ' ').slice(0, 19) +
         '  ' + line + '\n');

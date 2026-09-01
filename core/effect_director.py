@@ -201,7 +201,10 @@ def word_pulse_events(word_events, offsets, fps: int,
 class EffectDirector:
     """Small deterministic brain that plans effects per video."""
 
-    def __init__(self, fps: int = 24, canvas=(1080, 1920)):
+    def __init__(self, fps: int = None, canvas=(1080, 1920)):
+        if fps is None:
+            from core.project_info import PROJECT
+            fps = PROJECT.FPS
         self.fps = int(fps)
         self.width, self.height = canvas
 

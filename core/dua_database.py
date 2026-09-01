@@ -29,7 +29,7 @@ class DuaDatabase:
         """Internal method to load both JSON files."""
         # Load Duas
         try:
-            with open(self.duas_file, 'r', encoding='utf-8') as f:
+            with open(self.duas_file, 'r', encoding='utf-8-sig', errors='replace') as f:
                 data = json.load(f)
                 # Handle nested format: {"duas": [...]}
                 if isinstance(data, dict) and 'duas' in data:
@@ -46,7 +46,7 @@ class DuaDatabase:
         
         # Load Categories
         try:
-            with open(self.categories_file, 'r', encoding='utf-8') as f:
+            with open(self.categories_file, 'r', encoding='utf-8-sig', errors='replace') as f:
                 data = json.load(f)
                 # Handle nested format: {"categories": [...]}
                 if isinstance(data, dict) and 'categories' in data:
@@ -97,5 +97,18 @@ class DuaDatabase:
         return self.categories
 
 
-# Create a singleton instance for easy import
-DB = DuaDatabase()
+# Create a singleton instance for easy import (lazy initialization)
+_DB_INSTANCE = None
+
+def get_db() -> DuaDatabase:
+    """Get or create the singleton DuaDatabase instance."""
+    global _DB_INSTANCE
+    if _DB_INSTANCE is None:
+        _DB_INSTANCE = DuaDatabase()
+    return _DB_INSTANCE
+
+# Backward-compatible alias
+def __getattr__(name):
+    if name == "DB":
+        return get_db()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

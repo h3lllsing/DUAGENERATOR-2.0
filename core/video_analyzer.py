@@ -375,7 +375,7 @@ class VideoAnalyzer:
             Timing dictionary
         """
         # Calculate duration
-        duration = len(frames) if fps == 0 else len(frames) / fps
+        duration = len(frames) / fps if fps > 0 else 0
         
         # Detect text appearance timing
         text_appearances = []

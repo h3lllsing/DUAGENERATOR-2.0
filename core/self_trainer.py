@@ -167,9 +167,22 @@ class SelfTrainer:
             return []
     
     def _save_feedback(self, feedback: List):
-        """Save feedback to file."""
-        with open(self.feedback_file, 'w', encoding='utf-8') as f:
-            json.dump(feedback, f, indent=2, ensure_ascii=False)
+        """Save feedback to file with atomic write."""
+        import tempfile
+        dir_name = os.path.dirname(self.feedback_file)
+        os.makedirs(dir_name, exist_ok=True)
+        fd, tmp_path = tempfile.mkstemp(dir=dir_name, suffix=".tmp")
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                json.dump(feedback, f, indent=2, ensure_ascii=False)
+            import shutil
+            shutil.move(tmp_path, self.feedback_file)
+        except Exception:
+            try:
+                os.remove(tmp_path)
+            except OSError:
+                pass
+            raise
     
     def _load_preferences(self) -> Dict:
         """Load preferences from file."""

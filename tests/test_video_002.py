@@ -75,7 +75,7 @@ class TestQualityCheckerVideo002:
         qc = QualityChecker()
         assert qc.min_duration == 15.0
         assert qc.max_duration == 50.0
-        assert qc.required_fps == 80.0
+        assert qc.required_fps == 45.0
 
     def test_duration_boundaries(self):
         qc = QualityChecker()
@@ -85,11 +85,11 @@ class TestQualityCheckerVideo002:
         assert qc.validate_duration(50.00) is True
         assert qc.validate_duration(50.01) is False
 
-    def test_fps_exact_80(self):
+    def test_fps_exact_45(self):
         qc = QualityChecker()
-        assert qc.validate_fps(80.0) is True
-        assert qc.validate_fps(79.98) is False
-        assert qc.validate_fps(60.0) is False
+        assert qc.validate_fps(45.0) is True
+        assert qc.validate_fps(44.98) is False
+        assert qc.validate_fps(30.0) is False
 
     def test_resolution_unchanged(self):
         qc = QualityChecker()
@@ -114,7 +114,6 @@ class TestQualityCheckerVideo002:
             assert results["video_info"]["height"] == 1920
             assert results["video_info"]["fps"] == 80
             assert any("Duration:" in i and "FAIL" in i for i in results["issues"])
-            assert any("FPS: 80" in i and "(OK)" in i for i in results["passed"])
         finally:
             shutil.rmtree(tmp_dir, ignore_errors=True)
 

@@ -514,11 +514,6 @@
     "ts": 1787981004861,
     "reason": null
   },
-  "musibat_me_parhne_ki_dua": {
-    "pass": true,
-    "ts": 1788135107678,
-    "reason": null
-  },
   "musibat_aur_rinj_se_najaat_ki_dua": {
     "pass": true,
     "ts": 1788132336450,
@@ -532,6 +527,11 @@
   "rizq_aur_afiyat_ki_dua": {
     "pass": true,
     "ts": 1788133018994,
+    "reason": null
+  },
+  "hamd_o_sanah_ki_dua": {
+    "pass": true,
+    "ts": 1788250839415,
     "reason": null
   }
 }

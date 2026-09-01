@@ -43,7 +43,8 @@ def _load_known_dua_ids():
                           'data', 'duas.json')
         if not os.path.exists(db):
             return set()
-        raw = json.load(open(db, encoding='utf-8-sig'))
+        with open(db, encoding='utf-8-sig', errors='replace') as f:
+            raw = json.load(f)
         arr = raw if isinstance(raw, list) else raw.get('duas', [])
         return {str(d.get('id') or '') for d in arr if d.get('id')}
     except Exception:
@@ -94,7 +95,8 @@ def _signal_cleanup(signum, frame):
     sys.exit(128 + signum)
 
 signal.signal(signal.SIGINT, _signal_cleanup)
-signal.signal(signal.SIGTERM, _signal_cleanup)
+if hasattr(signal, 'SIGTERM'):
+    signal.signal(signal.SIGTERM, _signal_cleanup)
 
 
 def dua_video_filename(dua) -> str:
@@ -180,7 +182,8 @@ class DuaVideoPipeline:
         # AUDIO-001: normalize speech BEFORE padding (never the hold silence).
         base, ext = os.path.splitext(merged_audio)
         normalized_audio = f"{base}.normalized{ext}"
-        if AudioMixer.normalize_loudness(merged_audio, normalized_audio):
+        ok, _ = AudioMixer.normalize_loudness(merged_audio, normalized_audio)
+        if ok:
             src = [normalized_audio]
             gap = 0.0
         else:
@@ -207,7 +210,7 @@ class DuaVideoPipeline:
     def _enforce_quality_gate(self, quality_results: dict) -> bool:
         """
         VIDEO-002 hard gate. Resolution (VIDEO-001), duration (15-50s), and
-        FPS (exactly 80) failures abort generation. Other checks (e.g. file
+        FPS (exactly 45) failures abort generation. Other checks (e.g. file
         size) remain advisory.
         """
         if quality_results["valid"]:
@@ -232,7 +235,7 @@ class DuaVideoPipeline:
                   f"15-50 second window. Generation FAILED.")
             return False
         if not self.quality_checker.validate_fps(fps):
-            logger.error(f"Video FPS {fps:.1f} is not exactly 80. "
+            logger.error(f"Video FPS {fps:.1f} is not exactly 45. "
                   "Generation FAILED.")
             return False
         return True
@@ -258,9 +261,10 @@ class DuaVideoPipeline:
         try:
             usage = shutil.disk_usage(self.temp_dir)
             free_mb = usage.free / (1024 * 1024)
-            if free_mb < 500:
+            min_disk = getattr(__import__('config'), 'DISK_SPACE_MIN_MB', 500)
+            if free_mb < min_disk:
                 logger.error(f"Low disk space: {free_mb:.0f}MB free. "
-                             f"Need at least 500MB. Aborting.")
+                             f"Need at least {min_disk}MB. Aborting.")
                 return False
         except Exception:
             pass  # non-critical on exotic filesystems
@@ -303,11 +307,6 @@ class DuaVideoPipeline:
         arabic_text = dua_data.get('arabic', '')
         urdu_text = dua_data.get('urdu', '')
         title = dua_data.get('title', 'Dua')
-
-        logger.info(f"Category    : {category}")
-        logger.info(f"Title       : {title}")
-        logger.info(f"Arabic      : [Arabic text loaded]")
-        logger.info(f"Urdu        : [Urdu text loaded]")
 
         # STYLE-ROTATION: explicit per-dua override wins, else pool rotation
         ar_voice = dua_data.get('voice_arabic') or self.tts.pick_voice(dua_id, 'ar')
@@ -462,9 +461,10 @@ class DuaVideoPipeline:
         try:
             usage = shutil.disk_usage(self.temp_dir)
             free_mb = usage.free / (1024 * 1024)
-            if free_mb < 500:
+            min_disk = getattr(__import__('config'), 'DISK_SPACE_MIN_MB', 500)
+            if free_mb < min_disk:
                 logger.error(f"Low disk space: {free_mb:.0f}MB free. "
-                             f"Need at least 500MB. Aborting.")
+                             f"Need at least {min_disk}MB. Aborting.")
                 return False
         except Exception:
             pass
@@ -884,5 +884,10 @@ class DuaVideoPipeline:
 
 
 if __name__ == "__main__":
-    pipeline = DuaVideoPipeline()
-    pipeline.interactive_menu()
+    try:
+        pipeline = DuaVideoPipeline()
+        pipeline.interactive_menu()
+    except KeyboardInterrupt:
+        logger.info("Interrupted by user.")
+    except Exception as e:
+        logger.error(f"Fatal error: {e}", exc_info=True)

@@ -72,6 +72,15 @@ module.exports = function vfxRoutes(deps) {
     return new Promise((resolve) => {
       const p = spawn(cmd, args, {cwd: REMOTION, windowsHide: true});
       let errTail = '';
+      let resolved = false;
+      const timer = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          log('PREVIEW TIMEOUT: 60s exceeded, killing process');
+          try { p.kill('SIGKILL'); } catch (_) {}
+          resolve(-1);
+        }
+      }, 60000);
       p.stdout.on('data', (d) => {
         const t = String(d).trim();
         if (t) log('PREVIEW: ' + t.split(/\r?\n/).pop());
@@ -81,12 +90,21 @@ module.exports = function vfxRoutes(deps) {
         if (errTail.length > 800) errTail = errTail.slice(-800);
       });
       p.on('close', (code) => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timer);
         if (code !== 0 && errTail.trim()) {
           log('PREVIEW FAIL: ' + errTail.trim().split(/\r?\n/).pop().slice(0, 300));
         }
         resolve(code == null ? -1 : code);
       });
-      p.on('error', (e) => { log('PREVIEW SPAWN ERROR: ' + e.message); resolve(-1); });
+      p.on('error', (e) => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timer);
+        log('PREVIEW SPAWN ERROR: ' + e.message);
+        resolve(-1);
+      });
     });
   }
 
@@ -153,20 +171,40 @@ module.exports = function vfxRoutes(deps) {
           if (!dua) throw err(404, 'dua nahi mili: ' + duaId);
 
           const pack = customVfx.load(PROJECT);
-          let frame = null;
+          let patternDesc = null;
           const patternId = String(f.patternId || '').trim();
           if (patternId) {
             const rec = pack && pack.patterns[patternId];
             if (!rec) throw err(404, 'pattern nahi mila: ' + patternId);
-            frame = rec;
+            patternDesc = rec;
           } else if (f.frame && typeof f.frame === 'object') {
-            frame = customVfx.sanitizePattern(f.frame);
-            if (!frame) throw err(400, 'inline frame invalid');
+            patternDesc = customVfx.sanitizePattern(f.frame);
+            if (!patternDesc) throw err(400, 'inline frame invalid');
+          } else if (f.themeItem && typeof f.themeItem === 'object') {
+            // Theme preview - apply theme to lookSpec
+            const themeSan = customVfx.sanitizeThemeItem(f.themeItem);
+            if (!themeSan) throw err(400, 'theme item invalid');
+            patternDesc = null; // No pattern for theme preview
+          } else if (f.typographyItem && typeof f.typographyItem === 'object') {
+            // Typography preview
+            const typoSan = customVfx.sanitizeTypographyItem(f.typographyItem);
+            if (!typoSan) throw err(400, 'typography item invalid');
+            patternDesc = null;
+          } else if (f.motionItem && typeof f.motionItem === 'object') {
+            // Motion preview
+            const motionSan = customVfx.sanitizeMotionItem(f.motionItem);
+            if (!motionSan) throw err(400, 'motion item invalid');
+            patternDesc = null;
+          } else if (f.audioItem && typeof f.audioItem === 'object') {
+            // Audio preview
+            const audioSan = customVfx.sanitizeAudioItem(f.audioItem);
+            if (!audioSan) throw err(400, 'audio item invalid');
+            patternDesc = null;
           } else {
-            throw err(400, 'patternId ya inline frame required');
+            throw err(400, 'patternId, inline frame, ya master item (theme/typography/motion/audio) required');
           }
           const overrides = customVfx.sanitizeOverrides(f.styleOverrides);
-          const frameNo = Math.max(0, Math.min(300, parseInt(f.frame, 10) || 75));
+          const frameNo = Math.max(0, Math.min(300, parseInt(f.frameNo, 10) || 75));
           const theme = THEMES.includes(String(f.theme || '')) ? String(f.theme) : 'dark';
 
           let look = null;
@@ -179,16 +217,47 @@ module.exports = function vfxRoutes(deps) {
           } catch (_) { look = null; }
           if (!look) look = lookspec.buildLookSpec(theme);
 
-          const vfx = {frame};
-          if (overrides) vfx.styleOverrides = overrides;
-          look.vfx = vfx;
+          // Apply VFX based on type
+          if (patternDesc) {
+            const vfx = {frame: patternDesc};
+            if (overrides) vfx.styleOverrides = overrides;
+            look.vfx = vfx;
+          } else if (f.themeItem) {
+            // Apply theme decor and grade
+            const themeSan = customVfx.sanitizeThemeItem(f.themeItem);
+            if (themeSan && themeSan.payload) {
+              if (themeSan.payload.decor) look.decor = themeSan.payload.decor;
+              if (themeSan.payload.grade) {
+                look.grade = Object.assign(look.grade || {}, themeSan.payload.grade);
+              }
+            }
+          } else if (f.typographyItem) {
+            // Apply typography settings
+            const typoSan = customVfx.sanitizeTypographyItem(f.typographyItem);
+            if (typoSan) {
+              look.typography = Object.assign(look.typography || {}, typoSan);
+            }
+          } else if (f.motionItem) {
+            // Apply motion settings
+            const motionSan = customVfx.sanitizeMotionItem(f.motionItem);
+            if (motionSan) {
+              look.motion = Object.assign(look.motion || {}, motionSan);
+            }
+          } else if (f.audioItem) {
+            // Apply audio settings
+            const audioSan = customVfx.sanitizeAudioItem(f.audioItem);
+            if (audioSan) {
+              look.audio = Object.assign(look.audio || {}, audioSan);
+            }
+          }
 
           const stamp = Date.now();
           const props = path.join(TEMP, 'vfx_preview_' + duaId + '_' + stamp + '.json');
           await F.writeFile(props, JSON.stringify({lookSpec: look}), 'utf8');
 
           const compId = duaId.replace(/_/g, '-');
-          const name = 'vfx-p-' + (patternId || 'inline') + '-' + duaId + '-f' + frameNo + '-' + stamp + '.png';
+          const itemType = patternId ? patternId : (f.themeItem ? 'theme' : (f.typographyItem ? 'typography' : (f.motionItem ? 'motion' : 'audio')));
+          const name = 'vfx-p-' + itemType + '-' + duaId + '-f' + frameNo + '-' + stamp + '.png';
           await F.mkdir(path.join(OUT, 'previews'), {recursive: true});
           const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
           const code = await runStill(process.execPath, [

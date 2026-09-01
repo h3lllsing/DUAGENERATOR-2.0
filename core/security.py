@@ -18,7 +18,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 # Migration-only legacy salt used by vaults created before random-per-installation
 # salts were introduced. Kept permanently so existing legacy vaults stay recoverable.
 LEGACY_SALT = b'dua_video_generator_2026_salt'
-PBKDF2_ITERATIONS = 100000
+PBKDF2_ITERATIONS = 600000
 
 
 class VaultWriteError(Exception):
@@ -446,7 +446,7 @@ class SecurityManager:
         return {
             "encryption": "AES-128-CBC (Fernet)",
             "key_derivation": "PBKDF2-HMAC-SHA256",
-            "iterations": 100000,
+            "iterations": PBKDF2_ITERATIONS,
             "vault_exists": self.vault_exists(),
             "keys_dir": self.keys_dir,
             "vault_path": self.vault_path,

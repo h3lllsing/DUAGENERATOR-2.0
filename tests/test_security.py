@@ -138,7 +138,7 @@ class TestSecurityManager:
         assert "vault_exists" in info
         assert info["encryption"] == "AES-128-CBC (Fernet)"
         assert info["key_derivation"] == "PBKDF2-HMAC-SHA256"
-        assert info["iterations"] == 100000
+        assert info["iterations"] == 600000
     
     def test_wrong_password_fails_decryption(self):
         """Test that wrong password fails to decrypt"""

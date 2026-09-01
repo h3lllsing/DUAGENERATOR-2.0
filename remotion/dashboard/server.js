@@ -76,7 +76,7 @@ function saveQc() {
 const PUBLIC_DIR = path.join(__dirname, 'public');
 let HTML_CACHE = '';
 try { HTML_CACHE = fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8')
-  .replace('<!--INJECT_AUTH-->', '<script>window.AUTH_TOKEN="' + AUTH_TOKEN + '";</script>'); } catch (_) {}
+  .replace('<!--INJECT_AUTH-->', '<script>window.AUTH_TOKEN=' + JSON.stringify(AUTH_TOKEN) + ';</script>'); } catch (_) {}
 
 const fxg = require('./fx-guardrails');
 const STYLE_PRESETS = fxg.STYLE_PRESETS || ['auto', 'classic', 'royal', 'minimal',
@@ -116,6 +116,13 @@ function verifyAuth(req) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const origin = req.headers.origin || '';
+  
+  // Security headers
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  
   if (origin && url.pathname.startsWith('/api/') &&
       !/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/i.test(origin)) {
     return send(res, 403, JSON.stringify({ok: false, error: 'cross-origin blocked'}));
@@ -123,7 +130,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname.startsWith('/api/') && !verifyAuth(req)) {
     return send(res, 401, JSON.stringify({ok: false, error: 'unauthorized'}));
   }
-  if (req.method === 'POST' && /^\/api\/(render|tts-custom|render-all|vfx\/import|vfx\/preview)$/.test(url.pathname)) {
+  if (req.method === 'POST' && /^\/api\//.test(url.pathname)) {
     if (!checkRateLimit(url.pathname)) {
       return send(res, 429, JSON.stringify({ok: false,
         error: 'rate limit (30 requests per 2s)'}));
@@ -134,6 +141,10 @@ const server = http.createServer((req, res) => {
   if (duaHandler(req, url, res)) return;
   if (configHandler(req, url, res)) return;
   if (vfxHandler(req, url, res)) return;
+  // ── GET /api/health ──
+  if (req.method === 'GET' && url.pathname === '/api/health') {
+    return send(res, 200, JSON.stringify({ok: true, status: 'healthy', ts: Date.now()}));
+  }
   if (req.method === 'GET' && url.pathname === '/') {
     const htmlHash = crypto.createHash('md5').update(HTML_CACHE).digest('hex').slice(0, 16);
     const etag = '"' + htmlHash + '"';

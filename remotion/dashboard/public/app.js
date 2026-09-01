@@ -26,9 +26,20 @@ function setThemeSel(v){
 let _loaded=false;
 async function load(){
   if(!_loaded){document.getElementById('grid').innerHTML='<div class="loading">Loading...</div>';}
-  const r=await fetch('/api/duas'); const j=await r.json(); duas=j.duas; buildChips(); render(); stats();
-  _loaded=true;
-  if(document.getElementById('ytHub').style.display!=='none') ytRenderPicker();
+  try{
+    const r=await fetch('/api/duas');
+    if(!r.ok) throw new Error('Server error: '+r.status);
+    const j=await r.json();
+    duas=j.duas||[];
+    buildChips();
+    render();
+    stats();
+    _loaded=true;
+    if(document.getElementById('ytHub').style.display!=='none') ytRenderPicker();
+  }catch(e){
+    document.getElementById('grid').innerHTML='<div class="empty"><div class="empty-big">Load fail ho gaya</div><div class="empty-hint">'+escHtml(String(e.message||e))+'</div><button class="aibtn" onclick="load()" style="margin-top:12px">Retry</button></div>';
+    if(typeof toast==='function') toast('Dashboard load fail: '+e.message,'err');
+  }
 }
 function stats(){
   const done=duas.filter(d=>d.videoFile).length;
@@ -596,7 +607,9 @@ async function poll(){
     const lb=document.getElementById('jlog');
     if(lb){
       const recent=(j.logs||[]).slice(-3);
-      const html=recent.map(l=>'<span class="'+logClass(l)+'">'+l+'</span>').join('\n');
+      // Escape HTML to prevent XSS
+      const escapeHtml = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      const html=recent.map(l=>'<span class="'+logClass(l)+'">'+escapeHtml(l)+'</span>').join('\n');
       if(lb.dataset.prev!==html){lb.innerHTML=html;lb.scrollTop=lb.scrollHeight;lb.dataset.prev=html;}
     }
     const jb=document.getElementById('jbatch');
@@ -792,6 +805,9 @@ async function thumbsAll(){
   else toast(j.error||'Fail hua','err');
 }
 function openSettings(){
+  setStatusMsg('Loading...','');
+  document.getElementById('setbg').classList.add('show');
+  _pushModal('settings');
   fetch('/api/config').then(r=>r.json()).then(c=>{
     document.getElementById('s_name').value=c.channelName||'';
     document.getElementById('s_handle').value=c.handle||'';
@@ -802,10 +818,11 @@ function openSettings(){
     document.getElementById('s_art').value=c.artFx||'auto';
     document.getElementById('s_sky').value=c.skyFx||'auto';
     document.getElementById('s_border').value=c.borderFx||'auto';
+    setStatusMsg('','');
+  }).catch(e=>{
+    setStatusMsg('Settings load fail: '+e.message,'err');
+    if(typeof toast==='function') toast('Settings load fail: '+e.message,'err');
   });
-  setStatusMsg('','');
-  document.getElementById('setbg').classList.add('show');
-  _pushModal('settings');
   ytRefresh();
 }
 function closeSettings(){ document.getElementById('setbg').classList.remove('show'); _popModal('settings'); }
@@ -864,8 +881,22 @@ async function openUploadedList(){
     var vidIds=j.items.map(function(u){return u.videoId;}).filter(Boolean);
     var channels=new Set(j.items.map(function(u){return u.channel;}));
     var activeCh=channels.has('channel1')?'channel1':'channel2';
-    fetch('/api/youtube/stats?channel='+activeCh+(vidIds.length?'&ids='+encodeURIComponent(vidIds.join(',')):'')).then(function(sr){return sr.json()}).then(function(sj){
-      if(!sj.ok)return;
+    // Stats fetch with timeout and error handling
+    var statsUrl='/api/youtube/stats?channel='+activeCh+(vidIds.length?'&ids='+encodeURIComponent(vidIds.join(',')):'');
+    var statsTimeout=setTimeout(function(){
+      var els=document.querySelectorAll('[data-stat]');
+      els.forEach(function(el){if(el.textContent==='...')el.textContent='--';});
+    },8000);
+    fetch(statsUrl).then(function(sr){
+      clearTimeout(statsTimeout);
+      if(!sr.ok)throw new Error('Stats HTTP '+sr.status);
+      return sr.json();
+    }).then(function(sj){
+      clearTimeout(statsTimeout);
+      if(!sj.ok){
+        document.querySelectorAll('[data-stat]').forEach(function(el){if(el.textContent==='...')el.textContent='--';});
+        return;
+      }
       if(sj.channel){
         var ch=sj.channel;
         var subEl=document.getElementById('yt_up_subs');
@@ -889,7 +920,10 @@ async function openUploadedList(){
         var vlEl=document.getElementById('yt_up_vidlikes');
         if(vlEl)vlEl.textContent=totalL.toLocaleString();
       }
-    }).catch(function(){});
+    }).catch(function(e){
+      clearTimeout(statsTimeout);
+      document.querySelectorAll('[data-stat]').forEach(function(el){if(el.textContent==='...')el.textContent='--';});
+    });
     startYtStatsAuto();
   }catch(e){
     statusEl.innerHTML='&#10060; Load fail';
@@ -952,11 +986,11 @@ async function refreshUploadedStatsOnly(){
   }catch(e){}
 }
 async function reUpload(duaId,channel){
-  if(!confirm('"'+duaId+'" ka ledger entry hatayein?'))return;
+  if(!confirm('⚠️ Re-Upload: "'+duaId+'" ka ledger entry hatayein?\n\nYe video dubara upload ke liye available ho jayegi.\nChannel: '+channel))return;
   try{
     const r=await fetch('/api/youtube/re-upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaId,channel})});
     const j=await r.json();
-    if(j.ok){ toast(duaId+' removed'); lastGridKey='';load(); openUploadedList(); }
+    if(j.ok){ toast(duaId+' ledger se hataya - dubara upload kar sakte ho','ok'); lastGridKey='';load(); openUploadedList(); }
     else toast(j.error||'Fail','err');
   }catch(e){toast('Network error','err');}
 }
@@ -982,10 +1016,29 @@ window.addEventListener('load', function(){
 });
 function setStatusMsg(t,c){ const m=document.getElementById('setmsg'); m.textContent=t; m.className='formmsg '+c; }
 async function saveSettings(){
-  const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channelName:document.getElementById('s_name').value,handle:document.getElementById('s_handle').value,stylePreset:document.getElementById('s_style').value,lookMode:((document.querySelector('input[name=s_look]:checked')||{}).value||'random'),artFx:document.getElementById('s_art').value,skyFx:document.getElementById('s_sky').value,borderFx:document.getElementById('s_border').value})});
-  const j=await r.json();
-  if(j.ok){setStatusMsg('\u2705 Save ho gaya! Agla render in settings se banega.','ok');}
-  else setStatusMsg('Save fail hua','err');
+  const channelName=document.getElementById('s_name').value.trim();
+  const handle=document.getElementById('s_handle').value.trim();
+  if(!channelName){
+    setStatusMsg('Channel Name zaroori hai','err');
+    return;
+  }
+  if(channelName.length>60){
+    setStatusMsg('Channel Name 60 characters se kam hona chahiye','err');
+    return;
+  }
+  if(handle.length>40){
+    setStatusMsg('Handle 40 characters se kam hona chahiye','err');
+    return;
+  }
+  try{
+    const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channelName:channelName,handle:handle,stylePreset:document.getElementById('s_style').value,lookMode:((document.querySelector('input[name=s_look]:checked')||{}).value||'random'),artFx:document.getElementById('s_art').value,skyFx:document.getElementById('s_sky').value,borderFx:document.getElementById('s_border').value})});
+    const j=await r.json();
+    if(j.ok){setStatusMsg('\u2705 Save ho gaya! Agla render in settings se banega.','ok');}
+    else setStatusMsg(j.error||'Save fail hua','err');
+  }catch(e){
+    setStatusMsg('Network error: '+e.message,'err');
+    if(typeof toast==='function') toast('Settings save fail: '+e.message,'err');
+  }
 }
 async function aiMetaPrompt(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
@@ -1371,6 +1424,7 @@ async function vfxRefresh(){
     if(pbox) pbox.textContent=vfxPromptText();
   }catch(e){
     document.getElementById('vfx_registry').innerHTML='<div class="vfx-empty">Registry load fail: '+vfxEsc(e.message)+'</div>';
+    if(typeof toast==='function') toast('VFX Registry load fail: '+e.message,'err');
   }
 }
 async function saveDua(){

@@ -436,6 +436,8 @@ module.exports = function renderRoutes(deps) {
 
   function serveVideo(req, res, name) {
     const file = path.join(OUT, path.basename(name));
+    // Path traversal guard: ensure resolved path stays within OUT
+    if (!file.startsWith(OUT)) return send(res, 403, 'forbidden', 'text/plain');
     if (!fs.existsSync(file)) return send(res, 404, 'not found', 'text/plain');
     const stat = fs.statSync(file);
     const range = req.headers.range;
@@ -756,8 +758,10 @@ module.exports = function renderRoutes(deps) {
       readBody(req, res).then((body) => {
         routeCatch(res, async () => {
           const f = parseJson(body, 'tts-custom');
-          const a = cleanStr(f.arabic, 5000, 'Arabic text');
-          const u = cleanStr(f.urdu, 5000, 'Urdu text');
+          // Deep sanitization: strip HTML tags and control characters
+          const sanitizeTts = (s) => String(s || '').replace(/<[^>]*>/g, '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '').trim();
+          const a = cleanStr(sanitizeTts(f.arabic), 5000, 'Arabic text');
+          const u = cleanStr(sanitizeTts(f.urdu), 5000, 'Urdu text');
           if (!a && !u) throw err(400, 'Arabic ya Urdu text do');
           const rawName = String(f.name || '').trim();
           const name = /^[a-z0-9_]{1,60}$/.test(rawName) ? rawName : 'custom_' + Date.now();
@@ -828,6 +832,8 @@ module.exports = function renderRoutes(deps) {
     // ── GET /thumb/* ──
     if (method === 'GET' && p.startsWith('/thumb/')) {
       const file = path.join(OUT, 'thumbs', path.basename(decodeURIComponent(p.slice('/thumb/'.length))));
+      // Path traversal guard: ensure resolved path stays within OUT
+      if (!file.startsWith(OUT)) return send(res, 403, 'forbidden', 'text/plain');
       if (!fs.existsSync(file)) return send(res, 404, 'not found', 'text/plain');
       res.writeHead(200, {'Content-Type': 'image/png', 'Cache-Control': 'no-store'});
       fs.createReadStream(file).pipe(res);

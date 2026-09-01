@@ -158,16 +158,25 @@ class AudioMixer:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             
             clips = []
-            for path in audio_paths:
-                if os.path.exists(path):
-                    clip = AudioFileClip(path, fps=sample_rate)
-                    clips.append(clip)
-                    
-                    # Add a silent gap after each clip except the last
-                    if gap_seconds > 0 and len(clips) < len(audio_paths):
-                        clips.append(AudioMixer._make_silence(gap_seconds, sample_rate))
-                else:
-                    logger.warning(f"Audio file not found: {path}")
+            try:
+                for path in audio_paths:
+                    if os.path.exists(path):
+                        clip = AudioFileClip(path, fps=sample_rate)
+                        clips.append(clip)
+                        
+                        # Add a silent gap after each clip except the last
+                        if gap_seconds > 0 and len(clips) < len(audio_paths):
+                            clips.append(AudioMixer._make_silence(gap_seconds, sample_rate))
+                    else:
+                        logger.warning(f"Audio file not found: {path}")
+            except Exception as e:
+                # Clean up any clips already opened on partial failure
+                for clip in clips:
+                    try:
+                        clip.close()
+                    except Exception:
+                        pass
+                raise
             
             if not clips:
                 logger.error("No valid audio clips to merge.")

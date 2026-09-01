@@ -621,7 +621,10 @@ function importBatch(PROJECT, opts) {
       }
 
       let match;
-      if (!item.match || item.match === '' || item.match === '*') {
+      if (item.match === '*') {
+        match = '*';
+      } else if (!item.match || item.match === '') {
+        // Empty string or undefined - default to wildcard with warning
         match = '*';
       } else if (Array.isArray(item.match) && item.match.length) {
         match = item.match.map((m) => String(m)).filter((m) => /^[a-z0-9_\-]{1,80}$/.test(m));
@@ -686,13 +689,36 @@ function importBatch(PROJECT, opts) {
           fingerprint: fp, matchedId: dupId});
         continue;
       }
+      // Similarity check for master items (theme/typography/motion/audio)
+      let sim = null;
+      const existingItems = (pack && pack[realm]) || [];
+      for (const existing of existingItems) {
+        const existingSan = san(existing);
+        if (!existingSan) continue;
+        const existingFp = fingerprintItem(existingSan);
+        if (existingFp === fp) continue;
+        // Simple similarity: compare JSON stringify of sanitized objects
+        const newJson = JSON.stringify(canonicalize(s));
+        const existJson = JSON.stringify(canonicalize(existingSan));
+        if (newJson === existJson) {
+          sim = {id: existing.id, dist: 0};
+          break;
+        }
+        // Label similarity check
+        if (label && labelSim(label, existing.label || '') >= SIM_LABEL) {
+          sim = {id: existing.id, dist: 0.1};
+          break;
+        }
+      }
       const id = uniqueId(slugId(label, item.type), usedMasterIds[realm]);
       const entry = Object.assign({id}, s);
       if (label) entry.label = label;
       pendingMaster[realm].push(entry);
       usedMasterIds[realm].add(id);
       masterFpMap[realm].set(fp, id);
-      results.push({index: i, type: item.type, id, label, status: 'added', fingerprint: fp});
+      results.push(sim
+        ? {index: i, type: item.type, id, label, status: 'similar', fingerprint: fp, matchedId: sim.id, dist: sim.dist}
+        : {index: i, type: item.type, id, label, status: 'added', fingerprint: fp});
       continue;
     }
 

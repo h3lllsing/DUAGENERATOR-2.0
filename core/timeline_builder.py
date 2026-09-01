@@ -46,7 +46,7 @@ class TimelineBuilder:
 
     # Single source of truth is config.py; constants kept as safe fallbacks.
     MIN_DURATION = float(getattr(_config, "VIDEO_MIN_DURATION", 15))
-    MAX_DURATION = float(getattr(_config, "VIDEO_MAX_DURATION", 25))
+    MAX_DURATION = float(getattr(_config, "VIDEO_MAX_DURATION", 50))
 
     def __init__(self, fps: int = 24, gap_seconds: float = 0.3,
                  intro_seconds: float = 0.6, outro_seconds: float = 0.6):

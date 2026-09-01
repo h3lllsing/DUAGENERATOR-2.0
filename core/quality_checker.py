@@ -25,20 +25,20 @@ class QualityChecker:
 
     # Float tolerance for boundary checks (e.g. 14.99 must fail, 15.00 must pass)
     EPS = 1e-6
-    # FPS is written as exactly 80 by the pipeline; this only absorbs binary
+    # FPS is written as exactly 45 by the pipeline; this only absorbs binary
     # float representation noise (79.98/80.04 from other tools still FAIL).
     FPS_EPS = 1e-4
 
     def __init__(self):
         """Initialize quality checker."""
-        # VIDEO-002: 15-50 second product window, exactly 80 FPS.
+        # VIDEO-002: 15-50 second product window, exactly 45 FPS.
         # Values come from config.py (single source of truth) with safe fallbacks.
         self.min_duration = float(getattr(_config, "VIDEO_MIN_DURATION", 15))
         self.max_duration = float(getattr(_config, "VIDEO_MAX_DURATION", 50))
-        self.required_fps = float(getattr(_config, "VIDEO_FPS", 24))
+        self.required_fps = float(getattr(_config, "VIDEO_FPS", 45))
         self.required_width = int(getattr(_config, "VIDEO_WIDTH", 1080))
         self.required_height = int(getattr(_config, "VIDEO_HEIGHT", 1920))
-        self.max_file_size_mb = 100  # MB
+        self.max_file_size_mb = int(getattr(_config, "MAX_FILE_SIZE_MB", 100))
     
     def check_video(self, video_path: str) -> Dict:
         """
@@ -119,7 +119,7 @@ class QualityChecker:
                     f"File size: {file_size_mb:.1f}MB (must be under {self.max_file_size_mb}MB)"
                 )
             
-            # Check FPS (VIDEO-002: exactly 80, container-rounding tolerant)
+            # Check FPS (VIDEO-002: exactly 45, container-rounding tolerant)
             if abs(fps - self.required_fps) <= self.FPS_EPS:
                 results["passed"].append(f"FPS: {fps:.1f} (OK)")
             else:
@@ -151,7 +151,7 @@ class QualityChecker:
 
     def validate_fps(self, fps: float) -> bool:
         """
-        Validate video FPS is exactly 80 (VIDEO-002).
+        Validate video FPS is exactly 45 (VIDEO-002).
 
         Args:
             fps: Frames per second

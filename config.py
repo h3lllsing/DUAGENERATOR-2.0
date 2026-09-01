@@ -30,13 +30,9 @@ VIDEO_WIDTH = 1080
 VIDEO_HEIGHT = 1920
 VIDEO_FPS = 45  # Smooth playback for YouTube Shorts
 BACKGROUND_PREFER_VIDEO = True  # stock video backgrounds over stills jab available hon
-VIDEO_DURATION = 18  # seconds (15-20 range)
 
 # VIDEO-002: Product duration specification for YouTube Shorts.
-# Single source of truth for the 15-40 second window.
-# 2026-08-21: max 25 -> 32 (solemn slow voices).
-# 2026-08-21: max 32 -> 40 (Bismillah hierarchy: +~7s har dua me ??? AR
-# Bismillah + fixed UR meaning. Shorts 3 min allow karta hai).
+# 15-50 second window (Shorts supports up to 60s).
 VIDEO_MIN_DURATION = 15  # seconds
 VIDEO_MAX_DURATION = 50  # seconds
 VIDEO_CODEC = "libx264"
@@ -55,6 +51,10 @@ FFMPEG_PIX_FMT = "yuv420p"     # Maximum compatibility
 FFMPEG_SHARPEN = True         # Unsharp mask for crisp text
 FFMPEG_COLOR_GRADE = True     # Slight saturation boost
 FFMPEG_LOUDNESS = True        # -14 LUFS (YouTube standard)
+
+# Disk and file size limits
+DISK_SPACE_MIN_MB = 500       # Minimum free disk space in MB
+MAX_FILE_SIZE_MB = 100        # Maximum output file size in MB
 
 # ============================================================
 # AUDIO SETTINGS (edge-tts)
@@ -81,7 +81,7 @@ AUDIO_SAMPLE_RATE = 48000
 # ============================================================
 # Arabic Font
 ARABIC_FONT = os.path.join(FONTS_DIR, "NotoNaskhArabic-Regular.ttf")
-ARABIC_FONT_BOLD = os.path.join(FONTS_DIR, "NotoSansArabic-Bold.ttf")
+ARABIC_FONT_BOLD = os.path.join(FONTS_DIR, "Amiri-Bold.ttf")
 
 # Urdu Font (using Naskh for compatibility)
 URDU_FONT = os.path.join(FONTS_DIR, "NotoNaskhArabic-Regular.ttf")

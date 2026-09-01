@@ -35,6 +35,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Security scan (Bandit)
+        run: |
+          pip install bandit
+          bandit -r core/ -ll --skip B101
+
       - name: Run unit tests
         run: |
           python -m pytest tests/ -v --tb=short -q --ignore=tests/test_e2e_render.py
@@ -97,10 +102,14 @@ jobs:
         working-directory: remotion
         run: npm ci
 
+      - name: npm audit
+        working-directory: remotion
+        run: npm audit --audit-level=high
+
       - name: TypeScript check
         working-directory: remotion
-        run: npx tsc --noEmit || true
+        run: npx tsc --noEmit
 
       - name: Bundle check
         working-directory: remotion
-        run: npx remotion bundle --public-dir=public 2>&1 | head -20 || true
+        run: npx remotion bundle --public-dir=public 2>&1 | head -20

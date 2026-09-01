@@ -9,7 +9,7 @@ arabic-reshaper>=3.0.0
 python-bidi>=0.6.0
 uharfbuzz>=0.42.0
 freetype-py>=2.4.0
-Pillow>=10.0.0
+Pillow>=10.0.0,<12.0
 MoviePy>=2.0.0
 numpy>=1.24.0
 imageio>=2.31.0
@@ -21,6 +21,7 @@ cryptography>=41.0.0
 # Video Analysis
 opencv-python>=4.8.0
 scikit-image>=0.21.0
+scikit-learn>=1.3.0
 
 # Frontend (GUI only, not needed for CI/tests)
 # customtkinter>=5.2.0

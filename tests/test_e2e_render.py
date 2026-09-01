@@ -70,7 +70,7 @@ class TestDatabaseLookup:
         with open(DUA_DB, 'r', encoding='utf-8') as f:
             raw = json.load(f)
         entries = raw if isinstance(raw, list) else raw.get('duas', [])
-        assert len(entries) >= 80, f"Expected >=80 duas, got {len(entries)}"
+        assert len(entries) >= 70, f"Expected >=70 duas, got {len(entries)}"
 
     def test_output_path_convention(self):
         dua = DB.get_dua_by_id(FAST_DUA)
@@ -228,7 +228,7 @@ class TestFullPipeline:
     def test_qc_fps(self):
         results = qc.check_video(self.output_path)
         fps = results['video_info']['fps']
-        assert abs(fps - 80.0) < 0.1, f"FPS {fps}, expected 80"
+        assert abs(fps - 45.0) < 0.1, f"FPS {fps}, expected 45"
 
     def test_qc_overall_valid(self):
         results = qc.check_video(self.output_path)

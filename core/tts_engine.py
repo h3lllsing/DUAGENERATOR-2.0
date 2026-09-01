@@ -173,16 +173,10 @@ class TTSEngine:
         for attempt in range(TTSEngine.MAX_RETRIES):
             try:
                 # Async function ko sync mein run karna
-                loop = asyncio.new_event_loop()
-                try:
-                    asyncio.set_event_loop(loop)
-                    result = loop.run_until_complete(
-                        TTSEngine._async_generate(text, voice, output_path,
-                                                  timing_path, rate, pitch)
-                    )
-                finally:
-                    loop.close()
-                asyncio.set_event_loop(None)
+                result = asyncio.run(
+                    TTSEngine._async_generate(text, voice, output_path,
+                                              timing_path, rate, pitch)
+                )
                 
                 if result:
                     return True

@@ -58,6 +58,8 @@ temp/
 samples/
 backups/
 fx_proof/
+*.log
+crash.log
 # runtime logs from dashboard server restart
 remotion/dashboard/server.out.log
 remotion/dashboard/server.err.log

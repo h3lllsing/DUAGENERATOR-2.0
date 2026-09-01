@@ -135,23 +135,21 @@ class EffectsEngine:
             text_img = text_img.convert('RGBA')
         
         progress = frame_num / total_frames
+        W, H = text_img.size
         
-        # Create gold gradient effect
-        gold_layer = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
-        draw = ImageDraw.Draw(gold_layer)
-        
-        # Draw gold gradient
-        for y in range(text_img.size[1]):
-            # Gold gradient from top to bottom
-            gold_intensity = int(255 * (1 - y / text_img.size[1]))
-            r, g, b = 255, 215, 0  # Gold color
-            
-            # Add shimmer effect
-            shimmer = int(20 * np.sin(progress * np.pi * 4 + y * 0.1))
-            r = min(255, r + shimmer)
-            g = min(255, g + shimmer)
-            
-            draw.line([(0, y), (text_img.size[0], y)], fill=(r, g, b, 128))
+        # Create gold gradient effect using numpy (vectorized)
+        gold_layer = np.zeros((H, W, 4), dtype=np.uint8)
+        ys = np.arange(H).reshape(-1, 1)
+        gold_intensity = (255 * (1 - ys / H)).astype(np.uint8)
+        shimmer = (20 * np.sin(progress * np.pi * 4 + ys * 0.1)).astype(np.int16)
+        r = np.clip(gold_intensity + shimmer, 0, 255).astype(np.uint8)
+        g = np.clip(gold_intensity + shimmer - 40, 0, 255).astype(np.uint8)
+        b = np.zeros_like(r)
+        gold_layer[:, :, 0] = r
+        gold_layer[:, :, 1] = g
+        gold_layer[:, :, 2] = b
+        gold_layer[:, :, 3] = 128
+        gold_layer_img = Image.fromarray(gold_layer)
         
         # Apply fade-in
         alpha = int(255 * min(1.0, progress * 2))
@@ -161,7 +159,7 @@ class EffectsEngine:
         
         # Combine gold gradient with text
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
-        result = Image.alpha_composite(result, gold_layer)
+        result = Image.alpha_composite(result, gold_layer_img)
         result = Image.alpha_composite(result, text_faded)
         
         return result
@@ -232,9 +230,10 @@ class EffectsEngine:
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
         
-        # Create result with offset
+        # Create result with offset (clamped to canvas)
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
-        result.paste(text_faded, (0, offset_y), text_faded)
+        paste_y = max(0, offset_y)  # Clamp to prevent off-screen clipping
+        result.paste(text_faded, (0, paste_y), text_faded)
         
         return result
     
@@ -265,14 +264,16 @@ class EffectsEngine:
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
         
-        # Apply wave distortion
-        for y in range(text_img.size[1]):
-            # Calculate wave offset
-            wave_offset = int(10 * np.sin(progress * np.pi * 4 + y * 0.05))
-            
-            # Copy row with offset
-            row = text_faded.crop((0, y, text_img.size[0], y + 1))
-            result.paste(row, (wave_offset, y), row)
+        # Apply wave distortion using numpy (vectorized)
+        arr = np.array(text_faded)
+        H, W = arr.shape[:2]
+        ys = np.arange(H).reshape(-1, 1)
+        wave_offsets = (10 * np.sin(progress * np.pi * 4 + ys * 0.05)).astype(np.int32)
+        for y in range(H):
+            offset = wave_offsets[y, 0]
+            if offset != 0:
+                arr[y] = np.roll(arr[y], offset, axis=0)
+        result = Image.fromarray(arr)
         
         return result
     
@@ -301,7 +302,7 @@ class EffectsEngine:
         text_faded = Image.merge('RGBA', (r, g, b, a))
         
         # Random glitch offset
-        np.random.seed(frame_num)  # Deterministic glitch
+        rng = np.random.default_rng(frame_num)  # Deterministic glitch
         glitch_offset = int(5 * np.sin(progress * np.pi * 10))
         
         # Create color channels with offset
@@ -336,10 +337,15 @@ class EffectsEngine:
         total = len(frames)
         out = []
         for i, frame in enumerate(frames):
-            if frame.mode != 'RGBA':
-                frame = frame.convert('RGBA')
-            res = self.apply_effect(effect_name, frame, i, total)
-            out.append(res.convert('RGB'))
+            try:
+                if frame.mode != 'RGBA':
+                    frame = frame.convert('RGBA')
+                res = self.apply_effect(effect_name, frame, i, total)
+                out.append(res.convert('RGB'))
+            except Exception as e:
+                logger.warning(f"Effect '{effect_name}' failed on frame {i}: {e}")
+                # Return original frame on failure
+                out.append(frame.convert('RGB') if frame.mode != 'RGB' else frame)
         return out
     
     # ------------------------------------------------------------------
@@ -425,13 +431,13 @@ class EffectsEngine:
 
     def _fx_vignette(self, arr, params, seed, frame, total):
         strength = float(params.get("strength", 0.35))
-        m = self._get_vignette_mask()
+        m = self._get_vignette_mask(strength)
         # scale=1/255: dst = saturate(arr * m / 255) — proper multiply.
         return cv2.multiply(arr, m, scale=1 / 255.0, dtype=cv2.CV_8U)
 
-    def _get_vignette_mask(self):
-        """Cached full-res vignette multiply mask (H, W, 1) uint8."""
-        key = (self.width, self.height)
+    def _get_vignette_mask(self, strength=0.35):
+        """Cached full-res vignette multiply mask (H, W, 1) uint8 (thread-safe)."""
+        key = (self.width, self.height, strength)
         if getattr(self, "_vignette_key", None) == key:
             return self._vignette_mask
         h, w = self.height, self.width
@@ -439,7 +445,7 @@ class EffectsEngine:
         cx, cy = w / 2.0, h / 2.0
         r = np.sqrt(((xx - cx) / (w * 0.62)) ** 2 + ((yy - cy) / (h * 0.62)) ** 2)
         f = np.clip(r, 0.5, 1.3)
-        f = 1.0 - 0.62 * (f - 0.5)
+        f = 1.0 - strength * (f - 0.5)
         f = np.clip(f, 0.55, 1.0)
         mask = (f * 255).astype(np.uint8)
         mask = np.repeat(mask[:, :, None], 3, axis=2)
