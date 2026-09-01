@@ -20,7 +20,8 @@
 <nav class="toolbar" role="navigation" aria-label="Main navigation">
 <div class="searchwrap"><span aria-hidden="true">&#128269;</span><input id="search" placeholder="Dua dhundo... (naam ya reference)" oninput="onSearch(this.value)" aria-label="Dua search"></div>
 <div class="chips" id="chips" role="toolbar" aria-label="Category filters"></div>
-<div class="chips toolbar-actions" role="toolbar" aria-label="Quick actions">
+<button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu" aria-expanded="false" aria-controls="mobile_nav">&#9776;</button>
+<div class="chips toolbar-actions" id="mobile_nav" role="toolbar" aria-label="Quick actions">
   <button class="chip" onclick="openAiImport()" title="AI se nayi duas import karo" aria-label="AI Import" style="background:#0d1a2e;border-color:#3b82f6;color:#60a5fa">&#129302; AI IMPORT</button>
   <button class="chip chip-uploaded" onclick="ytToggle('uploaded')" title="Uploaded videos dekho" id="btn_uploaded" aria-label="Uploaded videos">&#10003; Uploaded (<span id="uploaded_count">0</span>)</button>
   <button class="chip" onclick="ytToggle('upload')" title="YouTube upload manager" aria-label="YouTube upload">&#9654;&#65039; YOUTUBE</button>
@@ -542,6 +543,16 @@
     <div class="vfx-sec">
       <div class="vfx-sec-head"><b>Registered Patterns / Plugins</b><span style="color:#8b949e;font-size:11px">(live pack — close karke dobara kholein)</span></div>
       <div id="vfx_registry" style="max-height:180px;overflow:auto;margin-top:4px">Loading...</div>
+    </div>
+  </div>
+</div>
+<div class="modal-bg" id="confirmbg" role="dialog" aria-modal="true" aria-labelledby="confirm_title" style="display:none">
+  <div class="modal" style="max-width:380px;text-align:center">
+    <h2 id="confirm_title" style="font-size:16px;margin-bottom:8px">Confirm</h2>
+    <p id="confirm_msg" style="color:var(--text-2);font-size:13px;line-height:1.5;margin-bottom:20px;white-space:pre-wrap"></p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button id="confirm_no" class="btn-sm" onclick="styledConfirmResolve(false)">Nahi</button>
+      <button id="confirm_yes" class="btn-sm gold" onclick="styledConfirmResolve(true)">Haan</button>
     </div>
   </div>
 </div>

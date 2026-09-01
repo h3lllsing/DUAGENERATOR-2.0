@@ -16,6 +16,19 @@ var EXPERT=/[?&]expert=1/.test(location.search);
 if(EXPERT){document.body.classList.add('expert');}
 const THEME_LABEL={dark:'Dark Gold',mosque:'Mosque Night',sunset:'Sunset Dawn',manuscript:'Manuscript',emerald:'Emerald Pattern',ocean:'Ocean Night',desert:'Desert Gold',royal:'Royal Purple'};
 const VOICE_PAIRS={'Hamed + Asad':['ar-SA-HamedNeural','ur-PK-AsadNeural'],'Zariyah + Uzma':['ar-SA-ZariyahNeural','ur-PK-UzmaNeural']};
+function toggleMobileNav(){
+  var nav=document.getElementById('mobile_nav');
+  var btn=document.getElementById('hamburger');
+  var open=nav.classList.toggle('open');
+  btn.setAttribute('aria-expanded',open);
+}
+document.addEventListener('click',function(ev){
+  var nav=document.getElementById('mobile_nav');
+  var btn=document.getElementById('hamburger');
+  if(nav&&nav.classList.contains('open')&&!ev.target.closest('#mobile_nav,#hamburger')){
+    nav.classList.remove('open');btn.setAttribute('aria-expanded','false');
+  }
+});
 function setThemeSel(v){
   document.querySelectorAll('#themegrid .topt').forEach(l=>{
     const on=l.dataset.v===v;
@@ -228,7 +241,7 @@ async function ytSaveCreds(){
   const cs=document.getElementById('yt_cs').value.trim();
   if(!cid||!cs){toast('Client ID aur Client Secret dono bharo','err');return;}
   const badge=document.getElementById('yt_cred_badge').textContent;
-  if(badge.indexOf('SET')>=0&&!confirm('Credentials pehle se set hain. Overwrite karoon?'))return;
+  if(badge.indexOf('SET')>=0&&!await styledConfirm('Credentials Overwrite','Credentials pehle se set hain. Overwrite karoon?'))return;
   try{
     const r=await fetch('/api/youtube/settings',{method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -241,7 +254,7 @@ async function ytSaveCreds(){
     ytRefresh();
   }catch(e){toast('Network error','err');}
 }
-function ytUploadSecret(){
+async function ytUploadSecret(){
   const inp=document.getElementById('yt_file');
   const f=inp.files&&inp.files[0];
   if(!f){toast('Pehle client_secret.json choose karo','err');return;}
@@ -253,7 +266,7 @@ function ytUploadSecret(){
       toast('Ye Google OAuth client_secret file nahi lagti','err');return;
     }
     if(document.getElementById('yt_secret_pill').textContent.indexOf('FOUND')>=0
-      &&!confirm('client_secret.json pehle se maujood hai. Overwrite karoon?'))return;
+      &&!await styledConfirm('Secret Overwrite','client_secret.json pehle se maujood hai. Overwrite karoon?'))return;
     try{
       const r=await fetch('/api/youtube/secret',{method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -278,7 +291,7 @@ async function ytAuth(ch){
   if(pill.indexOf('MISSING')>=0){
     toast('Pehle STEP 1 me client_secret.json save karo','err');return;
   }
-  if(!confirm(ch+' ke liye Google login shuru karoon? Browser window khulegi, apna account choose karke allow karo.'))return;
+  if(!await styledConfirm('Google Login',ch+' ke liye Google login shuru karoon? Browser window khulegi, apna account choose karke allow karo.'))return;
   try{
     const r=await fetch('/api/youtube/auth',{method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -343,12 +356,12 @@ function ytRenderPicker(){
   el.innerHTML='';
   el.appendChild(frag);
 }
-function ytToggleDua(id){
+async function ytToggleDua(id){
   if(ytSel[id]){ delete ytSel[id]; }
   else{
     if(Object.keys(ytSel).length>=6){ toast('Max 6 videos ek run me select kar sakte ho','err'); return; }
     var upIds=window.ytUploadedIds||[];
-    if(upIds.indexOf(id)>=0&&!confirm('Ye video pehle upload ho chuki hai. Phir bhi select karogi?'))return;
+    if(upIds.indexOf(id)>=0&&!await styledConfirm('Re-select','Ye video pehle upload ho chuki hai. Phir bhi select karogi?'))return;
     ytSel[id]=true;
   }
   ytUpdateCount();
@@ -360,7 +373,7 @@ function ytPickReset(){
   ytRenderPicker();
   toast('Selection clear ho gayi - dobara 1-6 duas chuno','ok');
 }
-function cardYtToggle(id){
+async function cardYtToggle(id){
   if(ytSel[id]){
     delete ytSel[id];
     ytUpdateCount();
@@ -369,7 +382,7 @@ function cardYtToggle(id){
     toast('Selection hat gayi: '+id,'ok');
     return;
   }
-  if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!confirm('Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
+  if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!await styledConfirm('Re-select','Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
   if(Object.keys(ytSel).length>=6){toast('Max 6 videos ek run me select kar sakte ho','err');return;}
   ytSel[id]=true;
   ytUpdateCount();
@@ -377,8 +390,8 @@ function cardYtToggle(id){
   lastGridKey=''; render();
   toast('Select ho gayi - YouTube me already selected dikhegi','ok');
 }
-function quickUpload(id){
-  if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!confirm('Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
+async function quickUpload(id){
+  if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!await styledConfirm('Re-upload','Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
   if(!ytSel[id]){
     if(Object.keys(ytSel).length>=6){toast('Max 6 videos ek run me select kar sakte ho','err');return;}
     ytSel[id]=true;
@@ -403,7 +416,7 @@ async function ytCancelReq(){
 async function ytStart(){  const sel=Object.keys(ytSel);
   if(!sel.length){toast('Pehle 1-6 duas select karo','err');return;}
   var mode=document.getElementById('yt_mode').value;
-  if(mode==='live'&&!confirm('LIVE MODE - Asli YouTube pe upload hoga. Confirm karo?'))return;
+  if(mode==='live'&&!await styledConfirm('LIVE MODE','LIVE MODE - Asli YouTube pe upload hoga. Confirm karo?'))return;
   var b=document.getElementById('yt_start');b.disabled=true;b.textContent='Uploading...';
   const bodyObj={
     channel:document.getElementById('yt_channel').value,
@@ -810,7 +823,7 @@ function openFolder(which){
 }
 async function renderAll(){
   if(busy)return toast('Pehle chalta hua job khatam hone do','err');
-  if(!confirm('Saari PENDING videos banayen ge?\nJo bani hain wo automatically skip ho jayengi'))return;
+  if(!await styledConfirm('Render All','Saari PENDING videos banayen ge?\nJo bani hain wo automatically skip ho jayengi'))return;
   const r=await fetch('/api/render-all',{method:'POST'});
   const j=await r.json();
   if(j.ok){toast('\u26A1 Batch shuru: '+j.total+' videos','ok');barHidden=false;}
@@ -839,7 +852,7 @@ function closeHistory(){document.getElementById('histbg').classList.remove('show
 function escHtml(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 async function thumbsAll(){
   if(busy)return toast('Pehle chalta hua job khatam hone do','err');
-  if(!confirm('Jo videos ke thumbnails nahi hain, sab banayen ge?'))return;
+  if(!await styledConfirm('Thumbnails','Jo videos ke thumbnails nahi hain, sab banayen ge?'))return;
   const r=await fetch('/api/thumbs-all',{method:'POST'});
   const j=await r.json();
   if(j.ok)toast('\uD83D\uDDBC\uFE0F Thumbnails ban rahe hain - log dekho','ok');
@@ -1027,7 +1040,7 @@ async function refreshUploadedStatsOnly(){
   }catch(e){}
 }
 async function reUpload(duaId,channel){
-  if(!confirm('⚠️ Re-Upload: "'+duaId+'" ka ledger entry hatayein?\n\nYe video dubara upload ke liye available ho jayegi.\nChannel: '+channel))return;
+  if(!await styledConfirm('Re-Upload','⚠️ Re-Upload: "'+duaId+'" ka ledger entry hatayein?\n\nYe video dubara upload ke liye available ho jayegi.\nChannel: '+channel))return;
   try{
     const r=await fetch('/api/youtube/re-upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaId,channel})});
     const j=await r.json();
@@ -1098,6 +1111,23 @@ async function aiMetaPrompt(id){
   try{await navigator.clipboard.writeText(p);toast('\uD83D\uDCCB AI metadata prompt copy! Gemini pe paste karo','ok');}
   catch(e){toast('Copy fail hua','err');}
 }
+let _confirmResolve=null;
+function styledConfirm(title,msg){
+  return new Promise(function(resolve){
+    _confirmResolve=resolve;
+    document.getElementById('confirm_title').textContent=title;
+    document.getElementById('confirm_msg').textContent=msg;
+    document.getElementById('confirmbg').style.display='';
+    document.getElementById('confirmbg').classList.add('show');
+    _pushModal('confirm');
+  });
+}
+function styledConfirmResolve(val){
+  document.getElementById('confirmbg').classList.remove('show');
+  document.getElementById('confirmbg').style.display='none';
+  _popModal('confirm');
+  if(_confirmResolve){_confirmResolve(val);_confirmResolve=null;}
+}
 let _modalStack=[];
 let _previousFocus=null;
 function _pushModal(id){
@@ -1114,7 +1144,8 @@ function _trapFocus(modalId){
     modalId==='ai'?'aimodalbg':modalId==='voice'?'voicebg':
     modalId==='settings'?'setbg':modalId==='help'?'helpbg':
     modalId==='history'?'histbg':modalId==='vfx'?'vfxbg':
-    modalId==='aiimport'?'aiimportbg':modalId==='player'?'playerbg':null);
+    modalId==='aiimport'?'aiimportbg':modalId==='player'?'playerbg':
+    modalId==='confirm'?'confirmbg':null);
   if(!modal)return;
   if(modal._trapHandler)modal.removeEventListener('keydown',modal._trapHandler);
   var focusable=modal.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
@@ -1258,7 +1289,7 @@ function applyDua(o){
 }
 async function delDua(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
-  if(!confirm('"'+d.title+'" HAMESHA KE LIYE delete karein?\nSab kuch mit jayega: audio, video mp4, thumbnail, temp files, aur data. Kya sure ho?'))return;
+  if(!await styledConfirm('Delete Dua','"'+d.title+'" HAMESHA KE LIYE delete karein?\nSab kuch mit jayega: audio, video mp4, thumbnail, temp files, aur data. Kya sure ho?'))return;
   const r=await fetch('/api/delete-dua',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
   const j=await r.json();
   if(j.ok){toast('\uD83D\uDDD1\uFE0F Deleted: '+d.title+' (sab files remove)','ok'); lastGridKey=''; load();}
@@ -1513,7 +1544,7 @@ async function saveDua(){
   var title=document.getElementById('f_title').value.trim();
   var arabic=document.getElementById('f_arabic').value.trim().substring(0,50);
   var action=editingId?'Update':'Add';
-  if(!confirm(action+' karein?\n\nTitle: '+title+'\nArabic: '+arabic+'...')){
+  if(!await styledConfirm(action+' Dua',action+' karein?\n\nTitle: '+title+'\nArabic: '+arabic+'...')){
     return;
   }
   const checked=document.querySelector('#themegrid input:checked');
@@ -1698,7 +1729,7 @@ async function aiImport(){
   var countNum=parseInt(count);
   var topicText=topic?('\nTopic: '+topic):'';
   var catText=cat?('\nCategory: '+cat):'general';
-  if(!confirm(countNum+' duas generate karke library mein add hongi:'+catText+topicText+'\n\nConfirm karo?')){
+  if(!await styledConfirm('AI Generate',countNum+' duas generate karke library mein add hongi:'+catText+topicText+'\n\nConfirm karo?')){
     return;
   }
   btn.disabled=true;btn.textContent='Generating...';setMsg2('aiimportmsg','AI se duas generate ho rahi hain...','warn');res.style.display='none';
@@ -1764,7 +1795,7 @@ async function aiFormatSave(){
   if(!data.length)return setMsg2('aiimportmsg','JSON mein koi dua nahi hai','err');
   if(data.length>10)return setMsg2('aiimportmsg','Ek baar mein max 10 duas. '+data.length+' hain.','err');
   var titles=data.map(function(d){return d.title||d.id||'?';}).join(', ');
-  if(!confirm(data.length+' dua(s) library mein add karein?\n\n'+titles))return;
+  if(!await styledConfirm('Add Duas',data.length+' dua(s) library mein add karein?\n\n'+titles))return;
   btn.disabled=true;btn.textContent='Saving...';
   setMsg2('aiimportmsg',data.length+' dua add ho rahi hain...','warn');
   var added=0;var errors=[];

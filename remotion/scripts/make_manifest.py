@@ -319,6 +319,11 @@ def read_words(path):
 
 
 def main(dua_id="rabbana_hasanah"):
+    out_dir = os.path.join(REMOTION, "src", "data")
+    out_path = os.path.join(out_dir, "{}.json".format(dua_id))
+    if os.path.exists(out_path) and os.path.getsize(out_path) > 0:
+        print("manifest already exists:", out_path)
+        return
     with open(os.path.join(PROJECT, "data", "duas.json"), encoding="utf-8") as f:
         duas = json.load(f)
     if not isinstance(duas, list):

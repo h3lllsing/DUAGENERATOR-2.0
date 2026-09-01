@@ -71,6 +71,16 @@ header h1 sup{font-size:10px;color:#666;font-weight:400;margin-left:4px}
 .chip:hover{background:var(--surface-2);color:var(--text-1);border-color:rgba(255,255,255,.12)}
 .chip-uploaded{background:#1a2e1f!important;color:var(--success)!important;border-color:rgba(63,185,80,.25)!important}
 .toolbar-actions{margin-left:auto}
+.hamburger{display:none;background:none;border:none;color:var(--text-1);font-size:22px;cursor:pointer;padding:6px 10px;border-radius:8px}
+.hamburger:hover{background:rgba(255,255,255,.06)}
+@media(max-width:768px){
+  .hamburger{display:block}
+  .toolbar-actions{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;max-width:85vw;background:var(--surface-1);flex-direction:column;padding:60px 16px 16px;z-index:100;box-shadow:-4px 0 24px rgba(0,0,0,.5);animation:slideIn .2s ease;overflow-y:auto}
+  .toolbar-actions.open{display:flex}
+  .toolbar-actions .chip{width:100%;text-align:left;justify-content:flex-start}
+}
+@keyframes slideIn{from{transform:translateX(100%)}}
+@keyframes slideOut{to{transform:translateX(100%)}}
 
 /* --- Jobbar (standalone row below toolbar) --- */
 .jobbar{display:none;max-width:1200px;margin:8px auto 0;padding:0 16px}
@@ -88,7 +98,8 @@ header h1 sup{font-size:10px;color:#666;font-weight:400;margin-left:4px}
 /* --- Main Grid --- */
 main{max-width:1200px;margin:0 auto;padding:12px 16px 100px}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.card{position:relative;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(17,22,31,.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:12px;cursor:default;transition:transform .15s,box-shadow .2s,border-color .2s;overflow:visible}
+.card{position:relative;display:flex;flex-direction:column;gap:8px;padding:10px;background:rgba(17,22,31,.85);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.06);border-radius:12px;cursor:default;transition:transform .15s,box-shadow .2s,border-color .2s;overflow:visible;animation:cardIn .2s ease}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}}
 .card:hover{transform:translateY(-2px);box-shadow:0 4px 18px rgba(0,0,0,.45);border-color:var(--gold);z-index:5}
 .card-tt{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;flex-shrink:0;background:#0a0d12;border:1px solid rgba(255,255,255,.05)}
 .up-badge{position:absolute;top:6px;right:6px;z-index:3;background:linear-gradient(135deg,#1e7d34,#2ea043);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid rgba(255,255,255,.2);box-shadow:0 2px 8px rgba(0,0,0,.4)}
@@ -454,6 +465,10 @@ body.expert .aibtn.js-expert{display:inline-flex}
 .skel-text.w60{width:60%}
 .skel-text.w80{width:80%}
 .skel-text.w40{width:40%}
+
+/* --- Confirm Modal --- */
+#confirmbg .modal{animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}}
 
 /* --- Accessibility --- */
 @media(prefers-reduced-motion:reduce){
