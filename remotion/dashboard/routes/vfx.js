@@ -14,50 +14,14 @@ module.exports = function vfxRoutes(deps) {
     fs, path, spawn, process, send, lookspec, themeMap, log} = deps;
   const F = fs.promises;
   const customVfx = require('../custom-vfx');
+  const {err, parseJson, readBody, routeCatch, exists: existsFn} = require('./utils');
 
   const THEMES = ['dark', 'mosque', 'sunset', 'manuscript', 'emerald',
     'ocean', 'desert', 'royal', 'ramadan', 'eid', 'qadr'];
   const DUA_ID_RE = /^[a-z0-9_\-]{1,80}$/;
 
   // ── Graceful errors / helpers ──
-  function err(code, msg) { const e = new Error(msg); e.statusCode = code; return e; }
-  function parseJson(body, label) {
-    try { return JSON.parse(body || '{}'); }
-    catch (_) { throw err(400, 'bad JSON payload' + (label ? ' (' + label + ')' : '')); }
-  }
-  function routeCatch(res, fn) {
-    return Promise.resolve().then(fn).catch((e) => {
-      const code = (e && e.statusCode) || 500;
-      const msg = (e && e.message) || String(e);
-      if (!res.headersSent && !res.writableEnded) {
-        send(res, code, JSON.stringify({ok: false, error: msg}));
-      } else {
-        log('vfx route error after send: ' + msg);
-      }
-    });
-  }
-  function readBody(req, res) {
-    return new Promise((resolve, reject) => {
-      let body = '';
-      let settled = false;
-      const abort = () => {
-        settled = true;
-        if (!res.headersSent && !res.writableEnded) {
-          send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
-        }
-        try { req.destroy(); } catch (_) {}
-        reject(err(413, 'aborted'));
-      };
-      req.on('data', (c) => {
-        if (body.length > 1e6) return abort();
-        body += c;
-      });
-      req.on('end', () => { if (!settled) { settled = true; resolve(body); } });
-      req.on('error', (e) => { if (!settled) { settled = true; reject(e); } });
-      req.on('close', () => { if (!settled) { settled = true; reject(err(400, 'connection closed')); } });
-    });
-  }
-  async function exists(p) { return F.access(p).then(() => true).catch(() => false); }
+  async function exists(p) { return existsFn(p, fs); }
   async function loadDuas() {
     try {
       const txt = (await F.readFile(path.join(PROJECT, 'data', 'duas.json'), 'utf8'))

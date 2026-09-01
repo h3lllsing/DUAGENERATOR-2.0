@@ -9,6 +9,7 @@ module.exports = function duaRoutes(deps) {
     cacheStore, saveCache, qcStore, saveQc,
     duaStatus, themeMap} = deps;
   const F = fs.promises;
+  const {err, parseJson, cleanStr, readBody, routeCatch, exists: existsFn} = require('./utils');
 
   // ── strict input allowlists / limits ──
   const CATS = new Set(['general', 'sleep', 'food', 'travel', 'prayer',
@@ -23,21 +24,6 @@ module.exports = function duaRoutes(deps) {
     explanation: 2000};
   const DB_PATH = path.join(PROJECT, 'data', 'duas.json');
 
-  function cleanStr(v, max, label) {
-    const s = String(v == null ? '' : v)
-      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim();
-    if (s.length > max) {
-      const e = new Error(label + ' bahut lambi hai (max ' + max + ' chars)');
-      e.statusCode = 400;
-      throw e;
-    }
-    return s;
-  }
-  function err(code, msg) { const e = new Error(msg); e.statusCode = code; return e; }
-  function parseJson(body, label) {
-    try { return JSON.parse(body || '{}'); }
-    catch (_) { throw err(400, 'bad JSON payload' + (label ? ' (' + label + ')' : '')); }
-  }
   async function readDuaDb() {
     const txt = (await F.readFile(DB_PATH, 'utf8')).replace(/^\uFEFF/, '');
     return JSON.parse(txt);
@@ -49,43 +35,7 @@ module.exports = function duaRoutes(deps) {
       Array.isArray(raw) ? list : Object.assign({}, raw, {duas: list}), null, 2), 'utf8');
     await F.rename(tmp, DB_PATH);
   }
-  async function exists(p) { return F.access(p).then(() => true).catch(() => false); }
-
-  // ── graceful route wrapper: converts any throw into a structured 4xx/5xx ──
-  function routeCatch(res, fn) {
-    return Promise.resolve().then(fn).catch((e) => {
-      const code = (e && e.statusCode) || 500;
-      const msg = (e && e.message) || String(e);
-      if (!res.headersSent && !res.writableEnded) {
-        send(res, code, JSON.stringify({ok: false, error: msg}));
-      } else {
-        log('duas route error after send: ' + msg);
-      }
-    });
-  }
-
-  // ── read body (promise), cap 1MB, graceful 413 ──
-  function readBody(req, res) {
-    return new Promise((resolve, reject) => {
-      let body = '';
-      let settled = false;
-      const abort = () => {
-        settled = true;
-        if (!res.headersSent && !res.writableEnded) {
-          send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
-        }
-        try { req.destroy(); } catch (_) {}
-        reject(err(413, 'aborted'));
-      };
-      req.on('data', (c) => {
-        if (body.length > 1e6) return abort();
-        body += c;
-      });
-      req.on('end', () => { if (!settled) { settled = true; resolve(body); } });
-      req.on('error', (e) => { if (!settled) { settled = true; reject(e); } });
-      req.on('close', () => { if (!settled) { settled = true; reject(err(400, 'connection closed')); } });
-    });
-  }
+  async function exists(p) { return existsFn(p, fs); }
 
   // ── duplicate detection (exact + fuzzy >=90%) ──
   function _norm(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
