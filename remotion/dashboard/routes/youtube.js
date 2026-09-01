@@ -21,6 +21,23 @@ module.exports = function ytRoutes(deps) {
   let ytauth = {running: false, logs: [], channel: null, code: null,
     startedAt: null, finishedAt: null, child: null};
 
+  // ── Auth status cache (30s TTL) — avoid re-running youtube_auth.py on every poll ──
+  const AUTH_CACHE_TTL = 30000;
+  let _authCache = {};
+  let _authCacheTime = {};
+
+  async function getCachedAuthStatus(ch, tokPath) {
+    const now = Date.now();
+    if (_authCache[ch] && (now - (_authCacheTime[ch] || 0)) < AUTH_CACHE_TTL) {
+      return _authCache[ch];
+    }
+    const cap = await ytCapture(['scripts/youtube_auth.py', 'status',
+      '--token', tokPath]);
+    _authCache[ch] = cap;
+    _authCacheTime[ch] = now;
+    return cap;
+  }
+
   // ── Helpers ──
   function ytFileLog(line) {
     try {
@@ -346,8 +363,7 @@ module.exports = function ytRoutes(deps) {
             tokenExists = true;
             hasRefresh = !!raw.refresh_token;
           } catch (_) {}
-          const cap = await ytCapture(['scripts/youtube_auth.py', 'status',
-            '--token', tokPath]);
+          const cap = await getCachedAuthStatus(ch, tokPath);
           const ledger = ytReadLedger(ch);
           let quotaUnits = 0;
           try {

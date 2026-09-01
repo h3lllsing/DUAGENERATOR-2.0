@@ -196,30 +196,40 @@ module.exports = function renderRoutes(deps) {
     });
   }
 
-  async function readStylePreset() {
+  // ── Config cache (5s TTL) — avoid re-reading CFG_PATH on every call ──
+  let _cfgCache = null;
+  let _cfgCacheTime = 0;
+  const CFG_CACHE_TTL = 5000;
+  async function readConfigCached() {
+    const now = Date.now();
+    if (_cfgCache && (now - _cfgCacheTime) < CFG_CACHE_TTL) return _cfgCache;
     try {
-      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
-      return STYLE_PRESETS.includes(c.stylePreset) ? c.stylePreset : 'classic';
-    } catch (_) { return 'classic'; }
+      _cfgCache = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
+      _cfgCacheTime = now;
+      return _cfgCache;
+    } catch (_) {
+      _cfgCache = {};
+      _cfgCacheTime = now;
+      return _cfgCache;
+    }
+  }
+
+  async function readStylePreset() {
+    const c = await readConfigCached();
+    return STYLE_PRESETS.includes(c.stylePreset) ? c.stylePreset : 'classic';
   }
 
   async function readArtFxOverride() {
-    try {
-      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
-      return fxg.ART_SELECT.includes(c.artFx) && c.artFx !== 'auto' ? c.artFx : null;
-    } catch (_) { return null; }
+    const c = await readConfigCached();
+    return fxg.ART_SELECT.includes(c.artFx) && c.artFx !== 'auto' ? c.artFx : null;
   }
   async function readSkyFxOverride() {
-    try {
-      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
-      return fxg.SKY_SELECT.includes(c.skyFx) && c.skyFx !== 'auto' ? c.skyFx : null;
-    } catch (_) { return null; }
+    const c = await readConfigCached();
+    return fxg.SKY_SELECT.includes(c.skyFx) && c.skyFx !== 'auto' ? c.skyFx : null;
   }
   async function readBorderFxOverride() {
-    try {
-      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
-      return fxg.BORDER_SELECT.includes(c.borderFx) && c.borderFx !== 'auto' ? c.borderFx : null;
-    } catch (_) { return null; }
+    const c = await readConfigCached();
+    return fxg.BORDER_SELECT.includes(c.borderFx) && c.borderFx !== 'auto' ? c.borderFx : null;
   }
 
   function lookPathFor(duaId) {
@@ -227,10 +237,8 @@ module.exports = function renderRoutes(deps) {
   }
 
   async function readLookMode() {
-    try {
-      const c = JSON.parse(await F.readFile(CFG_PATH, 'utf8'));
-      return c.lookMode === 'signature' ? 'signature' : 'random';
-    } catch (_) { return 'random'; }
+    const c = await readConfigCached();
+    return c.lookMode === 'signature' ? 'signature' : 'random';
   }
 
   async function ensureLookSpec(duaId, dua) {
