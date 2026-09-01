@@ -198,6 +198,60 @@ class TTSEngine:
         return False
 
     @staticmethod
+    def generate_both(ar_text, ur_text, ar_output, ur_output,
+                      ar_timing=None, ur_timing=None,
+                      ar_voice=None, ur_voice=None):
+        """Generate Arabic + Urdu TTS in parallel (network I/O bound).
+
+        Runs both TTS calls concurrently using asyncio, then returns
+        (ar_ok, ur_ok) tuple. Each side retries independently.
+
+        Returns:
+            tuple: (ar_success: bool, ur_success: bool)
+        """
+        ar_prosody = TTSEngine.PROSODY.get('ar', {})
+        ur_prosody = TTSEngine.PROSODY.get('ur', {})
+        ar_v = (ar_voice or "").strip() or TTSEngine.VOICES['ar']
+        ur_v = (ur_voice or "").strip() or TTSEngine.VOICES['ur']
+
+        os.makedirs(os.path.dirname(os.path.abspath(ar_output)), exist_ok=True)
+        os.makedirs(os.path.dirname(os.path.abspath(ur_output)), exist_ok=True)
+
+        async def _parallel():
+            ar_task = TTSEngine._async_generate(
+                ar_text, ar_v, ar_output, ar_timing,
+                ar_prosody.get('rate'), ar_prosody.get('pitch'))
+            ur_task = TTSEngine._async_generate(
+                ur_text, ur_v, ur_output, ur_timing,
+                ur_prosody.get('rate'), ur_prosody.get('pitch'))
+            return await asyncio.gather(ar_task, ur_task,
+                                        return_exceptions=True)
+
+        for attempt in range(TTSEngine.MAX_RETRIES):
+            try:
+                results = asyncio.run(_parallel())
+                ar_ok = results[0] is True
+                ur_ok = results[1] is True
+                if ar_ok and ur_ok:
+                    return (True, True)
+                # Partial success — don't retry the succeeded side
+                if attempt < TTSEngine.MAX_RETRIES - 1:
+                    delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
+                    logger.info(f"Parallel TTS attempt {attempt+1} partial "
+                                f"(ar={ar_ok}, ur={ur_ok}), retry in {delay}s...")
+                    time.sleep(delay)
+                else:
+                    return (ar_ok, ur_ok)
+            except Exception as e:
+                logger.error(f"Parallel TTS attempt {attempt+1}: {e}")
+                if attempt < TTSEngine.MAX_RETRIES - 1:
+                    delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
+                    time.sleep(delay)
+
+        logger.error(f"All {TTSEngine.MAX_RETRIES} parallel TTS attempts failed")
+        return (False, False)
+
+    @staticmethod
     def parse_word_boundaries(timing_path: str) -> List[dict]:
         """
         Parse an edge-tts WordBoundary JSONL sidecar into a structured list.

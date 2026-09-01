@@ -104,18 +104,30 @@ def main(dua_id, force=False, only=None):
     need_ar = only in (None, "ar")
     need_ur = only in (None, "ur")
 
-    if need_ar:
-        print("[1/3] Arabic TTS (voice: {})...".format(
-            dua.get("voice_arabic") or "default Hamed"))
-        if not tts.generate_audio(ar_text, "ar", ar, timing_path=ar_t,
-                                  voice=dua.get("voice_arabic")):
+    if need_ar or need_ur:
+        ar_voice = dua.get("voice_arabic") if need_ar else None
+        ur_voice = dua.get("voice_urdu") if need_ur else None
+        print("[1/3] TTS (parallel, ar_voice={}, ur_voice={})...".format(
+            ar_voice or "default Hamed", ur_voice or "default Asad"))
+
+        if need_ar and need_ur:
+            ar_ok, ur_ok = tts.generate_both(
+                ar_text, ur_text, ar, ur,
+                ar_timing=ar_t, ur_timing=ur_t,
+                ar_voice=ar_voice, ur_voice=ur_voice)
+        elif need_ar:
+            ar_ok = tts.generate_audio(ar_text, "ar", ar, timing_path=ar_t,
+                                       voice=ar_voice)
+            ur_ok = True
+        else:
+            ar_ok = True
+            ur_ok = tts.generate_audio(ur_text, "ur", ur, timing_path=ur_t,
+                                       voice=ur_voice)
+
+        if not ar_ok:
             print("ERROR: arabic tts failed")
             return 1
-    if need_ur:
-        print("[1/3] Urdu TTS (voice: {})...".format(
-            dua.get("voice_urdu") or "default Asad"))
-        if not tts.generate_audio(ur_text, "ur", ur, timing_path=ur_t,
-                                  voice=dua.get("voice_urdu")):
+        if not ur_ok:
             print("ERROR: urdu tts failed")
             return 1
 

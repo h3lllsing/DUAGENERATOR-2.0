@@ -334,15 +334,17 @@ class DuaVideoPipeline:
         logger.info(f"Arabic voice : {ar_voice}")
         logger.info(f"Urdu voice   : {ur_voice}")
 
-        if not self.tts.generate_audio(arabic_text, 'ar', ar_audio,
-                                       timing_path=ar_timing, voice=ar_voice):
+        ar_ok, ur_ok = self.tts.generate_both(
+            arabic_text, urdu_text, ar_audio, ur_audio,
+            ar_timing=ar_timing, ur_timing=ur_timing,
+            ar_voice=ar_voice, ur_voice=ur_voice)
+        if not ar_ok:
             logger.error("Failed to generate Arabic TTS.")
             return False
-        if not self.tts.generate_audio(urdu_text, 'ur', ur_audio,
-                                       timing_path=ur_timing, voice=ur_voice):
+        if not ur_ok:
             logger.error("Failed to generate Urdu TTS.")
             return False
-        logger.info("[1/5] TTS Generated.")
+        logger.info("[1/5] TTS Generated (parallel).")
         if self._cancel_requested:
             logger.info("Generation cancelled by user.")
             return False
@@ -513,13 +515,16 @@ class DuaVideoPipeline:
                              category, ar_audio, ur_audio, ar_timing, ur_timing,
                              start_time):
         
-        if not self.tts.generate_audio(arabic_text, 'ar', ar_audio, timing_path=ar_timing):
+        ar_ok, ur_ok = self.tts.generate_both(
+            arabic_text, urdu_text, ar_audio, ur_audio,
+            ar_timing=ar_timing, ur_timing=ur_timing)
+        if not ar_ok:
             logger.error("Failed to generate Arabic TTS.")
             return False
-        if not self.tts.generate_audio(urdu_text, 'ur', ur_audio, timing_path=ur_timing):
+        if not ur_ok:
             logger.error("Failed to generate Urdu TTS.")
             return False
-        logger.info("[1/5] TTS Generated.")
+        logger.info("[1/5] TTS Generated (parallel).")
         
         # Merge Audio + apply VIDEO-002 duration policy (15-25s, padded hold)
         logger.info("[2/5] Merging Audio...")
