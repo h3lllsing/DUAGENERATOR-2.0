@@ -16,6 +16,51 @@ module.exports = function vfxRoutes(deps) {
   const customVfx = require('../custom-vfx');
   const {err, parseJson, routeCatch, exists: existsFn} = require('./utils');
 
+  // ── Preview cache (fingerprint-based) ──
+  const previewCache = new Map(); // fp -> {url, ts}
+  const PREVIEW_CACHE_TTL = 300000; // 5 min
+  const PREVIEW_CACHE_MAX = 100;
+
+  function previewFingerprint(duaId, patternId, frameNo, theme, overrides) {
+    const key = [duaId, patternId || '', frameNo, theme,
+      JSON.stringify(overrides || {})].join('|');
+    return crypto.createHash('md5').update(key).digest('hex').slice(0, 16);
+  }
+
+  function getCachedPreview(fp) {
+    const e = previewCache.get(fp);
+    if (!e) return null;
+    if (Date.now() - e.ts > PREVIEW_CACHE_TTL) { previewCache.delete(fp); return null; }
+    return e;
+  }
+
+  function setCachedPreview(fp, url) {
+    if (previewCache.size >= PREVIEW_CACHE_MAX) {
+      const oldest = previewCache.keys().next().value;
+      previewCache.delete(oldest);
+    }
+    previewCache.set(fp, {url, ts: Date.now()});
+  }
+
+  // ── Concurrency limit for preview renders ──
+  const PREVIEW_MAX_CONCURRENT = 2;
+  let previewRunning = 0;
+  const previewQueue = [];
+
+  function previewAcquire() {
+    return new Promise((resolve) => {
+      const tryRun = () => {
+        if (previewRunning < PREVIEW_MAX_CONCURRENT) {
+          previewRunning++;
+          resolve({release: () => { previewRunning--; if (previewQueue.length) previewQueue.shift()(); }});
+        } else {
+          previewQueue.push(tryRun);
+        }
+      };
+      tryRun();
+    });
+  }
+
   // ── read body (promise), cap 1MB, graceful 413 ──
   function readBody(req, res) {
     return new Promise((resolve, reject) => {
@@ -238,31 +283,48 @@ module.exports = function vfxRoutes(deps) {
             }
           }
 
-          const stamp = Date.now();
-          const props = path.join(TEMP, 'vfx_preview_' + duaId + '_' + stamp + '.json');
-          await F.writeFile(props, JSON.stringify({lookSpec: look}), 'utf8');
-
-          const compId = duaId.replace(/_/g, '-');
-          const itemType = patternId ? patternId : (f.themeItem ? 'theme' : (f.typographyItem ? 'typography' : (f.motionItem ? 'motion' : 'audio')));
-          const name = 'vfx-p-' + itemType + '-' + duaId + '-f' + frameNo + '-' + stamp + '.png';
-          await F.mkdir(path.join(OUT, 'previews'), {recursive: true});
-          const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
-          const code = await runStill(process.execPath, [
-            cli, 'still', compId, 'out/previews/' + name,
-            '--frame=' + frameNo, '--browser-executable=' + CHROME,
-            '--log=error', '--props=' + props,
-          ]);
-          try { await F.rm(props, {force: true}); } catch (_) {}
-
-          if (code !== 0) {
-            throw err(502, 'preview render fail (exit ' + code +
-              ') — dua ka manifest/audio present hona chahiye');
+          // Check fingerprint cache first
+          const fp = previewFingerprint(duaId, patternId, frameNo, theme, overrides);
+          const cached = getCachedPreview(fp);
+          if (cached && await exists(path.join(OUT, 'previews', path.basename(cached.url)))) {
+            return send(res, 200, JSON.stringify({ok: true,
+              url: cached.url, patternId: patternId || null,
+              duaId, frame: frameNo, theme, cached: true,
+              exists: true}));
           }
-          await F.rm(path.join(TEMP, 'vfx_preview_' + duaId + '_' + stamp + '.json'), {force: true}).catch(() => {});
-          send(res, 200, JSON.stringify({ok: true,
-            url: '/vfx-preview/' + name, patternId: patternId || null,
-            duaId, frame: frameNo, theme,
-            exists: await exists(path.join(OUT, 'previews', name))}));
+
+          // Acquire concurrency slot
+          const lock = await previewAcquire();
+          try {
+            const stamp = Date.now();
+            const props = path.join(TEMP, 'vfx_preview_' + duaId + '_' + stamp + '.json');
+            await F.writeFile(props, JSON.stringify({lookSpec: look}), 'utf8');
+
+            const compId = duaId.replace(/_/g, '-');
+            const itemType = patternId ? patternId : (f.themeItem ? 'theme' : (f.typographyItem ? 'typography' : (f.motionItem ? 'motion' : 'audio')));
+            const name = 'vfx-p-' + itemType + '-' + duaId + '-f' + frameNo + '-' + stamp + '.png';
+            await F.mkdir(path.join(OUT, 'previews'), {recursive: true});
+            const cli = path.join(REMOTION, 'node_modules', '@remotion', 'cli', 'remotion-cli.js');
+            const code = await runStill(process.execPath, [
+              cli, 'still', compId, 'out/previews/' + name,
+              '--frame=' + frameNo, '--browser-executable=' + CHROME,
+              '--log=error', '--props=' + props,
+            ]);
+            try { await F.rm(props, {force: true}); } catch (_) {}
+
+            if (code !== 0) {
+              throw err(502, 'preview render fail (exit ' + code +
+                ') — dua ka manifest/audio present hona chahiye');
+            }
+            const previewUrl = '/vfx-preview/' + name;
+            setCachedPreview(fp, previewUrl);
+            send(res, 200, JSON.stringify({ok: true,
+              url: previewUrl, patternId: patternId || null,
+              duaId, frame: frameNo, theme,
+              exists: await exists(path.join(OUT, 'previews', name))}));
+          } finally {
+            lock.release();
+          }
         });
       }, () => {});
       return true;
@@ -276,6 +338,39 @@ module.exports = function vfxRoutes(deps) {
       if (!fs.existsSync(file)) return send(res, 404, 'not found', 'text/plain');
       res.writeHead(200, {'Content-Type': 'image/png', 'Cache-Control': 'no-store'});
       fs.createReadStream(file).pipe(res);
+      return true;
+    }
+
+    // ── GET /api/vfx/weights ──
+    if (method === 'GET' && p === '/api/vfx/weights') {
+      routeCatch(res, async () => {
+        const wPath = path.join(PROJECT, 'data', 'vfx_weights.json');
+        let weights = {};
+        try { weights = JSON.parse((await F.readFile(wPath, 'utf8'))); } catch (_) {}
+        send(res, 200, JSON.stringify({ok: true, weights}));
+      });
+      return true;
+    }
+
+    // ── POST /api/vfx/weights ──
+    if (method === 'POST' && p === '/api/vfx/weights') {
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'vfx/weights');
+          const weights = {};
+          const validKeys = ['neon_glow', 'metallic_gold', 'typewriter', 'wave',
+            'glitch', 'vignette', 'grain', 'breathing', 'gold_shimmer',
+            'rtl_reveal', 'word_pulse'];
+          for (const [k, v] of Object.entries(f.weights || {})) {
+            if (validKeys.includes(k) && typeof v === 'number' && v >= 0 && v <= 10) {
+              weights[k] = Math.round(v * 10) / 10;
+            }
+          }
+          const wPath = path.join(PROJECT, 'data', 'vfx_weights.json');
+          await F.writeFile(wPath, JSON.stringify(weights, null, 2), 'utf8');
+          send(res, 200, JSON.stringify({ok: true, weights}));
+        });
+      }, () => {});
       return true;
     }
 
