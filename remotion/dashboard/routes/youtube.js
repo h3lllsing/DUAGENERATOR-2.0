@@ -22,11 +22,21 @@ module.exports = function ytRoutes(deps) {
     startedAt: null, finishedAt: null, child: null};
 
   // ── Helpers ──
+  function ytFileLog(line) {
+    try {
+      const p = path.join(PROJECT, 'data', 'upload_log.txt');
+      fs.appendFileSync(p,
+        new Date().toISOString().replace('T', ' ').slice(0, 19) +
+        '  ' + line + '\n');
+    } catch (_) {}
+  }
+
   function ytLog(line) {
     const ts = new Date().toLocaleTimeString();
     ytJob.logs.push('[' + ts + '] ' + line);
     if (ytJob.logs.length > 400) ytJob.logs.splice(0, ytJob.logs.length - 400);
     console.log('[YT] ' + line);
+    ytFileLog('[YT] ' + line);
   }
 
   function ytTokenPath(ch) {
@@ -462,26 +472,33 @@ module.exports = function ytRoutes(deps) {
     // ── POST /api/youtube/upload ──
     if (method === 'POST' && p === '/api/youtube/upload') {
       const now = Date.now();
+      ytFileLog('>> UPLOAD POST received' +
+        (now - (ytLastUploadReq || 0) < 5000
+          ? ' (within cooldown)' : ''));
       if (now - (ytLastUploadReq || 0) < 5000) {
         return send(res, 429, JSON.stringify({ok: false,
           error: 'thoda ruk kar koshish karein (5s cooldown)'}));
       }
       ytLastUploadReq = now;
       readBody(req, res, (body) => {
+        ytFileLog('   body: ' + body.slice(0, 300));
         try {
           const f = JSON.parse(body || '{}');
           const channel = String(f.channel || '');
           const privacy = String(f.privacy || 'unlisted');
           const mode = String(f.mode || 'dry-run');
           if (!/^channel[12]$/.test(channel)) {
+            ytFileLog('   ERROR: bad channel=' + channel);
             return send(res, 400, JSON.stringify({ok: false,
               error: 'channel channel1 ya channel2 hona chahiye'}));
           }
           if (['private', 'public', 'unlisted'].indexOf(privacy) < 0) {
+            ytFileLog('   ERROR: bad privacy=' + privacy);
             return send(res, 400, JSON.stringify({ok: false,
               error: 'privacy invalid'}));
           }
           if (['live', 'dry-run'].indexOf(mode) < 0) {
+            ytFileLog('   ERROR: bad mode=' + mode);
             return send(res, 400, JSON.stringify({ok: false,
               error: 'mode live ya dry-run hona chahiye'}));
           }
@@ -497,12 +514,14 @@ module.exports = function ytRoutes(deps) {
               if (only.length >= 6) break;
             }
             if (bad) {
+              ytFileLog('   ERROR: ' + bad + ' bad ids');
               return send(res, 400, JSON.stringify({ok: false,
                 error: bad + ' selectedDuas invalid id format me hain '
                   + '(sirf a-z 0-9 _ allowed)'}));
             }
           }
           if (!only || !only.length) {
+            ytFileLog('   ERROR: no selectedDuas given');
             return send(res, 400, JSON.stringify({ok: false,
               error: 'selectedDuas zaroori hai - 1 se 6 duas choose karo '
                 + '(auto picking band hai)'}));
@@ -512,12 +531,15 @@ module.exports = function ytRoutes(deps) {
               return ytAllUploadedIds().indexOf(id) >= 0;
             });
             if (alreadyUploaded.length) {
+              ytFileLog('   ERROR: already uploaded: ' + alreadyUploaded.join(','));
               return send(res, 409, JSON.stringify({ok: false,
                 error: alreadyUploaded.length + ' video(s) pehle upload ho '
                   + 'chuki hain: ' + alreadyUploaded.join(', ')
                   + ' — Re-upload ke liye pehle ledger se hatao.'}));
             }
           }
+          ytFileLog('   -> start: ch=' + channel + ' mode=' + mode +
+            ' privacy=' + privacy + ' only=' + only.join(','));
           const r = ytStartUploadJob({channel, privacy, mode, only});
           if (!r.ok) return send(res, r.error.indexOf('chal raha') >= 0
             ? 409 : 400, JSON.stringify(r));

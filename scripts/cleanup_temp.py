@@ -79,15 +79,9 @@ def main():
                     except OSError:
                         pass
         # (b) id-based thumbnail (genThumb writes out/thumbs/{id}.png)
-        thumb_id = os.path.join(THUMBS, dua_id + ".png")
-        if os.path.exists(thumb_id):
-            freed[0] += os.path.getsize(thumb_id)
-            deleted[0] += 1
-            if not args.dry_run:
-                try:
-                    os.remove(thumb_id)
-                except OSError:
-                    pass
+        # KEPT: thumbnails are required by the upload ready-check
+        # (upload.py -> "no thumb" skip). They are NOT regenerated on
+        # server restart, so deleting them here breaks uploads.
         # (c) background asset copied to public/backgrounds/{id}.{ext}
         bg_pfx = os.path.join(BACKGROUNDS, dua_id + ".")
         if os.path.isdir(BACKGROUNDS):

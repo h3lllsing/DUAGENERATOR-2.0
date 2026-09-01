@@ -346,6 +346,23 @@ function ytPickReset(){
   ytRenderPicker();
   toast('Selection clear ho gayi - dobara 1-6 duas chuno','ok');
 }
+function cardYtToggle(id){
+  if(ytSel[id]){
+    delete ytSel[id];
+    ytUpdateCount();
+    ytRenderPicker();
+    lastGridKey=''; render();
+    toast('Selection hat gayi: '+id,'ok');
+    return;
+  }
+  if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!confirm('Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
+  if(Object.keys(ytSel).length>=6){toast('Max 6 videos ek run me select kar sakte ho','err');return;}
+  ytSel[id]=true;
+  ytUpdateCount();
+  ytRenderPicker();
+  lastGridKey=''; render();
+  toast('Select ho gayi - YouTube me already selected dikhegi','ok');
+}
 function quickUpload(id){
   if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!confirm('Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
   if(!ytSel[id]){
@@ -414,18 +431,44 @@ function render(){
     const thumb=d.thumbFile
       ?'<img class="card-thumb" src="/thumb/'+encodeURIComponent(d.thumbFile)+'" loading="lazy" '+(vid?'onclick="openPlayer(\''+encodeURIComponent(vid)+'\')" style="cursor:pointer"':'')+' >'
       :'<div class="card-thumb" style="display:flex;align-items:center;justify-content:center;color:#39445a;font-size:18px">&#9654;</div>';
-    el.innerHTML=thumb
+    const ytOn=!!ytSel[d.id];
+    const upIds=window.ytUploadedIds||[];
+    const isUp=upIds.indexOf(d.id)>=0;
+    const ref=String(d.reference||'').trim();
+    el.innerHTML=
+      '<div class="card-tt thumb">'
+      + (isUp?'<span class="up-badge">&#10003;&#65039; Uploaded</span>':'')
+      + (thumb?thumb:'<div class="card-thumb ph"><span>&#9654;</span></div>')
+      +'</div>'
       +'<div class="card-body">'
-        +'<div class="card-ref">'+(d.reference||'&nbsp;')+'</div>'
-        +'<div class="card-title">'+escHtml(d.title)+'</div>'
+        +(ref?'<div class="card-ref" title="'+escHtml(ref)+'">'+escHtml(ref)+'</div>':'')
+        +'<div class="card-title" title="'+escHtml(d.title)+'">'+escHtml(d.title)+'</div>'
         +'<div class="card-meta">'
           +(vid?'<span class="b ok">Done</span>':(d.audioReady?'<span class="b warn">Pending</span>':'<span class="b no">No Audio</span>'))
           +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
+          +(d.category?'<span class="b cat">'+escHtml(d.category)+'</span>':'')
+          +(isUp?'<span class="b up">&#10003; Uploaded</span>':'')
         +'</div>'
       +'</div>'
       +'<div class="card-actions">'
+        +(ytOn?'<button class="btn-icon sel" title="YouTube me selected - hatao" onclick="cardYtToggle(\''+d.id+'\')">&#10003;</button>'
+             :'<button class="btn-icon'+(isUp?' upi':'')+'" title="'+(isUp?'Ye pehle upload ho chuki hai':'YouTube ke liye select karo')+'" onclick="cardYtToggle(\''+d.id+'\')">'+ (isUp?'&#9679;':'&#9711;') +'</button>')
+        +'<button class="btn-icon del" title="Hamesha ke liye delete" onclick="delDua(\''+d.id+'\')">&#128465;</button>'
+        +'<div class="spacer"></div>'
         +(vid?'<button class="btn-play" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')">PLAY</button>'
           :'<button class="btn-render" '+(busy?'disabled':'')+' onclick="startRender(\''+d.id+'\')">'+(d.audioReady?'Render':'TTS')+'</button>')
+      +'</div>'
+      +'<div class="card-pop">'
+        +(ref?'<div class="cpop-ref">'+escHtml(ref)+'</div>':'')
+        +'<div class="cpop-title">'+escHtml(d.title)+'</div>'
+        +(d.arabic?'<div class="cpop-arabic">'+escHtml(d.arabic)+'</div>':'')
+        +(d.urdu?'<div class="cpop-urdu">'+escHtml(d.urdu)+'</div>':'')
+        +(d.explanation?'<div class="cpop-exp">'+escHtml(d.explanation)+'</div>':'')
+        +'<div class="cpop-meta">'
+          +(vid?'<span class="b ok">Done</span>':(d.audioReady?'<span class="b warn">Pending</span>':'<span class="b no">No Audio</span>'))
+          +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
+          +(d.category?'<span class="b cat">'+escHtml(d.category)+'</span>':'')
+        +'</div>'
       +'</div>';
     frag.appendChild(el);
   });
@@ -1090,10 +1133,10 @@ function applyDua(o){
 }
 async function delDua(id){
   const d=duas.find(x=>x.id===id); if(!d)return;
-  if(!confirm('"'+d.title+'" delete karein?\n(list se hat jayegi - audio/video files rahengi)'))return;
+  if(!confirm('"'+d.title+'" HAMESHA KE LIYE delete karein?\nSab kuch mit jayega: audio, video mp4, thumbnail, temp files, aur data. Kya sure ho?'))return;
   const r=await fetch('/api/delete-dua',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
   const j=await r.json();
-  if(j.ok){toast('\uD83D\uDDD1\uFE0F Deleted: '+d.title,'ok'); lastGridKey=''; load();}
+  if(j.ok){toast('\uD83D\uDDD1\uFE0F Deleted: '+d.title+' (sab files remove)','ok'); lastGridKey=''; load();}
   else toast(j.error||'Delete fail','err');
 }
 function closeForm(){ document.getElementById('modalbg').classList.remove('show'); }

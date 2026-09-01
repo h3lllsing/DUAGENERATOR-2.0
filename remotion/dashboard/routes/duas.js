@@ -253,9 +253,12 @@ module.exports = function duaRoutes(deps) {
         const t = safeTitle(target.title);
         await Promise.all([path.join(OUT, t + '.mp4'),
           path.join(OUT, t + '.txt'),
-          path.join(OUT, 'thumbs', t + '.png')].map((fp) =>
+          path.join(OUT, 'thumbs', t + '.png'),
+          path.join(OUT, 'thumbs', id + '.png')].map((fp) =>
           F.rm(fp, {force: true}).catch(() => {})));
       }
+      // remove id-based thumb when no title target (id + '.png')
+      await F.rm(path.join(OUT, 'thumbs', id + '.png'), {force: true}).catch(() => {});
       delete cacheStore[id]; saveCache();
       delete qcStore[id]; saveQc();
     } catch (e) { log('cleanup warning: ' + e.message); }
