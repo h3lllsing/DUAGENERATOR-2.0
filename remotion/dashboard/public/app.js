@@ -1500,7 +1500,7 @@ async function saveDua(){
   }
   else { setMsg(j.error||'Error','err'); ensureDedupAlert(); checkDedupLive(); }
 }
-poll(); _startPolling();
+poll();
 var _pollIntervals=[3000,15000];
 var _pollTimers=[];
 function _startPolling(){
@@ -1512,6 +1512,7 @@ function _stopPolling(){
   _pollTimers.forEach(function(t){clearInterval(t);});
   _pollTimers=[];
 }
+_startPolling();
 document.addEventListener('visibilitychange',function(){
   if(document.hidden){_stopPolling();}
   else{_startPolling();}
