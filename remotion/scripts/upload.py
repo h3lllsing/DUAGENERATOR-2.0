@@ -678,6 +678,7 @@ def main():
                 ledger[item["dua_id"]] = {
                     "status": "uploaded", "video_id": vid,
                     "privacy": args.privacy,
+                    "locked": True,
                     "units_spent": UPLOAD_UNITS,
                     "uploaded_at": time.strftime("%Y-%m-%dT%H:%M:%S")}
                 save_ledger(ledger, ledger_path)

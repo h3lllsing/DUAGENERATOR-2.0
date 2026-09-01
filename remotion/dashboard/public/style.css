@@ -272,6 +272,7 @@ body.expert .aibtn.js-expert{display:inline-flex}
 .btn-render{padding:5px 12px;border-radius:8px;border:0;background:linear-gradient(135deg,#d4af37,#f0d060);color:#0d1015;font-weight:600;cursor:pointer;font-size:12px;transition:filter .15s}
 .btn-render:hover{filter:brightness(1.1)}
 .btn-render:disabled{opacity:.4;cursor:not-allowed}
+.btn-render.uploaded-lock{background:linear-gradient(135deg,#1e7d34,#2ea043);color:#fff;cursor:default;pointer-events:none}
 .btn-icon{width:26px;height:26px;padding:0;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:#11161f;color:#5a6474;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0}
 .btn-icon:hover{background:#1c2333;color:#d4af37}
 .btn-icon.sel{background:linear-gradient(135deg,#2e7d32,#43a047);border:1px solid rgba(255,255,255,.2);color:#fff}

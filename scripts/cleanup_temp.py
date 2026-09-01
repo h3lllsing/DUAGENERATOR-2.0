@@ -29,6 +29,8 @@ THUMBS = os.path.join(OUT, "thumbs")
 PUBLIC_AUDIO = os.path.join(PROJECT, "remotion", "public", "audio")
 BACKGROUNDS = os.path.join(PROJECT, "remotion", "public", "backgrounds")
 DB = os.path.join(PROJECT, "data", "duas.json")
+YT_LEDGER1 = os.path.join(PROJECT, "data", "upload_state_channel1.json")
+YT_LEDGER2 = os.path.join(PROJECT, "data", "upload_state_channel2.json")
 
 # Per-dua junk in temp (only needed to BUILD; free once the MP4 is baked)
 JUNK_EXT = ("_ar.mp3", "_ur.mp3", "_merged.wav",
@@ -39,15 +41,31 @@ JUNK_EXT = ("_ar.mp3", "_ur.mp3", "_merged.wav",
 FIXED_JUNK = ("bg_gate_frame.png",)
 
 
+def _load_locked_ids():
+    """Return set of duaIds that are uploaded (locked) in YouTube ledger."""
+    locked = set()
+    for lp in (YT_LEDGER1, YT_LEDGER2):
+        try:
+            raw = json.load(open(lp, encoding="utf-8-sig"))
+            for dua_id, v in raw.items():
+                if v and v.get("status") == "uploaded":
+                    locked.add(dua_id)
+        except (OSError, ValueError):
+            pass
+    return locked
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
     arr = json.load(open(DB, encoding="utf-8-sig"))
+    locked_ids = _load_locked_ids()
     deleted = [0]
     freed = [0]
     skipped_ids = 0
+    skipped_locked = 0
 
     # 1) Fixed-name leaks (bg_gate_frame.png) â€” always, regardless of render
     for fname in FIXED_JUNK:
@@ -63,6 +81,9 @@ def main():
 
     for d in arr:
         dua_id = d.get("id") or ""
+        if dua_id in locked_ids:
+            skipped_locked += 1
+            continue
         mp4 = os.path.join(OUT, safe_title(d.get("title") or "") + ".mp4")
         if not os.path.exists(mp4):
             skipped_ids += 1
@@ -103,8 +124,9 @@ def main():
               and f.rsplit("_", 1)[0] not in known
               and f not in FIXED_JUNK]
 
-    print("rendered duas      : {}".format(len(arr) - skipped_ids))
+    print("rendered dua       : {}".format(len(arr) - skipped_ids - skipped_locked))
     print("unrendered (kept)  : {}".format(skipped_ids))
+    print("locked/uploaded    : {} (skipped)".format(skipped_locked))
     print("files {}        : {}".format("scanned (would del)" if
           args.dry_run else "deleted", deleted[0]))
     print("space {}           : {:.1f} MB".format(

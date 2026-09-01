@@ -465,7 +465,8 @@ function render(){
         +'<button class="btn-icon del" title="Hamesha ke liye delete" onclick="delDua(\''+d.id+'\')">&#128465;</button>'
         +'<div class="spacer"></div>'
         +(vid?'<button class="btn-play" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')">PLAY</button>'
-          :'<button class="btn-render" '+(busy?'disabled':'')+' onclick="startRender(\''+d.id+'\')">'+(d.audioReady?'Render':'TTS')+'</button>')
+          :(isUp?'<span class="btn-render uploaded-lock" title="Ye dua YouTube pe upload ho chuki hai. TTS dubara banane ki zaroorat nahi.">&#10003; Uploaded</span>'
+            :'<button class="btn-render" '+(busy?'disabled':'')+' onclick="startRender(\''+d.id+'\')">'+(d.audioReady?'Render':'TTS')+'</button>'))
       +'</div>'
       +'<div class="card-pop">'
         +(ref?'<div class="cpop-ref">'+escHtml(ref)+'</div>':'')
