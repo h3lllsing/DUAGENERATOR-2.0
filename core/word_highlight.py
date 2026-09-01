@@ -29,6 +29,8 @@ from collections.abc import Callable
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["normalize_events", "resolve_active_word", "build_word_geometry", "highlight_targets", "make_word_overlay"]
+
 
 Rect = tuple[int, int, int, int]
 

@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 
 from core.project_info import PROJECT
 
+__all__ = ["EffectsEngine"]
+
 
 class EffectsEngine:
     """

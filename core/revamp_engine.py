@@ -7,6 +7,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["RevampEngine"]
+
 # Available effect names (synced with effects_engine.py)
 AVAILABLE_EFFECTS = [
     # Legacy effects

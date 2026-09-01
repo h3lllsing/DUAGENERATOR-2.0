@@ -13,6 +13,8 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["VideoAnalyzer"]
+
 
 class VideoAnalyzer:
     """

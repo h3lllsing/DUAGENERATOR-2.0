@@ -14,6 +14,8 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
+__all__ = ["VaultWriteError", "SecurityManager"]
+
 # Migration-only legacy salt used by vaults created before random-per-installation
 # salts were introduced. Kept permanently so existing legacy vaults stay recoverable.
 LEGACY_SALT = b'dua_video_generator_2026_salt'

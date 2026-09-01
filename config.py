@@ -7,6 +7,15 @@
 import os
 
 # ============================================================
+# CONFIG SCHEMA VERSIONING
+# ============================================================
+# Bump this when config structure changes incompatibly.
+# Consumer code can check CONFIG_SCHEMA_VERSION to decide
+# whether to migrate old data or reject it.
+CONFIG_SCHEMA_VERSION = 2  # v2: added VFX weights, cross-fade, encrypted backups
+CONFIG_VERSION_KEY = "config_schema_version"
+
+# ============================================================
 # BASE PATHS
 # ============================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -19,6 +19,8 @@ import os
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["detect_cpu_cores", "detect_gpu", "pick_backend", "profile_summary", "gaussian_blur"]
+
 
 def detect_cpu_cores() -> int:
     try:

@@ -18,6 +18,8 @@ except Exception:
     logger.debug("config not available, using defaults")
     config = None
 
+__all__ = ["VideoBuilder"]
+
 
 class VideoBuilder:
     """

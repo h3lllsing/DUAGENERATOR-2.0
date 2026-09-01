@@ -56,6 +56,8 @@ try:
 except Exception:
     config = None
 
+__all__ = ["MotionSpec", "TextLayer", "Transition", "Scene", "Timeline", "rect_intersect", "rect_within"]
+
 
 # ----------------------------------------------------------------------
 # Canvas + content-safety geometry

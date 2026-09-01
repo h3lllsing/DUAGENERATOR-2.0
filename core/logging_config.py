@@ -10,6 +10,8 @@ import sys
 
 _initialized = False
 
+__all__ = ["setup_logging"]
+
 
 def setup_logging(level=None, log_file=None):
     global _initialized

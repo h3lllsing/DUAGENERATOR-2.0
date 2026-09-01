@@ -15,6 +15,8 @@ except Exception:
     logger.debug("config not available for audio mixer")
     config = None
 
+__all__ = ["AudioMixer"]
+
 # AUDIO-001: 48 kHz PCM/WAV downstream intermediate (lossless; single AAC at end)
 # PILLAR 2: broadcast retarget - platform anchor -14 LUFS / -1.0 dBTP
 DEFAULT_SAMPLE_RATE = 48000

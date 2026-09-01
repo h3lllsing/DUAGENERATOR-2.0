@@ -24,6 +24,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
 from PIL import Image
 
+__all__ = ["ArabicRenderer", "apply_vertical_gradient", "render_text", "measure_text_width"]
+
 # Arabic-script Unicode blocks (auto RTL detection).
 _ARABIC_BLOCKS = (
     (0x0600, 0x06FF),  # Arabic

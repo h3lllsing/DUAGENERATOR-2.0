@@ -26,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 from core import easing  # noqa: E402
 
+__all__ = ["EffectDirector", "analyze_dua", "premium_palette", "scene_frame_ranges", "word_pulse_events"]
+
 # ----------------------------------------------------------------------
 # Content analysis
 # ----------------------------------------------------------------------

@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["ProjectInfo"]
+
 
 @dataclass
 class ProjectInfo:

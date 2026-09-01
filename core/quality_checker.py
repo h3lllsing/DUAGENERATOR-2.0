@@ -16,6 +16,8 @@ except Exception:
     logger.debug("config not available for quality checker")
     _config = None
 
+__all__ = ["QualityChecker"]
+
 
 class QualityChecker:
     """

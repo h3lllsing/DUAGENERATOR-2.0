@@ -27,6 +27,8 @@ except Exception:
     logger.debug("config not available for asset registry")
     config = None
 
+__all__ = ["BackgroundAsset", "AssetRegistry", "is_video_file", "normalize_license"]
+
 
 # Licenses acceptable for monetization-safe use. Assets with any other
 # license (or none) are NEVER loadable regardless of the approved flag.

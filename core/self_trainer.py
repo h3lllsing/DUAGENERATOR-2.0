@@ -10,6 +10,8 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["SelfTrainer"]
+
 
 class SelfTrainer:
     """

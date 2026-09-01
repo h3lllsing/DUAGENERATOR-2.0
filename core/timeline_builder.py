@@ -34,6 +34,8 @@ try:
 except Exception:
     _config = None
 
+__all__ = ["TimelineBuilder"]
+
 
 class TimelineBuilder:
     """
