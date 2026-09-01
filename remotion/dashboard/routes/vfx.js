@@ -14,7 +14,30 @@ module.exports = function vfxRoutes(deps) {
     fs, path, spawn, process, send, lookspec, themeMap, log} = deps;
   const F = fs.promises;
   const customVfx = require('../custom-vfx');
-  const {err, parseJson, readBody, routeCatch, exists: existsFn} = require('./utils');
+  const {err, parseJson, routeCatch, exists: existsFn} = require('./utils');
+
+  // ── read body (promise), cap 1MB, graceful 413 ──
+  function readBody(req, res) {
+    return new Promise((resolve, reject) => {
+      let body = '';
+      let settled = false;
+      const abort = () => {
+        settled = true;
+        if (!res.headersSent && !res.writableEnded) {
+          send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
+        }
+        try { req.destroy(); } catch (_) {}
+        reject(err(413, 'aborted'));
+      };
+      req.on('data', (c) => {
+        if (body.length > 1e6) return abort();
+        body += c;
+      });
+      req.on('end', () => { if (!settled) { settled = true; resolve(body); } });
+      req.on('error', (e) => { if (!settled) { settled = true; reject(e); } });
+      req.on('close', () => { if (!settled) { settled = true; reject(err(400, 'connection closed')); } });
+    });
+  }
 
   const THEMES = ['dark', 'mosque', 'sunset', 'manuscript', 'emerald',
     'ocean', 'desert', 'royal', 'ramadan', 'eid', 'qadr'];
