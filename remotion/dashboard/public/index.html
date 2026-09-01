@@ -243,39 +243,34 @@
     </div>
 
     <div id="ai_panel_fmt" style="display:none">
-      <div class="aihint" style="margin-bottom:12px">&#9734; Dua ka metadata manually fill karo ya paste karo. Seedha library mein add hoga.</div>
-      <div style="margin-bottom:14px;padding:10px 12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:8px">
-        <div style="font-size:12px;color:#60a5fa;margin-bottom:6px">&#128203; <b>AI Prompt Copy karo</b> — ChatGPT/Gemini ko ye format do:</div>
+      <div class="aihint" style="margin-bottom:12px">&#9734; AI se copy kiya hua JSON yahan paste karo — sab fields auto-fill ho jayenge.</div>
+      <div style="margin-bottom:12px;padding:10px 12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.25);border-radius:8px">
+        <div style="font-size:12px;color:#60a5fa;margin-bottom:6px">&#128203; <b>Step 1:</b> AI Prompt format copy karo → ChatGPT/Gemini mein paste karo → JSON wapas yahan paste karo</div>
         <button class="chip" onclick="copyFmtPrompt()" style="background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.4);color:#60a5fa;font-size:11px">&#128203; COPY FORMAT TO CLIPBOARD</button>
         <div id="fmt_copy_msg" style="font-size:11px;color:#5a6474;margin-top:4px;display:none"></div>
       </div>
-      <label>Title (Roman Urdu) *</label>
-      <input id="fmt_title" placeholder="e.g. Safar Ki Dua">
-      <label>Arabic Text * <span style="color:#5a6474">(harakat ke sath)</span></label>
-      <textarea id="fmt_arabic" class="ar" dir="rtl" rows="3" style="min-height:60px" placeholder="&#1575;&#1604;&#1604;&#1617;&#1607;&#1615;&#1605;&#1617;&#1614;..."></textarea>
-      <label>Urdu Tarjuma *</label>
-      <textarea id="fmt_urdu" class="ar" dir="rtl" rows="3" style="min-height:60px" placeholder="&#1575;&#1746; &#1575;&#1604;&#1604;&#1729;..."></textarea>
-      <label>Reference</label>
-      <input id="fmt_ref" placeholder="e.g. Sahih Bukhari 1234">
-      <div class="mrow">
-        <div><label>Category</label>
-          <select id="fmt_category">
-            <option value="general">general</option><option value="sleep">sleep</option>
-            <option value="food">food</option><option value="travel">travel</option>
-            <option value="prayer">prayer</option><option value="morning">morning</option>
-            <option value="evening">evening</option><option value="bathroom">bathroom</option>
-            <option value="protection">protection</option><option value="rizq">rizq</option>
-            <option value="forgiveness">forgiveness</option><option value="morning_evening">morning_evening</option>
-            <option value="guidance">guidance</option><option value="health">health</option>
-            <option value="anxiety_relief">anxiety_relief</option><option value="gratitude">gratitude</option>
-            <option value="family">family</option><option value="occasions">occasions</option>
-          </select></div>
-        <div><label>Explanation (optional)</label>
-          <input id="fmt_explanation" placeholder="1-2 line Urdu mein"></div>
+      <label>AI se mila JSON paste karo *</label>
+      <textarea id="fmt_json" rows="8" style="min-height:120px;font-size:12px;line-height:1.6;background:#080c14;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px;color:#c9d1d9;resize:vertical;font-family:monospace" placeholder='[{"title":"Safar Ki Dua","arabic":"اللَّهُمَّ...","urdu":"اے اللہ!...","reference":"Sahih Bukhari 1234","category":"travel"}]' oninput="parseFmtJson()"></textarea>
+      <div id="fmt_parsed" style="display:none;margin-top:8px;padding:8px 10px;background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.25);border-radius:8px;font-size:12px;color:#3fb950">
+        &#10003; <b id="fmt_parsed_msg">Parsed!</b>
+      </div>
+      <div id="fmt_fields" style="display:none;margin-top:12px">
+        <div class="mrow">
+          <div><label>Title</label><input id="fmt_title" readonly></div>
+          <div><label>Category</label><input id="fmt_category" readonly></div>
+        </div>
+        <label>Arabic</label>
+        <textarea id="fmt_arabic" class="ar" dir="rtl" rows="2" readonly style="min-height:40px"></textarea>
+        <label>Urdu</label>
+        <textarea id="fmt_urdu" class="ar" dir="rtl" rows="2" readonly style="min-height:40px"></textarea>
+        <div class="mrow">
+          <div><label>Reference</label><input id="fmt_ref" readonly></div>
+          <div><label>Explanation</label><input id="fmt_explanation" readonly></div>
+        </div>
       </div>
       <div class="mbtns" style="margin-top:14px">
         <button class="btn-cancel" onclick="closeAiImport()">Cancel</button>
-        <button class="btn-save" id="ai_fmt_btn" onclick="aiFormatSave()">&#10003; SAVE TO LIBRARY</button>
+        <button class="btn-save" id="ai_fmt_btn" onclick="aiFormatSave()" disabled>&#10003; SAVE TO LIBRARY</button>
       </div>
     </div>
 

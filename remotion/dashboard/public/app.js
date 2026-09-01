@@ -1691,35 +1691,63 @@ async function aiImport(){
   }catch(e){setMsg2('aiimportmsg','Network error: '+e.message,'err');}
   btn.disabled=false;btn.textContent='\u{1F916} GENERATE + ADD';
 }
+function parseFmtJson(){
+  var el=document.getElementById('fmt_json');
+  var parsed=document.getElementById('fmt_parsed');
+  var fields=document.getElementById('fmt_fields');
+  var btn=document.getElementById('ai_fmt_btn');
+  var raw=el.value.trim();
+  if(!raw){parsed.style.display='none';fields.style.display='none';btn.disabled=true;return;}
+  try{
+    var data=JSON.parse(raw);
+    if(!Array.isArray(data))data=[data];
+    var d=data[0];
+    if(!d||(!d.title&&!d.arabic&&!d.urdu))throw new Error('Invalid');
+    document.getElementById('fmt_title').value=d.title||'';
+    document.getElementById('fmt_arabic').value=d.arabic||'';
+    document.getElementById('fmt_urdu').value=d.urdu||'';
+    document.getElementById('fmt_ref').value=d.reference||'';
+    document.getElementById('fmt_category').value=d.category||'general';
+    document.getElementById('fmt_explanation').value=d.explanation||'';
+    document.getElementById('fmt_parsed_msg').textContent='Parsed! '+data.length+' dua(s) found';
+    parsed.style.display='block';fields.style.display='block';btn.disabled=false;
+  }catch(e){
+    parsed.style.display='none';fields.style.display='none';btn.disabled=true;
+  }
+}
+var _fmtSaveDuas=[];
 async function aiFormatSave(){
   var btn=document.getElementById('ai_fmt_btn');
   var msg=document.getElementById('aiimportmsg');
-  var title=document.getElementById('fmt_title').value.trim();
-  var arabic=document.getElementById('fmt_arabic').value.trim();
-  var urdu=document.getElementById('fmt_urdu').value.trim();
-  var ref=document.getElementById('fmt_ref').value.trim();
-  var cat=document.getElementById('fmt_category').value;
-  var exp=document.getElementById('fmt_explanation').value.trim();
-  if(!title||!arabic||!urdu)return setMsg2('aiimportmsg','Title, Arabic, aur Urdu zaroori hain','err');
-  if(!confirm('Dua library mein add karein?\n\nTitle: '+title+'\nArabic: '+arabic.substring(0,50)+'...'))return;
+  var raw=document.getElementById('fmt_json').value.trim();
+  if(!raw)return setMsg2('aiimportmsg','JSON paste karo pehle','err');
+  var data;
+  try{data=JSON.parse(raw);if(!Array.isArray(data))data=[data];}catch(e){return setMsg2('aiimportmsg','JSON valid nahi hai','err');}
+  if(!data.length)return setMsg2('aiimportmsg','JSON mein koi dua nahi hai','err');
+  var titles=data.map(function(d){return d.title||d.id||'?';}).join(', ');
+  if(!confirm(data.length+' dua(s) library mein add karein?\n\n'+titles))return;
   btn.disabled=true;btn.textContent='Saving...';
-  setMsg2('aiimportmsg','Dua add ho raha hai...','warn');
-  try{
-    var body={title:title,arabic:arabic,urdu:urdu,reference:ref,category:cat,explanation:exp,bismillah:true,template:'dark',voiceArabic:'ar-SA-HamedNeural',voiceUrdu:'ur-PK-AsadNeural'};
-    var r=await fetch('/api/add-dua',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    var j=await r.json();
-    if(j.ok){
-      setMsg2('aiimportmsg','Dua add ho gayi: '+j.id,'ok');
-      document.getElementById('fmt_title').value='';
-      document.getElementById('fmt_arabic').value='';
-      document.getElementById('fmt_urdu').value='';
-      document.getElementById('fmt_ref').value='';
-      document.getElementById('fmt_explanation').value='';
-      load();
-    }else{
-      setMsg2('aiimportmsg',j.error||'Add nahi ho paya','err');
-    }
-  }catch(e){setMsg2('aiimportmsg','Network error: '+e.message,'err');}
+  setMsg2('aiimportmsg',data.length+' dua add ho rahi hain...','warn');
+  var added=0;var errors=[];
+  for(var i=0;i<data.length;i++){
+    var d=data[i];
+    try{
+      var body={title:d.title||'',arabic:d.arabic||'',urdu:d.urdu||'',reference:d.reference||'',category:d.category||'general',explanation:d.explanation||'',bismillah:true,template:'dark',voiceArabic:'ar-SA-HamedNeural',voiceUrdu:'ur-PK-AsadNeural'};
+      var r=await fetch('/api/add-dua',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      var j=await r.json();
+      if(j.ok)added++;else errors.push(d.title+': '+(j.error||'fail'));
+    }catch(e){errors.push(d.title+': network error');}
+  }
+  if(added>0){
+    setMsg2('aiimportmsg',added+' dua(s) add ho gayin!'+(errors.length?' ('+errors.length+' fail)':''),'ok');
+    document.getElementById('fmt_json').value='';
+    document.getElementById('fmt_parsed').style.display='none';
+    document.getElementById('fmt_fields').style.display='none';
+    btn.disabled=true;
+    load();
+  }else{
+    setMsg2('aiimportmsg','Koi dua add nahi ho payi: '+errors.join('; '),'err');
+  }
   btn.disabled=false;btn.textContent='\u2713 SAVE TO LIBRARY';
 }
 function copyFmtPrompt(){
