@@ -2,7 +2,7 @@
  "dua_id": "adhan_ke_baad",
  "title": "Adhan Ke Baad Ki Dua",
  "reference": "Sahih Bukhari 614",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 26.7,
@@ -286,6 +286,8 @@
   "arabicEnd": 9.965,
   "urduStart": 11.423
  },
+ "background": "backgrounds/adhan_ke_baad.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

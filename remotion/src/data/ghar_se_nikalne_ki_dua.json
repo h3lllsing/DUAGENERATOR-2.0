@@ -2,7 +2,7 @@
  "dua_id": "ghar_se_nikalne_ki_dua",
  "title": "Ghar Se Nikalne Ki Dua",
  "reference": "Jami Tirmidhi 3426",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -181,6 +181,8 @@
   "arabicEnd": 4.707,
   "urduStart": 6.216
  },
+ "background": "backgrounds/ghar_se_nikalne_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

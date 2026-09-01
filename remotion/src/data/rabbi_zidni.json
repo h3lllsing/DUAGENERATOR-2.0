@@ -2,7 +2,7 @@
  "dua_id": "rabbi_zidni",
  "title": "Ilm Barhane Ki Dua",
  "reference": "Al-Quran 20:114",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -151,6 +151,8 @@
   "arabicEnd": 3.267,
   "urduStart": 4.789
  },
+ "background": "backgrounds/rabbi_zidni.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

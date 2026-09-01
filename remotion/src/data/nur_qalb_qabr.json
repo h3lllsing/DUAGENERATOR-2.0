@@ -2,7 +2,7 @@
  "dua_id": "nur_qalb_qabr",
  "title": "Noor Ki Dua",
  "reference": "Sahih Muslim 2438",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -136,6 +136,8 @@
   "arabicEnd": 3.579,
   "urduStart": 5.086
  },
+ "background": "backgrounds/nur_qalb_qabr.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

@@ -2,7 +2,7 @@
  "dua_id": "rizq_kifaya",
  "title": "Halal Rizq Ki Dua",
  "reference": "Tirmizi 3563",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -176,6 +176,8 @@
   "arabicEnd": 4.694,
   "urduStart": 6.196
  },
+ "background": "backgrounds/rizq_kifaya.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

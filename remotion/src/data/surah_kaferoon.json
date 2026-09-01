@@ -2,7 +2,7 @@
  "dua_id": "surah_kaferoon",
  "title": "Surah Kaferoon",
  "reference": "Quran Surah Al-Kafirun 109",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 33.01,
@@ -446,6 +446,8 @@
   "arabicEnd": 12.37,
   "urduStart": 13.849
  },
+ "background": "backgrounds/surah_kaferoon.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

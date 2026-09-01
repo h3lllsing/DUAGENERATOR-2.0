@@ -2,7 +2,7 @@
  "dua_id": "ham_o_gham",
  "title": "Gham Se Nijat Ki Dua",
  "reference": "Sahih Bukhari 6369",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 31.11,
@@ -416,6 +416,8 @@
   "arabicEnd": 11.718,
   "urduStart": 13.265
  },
+ "background": "backgrounds/ham_o_gham.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

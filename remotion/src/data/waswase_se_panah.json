@@ -2,7 +2,7 @@
  "dua_id": "waswase_se_panah",
  "title": "Waswase Se Panah",
  "reference": "Sahih Bukhari 3276",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 16.04,
@@ -196,6 +196,8 @@
   "arabicEnd": 5.441,
   "urduStart": 6.975
  },
+ "background": "backgrounds/waswase_se_panah.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

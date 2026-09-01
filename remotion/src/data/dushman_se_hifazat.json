@@ -2,7 +2,7 @@
  "dua_id": "dushman_se_hifazat",
  "title": "Dushman Se Hifazat",
  "reference": "Sahih Muslim 3005",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 19.16,
@@ -241,6 +241,8 @@
   "arabicEnd": 6.093,
   "urduStart": 7.625
  },
+ "background": "backgrounds/dushman_se_hifazat.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

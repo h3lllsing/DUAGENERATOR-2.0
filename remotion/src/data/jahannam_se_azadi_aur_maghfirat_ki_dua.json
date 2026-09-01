@@ -2,7 +2,7 @@
  "dua_id": "jahannam_se_azadi_aur_maghfirat_ki_dua",
  "title": "Jahannam Se Azadi Aur Maghfirat Ki Dua",
  "reference": "Surah Ali 'Imran (3:16)",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 20.15,
@@ -251,6 +251,8 @@
   "arabicEnd": 6.786,
   "urduStart": 8.194
  },
+ "background": "backgrounds/jahannam_se_azadi_aur_maghfirat_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

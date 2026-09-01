@@ -2,7 +2,7 @@
  "dua_id": "maghfirat_tawba",
  "title": "Maghfirat Aur Tawba Ki Dua",
  "reference": "Tirmizi 3434",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -171,6 +171,8 @@
   "arabicEnd": 3.715,
   "urduStart": 5.17
  },
+ "background": "backgrounds/maghfirat_tawba.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

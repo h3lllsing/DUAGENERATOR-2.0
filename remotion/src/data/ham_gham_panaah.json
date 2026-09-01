@@ -2,7 +2,7 @@
  "dua_id": "ham_gham_panaah",
  "title": "Fikr O Gham Se Panaah Ki Dua",
  "reference": "Sahih Bukhari 6369",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -136,6 +136,8 @@
   "arabicEnd": 3.987,
   "urduStart": 5.476
  },
+ "background": "backgrounds/ham_gham_panaah.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

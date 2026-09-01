@@ -2,7 +2,7 @@
  "dua_id": "mehmaan_ke_liye_dua",
  "title": "Mehmaan Ke Liye Dua",
  "reference": "Sunan Abu Dawud 3850",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 16.4,
@@ -196,6 +196,8 @@
   "arabicEnd": 5.373,
   "urduStart": 6.912
  },
+ "background": "backgrounds/mehmaan_ke_liye_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

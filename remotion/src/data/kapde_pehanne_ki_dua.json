@@ -2,7 +2,7 @@
  "dua_id": "kapde_pehanne_ki_dua",
  "title": "Kapde Pehanne Ki Dua",
  "reference": "Sunan Abu Dawud 4023",
- "fps": 80,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 21.58,
@@ -281,8 +281,8 @@
   "arabicEnd": 7.397,
   "urduStart": 8.945
  },
- "background": "backgrounds/kapde_pehanne_ki_dua.jpg",
- "backgroundKind": "image",
+ "background": "backgrounds/kapde_pehanne_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

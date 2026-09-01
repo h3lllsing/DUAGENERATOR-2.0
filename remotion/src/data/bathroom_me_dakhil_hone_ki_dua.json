@@ -2,7 +2,7 @@
  "dua_id": "bathroom_me_dakhil_hone_ki_dua",
  "title": "Bathroom Me Dakhil Hone Ki Dua",
  "reference": "Sahih Bukhari 142",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 16.64,
@@ -201,6 +201,8 @@
   "arabicEnd": 5.183,
   "urduStart": 6.735
  },
+ "background": "backgrounds/bathroom_me_dakhil_hone_ki_dua.jpg",
+ "backgroundKind": "image",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

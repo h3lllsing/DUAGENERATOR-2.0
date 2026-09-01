@@ -2,7 +2,7 @@
  "dua_id": "morning_mulk",
  "title": "Subah Ki Dua (2)",
  "reference": "Sahih Muslim 2723",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 24.08,
@@ -326,6 +326,8 @@
   "arabicEnd": 7.927,
   "urduStart": 9.475
  },
+ "background": "backgrounds/morning_mulk.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

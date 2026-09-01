@@ -2,7 +2,7 @@
  "dua_id": "rabbana_zalamna",
  "title": "Adam (AS) Ki Maghfirat Ki Dua",
  "reference": "Al-Quran 7:23",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 17.58,
@@ -231,6 +231,8 @@
   "arabicEnd": 5.59,
   "urduStart": 7.02
  },
+ "background": "backgrounds/rabbana_zalamna.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

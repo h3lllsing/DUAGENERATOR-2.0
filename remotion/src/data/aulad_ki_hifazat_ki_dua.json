@@ -2,7 +2,7 @@
  "dua_id": "aulad_ki_hifazat_ki_dua",
  "title": "Aulad Ki Hifazat Ki Dua",
  "reference": "Sahih Bukhari 3371",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 20.98,
@@ -271,6 +271,8 @@
   "arabicEnd": 7.533,
   "urduStart": 9.085
  },
+ "background": "backgrounds/aulad_ki_hifazat_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

@@ -2,7 +2,7 @@
  "dua_id": "qadr_ki_raat_ki_dua",
  "title": "Qadr Ki Raat Ki Dua",
  "reference": "Jami Tirmidhi 3513",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 18.75,
@@ -216,6 +216,8 @@
   "arabicEnd": 5.563,
   "urduStart": 7.095
  },
+ "background": "backgrounds/qadr_ki_raat_ki_dua.mp4",
+ "backgroundKind": "video",
  "masterpiece": true,
  "channel": {
   "name": "Noor-e-Iman",

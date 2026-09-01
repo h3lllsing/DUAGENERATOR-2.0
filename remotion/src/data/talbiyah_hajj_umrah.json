@@ -2,7 +2,7 @@
  "dua_id": "talbiyah_hajj_umrah",
  "title": "Talbiyah Hajj Umrah",
  "reference": "Sahih Bukhari 1549",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 19.48,
@@ -231,6 +231,8 @@
   "arabicEnd": 7.248,
   "urduStart": 8.673
  },
+ "background": "backgrounds/talbiyah_hajj_umrah.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

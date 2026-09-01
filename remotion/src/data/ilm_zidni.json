@@ -2,7 +2,7 @@
  "dua_id": "ilm_zidni",
  "title": "Ilm Me Izafa Ki Dua",
  "reference": "Surah Taha 114",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -71,6 +71,8 @@
   "arabicEnd": 1.514,
   "urduStart": 2.96
  },
+ "background": "backgrounds/ilm_zidni.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

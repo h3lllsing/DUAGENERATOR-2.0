@@ -2,7 +2,7 @@
  "dua_id": "sayyidul_istighfar",
  "title": "Sayyidul Istighfar",
  "reference": "Sahih Bukhari 6306",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 45.85,
@@ -541,6 +541,8 @@
   "arabicEnd": 19.358,
   "urduStart": 20.925
  },
+ "background": "backgrounds/sayyidul_istighfar.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

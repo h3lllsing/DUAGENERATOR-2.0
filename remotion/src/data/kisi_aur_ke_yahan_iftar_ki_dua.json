@@ -2,7 +2,7 @@
  "dua_id": "kisi_aur_ke_yahan_iftar_ki_dua",
  "title": "Kisi Aur Ke Yahan Iftar Ki Dua",
  "reference": "Sunan Abu Dawud 3854",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 20.48,
@@ -241,6 +241,8 @@
   "arabicEnd": 7.343,
   "urduStart": 8.823
  },
+ "background": "backgrounds/kisi_aur_ke_yahan_iftar_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

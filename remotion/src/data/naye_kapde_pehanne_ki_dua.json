@@ -2,7 +2,7 @@
  "dua_id": "naye_kapde_pehanne_ki_dua",
  "title": "Naye Kapde Pehanne Ki Dua",
  "reference": "Sunan Abu Dawud 4020",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 21.13,
@@ -281,6 +281,8 @@
   "arabicEnd": 7.329,
   "urduStart": 8.875
  },
+ "background": "backgrounds/naye_kapde_pehanne_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

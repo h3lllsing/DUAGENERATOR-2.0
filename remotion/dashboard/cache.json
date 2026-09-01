@@ -1,442 +1,418 @@
 {
-  "sleep_enter": {
-    "key": "e4f0f10a4cd9de25fc484272ca71f8e4",
-    "out": "Sone Ki Dua.mp4"
-  },
-  "food_start": {
-    "key": "36f008174e239519bd55894903095402",
-    "out": "Khana Khane Ki Dua.mp4"
-  },
-  "evening_isum": {
-    "key": "37bf5fc462ff514d0068fc620f3ceb89",
-    "out": "Hifazat Ki Dua.mp4"
-  },
-  "home_enter": {
-    "key": "66ea61d7fa193058fc6771667e0825ed",
-    "out": "Ghar Me Dakhil Hote Waqt.mp4"
+  "bathroom_exit": {
+    "key": "02477e36a6a9ed38f0fff8559c7d29e0",
+    "out": "Bathroom Se Bahar Aanay Ki Dua.mp4"
   },
   "sleep_exit": {
-    "key": "4aa1a75b9003b58a8bcefb0aa109be57",
+    "key": "26bfa7047c7aad8cce525e755c676cd2",
     "out": "Uthne Ki Dua.mp4"
   },
+  "food_start": {
+    "key": "4f00b3028fdc30d39f7f311a31fb4903",
+    "out": "Khana Khane Ki Dua.mp4"
+  },
   "food_end": {
-    "key": "5371bb7682bf2917a5ee1d3f71497a10",
+    "key": "6934427766ec6c07569564c5d66c6908",
     "out": "Khana Khatam Karne Ki Dua.mp4"
   },
   "travel_start": {
-    "key": "693755fb6d7a0949838287e54d016b8c",
+    "key": "b35ff2c486f7665bb9214b236f5deadc",
     "out": "Safar Ki Dua.mp4"
   },
   "travel_end": {
-    "key": "d0130087ed134929bb027ad8587d4b65",
+    "key": "b83ab5a56a81bd175dcf791ef424e46b",
     "out": "Wapas Aanay Ki Dua.mp4"
   },
   "wudu_end": {
-    "key": "386556a0b42585edbd0fe4e59234e25d",
+    "key": "de2f1f2f39749727638e75ae4f642c86",
     "out": "Wudu Ke Baad Ki Dua.mp4"
   },
   "salah_start": {
-    "key": "f4fb9c7127daf742d717cc7770320db1",
+    "key": "a79bad851ebfc80ee9ed35efb2daad51",
     "out": "Namaz Shuru Karne Ki Dua.mp4"
   },
   "tashahhud_audhu": {
-    "key": "a038669889ef63f6ab101084c8a8bf35",
+    "key": "dfbdfbbadedd3cb550396c9b878d03cd",
     "out": "Tashahhud Ke Baad Ki Dua.mp4"
   },
   "salah_end": {
-    "key": "410a41a408dc18f57467599211bc034f",
+    "key": "811a16c8b2e30a67ff7f91ccca88b0d0",
     "out": "Namaz Ke Baad Ki Dua.mp4"
   },
   "morning_ashbahna": {
-    "key": "44580a73ae284835f39a96c8e38f47df",
+    "key": "8de244f3df18cd46c2f4189a80eb87fd",
     "out": "Subah Ki Dua (1).mp4"
   },
   "morning_mulk": {
-    "key": "ad867e1f904fab9a4af593d2dfd61734",
+    "key": "7904c79874e3a5d308c069f4e6999469",
     "out": "Subah Ki Dua (2).mp4"
   },
   "morning_afiyah": {
-    "key": "9156ca0c490b39321668a9f192f763f6",
+    "key": "d89ceb69c617ef9135d0b599ee67ab87",
     "out": "Aafiyat Ki Dua.mp4"
   },
   "morning_hasbiya": {
-    "key": "4b661cee8ef6696d2b3a7b274ddb9d2d",
+    "key": "1fb4416a683d7eee3fcdb5cc067bd5f6",
     "out": "Allah Par Bharosa.mp4"
   },
   "evening_amsayna": {
-    "key": "21f24acbfbcdfc2e4cfbc2b6feed571e",
+    "key": "46b2c601be3f42e8af309d56ae9bf9ed",
     "out": "Shaam Ki Dua (1).mp4"
   },
   "evening_mulk": {
-    "key": "c7a48679f7a25a9e2f61f170d8100c9d",
+    "key": "6a858438ca9b118f0c864ebf2f0f92a9",
     "out": "Shaam Ki Dua (2).mp4"
   },
-  "evening_audhu": {
-    "key": "bcdafa249894a3abd0e61be5e822ff51",
-    "out": "Makhlooq Ke Shar Se Panaah.mp4"
+  "evening_isum": {
+    "key": "4744b581e2a459a787580a6cc6272b6b",
+    "out": "Hifazat Ki Dua.mp4"
   },
   "rabbana_hasanah": {
-    "key": "4afe6a884ad01c99fc485ae1a802dd57",
+    "key": "4d449ddce0b91c9affdd3c5f9b21685d",
     "out": "Duniya Aur Aakhirat Ki Bhalai.mp4"
   },
   "rabbi_shrah": {
-    "key": "46d029eb7cb7b7d3dc41fb7737b4730a",
+    "key": "58fb8c39ace2299645969c3bc21be693",
     "out": "Kaam Aasan Karne Ki Dua.mp4"
   },
   "yunus_dua": {
-    "key": "f352dde8eabac675219d43843346232e",
+    "key": "7cf27ee1110fe6ea1de2d3a5e4c05b2d",
     "out": "Yunus (AS) Ki Dua.mp4"
   },
   "rabbi_zidni": {
-    "key": "e86a68f7089a95fadfccba0289339308",
+    "key": "99d9865531a13da48a75c2beb8fd8275",
     "out": "Ilm Barhane Ki Dua.mp4"
   },
   "hasbunallah": {
-    "key": "d1e77e7b556e286ae0da5067bf693568",
+    "key": "6fe2cb3ae56ea5f9e506df75d364815f",
     "out": "Allah Kafi Hai.mp4"
   },
   "rabbi_ghfir": {
-    "key": "2e25d69817f0088e6c9e9e74a6e082d1",
+    "key": "cbd2b39fe33f74ca1e5716e2af41e8f2",
     "out": "Maa Baap Ke Liye Dua.mp4"
   },
   "ham_o_gham": {
-    "key": "441e61c39c2841389bbf12ff36d96c72",
+    "key": "73fc0abe280bfb8df719994e02cdee72",
     "out": "Gham Se Nijat Ki Dua.mp4"
   },
+  "home_enter": {
+    "key": "009bcf72afcc701452e179a38c606403",
+    "out": "Ghar Me Dakhil Hote Waqt.mp4"
+  },
   "rabbana_latuzigh": {
-    "key": "9931681deffb6e732239339ab116462d",
+    "key": "63847ca562420cb8b65d213cf56c6a1a",
     "out": "Sidha Raste Ki Dua.mp4"
   },
-  "bathroom_exit": {
-    "key": "7bdb934a27debe9f351d58ea4186453a",
-    "out": "Bathroom Se Bahar Aanay Ki Dua.mp4"
-  },
-  "ayyub_as_ki_bimarion_aur_takaleef_se_shifa_ki_dua": {
-    "key": "929d267aaf400516d30f7498ddd65060",
-    "out": "Ayyub (AS) Ki Bimarion Aur Takaleef Se Shifa Ki Dua.mp4"
-  },
-  "subah_o_shaam_ki_hifazat_ki_jami_dua": {
-    "key": "e6d1f1c5fe0b607291054317623cc095",
-    "out": "Subah O Shaam Ki Hifazat Ki Jami Dua.mp4"
-  },
-  "karz_aur_pareshani_se_nijat_ki_dua": {
-    "key": "c91f2da4b6a94c004cba41224efa0be5",
-    "out": "Karz Aur Pareshani Se Nijat Ki Dua.mp4"
-  },
-  "jahannam_se_azadi_aur_maghfirat_ki_dua": {
-    "key": "ac550a5e913b93de015c3b884b12013e",
-    "out": "Jahannam Se Azadi Aur Maghfirat Ki Dua.mp4"
-  },
-  "masjid_me_dakhil_hote_waqt": {
-    "key": "b44aa5b9d26c9e99ceea3990c041801c",
-    "out": "Masjid Me Dakhil Hote Waqt.mp4"
-  },
-  "suraj_nikalne_ki_dua": {
-    "key": "cd88e300ba78fc38c5d2771f5da69a83",
-    "out": "Suraj Nikalne Ki Dua.mp4"
-  },
-  "azan_ke_baad_ki_dua": {
-    "key": "1cd5a495a2303a8b5ae488f6d13f4724",
-    "out": "Azan Ke Baad Ki Dua.mp4"
-  },
-  "roza_kholne_ki_dua": {
-    "key": "26fb625ebf0ec1869303015f04c8d260",
-    "out": "Roza Kholne Ki Dua.mp4"
-  },
-  "qadr_ki_raat_ki_dua": {
-    "key": "21d1c02375318459ffd63f22ca75e6bb",
-    "out": "Qadr Ki Raat Ki Dua.mp4"
-  },
-  "deen_par_sabit_qadmi_ki_dua": {
-    "key": "2bc725b66f4a080b037c27e464b6c2d1",
-    "out": "Deen Par Sabit Qadmi Ki Dua.mp4"
-  },
-  "naye_kapde_pehanne_ki_dua": {
-    "key": "f2673355dcb78fe06d1c76047ce7c481",
-    "out": "Naye Kapde Pehanne Ki Dua.mp4"
-  },
-  "talbiyah_hajj_umrah": {
-    "key": "c91fd629cb0c8173218223ef97df8040",
-    "out": "Talbiyah Hajj Umrah.mp4"
-  },
-  "takbeer_e_tashreeq": {
-    "key": "ad28ca8d4a2fb6de380b412dd5a38a16",
-    "out": "Takbeer E Tashreeq.mp4"
-  },
-  "kisi_aur_ke_yahan_iftar_ki_dua": {
-    "key": "87136a055767586452e5fdd039e81e53",
-    "out": "Kisi Aur Ke Yahan Iftar Ki Dua.mp4"
-  },
-  "gusse_me_panah_ki_dua": {
-    "key": "d100e7a86dc61f2327310415ff9d561d",
-    "out": "Gusse Me Panah Ki Dua.mp4"
-  },
   "subah_o_shaam_ki_hifazat_ki_jami_dua_part1": {
-    "key": "e957f33d74d552d33bbd4f8f25a06818",
+    "key": "c81cb44ba7e7b925baa22cbac1fbb69e",
     "out": "Subah O Shaam Ki Hifazat Ki Jami Dua Part 1.mp4"
   },
   "subah_o_shaam_ki_hifazat_ki_jami_dua_part2": {
-    "key": "b58ff1bd872683f28209338fd6eb8f75",
+    "key": "ca4236d433c514d9cb7093d77f4ced93",
     "out": "Subah O Shaam Ki Hifazat Ki Jami Dua Part 2.mp4"
   },
+  "ayyub_as_ki_bimarion_aur_takaleef_se_shifa_ki_dua": {
+    "key": "202814dcfd2dbdf9b3dee01105a60788",
+    "out": "Ayyub (AS) Ki Bimarion Aur Takaleef Se Shifa Ki Dua.mp4"
+  },
+  "karz_aur_pareshani_se_nijat_ki_dua": {
+    "key": "04ba8326bc7e7d53247717fdf54323a4",
+    "out": "Karz Aur Pareshani Se Nijat Ki Dua.mp4"
+  },
+  "jahannam_se_azadi_aur_maghfirat_ki_dua": {
+    "key": "d2b5ae161d659ceef65c8e2db0e53585",
+    "out": "Jahannam Se Azadi Aur Maghfirat Ki Dua.mp4"
+  },
+  "masjid_me_dakhil_hote_waqt": {
+    "key": "56957975c3dbee6c313766557615785a",
+    "out": "Masjid Me Dakhil Hote Waqt.mp4"
+  },
   "masjid_se_nikalte_waqt": {
-    "key": "255fb53ca9491525477e0e36c0978622",
+    "key": "0d1afe91bcb11fbfd4d657c55ad4a4f0",
     "out": "Masjid Se Nikalte Waqt.mp4"
   },
   "sajde_ki_dua": {
-    "key": "61aacc2da5527112a9f1a652978734d5",
+    "key": "139844ec63fb4a7b867330ecb3ea3c3f",
     "out": "Sajde Ki Dua.mp4"
   },
+  "deen_par_sabit_qadmi_ki_dua": {
+    "key": "df8548b765fc3b3874e1177352e57e9a",
+    "out": "Deen Par Sabit Qadmi Ki Dua.mp4"
+  },
+  "roza_kholne_ki_dua": {
+    "key": "9ac3284f84d7c32743ab035e42654cb2",
+    "out": "Roza Kholne Ki Dua.mp4"
+  },
   "doodh_peene_ki_dua": {
-    "key": "e73143d76152145ac5614e6ba7855b79",
+    "key": "733ee0223bc5448d693694c68c740180",
     "out": "Doodh Peene Ki Dua.mp4"
   },
   "mehmaan_ke_liye_dua": {
-    "key": "7664451298d259a7b3bc476ffe10bd90",
+    "key": "3177e60df2b4959be2832ba985304202",
     "out": "Mehmaan Ke Liye Dua.mp4"
   },
   "ghar_se_nikalne_ki_dua": {
-    "key": "46d759dae2e7ac528611b03df773dd51",
+    "key": "8285920554384d73e91b529be600979b",
     "out": "Ghar Se Nikalne Ki Dua.mp4"
   },
   "shehar_me_dakhil_hote_waqt": {
-    "key": "2d806251e8ee60e955bec2706f4a8734",
+    "key": "ce93f85f448661ea32dfc6f026cd21a2",
     "out": "Shehar Me Dakhil Hote Waqt.mp4"
   },
+  "talbiyah_hajj_umrah": {
+    "key": "3c266102416d6398c6e6ff7635545def",
+    "out": "Talbiyah Hajj Umrah.mp4"
+  },
+  "naye_kapde_pehanne_ki_dua": {
+    "key": "ed04cd3878ba2c30d03ac64111c89bf7",
+    "out": "Naye Kapde Pehanne Ki Dua.mp4"
+  },
   "aaine_me_dekhne_ki_dua": {
-    "key": "8546edcb068cf2128bc25fe69642f2dc",
+    "key": "4f37e6a9061f7e0f3d7b616973bbb078",
     "out": "Aaine Me Dekhne Ki Dua.mp4"
   },
+  "gusse_me_panah_ki_dua": {
+    "key": "0ccdd0e17e4b5692926aa622cd0797ac",
+    "out": "Gusse Me Panah Ki Dua.mp4"
+  },
   "dard_me_shifa_ki_dua": {
-    "key": "c599f96d2dc824499157670c4c4bb4d2",
+    "key": "1be0baff0bf9dea7d53ccba35c95ed30",
     "out": "Dard Me Shifa Ki Dua.mp4"
   },
   "qabristan_ki_dua": {
-    "key": "14691bf693b8cdc62d1b23d83e09e06d",
+    "key": "99822639834e68746a7d3491076d9d3c",
     "out": "Qabristan Ki Dua.mp4"
   },
   "barish_ki_dua": {
-    "key": "c11336370cc7cbefca0d072c64da5c0e",
+    "key": "305e364a34cb123f12ac14bfd009e7c2",
     "out": "Barish Ki Dua.mp4"
   },
   "bijli_aur_toofan_ki_dua": {
-    "key": "d985b360e445dbffd0b478a392081889",
+    "key": "abaa0d8884754c83500924926c7e58fe",
     "out": "Bijli Aur Toofan Ki Dua.mp4"
   },
   "naya_chand_dekhne_ki_dua": {
-    "key": "7ce65e24faab7908232967a7be168ab6",
+    "key": "b0a17bc71949d4356cfda88902a06f1c",
     "out": "Naya Chand Dekhne Ki Dua.mp4"
   },
-  "rizq_aur_ilm_ki_barkat": {
-    "key": "def0c137905aa1a35e4e99aa9ae46865",
-    "out": "Rizq Aur Ilm Ki Barkat.mp4"
-  },
   "aulad_ki_hifazat_ki_dua": {
-    "key": "81c0ae30c14ad082ac7025bfcf5d2a6b",
+    "key": "9da09fc766bac60e023fb8b0db6fd429",
     "out": "Aulad Ki Hifazat Ki Dua.mp4"
   },
   "nazar_e_bad_se_hifazat": {
-    "key": "007ae4c5551949fefa78feb42d33339d",
+    "key": "511c95f2c676aca0f49d72a12aa436af",
     "out": "Nazar E Bad Se Hifazat.mp4"
   },
   "susti_aur_pareshani_se_panah": {
-    "key": "7a8b788baf0d280bb077c86924a8a547",
+    "key": "2581ab1d7aa4d53770d2fb8c0a2ae58c",
     "out": "Susti Aur Pareshani Se Panah.mp4"
   },
   "shukar_aur_zikr_ki_madad": {
-    "key": "d8fd59ab2763c550cc0b9bfc4b5e5926",
+    "key": "a6cf0c587494786580580b26d663319f",
     "out": "Shukar Aur Zikr Ki Madad.mp4"
   },
   "chhoti_istighfar": {
-    "key": "dd64b4949d7bd79671ce008f140b86d4",
+    "key": "0fc3d085c9d0f6182062bd9ffa4db7bb",
     "out": "Chhoti Istighfar.mp4"
   },
   "cheenk_ki_sunnat_jawab": {
-    "key": "0329a8978ef4447e7eabb97ef09e42f9",
+    "key": "992b79f21a2deababaea9c47e0d3c1ae",
     "out": "Cheenk Ki Sunnat Jawab.mp4"
   },
   "dushman_se_hifazat": {
-    "key": "56095b94e42f809c2eebf4149bfd4949",
+    "key": "bb597a7ed11dfa963d1fe7466532647b",
     "out": "Dushman Se Hifazat.mp4"
   },
   "aulad_ke_liye_dua": {
-    "key": "9141f65982bb9fcfa47a58cda15247b6",
+    "key": "cacc50d88f09152c7ca08f9e03c916de",
     "out": "Aulad Ke Liye Dua.mp4"
   },
   "miyan_biwi_aur_aulad_ki_bhalai": {
-    "key": "d75c6cd88dba5dd3ac2de3996654acdd",
+    "key": "39b5904b7b3a6771401ee324c0f93d1c",
     "out": "Miyan Biwi Aur Aulad Ki Bhalai.mp4"
   },
   "waswase_se_panah": {
-    "key": "c872c572eb630d4aa20cdf0a16aaa294",
+    "key": "102b62adb3b4cd238ef35e43fab7f76d",
     "out": "Waswase Se Panah.mp4"
   },
   "bathroom_me_dakhil_hone_ki_dua": {
-    "key": "26f5f2e72d56159e019adb768de49f07",
+    "key": "429dc3bf563f88d66f80191fef6a6508",
     "out": "Bathroom Me Dakhil Hone Ki Dua.mp4"
   },
   "surah_ikhlas": {
-    "key": "446285ee868d3d6af38bb1a93d353478",
+    "key": "4a93e2d216af281cceed72c2d92deded",
     "out": "Surah Ikhlas.mp4"
   },
   "surah_falaq": {
-    "key": "3221eea9dc0ae53dcfc1678f76ba2e3a",
+    "key": "2bf517d9d9fa1f522c7f15c37787676d",
     "out": "Surah Falaq.mp4"
   },
   "surah_naas": {
-    "key": "99c268f6c8a234df680808f136d1a668",
+    "key": "c74c618adae1ef3e0095609c22869b9e",
     "out": "Surah Naas.mp4"
   },
   "surah_kausar": {
-    "key": "2b9c52b250ee2e4c03bbe792515f811a",
+    "key": "1e876db93f8e5b29f5ccf0d6aabce803",
     "out": "Surah Kausar.mp4"
   },
   "surah_asr": {
-    "key": "9dad5a78cc2ceddea3374f27d05b4ea6",
+    "key": "9577e46bd0aaba9106d32a49ed0d18e4",
     "out": "Surah Asr.mp4"
   },
   "surah_feel": {
-    "key": "c89ca9cb02a4face853591fd73e8d036",
+    "key": "206ce16a7b21bad9e804264afefad5a4",
     "out": "Surah Feel.mp4"
   },
   "surah_quraysh": {
-    "key": "6af519ff61e4af7aa1c80684181358f7",
+    "key": "692b93e3765e8b3b3b6161b861370019",
     "out": "Surah Quraysh.mp4"
   },
+  "takbeer_e_tashreeq": {
+    "key": "3549374b67c7684403e647f496bf3984",
+    "out": "Takbeer E Tashreeq.mp4"
+  },
+  "qadr_ki_raat_ki_dua": {
+    "key": "09a000d16c50b55afea08f80e62706a4",
+    "out": "Qadr Ki Raat Ki Dua.mp4"
+  },
+  "kisi_aur_ke_yahan_iftar_ki_dua": {
+    "key": "c0d8bdb21783451d4b80e6c472df7f89",
+    "out": "Kisi Aur Ke Yahan Iftar Ki Dua.mp4"
+  },
   "main_roza_daar_hoon": {
-    "key": "d818657585b7ce4ae94031d184c9c741",
+    "key": "3c5b7f4f53d52c8cda6aff7e0100bcdf",
     "out": "Main Roza Daar Hoon.mp4"
   },
   "arafa_ke_din_ki_dua": {
-    "key": "828ce4a72620f268b3bbb65f2a08fbd1",
+    "key": "c909d9923d9ebcd12556f2a3fc05080e",
     "out": "Arafa Ke Din Ki Dua.mp4"
   },
   "surah_kaferoon": {
-    "key": "06e9a19dbf7eb165064fbd1cc07351cd",
+    "key": "077c506738cfc5364fe5f172f773bc11",
     "out": "Surah Kaferoon.mp4"
   },
   "surah_maun": {
-    "key": "05436cd19057afcffa137f070b1470a4",
+    "key": "fec88c3478ff6243b166830cf428ddf5",
     "out": "Surah Maun.mp4"
   },
   "ilm_zidni": {
-    "key": "630ec38128ab6886f0edf4efbfcc3938",
+    "key": "7cd5fecf19841d377da0247218860358",
     "out": "Ilm Me Izafa Ki Dua.mp4"
   },
   "rizq_kifaya": {
-    "key": "90cc7e5292053467e0059f35ca766488",
+    "key": "5b68073750821a5e2058d33938c0ac7b",
     "out": "Halal Rizq Ki Dua.mp4"
   },
   "shifa_mariz": {
-    "key": "2baba6fab622a4756f00db3e6d3b1328",
+    "key": "7d6ceab857a9b6184c97348a4f76a914",
     "out": "Bimari Se Shifa Ki Dua.mp4"
   },
   "maghfirat_tawba": {
-    "key": "ef59b15e58653272235fcec5c3dc8557",
+    "key": "0285392b69663a71f9388571a4114aec",
     "out": "Maghfirat Aur Tawba Ki Dua.mp4"
   },
   "aafiyat_dunya_akhirat": {
-    "key": "d8ea186b5ed8c8024b4dbe2ce2d3da79",
+    "key": "218469e65bcad28ed66ac24549aa91c3",
     "out": "Aafiyat Dunya O Akhirat Ki Dua.mp4"
   },
   "hasbi_allah_wakil": {
-    "key": "b6129d4fb27255aaf770539ed8f2014b",
+    "key": "1143d3d1026822cc4dd646f828826b43",
     "out": "Hasbi Allah Ki Dua.mp4"
   },
   "ham_gham_panaah": {
-    "key": "47ae85cd0d0fd464c82537e80ec3da5d",
+    "key": "8f6f9787146dd4411e7c63588be06ce8",
     "out": "Fikr O Gham Se Panaah Ki Dua.mp4"
   },
   "walidain_raham": {
-    "key": "4360a54213c73ebc3fc3e5a7ad9b5fd4",
+    "key": "16573662c6430ea7d21a819bde60da70",
     "out": "Walidain Ke Liye Reham Ki Dua.mp4"
   },
   "dunya_akhirat_hasanah": {
-    "key": "48a186df5eb735a866449ca0655e3042",
+    "key": "88e5877cba906c5db97cb0bbbb4401c0",
     "out": "Dunya O Akhirat Ki Bhalai Ki Dua.mp4"
   },
   "nur_qalb_qabr": {
-    "key": "382b4440b72d083c25b7bd00707ab4d7",
+    "key": "9d339bc221523f4cb42551aecde9ea28",
     "out": "Noor Ki Dua.mp4"
   },
+  "sayyidul_istighfar": {
+    "key": "c7a60bba7a0569a9b8f53192ab93f678",
+    "out": "Sayyidul Istighfar.mp4"
+  },
   "adhan_ke_baad": {
-    "key": "b535668c3e70bed8d36ed0c5f542de6d",
+    "key": "3d39b4543941c35aa26a565c68412443",
     "out": "Adhan Ke Baad Ki Dua.mp4"
   },
+  "qunut_witr": {
+    "key": "8fa0fcedb0d7b73f30a7ff239454653c",
+    "out": "Dua E Qunoot (Witr).mp4"
+  },
   "rabbana_zalamna": {
-    "key": "c5bd1ddaac776cf0f5236c24f457c5de",
+    "key": "0e5a8561fbdbe5cd8143599979acc550",
     "out": "Adam (AS) Ki Maghfirat Ki Dua.mp4"
   },
   "bazaar_dakhil": {
-    "key": "812db44efcbc422aa7367d98f71988d9",
+    "key": "6a2d3264a124b6cf8ec3db4bc996e025",
     "out": "Bazaar Me Dakhil Hone Ki Dua.mp4"
   },
   "bimar_ki_iyadat": {
-    "key": "3a705c4395997c597417ffa3a71083af",
+    "key": "f9cf949c2f64507d9aba62e0f3377654",
     "out": "Bimar Ki Iyadat Ki Dua.mp4"
   },
   "namaz_qaim_ibrahim": {
-    "key": "7ab2a7d35d29eea021a6f167b77822c9",
+    "key": "4390ee2b9bc6172d22ba0c2143cdfd24",
     "out": "Namaz Qaim Karne Ki Dua.mp4"
   },
   "aakhri_do_ayaat": {
-    "key": "b34cda45191e15dfbc6a7df78ee77f5f",
+    "key": "187bff5b8bd11405f8e907f8baf3883f",
     "out": "Aakhri Do Ayaat Ki Barkat.mp4"
   },
   "la_hawla_kanz": {
-    "key": "4d32292028638c8ca5d06c06e30052ae",
+    "key": "d2ce6bc6f6e24c58c176d3b7b80fdcf9",
     "out": "Jannat Ka Khazana Zikr.mp4"
   },
-  "sayyidul_istighfar": {
-    "key": "cb0f418dd8b98a7cde191a4feea68f2b",
-    "out": "Sayyidul Istighfar.mp4"
-  },
-  "qunut_witr": {
-    "key": "b6ea7450e0b30b1616e12fb0f5abeb24",
-    "out": "Dua E Qunoot (Witr).mp4"
-  },
   "azkaar_bad_namaz": {
-    "key": "a768cec2248b2a59eaef382ac664bbc8",
+    "key": "27a2faa8234dc6e01a1260b059440dcc",
     "out": "Namaz Ke Baad Ke Azkaar.mp4"
   },
   "sleep_dua": {
-    "key": "a4a5f13677308e1cf81e35aaea407ad4",
+    "key": "26f76ca435c5f9a8e705173130065485",
     "out": "Sone Ki Dua.mp4"
   },
-  "sehat_aur_afiyat_ki_dua": {
-    "key": "e95dc826e095734099fe6d710294fd07",
-    "out": "Sehat Aur Afiyat Ki Dua.mp4"
-  },
-  "rahmat_ki_talab_ki_dua": {
-    "key": "65b166e70c080eb68faac96ece377180",
-    "out": "Rahmat Ki Talab Ki Dua.mp4"
-  },
   "maghfirat_aur_reham_ki_dua": {
-    "key": "8db325790797d469cf3712cdb1d65373",
+    "key": "68eeaf5c549e494e36f35bb9551dd54d",
     "out": "Maghfirat Aur Reham Ki Dua.mp4"
   },
+  "musibat_aur_rinj_se_najaat_ki_dua": {
+    "key": "6ebb2c409b7ebb413a755b9d34bedbbf",
+    "out": "Musibat Aur Rinj Se Najaat Ki Dua.mp4"
+  },
+  "rizq_aur_afiyat_ki_dua": {
+    "key": "fc6b577698d86bfa4fb291289290bef2",
+    "out": "Rizq Aur Afiyat Ki Dua.mp4"
+  },
+  "sehat_aur_afiyat_ki_dua": {
+    "key": "f7a2cd42a83ee48cee7474c781417ef7",
+    "out": "Sehat Aur Afiyat Ki Dua.mp4"
+  },
+  "maghfirat_aur_rahmat_ki_comprehensive_dua": {
+    "key": "dcaef3e95773a2c38edfde6f9508a459",
+    "out": "Maghfirat Aur Rahmat Ki Comprehensive Dua.mp4"
+  },
   "kapde_pehanne_ki_dua": {
-    "key": "0687c3db763de7cc82d755dfc2e9fff6",
+    "key": "48fad8cff2186a0a2c691c6ff4d81c60",
     "out": "Kapde Pehanne Ki Dua.mp4"
   },
   "kapde_utaarne_ki_dua": {
-    "key": "a461a1dd3c5ba873bd6e03b5462c87a0",
+    "key": "4a28f379ec025e9d91350e0a938f22ce",
     "out": "Kapde Utaarne Ki Dua.mp4"
   },
-  "la_ilaha_illa_anta_subhanaka": {
-    "key": "0689f712799ee7d47f6cfe77a525b25b",
-    "out": "La Ilaha Illa Anta Subhanaka.mp4"
-  },
   "musibat_me_parhne_ki_dua": {
-    "key": "187f24fcc36947ce443749780baed829",
+    "key": "7826402f937f200448d850217dfb605b",
     "out": "Musibat Me Parhne Ki Dua.mp4"
   },
-  "musibat_aur_rinj_se_najaat_ki_dua": {
-    "key": "4e38e1054225fc962379e30d991b12e3",
-    "out": "Musibat Aur Rinj Se Najaat Ki Dua.mp4"
-  },
-  "maghfirat_aur_rahmat_ki_comprehensive_dua": {
-    "key": "57f9920659ff7d5a929db52117e52342",
-    "out": "Maghfirat Aur Rahmat Ki Comprehensive Dua.mp4"
+  "rahmat_ki_talab_ki_dua": {
+    "key": "de1c0e529d21eae03a4974d5ef825e24",
+    "out": "Rahmat Ki Talab Ki Dua.mp4"
   }
 }

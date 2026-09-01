@@ -2,7 +2,7 @@
  "dua_id": "barish_ki_dua",
  "title": "Barish Ki Dua",
  "reference": "Sahih Bukhari 1032",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -156,6 +156,8 @@
   "arabicEnd": 3.715,
   "urduStart": 5.275
  },
+ "background": "backgrounds/barish_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

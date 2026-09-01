@@ -2,7 +2,7 @@
  "dua_id": "surah_naas",
  "title": "Surah Naas",
  "reference": "Quran Surah An-Nas 114",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 27.01,
@@ -361,6 +361,8 @@
   "arabicEnd": 10.645,
   "urduStart": 12.133
  },
+ "background": "backgrounds/surah_naas.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

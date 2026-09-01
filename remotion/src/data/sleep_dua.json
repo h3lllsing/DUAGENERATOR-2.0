@@ -2,7 +2,7 @@
  "dua_id": "sleep_dua",
  "title": "Sone Ki Dua",
  "reference": "Sahih Bukhari 6324",
- "fps": 120,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -91,6 +91,8 @@
   "arabicEnd": 2.384,
   "urduStart": 3.886
  },
+ "background": "backgrounds/sleep_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

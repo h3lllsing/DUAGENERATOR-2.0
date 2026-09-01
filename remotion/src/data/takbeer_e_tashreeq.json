@@ -2,7 +2,7 @@
  "dua_id": "takbeer_e_tashreeq",
  "title": "Takbeer E Tashreeq",
  "reference": "Eid Aur Ayyam E Hajj Ki Sunnat",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 24.17,
@@ -336,6 +336,8 @@
   "arabicEnd": 7.968,
   "urduStart": 9.495
  },
+ "background": "backgrounds/takbeer_e_tashreeq.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

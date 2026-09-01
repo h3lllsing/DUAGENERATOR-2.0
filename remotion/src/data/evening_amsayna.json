@@ -2,7 +2,7 @@
  "dua_id": "evening_amsayna",
  "title": "Shaam Ki Dua (1)",
  "reference": "Sunan Tirmidhi 3391",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 24.34,
@@ -321,6 +321,8 @@
   "arabicEnd": 7.221,
   "urduStart": 8.775
  },
+ "background": "backgrounds/evening_amsayna.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

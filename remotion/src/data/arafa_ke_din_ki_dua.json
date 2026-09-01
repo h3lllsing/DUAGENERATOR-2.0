@@ -2,7 +2,7 @@
  "dua_id": "arafa_ke_din_ki_dua",
  "title": "Arafa Ke Din Ki Dua",
  "reference": "Jami Tirmidhi 3585",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 23.07,
@@ -321,6 +321,8 @@
   "arabicEnd": 8.267,
   "urduStart": 9.805
  },
+ "background": "backgrounds/arafa_ke_din_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

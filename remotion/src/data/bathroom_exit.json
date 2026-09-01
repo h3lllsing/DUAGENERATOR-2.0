@@ -5,7 +5,7 @@
  "fps": 45,
  "width": 1080,
  "height": 1920,
- "totalDuration": 15,
+ "totalDuration": 15.0,
  "audioFile": "audio/bathroom_exit.mp3",
  "template": "qadr",
  "arabicWords": [
@@ -136,8 +136,8 @@
   "arabicEnd": 2.818,
   "urduStart": 4.234
  },
- "background": "backgrounds/bathroom_exit.jpg",
- "backgroundKind": "image",
+ "background": "backgrounds/bathroom_exit.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

@@ -2,7 +2,7 @@
  "dua_id": "shehar_me_dakhil_hote_waqt",
  "title": "Shehar Me Dakhil Hote Waqt",
  "reference": "Sahih Muslim 1911",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 27.97,
@@ -386,6 +386,8 @@
   "arabicEnd": 10.278,
   "urduStart": 11.799
  },
+ "background": "backgrounds/shehar_me_dakhil_hote_waqt.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

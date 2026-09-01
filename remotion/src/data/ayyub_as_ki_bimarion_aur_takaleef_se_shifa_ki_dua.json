@@ -2,7 +2,7 @@
  "dua_id": "ayyub_as_ki_bimarion_aur_takaleef_se_shifa_ki_dua",
  "title": "Ayyub (AS) Ki Bimarion Aur Takaleef Se Shifa Ki Dua",
  "reference": "Surah Al-Anbiya (21:83)",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 22.62,
@@ -306,6 +306,8 @@
   "arabicEnd": 7.18,
   "urduStart": 8.574
  },
+ "background": "backgrounds/ayyub_as_ki_bimarion_aur_takaleef_se_shifa_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

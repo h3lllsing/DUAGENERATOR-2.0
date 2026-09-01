@@ -1,3 +1,9 @@
+# --- F5-TTS (separate project + huge venv/models) ---
+F5-TTS-main/
+
+# --- Core data (excluded per user: duas.json etc) ---
+data/
+
 # --- YouTube / OAuth credentials ---
 client_secret.json
 client_secret*.json

@@ -2,7 +2,7 @@
  "dua_id": "susti_aur_pareshani_se_panah",
  "title": "Susti Aur Pareshani Se Panah",
  "reference": "Sahih Bukhari 6369",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 24.39,
@@ -311,6 +311,8 @@
   "arabicEnd": 8.919,
   "urduStart": 10.455
  },
+ "background": "backgrounds/susti_aur_pareshani_se_panah.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

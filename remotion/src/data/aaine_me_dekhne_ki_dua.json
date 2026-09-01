@@ -2,7 +2,7 @@
  "dua_id": "aaine_me_dekhne_ki_dua",
  "title": "Aaine Me Dekhne Ki Dua",
  "reference": "Musnad Ahmad",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 17.36,
@@ -206,6 +206,8 @@
   "arabicEnd": 4.87,
   "urduStart": 6.405
  },
+ "background": "backgrounds/aaine_me_dekhne_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

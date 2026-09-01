@@ -94,7 +94,7 @@
   {
    "t": "جو",
    "start": 8.882,
-   "end": 9
+   "end": 9.0
   },
   {
    "t": "بڑا",
@@ -221,8 +221,8 @@
   "arabicEnd": 6.011,
   "urduStart": 7.555
  },
- "background": "backgrounds/food_end.jpg",
- "backgroundKind": "image",
+ "background": "backgrounds/food_end.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

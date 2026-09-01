@@ -2,7 +2,7 @@
  "dua_id": "morning_afiyah",
  "title": "Aafiyat Ki Dua",
  "reference": "Sunan Abu Dawud 5074",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 17.53,
@@ -206,6 +206,8 @@
   "arabicEnd": 5.808,
   "urduStart": 7.365
  },
+ "background": "backgrounds/morning_afiyah.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

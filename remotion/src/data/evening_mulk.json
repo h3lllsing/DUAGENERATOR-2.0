@@ -2,7 +2,7 @@
  "dua_id": "evening_mulk",
  "title": "Shaam Ki Dua (2)",
  "reference": "Sahih Muslim 2723",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 23.96,
@@ -326,6 +326,8 @@
   "arabicEnd": 7.805,
   "urduStart": 9.355
  },
+ "background": "backgrounds/evening_mulk.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

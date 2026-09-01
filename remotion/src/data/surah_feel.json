@@ -2,7 +2,7 @@
  "dua_id": "surah_feel",
  "title": "Surah Feel",
  "reference": "Quran Surah Al-Feel 105",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 34.69,
@@ -451,6 +451,8 @@
   "arabicEnd": 13.145,
   "urduStart": 14.685
  },
+ "background": "backgrounds/surah_feel.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

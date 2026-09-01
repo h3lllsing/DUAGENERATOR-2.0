@@ -2,7 +2,7 @@
  "dua_id": "bijli_aur_toofan_ki_dua",
  "title": "Bijli Aur Toofan Ki Dua",
  "reference": "Muwatta Malik",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 18.03,
@@ -231,6 +231,8 @@
   "arabicEnd": 6.27,
   "urduStart": 7.815
  },
+ "background": "backgrounds/bijli_aur_toofan_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

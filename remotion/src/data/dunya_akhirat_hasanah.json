@@ -2,7 +2,7 @@
  "dua_id": "dunya_akhirat_hasanah",
  "title": "Dunya O Akhirat Ki Bhalai Ki Dua",
  "reference": "Surah Baqarah 201",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -171,6 +171,8 @@
   "arabicEnd": 5.495,
   "urduStart": 6.967
  },
+ "background": "backgrounds/dunya_akhirat_hasanah.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

@@ -2,7 +2,7 @@
  "dua_id": "masjid_se_nikalte_waqt",
  "title": "Masjid Se Nikalte Waqt",
  "reference": "Sahih Muslim 713",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -176,6 +176,8 @@
   "arabicEnd": 4.082,
   "urduStart": 5.605
  },
+ "background": "backgrounds/masjid_se_nikalte_waqt.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

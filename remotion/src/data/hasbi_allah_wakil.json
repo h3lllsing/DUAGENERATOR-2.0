@@ -2,7 +2,7 @@
  "dua_id": "hasbi_allah_wakil",
  "title": "Hasbi Allah Ki Dua",
  "reference": "Sahih Bukhari 4563",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -81,6 +81,8 @@
   "arabicEnd": 2.153,
   "urduStart": 3.676
  },
+ "background": "backgrounds/hasbi_allah_wakil.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

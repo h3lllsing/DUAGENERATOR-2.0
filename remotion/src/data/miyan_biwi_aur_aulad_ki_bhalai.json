@@ -2,7 +2,7 @@
  "dua_id": "miyan_biwi_aur_aulad_ki_bhalai",
  "title": "Miyan Biwi Aur Aulad Ki Bhalai",
  "reference": "Quran Al-Furqan 74",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 21.99,
@@ -251,6 +251,8 @@
   "arabicEnd": 7.968,
   "urduStart": 9.429
  },
+ "background": "backgrounds/miyan_biwi_aur_aulad_ki_bhalai.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

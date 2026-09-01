@@ -2,7 +2,7 @@
  "dua_id": "karz_aur_pareshani_se_nijat_ki_dua",
  "title": "Karz Aur Pareshani Se Nijat Ki Dua",
  "reference": "Sahih Bukhari 6369, Sunan Abu Dawud 1555",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 31.92,
@@ -411,6 +411,8 @@
   "arabicEnd": 13.783,
   "urduStart": 15.194
  },
+ "background": "backgrounds/karz_aur_pareshani_se_nijat_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

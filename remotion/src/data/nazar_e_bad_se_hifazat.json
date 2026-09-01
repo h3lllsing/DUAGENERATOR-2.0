@@ -2,7 +2,7 @@
  "dua_id": "nazar_e_bad_se_hifazat",
  "title": "Nazar E Bad Se Hifazat",
  "reference": "Sahih Muslim 2708",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 16.88,
@@ -231,6 +231,8 @@
   "arabicEnd": 5.264,
   "urduStart": 6.805
  },
+ "background": "backgrounds/nazar_e_bad_se_hifazat.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

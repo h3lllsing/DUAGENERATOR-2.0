@@ -2,7 +2,7 @@
  "dua_id": "subah_o_shaam_ki_hifazat_ki_jami_dua_part1",
  "title": "Subah O Shaam Ki Hifazat Ki Jami Dua Part 1",
  "reference": "Sunan Abu Dawud 5067, Sunan Tirmidhi 3529",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 27.94,
@@ -351,6 +351,8 @@
   "arabicEnd": 9.571,
   "urduStart": 11.105
  },
+ "background": "backgrounds/subah_o_shaam_ki_hifazat_ki_jami_dua_part1.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

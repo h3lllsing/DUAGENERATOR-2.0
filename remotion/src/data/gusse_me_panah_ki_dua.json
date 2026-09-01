@@ -2,7 +2,7 @@
  "dua_id": "gusse_me_panah_ki_dua",
  "title": "Gusse Me Panah Ki Dua",
  "reference": "Sahih Bukhari 3282",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -176,6 +176,8 @@
   "arabicEnd": 4.476,
   "urduStart": 6.015
  },
+ "background": "backgrounds/gusse_me_panah_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

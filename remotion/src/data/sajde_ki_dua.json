@@ -2,7 +2,7 @@
  "dua_id": "sajde_ki_dua",
  "title": "Sajde Ki Dua",
  "reference": "Sunan Abu Dawud 875",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 17.19,
@@ -221,6 +221,8 @@
   "arabicEnd": 4.666,
   "urduStart": 6.205
  },
+ "background": "backgrounds/sajde_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

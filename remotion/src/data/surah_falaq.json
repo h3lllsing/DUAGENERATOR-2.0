@@ -2,7 +2,7 @@
  "dua_id": "surah_falaq",
  "title": "Surah Falaq",
  "reference": "Quran Surah Al-Falaq 113",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 28.37,
@@ -426,6 +426,8 @@
   "arabicEnd": 10.482,
   "urduStart": 12.015
  },
+ "background": "backgrounds/surah_falaq.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

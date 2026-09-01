@@ -2,7 +2,7 @@
  "dua_id": "main_roza_daar_hoon",
  "title": "Main Roza Daar Hoon",
  "reference": "Sahih Bukhari 1904",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.87,
@@ -221,6 +221,8 @@
   "arabicEnd": 3.878,
   "urduStart": 5.402
  },
+ "background": "backgrounds/main_roza_daar_hoon.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

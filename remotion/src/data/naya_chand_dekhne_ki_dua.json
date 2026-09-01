@@ -2,7 +2,7 @@
  "dua_id": "naya_chand_dekhne_ki_dua",
  "title": "Naya Chand Dekhne Ki Dua",
  "reference": "Jami Tirmidhi 3451",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 21.53,
@@ -256,6 +256,8 @@
   "arabicEnd": 7.424,
   "urduStart": 8.965
  },
+ "background": "backgrounds/naya_chand_dekhne_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

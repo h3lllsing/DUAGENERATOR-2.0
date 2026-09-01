@@ -2,7 +2,7 @@
  "dua_id": "shukar_aur_zikr_ki_madad",
  "title": "Shukar Aur Zikr Ki Madad",
  "reference": "Sunan Abu Dawud 1522",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 19.3,
@@ -221,6 +221,8 @@
   "arabicEnd": 5.93,
   "urduStart": 7.455
  },
+ "background": "backgrounds/shukar_aur_zikr_ki_madad.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

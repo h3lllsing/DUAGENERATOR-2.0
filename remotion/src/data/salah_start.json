@@ -271,8 +271,8 @@
   "arabicEnd": 7.56,
   "urduStart": 9.115
  },
- "background": "backgrounds/salah_start.jpg",
- "backgroundKind": "image",
+ "background": "backgrounds/salah_start.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

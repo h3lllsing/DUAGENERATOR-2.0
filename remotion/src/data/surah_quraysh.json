@@ -2,7 +2,7 @@
  "dua_id": "surah_quraysh",
  "title": "Surah Quraysh",
  "reference": "Quran Surah Quraysh 106",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 26.86,
@@ -361,6 +361,8 @@
   "arabicEnd": 10.169,
   "urduStart": 11.705
  },
+ "background": "backgrounds/surah_quraysh.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

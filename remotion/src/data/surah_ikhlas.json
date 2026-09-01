@@ -2,7 +2,7 @@
  "dua_id": "surah_ikhlas",
  "title": "Surah Ikhlas",
  "reference": "Quran Surah Al-Ikhlas 112",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 23.96,
@@ -306,6 +306,8 @@
   "arabicEnd": 7.411,
   "urduStart": 8.926
  },
+ "background": "backgrounds/surah_ikhlas.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

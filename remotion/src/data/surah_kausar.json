@@ -2,7 +2,7 @@
  "dua_id": "surah_kausar",
  "title": "Surah Kausar",
  "reference": "Quran Surah Al-Kausar 108",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 21.01,
@@ -286,6 +286,8 @@
   "arabicEnd": 6.623,
   "urduStart": 8.162
  },
+ "background": "backgrounds/surah_kausar.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

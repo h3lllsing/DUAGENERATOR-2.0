@@ -2,7 +2,7 @@
  "dua_id": "kapde_utaarne_ki_dua",
  "title": "Kapde Utaarne Ki Dua",
  "reference": "Sunan Ibn Majah 297",
- "fps": 80,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -171,8 +171,8 @@
   "arabicEnd": 2.574,
   "urduStart": 4.125
  },
- "background": "backgrounds/kapde_utaarne_ki_dua.jpg",
- "backgroundKind": "image",
+ "background": "backgrounds/kapde_utaarne_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

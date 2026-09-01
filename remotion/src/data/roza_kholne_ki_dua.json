@@ -2,7 +2,7 @@
  "dua_id": "roza_kholne_ki_dua",
  "title": "Roza Kholne Ki Dua",
  "reference": "Sunan Abu Dawud 2357",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 16.86,
@@ -216,6 +216,8 @@
   "arabicEnd": 5.808,
   "urduStart": 7.352
  },
+ "background": "backgrounds/roza_kholne_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

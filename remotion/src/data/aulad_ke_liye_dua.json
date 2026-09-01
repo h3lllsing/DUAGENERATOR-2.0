@@ -2,7 +2,7 @@
  "dua_id": "aulad_ke_liye_dua",
  "title": "Aulad Ke Liye Dua",
  "reference": "Quran Al-Imran 38",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 19.01,
@@ -251,6 +251,8 @@
   "arabicEnd": 6.147,
   "urduStart": 7.669
  },
+ "background": "backgrounds/aulad_ke_liye_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

@@ -2,7 +2,7 @@
  "dua_id": "qabristan_ki_dua",
  "title": "Qabristan Ki Dua",
  "reference": "Sahih Muslim 975",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 27.92,
@@ -356,6 +356,8 @@
   "arabicEnd": 10.02,
   "urduStart": 11.565
  },
+ "background": "backgrounds/qabristan_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

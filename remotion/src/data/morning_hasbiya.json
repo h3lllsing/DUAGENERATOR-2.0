@@ -2,7 +2,7 @@
  "dua_id": "morning_hasbiya",
  "title": "Allah Par Bharosa",
  "reference": "Sunan Abu Dawud 5081",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 20.58,
@@ -276,6 +276,8 @@
   "arabicEnd": 7.085,
   "urduStart": 8.635
  },
+ "background": "backgrounds/morning_hasbiya.jpg",
+ "backgroundKind": "image",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

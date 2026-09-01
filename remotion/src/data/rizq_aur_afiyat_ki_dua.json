@@ -2,7 +2,7 @@
  "dua_id": "rizq_aur_afiyat_ki_dua",
  "title": "Rizq Aur Afiyat Ki Dua",
  "reference": "Sunan Ibn Majah 925",
- "fps": 120,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 20.0,
@@ -236,6 +236,8 @@
   "arabicEnd": 6.799,
   "urduStart": 8.345
  },
+ "background": "backgrounds/rizq_aur_afiyat_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

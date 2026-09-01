@@ -2,7 +2,7 @@
  "dua_id": "surah_maun",
  "title": "Surah Maun",
  "reference": "Quran Surah Al-Maun 107",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 36.15,
@@ -466,6 +466,8 @@
   "arabicEnd": 13.715,
   "urduStart": 15.255
  },
+ "background": "backgrounds/surah_maun.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

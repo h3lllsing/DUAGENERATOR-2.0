@@ -2,7 +2,7 @@
  "dua_id": "dard_me_shifa_ki_dua",
  "title": "Dard Me Shifa Ki Dua",
  "reference": "Sahih Muslim 2202",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 17.03,
@@ -226,6 +226,8 @@
   "arabicEnd": 5.414,
   "urduStart": 6.942
  },
+ "background": "backgrounds/dard_me_shifa_ki_dua.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

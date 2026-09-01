@@ -2,7 +2,7 @@
  "dua_id": "rabbana_latuzigh",
  "title": "Sidha Raste Ki Dua",
  "reference": "Al-Quran 3:8",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 23.5,
@@ -316,6 +316,8 @@
   "arabicEnd": 7.954,
   "urduStart": 9.429
  },
+ "background": "backgrounds/rabbana_latuzigh.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

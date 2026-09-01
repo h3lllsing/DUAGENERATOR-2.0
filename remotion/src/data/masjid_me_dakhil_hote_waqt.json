@@ -2,7 +2,7 @@
  "dua_id": "masjid_me_dakhil_hote_waqt",
  "title": "Masjid Me Dakhil Hote Waqt",
  "reference": "Sahih Muslim 713",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 15.0,
@@ -171,6 +171,8 @@
   "arabicEnd": 4.34,
   "urduStart": 5.744
  },
+ "background": "backgrounds/masjid_me_dakhil_hote_waqt.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"

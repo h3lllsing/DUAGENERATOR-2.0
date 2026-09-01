@@ -2,7 +2,7 @@
  "dua_id": "chhoti_istighfar",
  "title": "Chhoti Istighfar",
  "reference": "Jami Tirmidhi 3434",
- "fps": 24,
+ "fps": 45,
  "width": 1080,
  "height": 1920,
  "totalDuration": 19.47,
@@ -251,6 +251,8 @@
   "arabicEnd": 5.536,
   "urduStart": 7.069
  },
+ "background": "backgrounds/chhoti_istighfar.mp4",
+ "backgroundKind": "video",
  "channel": {
   "name": "Noor-e-Iman",
   "handle": "@bushranasir1075"
