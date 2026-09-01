@@ -243,7 +243,8 @@ module.exports = function duaRoutes(deps) {
           theme: themeMap.resolve(d),
           refShared: !!(normRef(d.reference) && refCount[normRef(d.reference)] > 1),
         }));
-        send(res, 200, JSON.stringify({duas: themed.map(duaStatus)}));
+        const statuses = await Promise.all(themed.map(duaStatus));
+        send(res, 200, JSON.stringify({duas: statuses}));
       });
       return true;
     }

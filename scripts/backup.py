@@ -5,6 +5,7 @@ Backs up vault, salt, tokens, and critical config files.
 
 import shutil
 import json
+import hashlib
 from datetime import datetime
 from pathlib import Path
 
@@ -28,6 +29,17 @@ BACKUP_FILES = [
     ("data/categories.json", "Categories database"),
 ]
 
+def compute_checksum(file_path):
+    """Compute SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception:
+        return None
+
 def create_backup():
     """Create timestamped backup."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -35,12 +47,15 @@ def create_backup():
     backup_path.mkdir(parents=True, exist_ok=True)
     
     backed_up = []
+    checksums = {}
     for rel_path, description in BACKUP_FILES:
         src = PROJECT / rel_path
         if src.exists():
             dst = backup_path / rel_path
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dst)
+            checksum = compute_checksum(dst)
+            checksums[rel_path] = checksum
             backed_up.append(f"  ✓ {description}: {rel_path}")
         else:
             backed_up.append(f"  - {description}: {rel_path} (not found)")
@@ -49,6 +64,7 @@ def create_backup():
     manifest = {
         "timestamp": timestamp,
         "files": backed_up,
+        "checksums": checksums,
         "project": str(PROJECT)
     }
     (backup_path / "manifest.json").write_text(
@@ -83,6 +99,20 @@ def list_backups():
             else:
                 print(f"  {backup.name}")
 
+def rotate_backups(max_backups=10):
+    """Keep only the most recent backups."""
+    if not BACKUP_DIR.exists():
+        return
+    
+    backups = sorted([d for d in BACKUP_DIR.iterdir() if d.is_dir()])
+    if len(backups) <= max_backups:
+        return
+    
+    to_delete = backups[:len(backups) - max_backups]
+    for backup in to_delete:
+        shutil.rmtree(backup)
+        print(f"  Rotated old backup: {backup.name}")
+
 if __name__ == "__main__":
     import sys
     
@@ -90,3 +120,4 @@ if __name__ == "__main__":
         list_backups()
     else:
         create_backup()
+        rotate_backups()

@@ -6,6 +6,32 @@
 module.exports = function configRoutes(deps) {
   const {CFG_PATH, fs, send, writeAtomic, log, STYLE_PRESETS, fxg} = deps;
 
+  // ── Config cache (5s TTL) ──
+  let _cfgCache = null;
+  let _cfgCacheTime = 0;
+  const CFG_CACHE_TTL = 5000;
+
+  function readConfigCached() {
+    const now = Date.now();
+    if (_cfgCache && (now - _cfgCacheTime) < CFG_CACHE_TTL) {
+      return _cfgCache;
+    }
+    try {
+      _cfgCache = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8'));
+      _cfgCacheTime = now;
+      return _cfgCache;
+    } catch (_) {
+      _cfgCache = {channelName: '', handle: ''};
+      _cfgCacheTime = now;
+      return _cfgCache;
+    }
+  }
+
+  function invalidateConfigCache() {
+    _cfgCache = null;
+    _cfgCacheTime = 0;
+  }
+
   function readBody(req, res, cb) {
     let body = '';
     req.on('data', (c) => {
@@ -25,10 +51,7 @@ module.exports = function configRoutes(deps) {
 
     // ── GET /api/config ──
     if (method === 'GET' && p === '/api/config') {
-      let cfg = {channelName: '', handle: ''};
-      try {
-        cfg = Object.assign(cfg, JSON.parse(fs.readFileSync(CFG_PATH, 'utf8')));
-      } catch (_) {}
+      const cfg = readConfigCached();
       return send(res, 200, JSON.stringify(cfg));
     }
 
@@ -37,8 +60,7 @@ module.exports = function configRoutes(deps) {
       readBody(req, res, (body) => {
         try {
           const f = JSON.parse(body);
-          let old = {};
-          try { old = JSON.parse(fs.readFileSync(CFG_PATH, 'utf8')); } catch (_) {}
+          const old = readConfigCached();
           const cfg = Object.assign({}, old, {
             channelName: String(f.channelName != null ? f.channelName : old.channelName || '').trim().slice(0, 60),
             handle: String(f.handle != null ? f.handle : old.handle || '').trim().slice(0, 40),
@@ -61,6 +83,7 @@ module.exports = function configRoutes(deps) {
               ? f.borderFx : 'auto';
           }
           writeAtomic(CFG_PATH, JSON.stringify(cfg, null, 2));
+          invalidateConfigCache();
           log('CONFIG SAVED: ' + JSON.stringify(cfg));
           send(res, 200, JSON.stringify({ok: true}));
         } catch (e) { send(res, 400, JSON.stringify({ok: false})); }
