@@ -29,7 +29,8 @@ function readBody(req, res) {
     const abort = () => {
       settled = true;
       if (!res.headersSent && !res.writableEnded) {
-        send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
+        res.writeHead(413, {'Content-Type': 'application/json'});
+        res.end(JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
       }
       try { req.destroy(); } catch (_) {}
       reject(err(413, 'aborted'));
@@ -49,7 +50,8 @@ function routeCatch(res, fn, logFn) {
     const code = (e && e.statusCode) || 500;
     const msg = (e && e.message) || String(e);
     if (!res.headersSent && !res.writableEnded) {
-      send(res, code, JSON.stringify({ok: false, error: msg}));
+      res.writeHead(code, {'Content-Type': 'application/json'});
+      res.end(JSON.stringify({ok: false, error: msg}));
     } else if (logFn) {
       logFn('route error after send: ' + msg);
     }

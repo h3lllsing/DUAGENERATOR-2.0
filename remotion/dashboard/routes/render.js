@@ -725,6 +725,15 @@ module.exports = function renderRoutes(deps) {
           if (!id || !/^[a-z0-9_\-]{1,80}$/.test(id)) {
             throw err(400, 'duaId invalid format (a-z 0-9 _ - max 80)');
           }
+          for (const ch of ['channel1', 'channel2']) {
+            try {
+              const lp = path.join(DATA, 'upload_state_' + ch + '.json');
+              const ledger = JSON.parse(fs.readFileSync(lp, 'utf8').replace(/^\uFEFF/, ''));
+              if (ledger[id] && ledger[id].status === 'uploaded') {
+                throw err(409, 'Ye dua YouTube pe upload ho chuki hai. Dubara TTS banane ki zaroorat nahi.');
+              }
+            } catch (e) { if (e.status === 409) throw e; }
+          }
           send(res, 200, JSON.stringify(await startVoiceJob(id, !!f.force)));
         });
       }, () => {});
@@ -953,6 +962,15 @@ module.exports = function renderRoutes(deps) {
           const id = String(f.duaId || '').trim();
           if (!id || !/^[a-z0-9_\-]{1,80}$/.test(id)) {
             throw err(400, 'duaId invalid format (a-z 0-9 _ - max 80)');
+          }
+          for (const ch of ['channel1', 'channel2']) {
+            try {
+              const lp = path.join(DATA, 'upload_state_' + ch + '.json');
+              const ledger = JSON.parse(fs.readFileSync(lp, 'utf8').replace(/^\uFEFF/, ''));
+              if (ledger[id] && ledger[id].status === 'uploaded') {
+                throw err(409, 'Ye dua YouTube pe upload ho chuki hai. Dubara render karne ki zaroorat nahi.');
+              }
+            } catch (e) { if (e.status === 409) throw e; }
           }
           send(res, 200, JSON.stringify(await startJob(id, !!f.force)));
         });

@@ -182,6 +182,8 @@ async function ytRefresh(){
     var up=j.uploadedIds||[];
     if(JSON.stringify(up)!==JSON.stringify(window.ytUploadedIds||[])){
       window.ytUploadedIds=up;
+      lastGridKey='';
+      if(typeof render==='function') render();
       if(typeof ytRenderPicker==='function') ytRenderPicker();
     }
     ytApplyJob(j.job||{},j.auth||{});
@@ -479,6 +481,9 @@ function render(){
           +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
           +(d.category?'<span class="b cat">'+escHtml(d.category)+'</span>':'')
         +'</div>'
+        +'<div class="cpop-actions">'
+          +'<button class="btn-ai-fill" onclick="aiFillCard(\''+d.id+'\')" title="AI se Arabic/Urdu/Explanation generate karo">&#129302; AI Fill</button>'
+        +'</div>'
       +'</div>';
     frag.appendChild(el);
   });
@@ -490,6 +495,33 @@ async function startRender(id){
   const force=!!forceFlags[id];
   const r=await fetch('/api/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaId:id,force})});
   const j=await r.json(); if(!j.ok) toast(j.error,'err');
+}
+async function aiFillCard(id){
+  var d=duas.find(function(x){return x.id===id;});
+  if(!d)return;
+  var btn=document.querySelector('.cpop-actions .btn-ai-fill');
+  if(btn){btn.disabled=true;btn.textContent='Generating...';}
+  try{
+    var r=await fetch('/api/ai-fill-metadata',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({title:d.title,reference:d.reference||'',category:d.category||'general'})});
+    var j=await r.json();
+    if(j.ok){
+      editingId=d.id;
+      document.getElementById('modaltitle').innerHTML='&#9998; Edit: '+escHtml(d.title);
+      document.getElementById('f_title').value=d.title||'';
+      document.getElementById('f_arabic').value=j.arabic||d.arabic||'';
+      document.getElementById('f_urdu').value=j.urdu||d.urdu||'';
+      document.getElementById('f_ref').value=d.reference||'';
+      document.getElementById('f_cat').value=d.category||'general';
+      setThemeSel(d.template&&THEME_LABEL[d.template]?d.template:'dark');
+      document.getElementById('modalbg').classList.add('show');
+      _pushModal('form');
+      toast('AI se metadata generate ho gaya! Check karke Save karo','ok');
+    }else{
+      toast(j.error||'AI fill fail','err');
+    }
+  }catch(e){toast('Network error: '+e.message,'err');}
+  if(btn){btn.disabled=false;btn.textContent='\u{1F916} AI Fill';}
 }
 function toast(msg,type){
   const t=document.createElement('div'); t.className='toast '+type; t.textContent=msg;
