@@ -96,9 +96,7 @@ function ytTab(name){
   else { stopYtStatsAuto(); }
 }
 function ytHubClose(){ document.getElementById('ytHub').style.display='none'; _popModal('ytHub'); stopYtStatsAuto(); }
-function ytEsc(s){
-  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+var ytEsc=escHtml;
 function ytEnsurePoll(){
   if(!ytPollT) ytPollT=setInterval(ytRefresh,5000);
 }
@@ -608,8 +606,7 @@ async function poll(){
     if(lb){
       const recent=(j.logs||[]).slice(-3);
       // Escape HTML to prevent XSS
-      const escapeHtml = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-      const html=recent.map(l=>'<span class="'+logClass(l)+'">'+escapeHtml(l)+'</span>').join('\n');
+      const html=recent.map(l=>'<span class="'+logClass(l)+'">'+escHtml(l)+'</span>').join('\n');
       if(lb.dataset.prev!==html){lb.innerHTML=html;lb.scrollTop=lb.scrollHeight;lb.dataset.prev=html;}
     }
     const jb=document.getElementById('jbatch');
@@ -1223,7 +1220,7 @@ async function delDua(id){
   else toast(j.error||'Delete fail','err');
 }
 function closeForm(){ document.getElementById('modalbg').classList.remove('show'); }
-function vfxEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+var vfxEsc=escHtml;
 const _VS=(function(){
   const w=(typeof window==='undefined')?null:window;
   return (w&&w.VFX_SCHEMA_UI)||null;
@@ -1541,8 +1538,7 @@ function _handleJobUpdate(j){
   var lb=document.getElementById('jlog');
   if(lb){
     var recent=(j.logs||[]).slice(-3);
-    var escapeHtml=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
-    var html=recent.map(function(l){return '<span class="'+logClass(l)+'">'+escapeHtml(l)+'</span>';}).join('\n');
+    var html=recent.map(function(l){return '<span class="'+logClass(l)+'">'+escHtml(l)+'</span>';}).join('\n');
     if(lb.dataset.prev!==html){lb.innerHTML=html;lb.scrollTop=lb.scrollHeight;lb.dataset.prev=html;}
   }
   var jb=document.getElementById('jbatch');

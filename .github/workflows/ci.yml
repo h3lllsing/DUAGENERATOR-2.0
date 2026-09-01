@@ -12,10 +12,11 @@ concurrency:
 
 jobs:
   python-tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.11", "3.12"]
 
     steps:
@@ -56,6 +57,17 @@ jobs:
       - name: Run E2E tests
         run: |
           python -m pytest tests/test_e2e_render.py -v --tb=short --timeout=60
+
+      - name: Upload E2E artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-artifacts-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            output/
+            temp/
+            data/
+          retention-days: 7
 
   syntax-check:
     runs-on: ubuntu-latest
