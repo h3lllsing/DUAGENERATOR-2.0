@@ -241,12 +241,20 @@ class DuaVideoPipeline:
         return True
 
     def generate_video(self, dua_id: str, theme: str = "dark",
-                       effect: str = "auto") -> bool:
+                       effect: str = "auto", dry_run: bool = False) -> bool:
         """
         Main entry point: Takes a Dua ID and generates the final MP4.
+        
+        Args:
+            dua_id: Dua identifier
+            theme: Video theme
+            effect: Visual effect
+            dry_run: If True, validate inputs without generating video
         """
         logger.info("=" * 50)
         logger.info(f"STARTING GENERATION FOR: {dua_id}")
+        if dry_run:
+            logger.info("[DRY RUN] Validation only - no video will be generated")
         logger.info("=" * 50)
         start_time = time.time()
         self._cancel_requested = False
@@ -256,6 +264,18 @@ class DuaVideoPipeline:
         if not dua_data:
             logger.error(f"Dua with ID '{dua_id}' not found in database.")
             return False
+        
+        if dry_run:
+            category = dua_data.get('category', 'general')
+            arabic_text = dua_data.get('arabic', '')
+            urdu_text = dua_data.get('urdu', '')
+            title = dua_data.get('title', 'Dua')
+            logger.info(f"[DRY RUN] Category: {category}")
+            logger.info(f"[DRY RUN] Title: {title}")
+            logger.info(f"[DRY RUN] Arabic length: {len(arabic_text)} chars")
+            logger.info(f"[DRY RUN] Urdu length: {len(urdu_text)} chars")
+            logger.info("[DRY RUN] Validation passed!")
+            return True
 
         # Pre-flight: disk space check (need ~500MB free minimum)
         try:
@@ -891,12 +911,13 @@ if __name__ == "__main__":
     parser.add_argument("--effect", type=str, default="auto", help="Visual effect (default: auto)")
     parser.add_argument("--batch", action="store_true", help="Generate all missing videos")
     parser.add_argument("--list", action="store_true", help="List all dua IDs")
+    parser.add_argument("--dry-run", action="store_true", help="Validate only, no video generation")
     args = parser.parse_args()
 
     try:
         pipeline = DuaVideoPipeline()
         if args.dua:
-            ok = pipeline.generate_video(args.dua, theme=args.theme, effect=args.effect)
+            ok = pipeline.generate_video(args.dua, theme=args.theme, effect=args.effect, dry_run=args.dry_run)
             sys.exit(0 if ok else 1)
         elif args.batch:
             pipeline._batch_generate()

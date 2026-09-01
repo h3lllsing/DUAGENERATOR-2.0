@@ -1503,14 +1503,71 @@ async function saveDua(){
 poll();
 var _pollIntervals=[3000,15000];
 var _pollTimers=[];
+var _sseSource=null;
+function _startSSE(){
+  if(_sseSource){return;}
+  try{
+    _sseSource=new EventSource('/api/status/stream');
+    _sseSource.onmessage=function(e){
+      try{
+        var j=JSON.parse(e.data);
+        _handleJobUpdate(j);
+      }catch(_){}
+    };
+    _sseSource.onerror=function(){
+      _sseSource.close();_sseSource=null;
+      setTimeout(_startSSE,5000);
+    };
+  }catch(_){}
+}
+function _stopSSE(){
+  if(_sseSource){_sseSource.close();_sseSource=null;}
+}
+function _handleJobUpdate(j){
+  window.jobDua=j.duaId;busy=j.running;
+  if(j.running){
+    barHidden=false;
+    if(autoHideBarT){clearTimeout(autoHideBarT);autoHideBarT=null;}
+  }
+  var showBar=j.running||(!barHidden&&(j.step==='done'||!!j.error));
+  document.getElementById('jobbar').classList.toggle('show',showBar);
+  document.getElementById('jstep').textContent=(j.step||'-').toUpperCase();
+  document.getElementById('jdua').textContent=j.duaId||'';
+  var indet=j.running&&(j.step!=='render');
+  document.getElementById('jpct').textContent=j.running?((j.percent||0)+'%'):(j.error?'FAILED':(j.step==='done'?'100%':''));
+  var f=document.getElementById('jfill');
+  f.classList.toggle('indet',indet);
+  f.style.width=indet?'30%':((j.percent||0)+'%');
+  var lb=document.getElementById('jlog');
+  if(lb){
+    var recent=(j.logs||[]).slice(-3);
+    var escapeHtml=function(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');};
+    var html=recent.map(function(l){return '<span class="'+logClass(l)+'">'+escapeHtml(l)+'</span>';}).join('\n');
+    if(lb.dataset.prev!==html){lb.innerHTML=html;lb.scrollTop=lb.scrollHeight;lb.dataset.prev=html;}
+  }
+  var jb=document.getElementById('jbatch');
+  var jc=document.getElementById('jcancel');
+  if(j.queue&&j.queue.active){
+    jc.style.display='inline-block';
+    jb.style.display='inline';
+    var qt=j.queue.total||0;
+    var qp=qt?Math.round((j.queue.done||0)*100/qt):0;
+    jb.textContent=qp+'% '+(j.queue.idx)+'/'+qt+
+      ' \u2705'+j.queue.done+' \u274C'+(j.queue.failed?j.queue.failed.length:0)+
+      (j.queue.skipped&&j.queue.skipped.length?(' \u23ED'+j.queue.skipped.length):'')+
+      ' | '+(j.duaId||'-');
+  }else{jb.style.display='none';jc.style.display='none';}
+  document.title=j.running?(j.percent+'% - Dua Studio'):'Dua Video Studio';
+}
 function _startPolling(){
   _stopPolling();
-  _pollTimers.push(setInterval(poll,_pollIntervals[0]));
+  _startSSE();
   _pollTimers.push(setInterval(load,_pollIntervals[1]));
 }
 function _stopPolling(){
   _pollTimers.forEach(function(t){clearInterval(t);});
   _pollTimers=[];
+  _stopSSE();
 }
 _startPolling();
 document.addEventListener('visibilitychange',function(){

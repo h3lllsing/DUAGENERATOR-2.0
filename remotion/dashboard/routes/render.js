@@ -892,6 +892,30 @@ module.exports = function renderRoutes(deps) {
       })));
     }
 
+    // ── GET /api/status/stream (SSE) ──
+    if (method === 'GET' && p === '/api/status/stream') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+      });
+      const sseId = Date.now().toString(36);
+      const sendSSE = (data) => {
+        try { res.write('id: ' + sseId + '\ndata: ' + JSON.stringify(data) + '\n\n'); }
+        catch (_) {}
+      };
+      sendSSE(Object.assign({}, job, {queue: {active: queue.active}}));
+      const iv = setInterval(() => {
+        sendSSE(Object.assign({}, job, {
+          queue: {active: queue.active, total: queue.items.length,
+            idx: queue.idx, done: queue.done.length},
+        }));
+      }, 1000);
+      req.on('close', () => clearInterval(iv));
+      return true;
+    }
+
     // ── POST /api/render-all ──
     if (method === 'POST' && p === '/api/render-all') {
       if (job.running || queue.active) return send(res, 409, JSON.stringify({ok: false, error: 'Job already running'}));

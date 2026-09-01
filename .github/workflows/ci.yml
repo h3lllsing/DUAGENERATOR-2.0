@@ -39,11 +39,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest-cov pytest-timeout bandit
+          pip install pytest-cov pytest-timeout bandit pip-audit
 
       - name: Security scan (Bandit)
         run: |
           bandit -r core/ -ll --skip B101
+
+      - name: Dependency audit (pip-audit)
+        run: |
+          pip-audit --desc
 
       - name: Run unit tests
         run: |

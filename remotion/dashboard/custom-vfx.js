@@ -123,10 +123,15 @@ function sanitizeOverrides(o) {
 }
 
 // data/custom_vfx.json ko hafta-se padhta hai (silent null on error).
+// Mtime-based cache: skip re-parse if file unchanged.
+let _vfxCache = null;
+let _vfxCacheMtime = 0;
 function load(PROJECT) {
   try {
     const p = packPath(PROJECT);
     if (!fs.existsSync(p)) return null;
+    const st = fs.statSync(p);
+    if (_vfxCache && st.mtimeMs === _vfxCacheMtime) return _vfxCache;
     const raw = JSON.parse(fs.readFileSync(p, 'utf8'));
     if (!raw || typeof raw !== 'object') return null;
     // null-proto registry => inherited magic props (constructor etc.) khud
@@ -148,7 +153,7 @@ function load(PROJECT) {
         ? arr.filter((it) => it && typeof it.id === 'string' && ID_RE.test(it.id) &&
             !BLOCKED_IDS.has(it.id) && fn(it))
         : [];
-    return {
+    const result = {
       patterns,
       plugins: Array.isArray(raw.plugins) ? raw.plugins : [],
       themes: loadRealm(raw.themes, sanitizeThemeItem),
@@ -156,6 +161,9 @@ function load(PROJECT) {
       motion: loadRealm(raw.motion, sanitizeMotionItem),
       audio: loadRealm(raw.audio, sanitizeAudioItem),
     };
+    _vfxCache = result;
+    _vfxCacheMtime = st.mtimeMs;
+    return result;
   } catch (_) {
     return null;
   }

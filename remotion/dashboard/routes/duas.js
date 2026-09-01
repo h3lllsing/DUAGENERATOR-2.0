@@ -214,30 +214,52 @@ module.exports = function duaRoutes(deps) {
     const raw = await readDuaDb();
     const list = toList(raw);
     const target = list.find((d) => d.id === id);
+    if (!target) throw err(404, 'dua nahi mili');
+    
+    // Soft-delete: archive the dua instead of permanent deletion
+    const ARCHIVE_PATH = path.join(PROJECT, 'data', 'duas_archive.json');
+    let archive = [];
+    try { archive = JSON.parse((await F.readFile(ARCHIVE_PATH, 'utf8')).replace(/^\uFEFF/, '')); } catch (_) {}
+    if (!Array.isArray(archive)) archive = [];
+    target._deletedAt = new Date().toISOString();
+    target._deletedBy = 'user';
+    archive.push(target);
+    await F.writeFile(ARCHIVE_PATH, JSON.stringify(archive, null, 2), 'utf8');
+    
+    // Remove from active list
     const next = list.filter((d) => d.id !== id);
-    if (next.length === list.length) throw err(404, 'dua nahi mili');
-    try {
-      await Promise.all(['_ar.mp3', '_ur.mp3', '_ar_timing.jsonl',
-        '_ur_timing.jsonl', '_merged.wav'].map((s) =>
-        F.rm(path.join(TEMP, id + s), {force: true}).catch(() => {})));
-      await F.rm(path.join(REMOTION, 'public', 'audio', id + '.mp3'), {force: true}).catch(() => {});
-      await F.rm(path.join(DATA, id + '.json'), {force: true}).catch(() => {});
-      if (target && target.title) {
-        const t = safeTitle(target.title);
-        await Promise.all([path.join(OUT, t + '.mp4'),
-          path.join(OUT, t + '.txt'),
-          path.join(OUT, 'thumbs', t + '.png'),
-          path.join(OUT, 'thumbs', id + '.png')].map((fp) =>
-          F.rm(fp, {force: true}).catch(() => {})));
-      }
-      // remove id-based thumb when no title target (id + '.png')
-      await F.rm(path.join(OUT, 'thumbs', id + '.png'), {force: true}).catch(() => {});
-      delete cacheStore[id]; saveCache();
-      delete qcStore[id]; saveQc();
-    } catch (e) { log('cleanup warning: ' + e.message); }
     await writeDuaDb(raw, next);
-    log('DUA DELETED (+files cleaned): ' + id);
-    send(res, 200, JSON.stringify({ok: true}));
+    log('DUA SOFT-DELETED (archived): ' + id);
+    send(res, 200, JSON.stringify({ok: true, archived: true, undoId: id}));
+  }
+
+  async function doUndoDelete(res, body) {
+    const f = parseJson(body, 'undo-delete-dua');
+    const id = String(f.id || '').trim();
+    if (!id || !/^[a-z0-9_]{1,80}$/.test(id)) throw err(400, 'invalid dua id');
+    
+    const ARCHIVE_PATH = path.join(PROJECT, 'data', 'duas_archive.json');
+    let archive = [];
+    try { archive = JSON.parse((await F.readFile(ARCHIVE_PATH, 'utf8')).replace(/^\uFEFF/, '')); } catch (_) {}
+    if (!Array.isArray(archive)) throw err(404, 'archive empty');
+    
+    const idx = archive.findIndex((d) => d.id === id);
+    if (idx < 0) throw err(404, 'archived dua not found');
+    
+    const dua = archive.splice(idx, 1)[0];
+    delete dua._deletedAt;
+    delete dua._deletedBy;
+    
+    // Write back archive
+    await F.writeFile(ARCHIVE_PATH, JSON.stringify(archive, null, 2), 'utf8');
+    
+    // Restore to active list
+    const raw = await readDuaDb();
+    const list = toList(raw);
+    list.push(dua);
+    await writeDuaDb(raw, list);
+    log('DUA RESTORED FROM ARCHIVE: ' + id);
+    send(res, 200, JSON.stringify({ok: true, restored: true}));
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -292,6 +314,14 @@ module.exports = function duaRoutes(deps) {
     if (method === 'POST' && p === '/api/delete-dua') {
       readBody(req, res).then((body) => {
         routeCatch(res, () => doDelete(res, body));
+      }, () => {});
+      return true;
+    }
+
+    // ── POST /api/undo-delete-dua ──
+    if (method === 'POST' && p === '/api/undo-delete-dua') {
+      readBody(req, res).then((body) => {
+        routeCatch(res, () => doUndoDelete(res, body));
       }, () => {});
       return true;
     }
