@@ -1,6 +1,7 @@
 """
 Word Highlight (VISUAL Phase 4).
 
+
 Deterministic, additive WordBoundary-driven visual highlighting.
 
 Locked design:
@@ -188,7 +189,7 @@ def highlight_targets(events: list[dict], geometry: dict,
 # ----------------------------------------------------------------------
 def make_word_overlay(rect: Rect, accent_rgb: tuple[int, int, int],
                       fill_alpha: int = 46,
-                      outline_alpha: int = 165) -> "Image.Image":
+                      outline_alpha: int = 165):
     """
     Build a deterministic RGBA overlay sized to ``rect``: a subtle rounded
     translucent accent fill with a thin accent outline. The overlay is drawn

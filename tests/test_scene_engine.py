@@ -339,7 +339,6 @@ class TestTextIntegrity:
 
     def test_no_shaping_of_title(self):
         scene = _scene(title="Bathroom Dua", duration=1.0)
-        r = _renderer()
         # title text must pass through untouched (no reshaping/bidi anywhere)
         assert scene.layers[0].text == "Bathroom Dua"
         frames, _ = _render("seed_title_plain", scene)

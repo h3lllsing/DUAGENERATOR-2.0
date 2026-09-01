@@ -299,8 +299,7 @@ class EffectsEngine:
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
 
-        # Random glitch offset
-        rng = np.random.default_rng(frame_num)  # Deterministic glitch
+        # Deterministic glitch offset
         glitch_offset = int(5 * np.sin(progress * np.pi * 10))
 
         # Create color channels with offset
@@ -531,7 +530,6 @@ class EffectsEngine:
 
     def _fx_glitch_v2(self, arr, params, seed, frame, total):
         strength = float(params.get("strength", 0.5))
-        tint = params.get("tint", (212, 175, 55))
         h, w = arr.shape[:2]
         rng = np.random.default_rng((int(seed) + frame) & 0xFFFFFF)
         out = arr.copy()

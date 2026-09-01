@@ -476,8 +476,8 @@ class DuaApp(ctk.CTk):
         try:
             path = build_effect_preview(key)
             self.after(0, lambda: self._finish_preview(path, None))
-        except Exception:
-            self.after(0, lambda: self._finish_preview(None, str(e)))
+        except Exception as e:  # noqa: F841 — e captured by lambda
+            self.after(0, lambda e=e: self._finish_preview(None, str(e)))
 
     def _finish_preview(self, path, error):
         self._preview_btn.configure(state="normal", text="\u25B6 Preview")

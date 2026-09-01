@@ -450,7 +450,6 @@ def main():
     args = ap.parse_args()
 
     count = max(1, min(args.count, 10))
-    cats = CATEGORIES_MAP.get(args.category, ["general"])
 
     topic_line = ""
     if args.topic:

@@ -96,7 +96,6 @@ def detect_gpu() -> dict:
 def pick_backend(frames_total: int = 0) -> str:
     """Choose the best compute backend for the current machine."""
     cores = detect_cpu_cores()
-    gpu = detect_gpu()
 
     # GPU compute only if PyOpenCL is actually importable.
     try:
