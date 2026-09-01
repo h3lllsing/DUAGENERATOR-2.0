@@ -1630,6 +1630,12 @@ function aiTab(tab){
   document.getElementById('ai_panel_fmt').style.display=tab==='fmt'?'block':'none';
   setMsg2('aiimportmsg','','');
   document.getElementById('ai_result').style.display='none';
+  if(tab==='fmt'){
+    document.getElementById('fmt_json').value='';
+    document.getElementById('fmt_parsed').style.display='none';
+    document.getElementById('fmt_fields').style.display='none';
+    document.getElementById('ai_fmt_btn').disabled=true;
+  }
 }
 function aiConfigToggle(){
   var box=document.getElementById('ai_cfg_box');
@@ -1691,13 +1697,18 @@ async function aiImport(){
   }catch(e){setMsg2('aiimportmsg','Network error: '+e.message,'err');}
   btn.disabled=false;btn.textContent='\u{1F916} GENERATE + ADD';
 }
+var _fmtParseTimer=null;
 function parseFmtJson(){
+  clearTimeout(_fmtParseTimer);
+  _fmtParseTimer=setTimeout(function(){_parseFmtJsonInner();},200);
+}
+function _parseFmtJsonInner(){
   var el=document.getElementById('fmt_json');
   var parsed=document.getElementById('fmt_parsed');
   var fields=document.getElementById('fmt_fields');
   var btn=document.getElementById('ai_fmt_btn');
   var raw=el.value.trim();
-  if(!raw){parsed.style.display='none';fields.style.display='none';btn.disabled=true;return;}
+  if(!raw){parsed.style.display='none';parsed.className='';fields.style.display='none';btn.disabled=true;return;}
   try{
     var data=JSON.parse(raw);
     if(!Array.isArray(data))data=[data];
@@ -1709,13 +1720,21 @@ function parseFmtJson(){
     document.getElementById('fmt_ref').value=d.reference||'';
     document.getElementById('fmt_category').value=d.category||'general';
     document.getElementById('fmt_explanation').value=d.explanation||'';
-    document.getElementById('fmt_parsed_msg').textContent='Parsed! '+data.length+' dua(s) found';
-    parsed.style.display='block';fields.style.display='block';btn.disabled=false;
+    document.getElementById('fmt_parsed_msg').textContent='\u2713 Parsed! '+data.length+' dua(s) found';
+    parsed.style.display='block';
+    parsed.style.background='rgba(63,185,80,.08)';
+    parsed.style.borderColor='rgba(63,185,80,.25)';
+    parsed.style.color='#3fb950';
+    fields.style.display='block';btn.disabled=false;
   }catch(e){
-    parsed.style.display='none';fields.style.display='none';btn.disabled=true;
+    document.getElementById('fmt_parsed_msg').textContent='\u274C Invalid JSON — valid JSON paste karo';
+    parsed.style.display='block';
+    parsed.style.background='rgba(255,99,99,.08)';
+    parsed.style.borderColor='rgba(255,99,99,.25)';
+    parsed.style.color='#ff8585';
+    fields.style.display='none';btn.disabled=true;
   }
 }
-var _fmtSaveDuas=[];
 async function aiFormatSave(){
   var btn=document.getElementById('ai_fmt_btn');
   var msg=document.getElementById('aiimportmsg');
@@ -1724,6 +1743,7 @@ async function aiFormatSave(){
   var data;
   try{data=JSON.parse(raw);if(!Array.isArray(data))data=[data];}catch(e){return setMsg2('aiimportmsg','JSON valid nahi hai','err');}
   if(!data.length)return setMsg2('aiimportmsg','JSON mein koi dua nahi hai','err');
+  if(data.length>10)return setMsg2('aiimportmsg','Ek baar mein max 10 duas. '+data.length+' hain.','err');
   var titles=data.map(function(d){return d.title||d.id||'?';}).join(', ');
   if(!confirm(data.length+' dua(s) library mein add karein?\n\n'+titles))return;
   btn.disabled=true;btn.textContent='Saving...';

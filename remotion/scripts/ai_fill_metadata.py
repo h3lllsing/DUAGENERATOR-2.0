@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "remotion", "scripts"))
 from ai_import import (load_config, api_base_url, api_keys, api_models,
                        VALID_FREE_MODELS, FREE_MODELS, API_KEYS,
-                       call_api, _block_reason, _is_empty_block)
+                       _is_empty_block)
 
 SYSTEM_PROMPT = """You are an expert Islamic Sunni scholar. The user will give you a dua title, reference, and category.
 

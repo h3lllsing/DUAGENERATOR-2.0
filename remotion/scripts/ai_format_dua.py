@@ -10,7 +10,6 @@ Returns JSON: {"ok":true,"added":1,"duas":[{"id":"...","title":"..."}]}
 import argparse
 import json
 import os
-import re
 import sys
 import time
 import urllib.request
@@ -20,8 +19,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "remotion", "scripts"))
 from ai_import import (load_config, api_base_url, api_keys, api_models,
                        VALID_FREE_MODELS, FREE_MODELS, API_KEYS,
-                       call_api, _block_reason, _is_empty_block,
-                       load_existing, save_duas, DUAS_PATH)
+                       _is_empty_block,
+                       load_existing, save_duas)
 
 SYSTEM_PROMPT = """You are an expert Islamic Sunni scholar. The user will paste a dua in any format (Arabic, Urdu, Roman Urdu, mixed). Your job:
 
