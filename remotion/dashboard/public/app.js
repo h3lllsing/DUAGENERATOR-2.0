@@ -25,7 +25,10 @@ function setThemeSel(v){
 }
 let _loaded=false;
 async function load(){
-  if(!_loaded){document.getElementById('grid').innerHTML='<div class="loading">Loading...</div>';}
+  if(!_loaded){
+    var sk='';for(var i=0;i<8;i++)sk+='<div class="skeleton skel-card"></div>';
+    document.getElementById('grid').innerHTML=sk;
+  }
   try{
     const r=await fetch('/api/duas');
     if(!r.ok) throw new Error('Server error: '+r.status);
@@ -483,6 +486,14 @@ function render(){
         +'</div>'
       +'</div>';
     frag.appendChild(el);
+    el.addEventListener('click',function(ev){
+      if(ev.target.closest('button,.btn-icon,.btn-render,.btn-play'))return;
+      if(matchMedia('(hover:none)and(pointer:coarse)').matches){
+        var wasOpen=el.classList.contains('pop-open');
+        document.querySelectorAll('.card.pop-open').forEach(function(c){c.classList.remove('pop-open');});
+        if(!wasOpen)el.classList.add('pop-open');
+      }
+    });
   });
   grid.innerHTML='';
   grid.appendChild(frag);
@@ -504,7 +515,7 @@ async function aiFillCard(id){
     var j=await r.json();
     if(j.ok){
       editingId=d.id;
-      document.getElementById('modaltitle').innerHTML='&#9998; Edit: '+escHtml(d.title);
+      document.getElementById('form_title').innerHTML='&#9998; Edit: '+escHtml(d.title);
       document.getElementById('f_title').value=d.title||'';
       document.getElementById('f_arabic').value=j.arabic||d.arabic||'';
       document.getElementById('f_urdu').value=j.urdu||d.urdu||'';
@@ -1102,20 +1113,23 @@ function _trapFocus(modalId){
   var modal=document.getElementById(modalId==='form'?'modalbg':
     modalId==='ai'?'aimodalbg':modalId==='voice'?'voicebg':
     modalId==='settings'?'setbg':modalId==='help'?'helpbg':
-    modalId==='history'?'histbg':modalId==='vfx'?'vfxbg':null);
+    modalId==='history'?'histbg':modalId==='vfx'?'vfxbg':
+    modalId==='aiimport'?'aiimportbg':modalId==='player'?'playerbg':null);
   if(!modal)return;
+  if(modal._trapHandler)modal.removeEventListener('keydown',modal._trapHandler);
   var focusable=modal.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
   if(!focusable.length)return;
   var first=focusable[0];
   var last=focusable[focusable.length-1];
-  modal.addEventListener('keydown',function(e){
+  modal._trapHandler=function(e){
     if(e.key!=='Tab')return;
     if(e.shiftKey){
       if(document.activeElement===first){e.preventDefault();last.focus();}
     }else{
       if(document.activeElement===last){e.preventDefault();first.focus();}
     }
-  });
+  };
+  modal.addEventListener('keydown',modal._trapHandler);
   setTimeout(function(){first.focus();},100);
 }
 function _closeTopModal(){
@@ -1134,7 +1148,7 @@ function _closeTopModal(){
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){e.preventDefault();_closeTopModal();}
 });
-function openForm(){ editingId=null; document.getElementById('modaltitle').innerHTML='&#10133; Nayi Dua Add Karo'; document.getElementById('f_bis').checked=true; document.getElementById('modalbg').classList.add('show'); _pushModal('form'); setMsg('',''); ensureDedupAlert(); checkDedupLive(); }
+function openForm(){ editingId=null; document.getElementById('form_title').innerHTML='&#10133; Nayi Dua Add Karo'; document.getElementById('f_bis').checked=true; document.getElementById('modalbg').classList.add('show'); _pushModal('form'); setMsg('',''); ensureDedupAlert(); checkDedupLive(); }
 const GEMINI_PROMPT=['Mujhe ek authentic Islamic dua ki details chahiye (Quran ya Sahih hadith se).',
 'Dua: [YAHAN DUA KA NAAM LIKHO]',
 '',
@@ -1228,7 +1242,7 @@ async function aiParse(){
 }
 function applyDua(o){
   editingId=null;
-  document.getElementById('modaltitle').innerHTML='&#10133; Nayi Dua Add Karo';
+  document.getElementById('form_title').innerHTML='&#10133; Nayi Dua Add Karo';
   document.getElementById('f_title').value=o.title||'';
   document.getElementById('f_arabic').value=o.arabic||'';
   document.getElementById('f_urdu').value=o.urdu||'';
@@ -1600,6 +1614,10 @@ function _stopPolling(){
   _stopSSE();
 }
 _startPolling();
+document.addEventListener('click',function(ev){
+  if(!ev.target.closest('.card'))
+    document.querySelectorAll('.card.pop-open').forEach(function(c){c.classList.remove('pop-open');});
+});
 document.addEventListener('visibilitychange',function(){
   if(document.hidden){_stopPolling();}
   else{_startPolling();}
@@ -1622,8 +1640,9 @@ function openAiImport(){
   document.getElementById('ai_result').style.display='none';
   setMsg2('aiimportmsg','','');
   aiConfigLoad();
+  _pushModal('aiimport');
 }
-function closeAiImport(){document.getElementById('aiimportbg').classList.remove('show');}
+function closeAiImport(){document.getElementById('aiimportbg').classList.remove('show');_popModal('aiimport');}
 function aiTab(tab){
   document.getElementById('aitab_gen').className=tab==='gen'?'chip on':'chip';
   document.getElementById('aitab_fmt').className=tab==='fmt'?'chip on':'chip';

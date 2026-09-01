@@ -106,7 +106,7 @@
 <button class="aibtn js-expert" onclick="if(confirm('Sab un-rendered duas ki video banao?'))renderAll()">&#9654;&#65039; RENDER ALL</button>
 <button class="aibtn js-expert" onclick="if(confirm('Sab thumbnails regenerate karo?'))thumbsAll()">&#128247; THUMBS ALL</button>
 
-<div class="modal-bg" id="playerbg" onclick="if(event.target===this)closePlayer()">
+<div class="modal-bg" id="playerbg" onclick="if(event.target===this)closePlayer()" role="dialog" aria-modal="true">
   <div class="playerbox">
     <video id="pvid" controls playsinline></video>
     <div class="pbtns"><span class="pname" id="pname"></span>
@@ -114,9 +114,9 @@
   </div>
 </div>
 
-<div class="modal-bg" id="modalbg" onclick="if(event.target===this)closeForm()">
+<div class="modal-bg" id="modalbg" onclick="if(event.target===this)closeForm()" role="dialog" aria-modal="true" aria-labelledby="form_title">
   <div class="modal">
-    <h2 id="modaltitle">&#10133; Nayi Dua Add Karo</h2>
+    <h2 id="form_title">&#10133; Nayi Dua Add Karo</h2>
     <label for="f_title">Title (Roman Urdu) *</label>
     <input id="f_title" placeholder="e.g. Safar Ki Dua">
     <label for="f_arabic">Arabic Text * <span style="color:#5a6474">(harakat ke sath)</span></label>
@@ -163,9 +163,9 @@
     <div class="formmsg" id="formmsg"></div>
   </div>
 </div>
-<div class="modal-bg" id="voicebg" onclick="if(event.target===this)closeVoice()">
+<div class="modal-bg" id="voicebg" onclick="if(event.target===this)closeVoice()" role="dialog" aria-modal="true" aria-labelledby="voice_title">
   <div class="modal">
-    <h2>&#127908; Voice Only <span style="font-size:12px;color:#8b93a3">(AR + UR combined, video nahi)</span></h2>
+    <h2 id="voice_title">&#127908; Voice Only <span style="font-size:12px;color:#8b93a3">(AR + UR combined, video nahi)</span></h2>
     <div class="chips" style="margin-bottom:12px">
       <button class="chip on" id="vm_portal_btn" onclick="setVoiceMode('portal')">Portal Dua</button>
       <button class="chip" id="vm_custom_btn" onclick="setVoiceMode('custom')">Custom Text</button>
@@ -199,9 +199,9 @@
   </div>
 </div>
 
-<div class="modal-bg" id="aiimportbg" onclick="if(event.target===this)closeAiImport()">
+<div class="modal-bg" id="aiimportbg" onclick="if(event.target===this)closeAiImport()" role="dialog" aria-modal="true" aria-labelledby="aiimport_title">
   <div class="modal">
-    <h2>&#129302; AI Dua Import</h2>
+    <h2 id="aiimport_title">&#129302; AI Dua Import</h2>
     <div class="ai-tabs">
       <button class="chip on" id="aitab_gen" onclick="aiTab('gen')">&#129302; Generate</button>
       <button class="chip" id="aitab_fmt" onclick="aiTab('fmt')">&#128203; Paste & Format</button>
@@ -297,10 +297,10 @@
   </div>
 </div>
 
-<div class="modal-bg" id="helpbg" onclick="if(event.target===this)closeHelp()">
+<div class="modal-bg" id="helpbg" onclick="if(event.target===this)closeHelp()" role="dialog" aria-modal="true" aria-labelledby="help_title">
   <div class="modal" style="width:min(680px,94vw)">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <b style="color:#d4af37;font-size:17px">&#128214; Kaise Use Karein / &#x6A9;&#x6CC;&#x633;&#x6D2; &#x627;&#x633;&#x62A;&#x639;&#x645;&#x627;&#x644; &#x6A9;&#x631;&#x6CC;&#x6BA;</b>
+      <b id="help_title" style="color:#d4af37;font-size:17px">&#128214; Kaise Use Karein / &#x6A9;&#x6CC;&#x633;&#x6D2; &#x627;&#x633;&#x62A;&#x639;&#x645;&#x627;&#x644; &#x6A9;&#x631;&#x6CC;&#x6BA;</b>
       <span style="flex:1"></span>
       <button class="chip" onclick="closeHelp()">&#10005;</button>
     </div>
@@ -357,9 +357,9 @@
   </div>
 </div>
 
-<div class="modal-bg" id="setbg" onclick="if(event.target===this)closeSettings()">
+<div class="modal-bg" id="setbg" onclick="if(event.target===this)closeSettings()" role="dialog" aria-modal="true" aria-labelledby="settings_title">
   <div class="modal">
-    <h2>&#9881;&#65039; Channel Settings</h2>
+    <h2 id="settings_title">&#9881;&#65039; Channel Settings</h2>
     <label for="s_name">Channel Name (end card pe dikhega)</label>
     <input id="s_name" placeholder="e.g. Daily Dua">
     <label for="s_handle" style="margin-top:10px">@Handle</label>
@@ -472,17 +472,17 @@
 
 <div id="toasts"></div>
 
-<div class="modal-bg" id="histbg" onclick="if(event.target===this)closeHistory()">
+<div class="modal-bg" id="histbg" onclick="if(event.target===this)closeHistory()" role="dialog" aria-modal="true" aria-labelledby="history_title">
   <div class="modal">
-    <h2>&#128337; Render History</h2>
+    <h2 id="history_title">&#128337; Render History</h2>
     <div id="histlist" style="max-height:60vh;overflow:auto;margin-top:10px"></div>
     <div class="mbtns" style="margin-top:12px"><button class="chip" onclick="closeHistory()">Band karo &#10005;</button></div>
   </div>
 </div>
 
-<div class="modal-bg" id="aimodalbg" onclick="if(event.target===this)closeAi()">
+<div class="modal-bg" id="aimodalbg" onclick="if(event.target===this)closeAi()" role="dialog" aria-modal="true" aria-labelledby="ai_fill_title">
   <div class="modal">
-    <h2>&#129302; AI Se Dua Import</h2>
+    <h2 id="ai_fill_title">&#129302; AI Se Dua Import</h2>
     <div class="aihint no" id="aiengine">Checking Chrome AI...</div>
     <div><b>Step 1:</b> Neeche wala prompt copy karo &rarr; <b>gemini.google.com</b> pe paste karo &rarr; apni dua ka naam likho &rarr; jo jawab aaye wo copy karo</div>
     <div class="mbtns" style="margin-top:8px">
@@ -498,10 +498,10 @@
   </div>
 </div>
 
-<div class="modal-bg" id="vfxbg" onclick="if(event.target===this)closeVfxStudio()">
+<div class="modal-bg" id="vfxbg" onclick="if(event.target===this)closeVfxStudio()" role="dialog" aria-modal="true" aria-labelledby="vfx_title">
   <div class="modal" style="width:min(920px,96vw)">
     <div class="vfx-head">
-      <h2>&#10022; Custom VFX Studio</h2>
+      <h2 id="vfx_title">&#10022; Custom VFX Studio</h2>
       <button class="vfx-x" onclick="closeVfxStudio()" title="Band karo">&#10005; Close</button>
     </div>
     <div class="aihint" style="margin-bottom:12px">&#9734; AI (Gemini) se geometric border/corner/particle patterns aur plugin attachments import karo. Har design schema-check + fingerprint dedup se guzarta hai.</div>
