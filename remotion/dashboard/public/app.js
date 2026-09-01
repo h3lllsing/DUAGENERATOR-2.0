@@ -521,9 +521,10 @@ async function aiFillCard(id){
   if(btn){btn.disabled=false;btn.textContent='\u{1F916} AI Fill';}
 }
 function toast(msg,type){
-  const t=document.createElement('div'); t.className='toast '+type; t.textContent=msg;
+  var t=document.createElement('div');t.className='toast '+(type||'');
+  t.innerHTML='<span>'+msg+'</span><span class="toast-x" onclick="this.parentElement.classList.add(\'removing\');setTimeout(function(){this.parentElement&&this.parentElement.remove();}.bind(this),250)">\u00d5</span>';
   document.getElementById('toasts').appendChild(t);
-  setTimeout(()=>t.remove(),5000);
+  setTimeout(function(){t.classList.add('removing');setTimeout(function(){t.remove();},250);},4500);
 }
 // ── Live dedup alerts (add/edit form) ──
 function normDedup(s){return String(s==null?'':s).replace(/\s+/g,' ').trim().toLowerCase();}
