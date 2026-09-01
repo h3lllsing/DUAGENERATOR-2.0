@@ -112,7 +112,7 @@ function ytTab(name){
   else { stopYtStatsAuto(); }
 }
 function ytHubClose(){ document.getElementById('ytHub').style.display='none'; _popModal('ytHub'); stopYtStatsAuto(); }
-function ytEsc(s){return escHtml(s);}
+var ytEsc = escHtml;
 function ytEnsurePoll(){
   if(!ytPollT) ytPollT=setInterval(ytRefresh,5000);
 }
@@ -1311,7 +1311,7 @@ async function delDua(id){
   else toast(j.error||'Delete fail','err');
 }
 function closeForm(){ document.getElementById('modalbg').classList.remove('show'); }
-function vfxEsc(s){return escHtml(s);}
+var vfxEsc = escHtml;
 const _VS=(function(){
   const w=(typeof window==='undefined')?null:window;
   return (w&&w.VFX_SCHEMA_UI)||null;
