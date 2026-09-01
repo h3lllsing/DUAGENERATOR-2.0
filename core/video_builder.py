@@ -136,7 +136,7 @@ class VideoBuilder:
 
     def build_video(
         self,
-        frames: list[Image.Image | np.ndarray] | any,
+        frames: list,
         output_path: str,
         audio_path: str | None = None,
         temp_video_path: str | None = None

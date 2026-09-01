@@ -778,6 +778,21 @@ function openVoice(){
 }
 function closeVoice(){ vpGen++; vpReset(); document.getElementById('voicebg').classList.remove('show'); _popModal('voice'); }
 function setVoiceMsg(t,c){ const m=document.getElementById('voicemsg'); m.textContent=t; m.className='formmsg '+c; }
+async function previewVoice(lang){
+const vpSel=document.getElementById('f_vpair');
+const pair=VOICE_PAIRS[vpSel?vpSel.value:'Hamed + Asad']||VOICE_PAIRS['Hamed + Asad'];
+const voice=lang==='ur'?pair[1]:pair[0];
+setVoiceMsg('Loading '+lang.toUpperCase()+' preview...','');
+try{
+const r=await fetch('/api/voice-preview',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({voice,lang})});
+const j=await r.json();
+if(!j.ok)return setVoiceMsg(j.error||'Preview fail','err');
+const a=new Audio(j.path+'?v='+Date.now());
+a.onerror=function(){setVoiceMsg('Audio load error','err');};
+a.oncanplay=function(){setVoiceMsg('Playing '+lang.toUpperCase()+' preview...','ok');};
+a.play();
+}catch(e){setVoiceMsg('Server error','err');}
+}
 async function genVoice(){
   if(voiceMode==='custom'){
     const a=document.getElementById('v_arabic').value.trim();

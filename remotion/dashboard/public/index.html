@@ -185,8 +185,10 @@
       <input id="v_name" placeholder="e.g. test_dua_1">
       <div class="aihint no" style="margin-top:8px">&#128190; Audio <b>AUDIO folder</b> me save hogi: custom_&lt;naam&gt;.mp3 &mdash; portal ki list me NAHI aayegi</div>
     </div>
-    <div class="mbtns">
+    <div class="mbtns" style="gap:8px">
       <button class="btn-cancel" onclick="closeVoice()">Band karo</button>
+      <button class="chip" onclick="previewVoice('ar')" title="Arabic voice sunao (3s)">&#127908; AR Preview</button>
+      <button class="chip" onclick="previewVoice('ur')" title="Urdu voice sunao (3s)">&#127908; UR Preview</button>
       <button class="btn-save" onclick="genVoice()">&#127908; BANAO</button>
     </div>
     <div class="formmsg" id="voicemsg"></div>

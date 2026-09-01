@@ -223,6 +223,99 @@ class AudioMixer:
             return False
 
     @staticmethod
+    def merge_audio_crossfade(
+        audio_paths: list,
+        output_path: str,
+        crossfade_seconds: float = 0.3,
+        pad_to_duration: float = None,
+        sample_rate: int = None,
+    ) -> bool:
+        """
+        Merges multiple audio files with a cross-fade overlap between clips.
+
+        Each clip's end overlaps with the next clip's start by crossfade_seconds,
+        creating a smooth transition instead of a hard cut + silence gap.
+
+        Args:
+            audio_paths: List of paths to audio files.
+            output_path: Path for the final merged .wav file.
+            crossfade_seconds: Overlap duration in seconds (default 0.3).
+            pad_to_duration: If set, append trailing silence to reach this duration.
+            sample_rate: Target sample rate (default: config AUDIO_SAMPLE_RATE).
+
+        Returns:
+            bool: True if successful, False otherwise.
+        """
+        from moviepy import CompositeAudioClip
+
+        try:
+            sample_rate = AudioMixer._get_sample_rate(sample_rate)
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+            clips = []
+            try:
+                for ap in audio_paths:
+                    if os.path.exists(ap):
+                        clips.append(AudioFileClip(ap, fps=sample_rate))
+                    else:
+                        logger.warning(f"Audio file not found: {ap}")
+            except Exception:
+                for c in clips:
+                    try: c.close()
+                    except Exception: pass
+                raise
+
+            if not clips:
+                logger.error("No valid audio clips to crossfade.")
+                return False
+
+            # Apply cross-fade: offset each clip and set crossfadein
+            if len(clips) > 1 and crossfade_seconds > 0:
+                cf = min(crossfade_seconds, min(c.duration for c in clips) / 2)
+                offset = 0
+                for i, c in enumerate(clips):
+                    c.start = offset
+                    if i > 0:
+                        c.crossfadein(cf)
+                    offset += c.duration - (cf if i > 0 else 0)
+                final = CompositeAudioClip(clips)
+            else:
+                final = concatenate_audioclips(clips)
+
+            # Pad to target duration
+            if pad_to_duration is not None:
+                speech_dur = final.duration
+                if pad_to_duration > speech_dur + 1e-6:
+                    hold = pad_to_duration - speech_dur
+                    logger.info(f"Crossfade: padding {hold:.2f}s trailing silence")
+                    silence = AudioMixer._make_silence(hold, sample_rate)
+                    silence.start = final.duration
+                    final = CompositeAudioClip([final, silence])
+
+            final.write_audiofile(
+                output_path,
+                codec='pcm_s16le',
+                fps=sample_rate,
+                nbytes=2,
+                logger=None
+            )
+
+            for c in clips:
+                try: c.close()
+                except Exception: pass
+            try: final.close()
+            except Exception: pass
+
+            logger.info(f"Crossfade merged audio to: {output_path}")
+            return True
+
+        except Exception as e:
+            logger.error(f"Error crossfade merging: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    @staticmethod
     def measure_loudness(input_path: str) -> dict:
         """
         Measure EBU R128 loudness of an audio file using the bundled ffmpeg

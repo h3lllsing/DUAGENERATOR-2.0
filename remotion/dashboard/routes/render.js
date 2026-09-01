@@ -807,9 +807,28 @@ module.exports = function renderRoutes(deps) {
       return true;
     }
 
+    // ── POST /api/voice-preview ──
+    if (method === 'POST' && p === '/api/voice-preview') {
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'voice-preview');
+          const voice = cleanStr(f.voice || '', 80);
+          const lang = f.lang === 'ur' ? 'ur' : 'ar';
+          if (!voice) throw err(400, 'voice name required');
+          const outPath = path.join(TEMP, 'voice_preview_' + lang + '.mp3');
+          const script = path.join(REMOTION, 'scripts', 'voice_preview.py');
+          const rc = await runQuiet(PY, [script, voice, lang, '', outPath]);
+          if (rc !== 0) throw err(500, 'preview generation failed');
+          if (!fs.existsSync(outPath)) throw err(500, 'preview file not created');
+          send(res, 200, JSON.stringify({ok: true, path: '/temp/voice_preview_' + lang + '.mp3'}));
+        });
+      }, () => {});
+      return true;
+    }
+
     // ── GET /temp/* ──
     if (method === 'GET' && p.startsWith('/temp/')) {
-      const allowed = ['custom_ar.mp3', 'custom_ur.mp3', 'custom_merged.wav'];
+      const allowed = ['custom_ar.mp3', 'custom_ur.mp3', 'custom_merged.wav', 'voice_preview_ar.mp3', 'voice_preview_ur.mp3'];
       const name = path.basename(decodeURIComponent(p.slice('/temp/'.length)));
       if (!allowed.includes(name)) return send(res, 404, 'not found', 'text/plain');
       const file = path.join(TEMP, 'custom', name);
