@@ -29,18 +29,17 @@ SAMPLE_TITLE = "\u0627\u0644\u0644\u06c1 \u06a9\u06d2 \u0646\u0627\u0645 \u0633\
 SAMPLE_ARABIC = "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0651\u064e\u0647\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0652\u0645\u064e\u0670\u0646\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0650\u064a\u0645\u0650"
 SAMPLE_URDU = "\u0627\u0644\u0644\u06c1 \u06a9\u06d2 \u0646\u0627\u0645 \u0633\u06d2 \u062c\u0648 \u0628\u06c1\u062a \u0645\u06c1\u0631\u0628\u0627\u0646 \u0631\u062d\u0645\u062a \u0648\u0627\u0644\u0627 \u06c1\u06d2\u06d4"
 
+# Generate EFFECT_INFO dynamically from master config
+from core.master_config import MASTER_EFFECTS
 EFFECT_INFO = {
     "auto": ("AI Director: dua ki category, text aur hardware dekh kar khud best "
              "effect, word-sync pulse aur cinematic polish (vignette+grain) "
              "lagaata hai - har video consistent aur premium."),
     "none": "Koi extra effect nahi - simple aur clean.",
-    "neon_glow": "Neon roshni: text ke gird neela neon glow chamakta hai.",
-    "metallic_gold": "Sonay jaisi chamak: text ko zard shiny metallic look milti hai.",
-    "typewriter": "Typewriter: text ek ek kar ke likha jata hai (jaise type ho raha ho).",
-    "bounce": "Bounce: text upar se gir kar bounce hota hai.",
-    "wave": "Wave: text upar neeche lehraata hai (jaise lehar).",
-    "glitch": "Glitch: text ke rang alag ho kar hilte hain - modern digital look.",
 }
+EFFECT_INFO.update({
+    key: info["desc"] for key, info in MASTER_EFFECTS.items()
+})
 
 PREVIEW_DIR = os.path.join(PROJECT.TEMP_DIR, "previews")
 

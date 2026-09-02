@@ -74,9 +74,11 @@ function saveQc() {
 }
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
-let HTML_CACHE = '';
-try { HTML_CACHE = fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8')
-  .replace('<!--INJECT_AUTH-->', '<script>window.AUTH_TOKEN=' + JSON.stringify(AUTH_TOKEN) + ';</script>'); } catch (_) {}
+let AUTH_INJECT = '<script>window.AUTH_TOKEN=' + JSON.stringify(AUTH_TOKEN) + ';</script>';
+function readHtml() {
+  try { return fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8').replace('<!--INJECT_AUTH-->', AUTH_INJECT); }
+  catch (_) { return '<h1>index.html not found</h1>'; }
+}
 
 const fxg = require('./fx-guardrails');
 const STYLE_PRESETS = fxg.STYLE_PRESETS || ['auto', 'classic', 'royal', 'minimal',
@@ -110,7 +112,10 @@ const vfxHandler = require('./routes/vfx')(deps);
 
 function verifyAuth(req) {
   const auth = req.headers.authorization || '';
-  return auth.startsWith('Bearer ') && auth.slice(7) === AUTH_TOKEN;
+  if (auth.startsWith('Bearer ') && auth.slice(7) === AUTH_TOKEN) return true;
+  const url = new URL(req.url, 'http://localhost');
+  const tok = url.searchParams.get('token');
+  return tok === AUTH_TOKEN;
 }
 
 const server = http.createServer((req, res) => {
@@ -146,7 +151,8 @@ const server = http.createServer((req, res) => {
     return send(res, 200, JSON.stringify({ok: true, status: 'healthy', ts: Date.now()}));
   }
   if (req.method === 'GET' && url.pathname === '/') {
-    const htmlHash = crypto.createHash('md5').update(HTML_CACHE).digest('hex').slice(0, 16);
+    const html = readHtml();
+    const htmlHash = crypto.createHash('md5').update(html).digest('hex').slice(0, 16);
     const etag = '"' + htmlHash + '"';
     if (req.headers['if-none-match'] === etag) {
       return send(res, 304, '', 'text/html');
@@ -154,9 +160,9 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8',
       'ETag': etag,
-      'Cache-Control': 'no-cache',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
     });
-    return res.end(HTML_CACHE);
+    return res.end(html);
   }
   const ext = path.extname(url.pathname);
   if (ext && ['.css', '.js', '.png', '.jpg', '.ico', '.svg', '.json'].includes(ext)) {

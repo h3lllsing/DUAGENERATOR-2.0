@@ -23,6 +23,7 @@ import customtkinter as ctk
 
 from core.dua_database import DuaDatabase
 from core.project_info import PROJECT
+from core.master_config import MASTER_EFFECTS
 from frontend.effect_preview import (
     EFFECT_INFO,
     build_effect_preview,
@@ -31,15 +32,14 @@ from frontend.effect_preview import (
 )
 from main import DuaVideoPipeline, dua_video_filename
 
+# Generate EFFECT_OPTIONS dynamically from master config
 EFFECT_OPTIONS = [
     ("Auto (AI)", "auto"),
     ("Simple", "none"),
-    ("Neon Glow", "neon_glow"),
-    ("Metallic Gold", "metallic_gold"),
-    ("Typewriter", "typewriter"),
-    ("Bounce", "bounce"),
-    ("Wave", "wave"),
-    ("Glitch", "glitch"),
+] + [
+    (info["name"], key) for key, info in MASTER_EFFECTS.items()
+] + [
+    ("Islamic Ultra Pack", "ultra_pack"),
 ]
 
 FONT_SUB = ("Segoe UI", 12)
@@ -93,7 +93,7 @@ class DuaApp(ctk.CTk):
         self._set_icon()
 
         cats = self.db.get_categories()
-        self._select_category(cats[0].get('id') if cats else None)
+        self._select_category(None)
 
     # ---------- Window helpers ----------
 
@@ -169,6 +169,11 @@ class DuaApp(ctk.CTk):
         self._build_categories()
 
     def _build_categories(self):
+        all_btn = ctk.CTkButton(self._sidebar, text="  All Duas  ", font=FONT_SUB,
+                                anchor="w", height=40, corner_radius=10,
+                                command=lambda: self._select_category(None))
+        all_btn.pack(fill="x", padx=10, pady=3)
+        self._cat_buttons[None] = all_btn
         for cat in self.db.get_categories():
             label = f"{cat.get('icon', '')}  {cat.get('name_urdu', cat.get('name', ''))}"
             btn = ctk.CTkButton(self._sidebar, text=label, font=FONT_SUB,
@@ -277,8 +282,6 @@ class DuaApp(ctk.CTk):
     # ---------- State / Refresh ----------
 
     def _select_category(self, cat_id):
-        if not cat_id:
-            return
         self.selected_category = cat_id
         for cid, btn in self._cat_buttons.items():
             if cid == cat_id:
@@ -297,7 +300,10 @@ class DuaApp(ctk.CTk):
         for w in self._scroll.winfo_children():
             w.destroy()
         self._dua_buttons = []
-        duas = self.db.get_duas_by_category(self.selected_category)
+        if self.selected_category:
+            duas = self.db.get_duas_by_category(self.selected_category)
+        else:
+            duas = self.db.get_all_duas()
         self._refresh_category_counts()
         if self._only_new_var.get():
             duas = [d for d in duas if not self._is_generated(d)]
@@ -317,6 +323,12 @@ class DuaApp(ctk.CTk):
             self._select_dua(duas[0] if duas else None)
 
     def _refresh_category_counts(self):
+        all_duas = self.db.get_all_duas()
+        all_total = len(all_duas)
+        all_remaining = sum(1 for d in all_duas if not self._is_generated(d))
+        all_btn = self._cat_buttons.get(None)
+        if all_btn:
+            all_btn.configure(text=f"  All Duas  ({all_remaining}/{all_total})")
         for cat in self.db.get_categories():
             cat_id = cat.get('id')
             btn = self._cat_buttons.get(cat_id)
@@ -515,7 +527,20 @@ class DuaApp(ctk.CTk):
         ok = False
         effect = dict(EFFECT_OPTIONS).get(self._effect_var.get(), "none")
         try:
-            ok = self.pipeline.generate_video(dua.get('id'), effect=effect)
+            if effect == "ultra_pack":
+                # Islamic Ultra Pack - sab kuch random!
+                from core.mega_pack import MegaPackPipeline
+                mega = MegaPackPipeline()
+                result = mega.generate(
+                    arabic=dua.get('arabic', ''),
+                    urdu=dua.get('urdu', ''),
+                    title=dua.get('name', dua.get('title', '')),
+                )
+                ok = result.success
+                if not ok:
+                    sink.lines.put(f"[ERROR] {result.error}")
+            else:
+                ok = self.pipeline.generate_video(dua.get('id'), effect=effect)
         except Exception as e:
             sink.lines.put(f"[ERROR] {e}")
         finally:
@@ -710,8 +735,6 @@ class DuaApp(ctk.CTk):
                 new_dua = {
                     "id": dua_id, "category": cat, "title": title, "title_en": title,
                     "arabic": arabic, "urdu": urdu, "reference": ref or "",
-                    "explanation": "", "voice_arabic": "ar-SA-HamedNeural",
-                    "voice_urdu": "ur-PK-AsadNeural", "template": "dark", "duration": 18,
                 }
                 self._save_dua(new_dua)
                 win.destroy()

@@ -34,10 +34,15 @@ class EffectsEngine:
         self.effects = {
             "neon_glow": self.neon_glow,
             "metallic_gold": self.metallic_gold,
-            "typewriter": self.typewriter,
+            "silver_chrome": self.silver_chrome,
+            "three_d_shadow": self.three_d_shadow,
+            "neon_outline": self.neon_outline,
             "bounce": self.bounce,
             "wave": self.wave,
-            "glitch": self.glitch
+            "glitch": self.glitch,
+            "fade_in_out": self.fade_in_out,
+            "slide_left": self.slide_left,
+            "scale_up": self.scale_up,
         }
         self._summary_cache = {}
 
@@ -163,6 +168,183 @@ class EffectsEngine:
         result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
         result = Image.alpha_composite(result, gold_layer_img)
         result = Image.alpha_composite(result, text_faded)
+
+        return result
+
+    def silver_chrome(self, text_img: Image.Image, frame_num: int,
+                      total_frames: int) -> Image.Image:
+        """
+        Silver Chrome Effect - Shiny silver metallic text with cold shimmer.
+        """
+        if text_img.mode != 'RGBA':
+            text_img = text_img.convert('RGBA')
+
+        progress = frame_num / total_frames
+        W, H = text_img.size
+
+        silver_layer = np.zeros((H, W, 4), dtype=np.uint8)
+        ys = np.arange(H).reshape(-1, 1)
+        silver_intensity = (220 * (1 - ys / H)).astype(np.uint8)
+        shimmer = (15 * np.sin(progress * np.pi * 5 + ys * 0.08)).astype(np.int16)
+        r = np.clip(silver_intensity + shimmer, 0, 255).astype(np.uint8)
+        g = np.clip(silver_intensity + shimmer + 5, 0, 255).astype(np.uint8)
+        b = np.clip(silver_intensity + shimmer + 10, 0, 255).astype(np.uint8)
+        silver_layer[:, :, 0] = r
+        silver_layer[:, :, 1] = g
+        silver_layer[:, :, 2] = b
+        silver_layer[:, :, 3] = 128
+        silver_layer_img = Image.fromarray(silver_layer)
+
+        alpha = int(255 * min(1.0, progress * 2))
+        r, g, b, a = text_img.split()
+        a = a.point(lambda p: int(p * (alpha / 255.0)))
+        text_faded = Image.merge('RGBA', (r, g, b, a))
+
+        result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
+        result = Image.alpha_composite(result, silver_layer_img)
+        result = Image.alpha_composite(result, text_faded)
+
+        return result
+
+    def three_d_shadow(self, text_img: Image.Image, frame_num: int,
+                       total_frames: int) -> Image.Image:
+        """
+        3D Shadow Effect - Text with depth shadow and perspective.
+        """
+        if text_img.mode != 'RGBA':
+            text_img = text_img.convert('RGBA')
+
+        progress = frame_num / total_frames
+        W, H = text_img.size
+
+        result = Image.new('RGBA', (W + 20, H + 20), (0, 0, 0, 0))
+
+        alpha = int(255 * min(1.0, progress * 2))
+        r, g, b, a = text_img.split()
+        a = a.point(lambda p: int(p * (alpha / 255.0)))
+        text_faded = Image.merge('RGBA', (r, g, b, a))
+
+        for i in range(8, 0, -1):
+            shadow = Image.new('RGBA', text_faded.size, (0, 0, 0, int(40 * i / 8)))
+            offset_x = int(i * 1.5)
+            offset_y = int(i * 2)
+            result.paste(shadow, (offset_x, offset_y), shadow)
+
+        result.paste(text_faded, (0, 0), text_faded)
+
+        return result.crop((0, 0, W, H))
+
+    def neon_outline(self, text_img: Image.Image, frame_num: int,
+                     total_frames: int) -> Image.Image:
+        """
+        Neon Outline Effect - Glowing outline text with animated color.
+        """
+        if text_img.mode != 'RGBA':
+            text_img = text_img.convert('RGBA')
+
+        progress = frame_num / total_frames
+        W, H = text_img.size
+
+        glow_color = (
+            int(127 + 128 * np.sin(progress * np.pi * 2)),
+            int(127 + 128 * np.sin(progress * np.pi * 2 + 2)),
+            255
+        )
+
+        outline_img = text_img.copy()
+        r, g, b, a = outline_img.split()
+        outline_mask = a.point(lambda p: 255 if p > 0 else 0)
+        outline_layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+        ImageDraw.Draw(outline_layer).rectangle(
+            [(0, 0), (W, H)], fill=glow_color + (100,))
+        outline_layer.putalpha(outline_mask)
+
+        glow = outline_layer.filter(ImageFilter.GaussianBlur(radius=6))
+        enhancer = ImageEnhance.Brightness(glow)
+        glow = enhancer.enhance(1.5)
+
+        result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
+        result = Image.alpha_composite(result, glow)
+        result = Image.alpha_composite(result, text_img)
+
+        return result
+
+    def fade_in_out(self, text_img: Image.Image, frame_num: int,
+                    total_frames: int) -> Image.Image:
+        """
+        Fade In/Out Effect - Smooth fade in then fade out.
+        """
+        if text_img.mode != 'RGBA':
+            text_img = text_img.convert('RGBA')
+
+        progress = frame_num / total_frames
+        if progress < 0.3:
+            alpha = int(255 * (progress / 0.3))
+        elif progress < 0.7:
+            alpha = 255
+        else:
+            alpha = int(255 * (1 - (progress - 0.7) / 0.3))
+
+        alpha = max(0, min(255, alpha))
+        r, g, b, a = text_img.split()
+        a = a.point(lambda p: int(p * (alpha / 255.0)))
+
+        return Image.merge('RGBA', (r, g, b, a))
+
+    def slide_left(self, text_img: Image.Image, frame_num: int,
+                   total_frames: int) -> Image.Image:
+        """
+        Slide Left Effect - Text slides in from the right.
+        """
+        if text_img.mode != 'RGBA':
+            text_img = text_img.convert('RGBA')
+
+        progress = frame_num / total_frames
+        W, H = text_img.size
+
+        if progress < 0.4:
+            slide_progress = progress / 0.4
+            offset_x = int(W * (1 - slide_progress))
+        else:
+            offset_x = 0
+
+        alpha = int(255 * min(1.0, progress * 2))
+        r, g, b, a = text_img.split()
+        a = a.point(lambda p: int(p * (alpha / 255.0)))
+        text_faded = Image.merge('RGBA', (r, g, b, a))
+
+        result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
+        result.paste(text_faded, (max(0, offset_x), 0), text_faded)
+
+        return result
+
+    def scale_up(self, text_img: Image.Image, frame_num: int,
+                 total_frames: int) -> Image.Image:
+        """
+        Scale Up Effect - Text scales up from small to full size.
+        """
+        if text_img.mode != 'RGBA':
+            text_img = text_img.convert('RGBA')
+
+        progress = frame_num / total_frames
+        W, H = text_img.size
+
+        if progress < 0.3:
+            scale = 0.3 + 0.7 * (progress / 0.3)
+        else:
+            scale = 1.0
+
+        new_w = int(W * scale)
+        new_h = int(H * scale)
+        if new_w < 1 or new_h < 1:
+            new_w, new_h = max(1, new_w), max(1, new_h)
+
+        scaled = text_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+        result = Image.new('RGBA', text_img.size, (0, 0, 0, 0))
+        paste_x = (W - new_w) // 2
+        paste_y = (H - new_h) // 2
+        result.paste(scaled, (paste_x, paste_y), scaled)
 
         return result
 

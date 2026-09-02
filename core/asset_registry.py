@@ -247,13 +247,15 @@ class AssetRegistry:
 
     def select_background(self, dua_id: str, category: str | None = None,
                           exclude_ids=(), preferred_theme: str | None = None,
-                          prefer_video: bool | None = None) -> dict:
+                          prefer_video: bool | None = None,
+                          random_mode: bool = True) -> dict:
         """
-        Deterministically choose a background for a dua.
+        Choose a background for a dua.
 
-        - Seed is derived from dua_id (reproducible across runs).
+        - random_mode=True: Completely random selection (different each time)
+        - random_mode=False: Deterministic selection based on dua_id
+        - Random mix: 50% video, 50% image (when both available)
         - Assets are scored by category match (specific > general).
-        - Among the best-scoring loadable assets, one is picked by the seed.
         - prefer_video=True restricts the pool to video assets first; when no
           video candidate survives (all excluded/loadable-videos exhausted) it
           falls back to the full image pool instead of going procedural.
@@ -268,8 +270,9 @@ class AssetRegistry:
         excluded = set(exclude_ids or ())
         loadable = self.get_loadable_assets()
         vids = [a for a in loadable if is_video_file(a.file)]
+        imgs = [a for a in loadable if not is_video_file(a.file)]
 
-        def _pick(cands):
+        def _pick(cands, use_random=True):
             cands = [a for a in cands if a.id not in excluded]
             if not cands:
                 return None
@@ -278,24 +281,49 @@ class AssetRegistry:
             if best_score <= 0:
                 return None
             pool = [a for score, a in scored if score == best_score]
-            rng = random.Random(dua_id)
-            rng.shuffle(pool)
-            return pool[0]
+            if use_random:
+                return random.choice(pool)  # Truly random each time
+            else:
+                rng = random.Random(dua_id)  # Deterministic
+                rng.shuffle(pool)
+                return pool[0]
 
         chosen = None
-        if prefer_video and vids:
-            chosen = _pick(vids)
-        if chosen is None:
-            chosen = _pick(loadable)
+        if random_mode:
+            # RANDOM MIX: 50% video, 50% image
+            use_video = random.random() < 0.5
+            if use_video and vids:
+                chosen = _pick(vids, True)
+                if chosen:
+                    logger.debug(f"Random pick: VIDEO for {category}")
+            if chosen is None and imgs:
+                chosen = _pick(imgs, True)
+                if chosen:
+                    logger.debug(f"Random pick: IMAGE for {category}")
+            # Fallback: try the other type
+            if chosen is None and vids:
+                chosen = _pick(vids, True)
+            if chosen is None:
+                chosen = _pick(loadable, True)
+        else:
+            # Deterministic mode
+            if prefer_video and vids:
+                chosen = _pick(vids, False)
+            if chosen is None:
+                chosen = _pick(loadable, False)
+
         if chosen is not None:
+            is_vid = is_video_file(chosen.file)
             return {
                 "kind": "asset",
                 "asset_id": chosen.id,
                 "path": chosen.resolve_path(self.backgrounds_dir),
                 "license": chosen.license,
+                "type": "video" if is_vid else "image",
                 "reason": (
                     f"Selected approved background '{chosen.id}' "
-                    f"(category score)."
+                    f"(type={'video' if is_vid else 'image'}, "
+                    f"random={random_mode})."
                 ),
             }
         reason = (

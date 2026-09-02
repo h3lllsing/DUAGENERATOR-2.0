@@ -38,6 +38,7 @@ import logging
 import os
 import random
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -55,6 +56,17 @@ try:
     import config
 except Exception:
     config = None
+
+# PERFORMANCE FIX: Import AssetRegistry for Pexels backgrounds
+try:
+    from core.asset_registry import AssetRegistry, is_video_file
+    _ASSET_REGISTRY = AssetRegistry()
+    _HAS_ASSET_REGISTRY = True
+    logger.info(f"AssetRegistry loaded: {len(_ASSET_REGISTRY.get_loadable_assets())} loadable assets")
+except Exception as e:
+    _ASSET_REGISTRY = None
+    _HAS_ASSET_REGISTRY = False
+    logger.debug(f"AssetRegistry not available: {e}")
 
 __all__ = ["MotionSpec", "TextLayer", "Transition", "Scene", "Timeline", "rect_intersect", "rect_within"]
 
@@ -85,35 +97,10 @@ TEXT_OUTLINE_WIDTH = 4
 # Premium look: Arabic lines fade from the layer color into warm gold.
 _AR_GRADIENT_BOTTOM = (255, 222, 140)
 
-# Calm, readable palettes approved for Islamic dua Shorts.
-PALETTES: list[dict] = [
-    {"name": "midnight", "top": (18, 20, 42), "bottom": (9, 11, 27),
-     "accent": (212, 175, 55), "text": (255, 255, 255),
-     "title": (255, 215, 0), "outline": (10, 12, 20)},
-    {"name": "twilight", "top": (40, 12, 55), "bottom": (22, 7, 34),
-     "accent": (212, 175, 55), "text": (245, 240, 255),
-     "title": (255, 215, 0), "outline": (16, 6, 24)},
-    {"name": "emerald", "top": (13, 76, 63), "bottom": (7, 44, 38),
-     "accent": (212, 175, 55), "text": (255, 255, 255),
-     "title": (255, 215, 0), "outline": (4, 22, 18)},
-    {"name": "navy", "top": (16, 32, 70), "bottom": (8, 17, 43),
-     "accent": (203, 172, 96), "text": (255, 255, 255),
-     "title": (255, 215, 0), "outline": (6, 10, 24)},
-    {"name": "mist", "top": (236, 237, 246), "bottom": (208, 212, 231),
-     "accent": (45, 90, 160), "text": (28, 33, 58),
-     "title": (60, 80, 140), "outline": (250, 250, 250)},
-    {"name": "sand", "top": (248, 244, 236), "bottom": (228, 220, 206),
-     "accent": (122, 92, 52), "text": (40, 35, 28),
-     "title": (122, 92, 52), "outline": (255, 255, 255)},
-]
-
-MOTION_KINDS: tuple[str, ...] = (
-    "static", "zoom_in", "zoom_out",
-    "pan_left", "pan_right", "pan_up", "pan_down",
+# Import from master config - SINGLE SOURCE OF TRUTH
+from core.master_config import (
+    MASTER_PALETTES, PALETTE_NAMES, TEXT_STYLES, MOTION_KINDS, CORNER_STYLES,
 )
-
-TEXT_STYLES: tuple[str, ...] = ("solid", "outline", "gold")
-CORNER_STYLES: tuple[str, ...] = ("classic", "double", "dot")
 
 
 def _resolve_font_path() -> str:
@@ -274,6 +261,8 @@ class SceneRenderer:
     """
     Renders a Timeline into the existing List[Image] contract consumed by
     VideoBuilder (unchanged). Fully deterministic from `seed`.
+    
+    PERFORMANCE FIX: Added frame caching to avoid redundant redraws.
     """
 
     def __init__(self, width: int = CANVAS_WIDTH, height: int = CANVAS_HEIGHT,
@@ -282,6 +271,18 @@ class SceneRenderer:
         self.height = height
         self.fps = fps
         self._font_cache: dict[int, ImageFont.FreeTypeFont] = {}
+        # PERFORMANCE FIX: Frame caching for static backgrounds
+        self._gradient_cache: dict[str, Image.Image] = {}
+        self._surface_cache: dict[str, list[dict]] = {}
+        
+    def _get_gradient_key(self, palette: dict, bg_w: int, bg_h: int) -> str:
+        """Generate cache key for gradient."""
+        return f"{palette.get('name', 'default')}_{bg_w}_{bg_h}"
+    
+    def _get_surface_key(self, scene: Scene) -> str:
+        """Generate cache key for text surfaces."""
+        # Cache key based on scene content (text, style, palette)
+        return f"{hash(scene.palette.get('name', ''))}_{hash(scene.text_style)}_{len(scene.layers)}"
 
     # -- fonts / reshaping --------------------------------------------
     def _font(self, size: int) -> ImageFont.FreeTypeFont:
@@ -525,6 +526,109 @@ class SceneRenderer:
         img = np.repeat(grad[:, None, :], bg_w, axis=1)
         return Image.fromarray(img)
 
+    def _load_pexels_background(self, dua_id: str, category: str,
+                                 bg_w: int, bg_h: int) -> Image.Image | None:
+        """Load Pexels background image/video frame.
+        
+        PERFORMANCE FIX: Uses AssetRegistry to load real nature backgrounds
+        instead of procedural gradients. Random mode ensures different
+        backgrounds each time.
+        
+        Returns:
+            PIL.Image if successful, None if fallback needed
+        """
+        if not _HAS_ASSET_REGISTRY or _ASSET_REGISTRY is None:
+            return None
+        
+        try:
+            # Get prefer_video setting from config
+            prefer_video = getattr(config, 'BACKGROUND_PREFER_VIDEO', True) if config else True
+            
+            # Select background from registry (RANDOM MODE)
+            result = _ASSET_REGISTRY.select_background(
+                dua_id=dua_id,
+                category=category,
+                prefer_video=prefer_video,
+                random_mode=True  # Random selection each time
+            )
+            
+            if result.get("kind") != "asset":
+                return None
+            
+            asset_path = result.get("path", "")
+            if not asset_path or not os.path.isfile(asset_path):
+                return None
+            
+            logger.debug(f"Random background selected: {result.get('asset_id')}")
+            
+            # Load based on file type
+            if is_video_file(asset_path):
+                return self._load_video_frame(asset_path, bg_w, bg_h)
+            else:
+                return self._load_image_background(asset_path, bg_w, bg_h)
+                
+        except Exception as e:
+            logger.debug(f"Pexels background load failed: {e}")
+            return None
+
+    def _load_image_background(self, path: str, bg_w: int, bg_h: int) -> Image.Image | None:
+        """Load and resize Pexels image background."""
+        try:
+            img = Image.open(path)
+            # Convert to RGB if needed
+            if img.mode != "RGB":
+                img = img.convert("RGB")
+            # Resize to fill background (crop if needed)
+            img = self._fit_crop(img, bg_w, bg_h)
+            return img
+        except Exception as e:
+            logger.debug(f"Image load failed: {e}")
+            return None
+
+    def _load_video_frame(self, path: str, bg_w: int, bg_h: int) -> Image.Image | None:
+        """Extract first frame from video as background."""
+        try:
+            import subprocess
+            import imageio_ffmpeg
+            
+            ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+            # Extract first frame
+            cmd = [
+                ffmpeg, "-i", path,
+                "-vframes", "1",
+                "-f", "image2pipe",
+                "-vcodec", "png",
+                "-hide_banner", "-loglevel", "error",
+                "pipe:1"
+            ]
+            result = subprocess.run(cmd, capture_output=True, timeout=10)
+            
+            if result.returncode == 0 and result.stdout:
+                from io import BytesIO
+                img = Image.open(BytesIO(result.stdout))
+                if img.mode != "RGB":
+                    img = img.convert("RGB")
+                img = self._fit_crop(img, bg_w, bg_h)
+                return img
+        except Exception as e:
+            logger.debug(f"Video frame extraction failed: {e}")
+        return None
+
+    @staticmethod
+    def _fit_crop(img: Image.Image, target_w: int, target_h: int) -> Image.Image:
+        """Crop and resize image to fit target dimensions (cover fit)."""
+        src_w, src_h = img.size
+        # Calculate scale to cover target
+        scale = max(target_w / src_w, target_h / src_h)
+        new_w = int(src_w * scale)
+        new_h = int(src_h * scale)
+        img = img.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        # Center crop
+        left = (new_w - target_w) // 2
+        top_crop = (new_h - target_h) // 2
+        img = img.crop((left, top_crop, left + target_w, top_crop + target_h))
+        return img
+
     @staticmethod
     def _draw_particles(frame, particles, frame_i, drift):
         d = ImageDraw.Draw(frame)
@@ -689,7 +793,8 @@ class SceneRenderer:
     def build_single_scene(self, seed: str, arabic: str, urdu: str,
                            title: str = "", duration: float = None,
                            palette: dict | None = None,
-                           motion: MotionSpec | None = None) -> Scene:
+                           motion: MotionSpec | None = None,
+                           font_style: str = None) -> Scene:
         """
         Deterministically build one procedural Scene from content + seed.
         This is NOT TimelineBuilder (Phase 3); it renders a single timed
@@ -698,7 +803,11 @@ class SceneRenderer:
         rng = random.Random(f"{seed}:style")
         if duration is None:
             duration = float(getattr(config, "VIDEO_MIN_DURATION", 15))
-        pal = palette or dict(rng.choice(PALETTES))
+        pal_name = palette if isinstance(palette, str) else (palette.get("name") if isinstance(palette, dict) else None)
+        if pal_name and pal_name in MASTER_PALETTES:
+            pal = dict(MASTER_PALETTES[pal_name])
+        else:
+            pal = dict(MASTER_PALETTES[rng.choice(PALETTE_NAMES)])
         mot = motion or MotionSpec(kind=rng.choice(list(MOTION_KINDS)))
         density = rng.randint(24, 60)
         corner = rng.choice(list(CORNER_STYLES))
@@ -720,6 +829,23 @@ class SceneRenderer:
             layers.append(TextLayer(role="urdu", text=urdu, language="ur",
                                     color=pal["text"], outline=True,
                                     outline_color=pal["outline"]))
+        elif text_style == "glow":
+            layers.append(TextLayer(role="arabic", text=arabic, language="ar",
+                                    color=(255, 255, 255)))
+            layers.append(TextLayer(role="urdu", text=urdu, language="ur",
+                                    color=(255, 255, 255)))
+        elif text_style == "gradient":
+            layers.append(TextLayer(role="arabic", text=arabic, language="ar",
+                                    color=(255, 255, 255)))
+            layers.append(TextLayer(role="urdu", text=urdu, language="ur",
+                                    color=pal["text"]))
+        elif text_style == "shadow":
+            layers.append(TextLayer(role="arabic", text=arabic, language="ar",
+                                    color=pal["text"], outline=True,
+                                    outline_color=(0, 0, 0)))
+            layers.append(TextLayer(role="urdu", text=urdu, language="ur",
+                                    color=pal["text"], outline=True,
+                                    outline_color=(0, 0, 0)))
         else:  # outline
             layers.append(TextLayer(role="arabic", text=arabic, language="ar",
                                     color=pal["text"], outline=True,
@@ -740,19 +866,48 @@ class SceneRenderer:
 
     # -- rendering -------------------------------------------------------
     def render_scene(self, scene: Scene, frame_count: int, seed: str,
-                     scene_index: int = 0):
-        """Render one scene as a generator (memory-efficient streaming)."""
+                     scene_index: int = 0, dua_id: str = None,
+                     category: str = None):
+        """Render one scene as a generator (memory-efficient streaming).
+        
+        PERFORMANCE FIX: Uses cached gradients and surfaces to avoid redundant redraws.
+        PRIORITY FIX: Loads Pexels backgrounds when available.
+        """
         layout = self.compute_layout(scene)
         issues = self.verify_layout(scene, layout)
         if issues:
             raise RuntimeError("Layout safety verification failed:\n" +
                                "\n".join(issues))
 
-        surfaces = self._build_text_surfaces(scene, layout)
+        # PERFORMANCE FIX: Cache text surfaces (same content = same surfaces)
+        surface_key = self._get_surface_key(scene)
+        if surface_key in self._surface_cache:
+            surfaces = self._surface_cache[surface_key]
+        else:
+            surfaces = self._build_text_surfaces(scene, layout)
+            self._surface_cache[surface_key] = surfaces
+        
         highlight = self._build_highlight(scene, layout, surfaces) \
             if scene.word_events else None
         bg_w, bg_h = int(self.width * 1.12), int(self.height * 1.12)
-        gradient = self._build_gradient(scene.palette, bg_w, bg_h)
+        
+        # PRIORITY FIX: Try loading Pexels background first
+        pexels_bg = None
+        if dua_id and category:
+            pexels_bg = self._load_pexels_background(dua_id, category, bg_w, bg_h)
+        
+        if pexels_bg is not None:
+            # Use Pexels background
+            gradient = pexels_bg
+            logger.debug(f"Using Pexels background for {dua_id}")
+        else:
+            # Fallback to procedural gradient
+            gradient_key = self._get_gradient_key(scene.palette, bg_w, bg_h)
+            if gradient_key in self._gradient_cache:
+                gradient = self._gradient_cache[gradient_key]
+            else:
+                gradient = self._build_gradient(scene.palette, bg_w, bg_h)
+                self._gradient_cache[gradient_key] = gradient
 
         particle_rng = random.Random(f"{seed}:particles:{scene_index}")
         particles = []
@@ -787,12 +942,35 @@ class SceneRenderer:
             self._apply_transition(frame, scene, i, frame_count, self.fps)
             yield frame.convert("RGB")
 
-    def render(self, timeline: Timeline, seed: str = "default") -> list[Image.Image]:
-        """Render a full Timeline into a list (backward compatible)."""
-        return list(self.render_stream(timeline, seed))
+    def render(self, timeline: Timeline, seed: str = "default",
+               dua_id: str = None, category: str = None) -> list[Image.Image]:
+        """Render a full Timeline into a list (backward compatible).
+        
+        Args:
+            timeline: The timeline to render
+            seed: Random seed for deterministic rendering
+            dua_id: Dua ID for Pexels background selection
+            category: Dua category for background selection
+        """
+        return list(self.render_stream(timeline, seed, dua_id, category))
 
-    def render_stream(self, timeline: Timeline, seed: str = "default"):
-        """Render a full Timeline as a generator (memory-efficient streaming)."""
+    def render_stream(self, timeline: Timeline, seed: str = "default",
+                      dua_id: str = None, category: str = None):
+        """Render a full Timeline as a generator (memory-efficient streaming).
+        
+        Args:
+            timeline: The timeline to render
+            seed: Random seed for deterministic rendering
+            dua_id: Dua ID for Pexels background selection
+            category: Dua category for background selection
+        """
         for idx, scene in enumerate(timeline.scenes):
             yield from self.render_scene(scene, timeline.frames_for_scene(idx),
-                                         seed, idx)
+                                         seed, idx, dua_id, category)
+    
+    def clear_cache(self):
+        """Clear all caches (call when done with a batch of renders)."""
+        self._gradient_cache.clear()
+        self._surface_cache.clear()
+        self._font_cache.clear()
+        logger.debug("SceneRenderer caches cleared")

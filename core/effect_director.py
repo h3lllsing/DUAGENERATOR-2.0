@@ -65,10 +65,9 @@ def _seed_int(dua_id: str) -> int:
     return zlib.crc32(str(dua_id or "dua").encode("utf-8")) & 0x7FFFFFFF
 
 
-# Premium look: only the 4 DARK palettes are eligible so every Short keeps
-# the dark-gold cinematic grade. The light `mist`/`sand` palettes render
-# near-white frames with dark text (blown out / hard to read on phones).
-DARK_PALETTE_NAMES = ("midnight", "twilight", "emerald", "navy")
+# Premium look: only the DARK palettes are eligible so every Short keeps
+# the dark-gold cinematic grade. Import from master config.
+from core.master_config import DARK_PALETTES
 
 
 def premium_palette(dua_id: str) -> dict:
@@ -77,9 +76,8 @@ def premium_palette(dua_id: str) -> dict:
     Same dua -> same palette (consistency); different duas -> subtle variety
     across the dark family. Pass the result as TimelineBuilder.build(palette=).
     """
-    from core.scene_engine import PALETTES
-    dark = [dict(p) for p in PALETTES
-            if p.get("name") in DARK_PALETTE_NAMES]
+    from core.master_config import MASTER_PALETTES
+    dark = [dict(MASTER_PALETTES[name]) for name in DARK_PALETTES]
     return dark[_seed_int(dua_id) % len(dark)]
 
 

@@ -724,7 +724,8 @@ async function poll(){
     prevQueueActive=qa;
   }catch(e){}
 }
-document.getElementById('themegrid').addEventListener('click',e=>{
+const _themegridEl=document.getElementById('themegrid');
+if(_themegridEl) _themegridEl.addEventListener('click',e=>{
   const l=e.target.closest('.topt'); if(l) setThemeSel(l.dataset.v);
 });
 let voiceMode='portal';
@@ -1615,18 +1616,13 @@ async function saveDua(){
   if(!await styledConfirm(action+' Dua',action+' karein?\n\nTitle: '+title+'\nArabic: '+arabic+'...')){
     return;
   }
-  const checked=document.querySelector('#themegrid input:checked');
-  const vp=VOICE_PAIRS[document.getElementById('f_vpair').value]||VOICE_PAIRS['Hamed + Asad'];
   const body={
     title:document.getElementById('f_title').value,
     arabic:document.getElementById('f_arabic').value,
     urdu:document.getElementById('f_urdu').value,
     reference:document.getElementById('f_ref').value,
     category:document.getElementById('f_cat').value,
-    bismillah:document.getElementById('f_bis').checked,
-    template:checked?checked.value:'dark',
-    voiceArabic:vp[0],
-    voiceUrdu:vp[1]
+    bismillah:document.getElementById('f_bis').checked
   };
   if(editingId)body.id=editingId;
   const url=editingId?'/api/update-dua':'/api/add-dua';
@@ -1649,7 +1645,7 @@ var _sseSource=null;
 function _startSSE(){
   if(_sseSource){return;}
   try{
-    _sseSource=new EventSource('/api/status/stream');
+    _sseSource=new EventSource('/api/status/stream?token='+encodeURIComponent(_AUTH));
     _sseSource.onmessage=function(e){
       try{
         var j=JSON.parse(e.data);

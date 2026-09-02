@@ -227,11 +227,8 @@ class TestRenderingFixes:
 
     def test_premium_palette_never_light(self):
         from core.effect_director import premium_palette
-        from core.scene_engine import PALETTES
-        dark_names = {p["name"] for p in PALETTES
-                      if p.get("name") in
-                      ("midnight", "twilight", "emerald", "navy")}
+        from core.master_config import DARK_PALETTES
         for dua_id in ("x", "y", "z", "rabbana_hasanah", "bathroom_exit"):
             pal = premium_palette(dua_id)
-            assert pal["name"] in dark_names
+            assert pal["name"] in DARK_PALETTES
             assert max(pal["top"]) < 120, "light palette leaked through"

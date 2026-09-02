@@ -10,6 +10,8 @@ import re
 import shutil
 import sys
 import time
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from moviepy import AudioFileClip
 
@@ -136,6 +138,11 @@ class DuaVideoPipeline:
         self._cancel_requested = False
         os.makedirs(self.temp_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
+        
+        # PERFORMANCE FIX: Thread pool for parallel audio processing
+        self._executor = ThreadPoolExecutor(max_workers=4, 
+                                           thread_name_prefix="dua_audio")
+        self._scene_renderer = SceneRenderer(fps=PROJECT.FPS)
 
         # Verify temp directory is writable
         _test_file = os.path.join(self.temp_dir, '.write_test')
@@ -146,6 +153,18 @@ class DuaVideoPipeline:
         except OSError as e:
             logger.error(f"Temp directory not writable: {self.temp_dir} - {e}")
             raise
+    
+    def __del__(self):
+        """Cleanup thread pool on object destruction."""
+        self.shutdown()
+    
+    def shutdown(self):
+        """Shutdown thread pool executor and clear caches."""
+        if hasattr(self, '_executor') and self._executor:
+            self._executor.shutdown(wait=False)
+        if hasattr(self, '_scene_renderer') and self._scene_renderer:
+            self._scene_renderer.clear_cache()
+        logger.debug("DuaVideoPipeline resources cleaned up")
 
     def _prepare_audio_track(self, ar_audio: str, ur_audio: str,
                              merged_audio: str, gap_seconds: float = 0.3):
@@ -207,6 +226,72 @@ class DuaVideoPipeline:
                 pass
 
         logger.info(f"[2/5] Audio ready. {timeline['reason']}")
+        return timeline
+    
+    def _prepare_audio_track_parallel(self, ar_audio: str, ur_audio: str,
+                                      merged_audio: str, gap_seconds: float = 0.3):
+        """
+        PERFORMANCE FIX: Parallel audio processing using ThreadPoolExecutor.
+        Merges and normalizes audio in parallel threads.
+        """
+        def _merge_task():
+            return AudioMixer.merge_audio_sequential(
+                [ar_audio, ur_audio], merged_audio, gap_seconds=gap_seconds)
+        
+        def _normalize_task(input_path, output_path):
+            return AudioMixer.normalize_loudness(input_path, output_path)
+        
+        # Execute merge in thread pool
+        merge_future = self._executor.submit(_merge_task)
+        if not merge_future.result():
+            logger.error("Failed to merge audio.")
+            return None
+        
+        # Get speech duration
+        speech_clip = AudioFileClip(merged_audio)
+        speech_duration = speech_clip.duration
+        speech_clip.close()
+        
+        timeline = AudioMixer.compute_video_timeline(speech_duration)
+        if not timeline["valid"]:
+            logger.error("%s", timeline['reason'])
+            return None
+        
+        final_duration = timeline["final_duration"]
+        
+        # Normalize in parallel with duration calculation
+        base, ext = os.path.splitext(merged_audio)
+        normalized_audio = f"{base}.normalized{ext}"
+        
+        # Execute normalization in thread pool
+        normalize_future = self._executor.submit(
+            _normalize_task, merged_audio, normalized_audio)
+        
+        # Wait for normalization to complete
+        ok = normalize_future.result()
+        if ok:
+            src = [normalized_audio]
+            gap = 0.0
+        else:
+            logger.warning("[AUDIO-001] Loudness normalization unavailable; "
+                  "proceeding with unnormalized audio.")
+            src = [ar_audio, ur_audio]
+            gap = gap_seconds
+        
+        # Pad audio track
+        if not AudioMixer.merge_audio_sequential(
+                src, merged_audio, gap_seconds=gap,
+                pad_to_duration=final_duration):
+            logger.error("Failed to pad audio track with visual hold.")
+            return None
+        
+        if os.path.exists(normalized_audio):
+            try:
+                os.remove(normalized_audio)
+            except OSError:
+                pass
+        
+        logger.info(f"[2/5] Audio ready (parallel). {timeline['reason']}")
         return timeline
 
     def _enforce_quality_gate(self, quality_results: dict) -> bool:
@@ -382,9 +467,9 @@ class DuaVideoPipeline:
             return False
 
         # 3. Merge Audio + apply VIDEO-002 duration policy (15-25s, padded hold)
-        logger.info("[2/5] Merging Audio...")
+        logger.info("[2/5] Merging Audio (parallel)...")
         merged_audio = os.path.join(self.temp_dir, f"{dua_id}_merged.wav")
-        timeline = self._prepare_audio_track(ar_audio, ur_audio, merged_audio,
+        timeline = self._prepare_audio_track_parallel(ar_audio, ur_audio, merged_audio,
                                              gap_seconds=0.3)
         if timeline is None:
             return False
@@ -425,11 +510,13 @@ class DuaVideoPipeline:
         has_effect = effect and effect != "none"
         if has_effect:
             frames = SceneRenderer(fps=PROJECT.FPS).render(
-                plan["timeline"], seed=dua_id)
+                plan["timeline"], seed=dua_id, dua_id=dua_id,
+                category=dua_data.get('category'))
             logger.info(f"[3/5] Frames generated: {len(frames)}")
         else:
             frames = SceneRenderer(fps=PROJECT.FPS).render_stream(
-                plan["timeline"], seed=dua_id)
+                plan["timeline"], seed=dua_id, dua_id=dua_id,
+                category=dua_data.get('category'))
             logger.info("[3/5] Frames generated (streaming mode)")
 
         # Optional visual effect post-processing (frame-level).
@@ -565,9 +652,9 @@ class DuaVideoPipeline:
         logger.info("[1/5] TTS Generated (parallel).")
 
         # Merge Audio + apply VIDEO-002 duration policy (15-25s, padded hold)
-        logger.info("[2/5] Merging Audio...")
+        logger.info("[2/5] Merging Audio (parallel)...")
         merged_audio = os.path.join(self.temp_dir, "custom_merged.wav")
-        timeline = self._prepare_audio_track(ar_audio, ur_audio, merged_audio,
+        timeline = self._prepare_audio_track_parallel(ar_audio, ur_audio, merged_audio,
                                              gap_seconds=0.3)
         if timeline is None:
             return False
@@ -605,11 +692,13 @@ class DuaVideoPipeline:
         has_effect = effect and effect != "none"
         if has_effect:
             frames = SceneRenderer(fps=PROJECT.FPS).render(
-                plan["timeline"], seed="custom")
+                plan["timeline"], seed="custom", dua_id="custom",
+                category=category)
             logger.info(f"[3/5] Frames generated: {len(frames)}")
         else:
             frames = SceneRenderer(fps=PROJECT.FPS).render_stream(
-                plan["timeline"], seed="custom")
+                plan["timeline"], seed="custom", dua_id="custom",
+                category=category)
             logger.info("[3/5] Frames generated (streaming mode)")
 
         # Optional visual effect post-processing (frame-level).

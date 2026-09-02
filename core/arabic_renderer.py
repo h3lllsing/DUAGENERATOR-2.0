@@ -35,20 +35,77 @@ _ARABIC_BLOCKS = (
     (0xFE70, 0xFEFF),  # Arabic Presentation Forms-B
 )
 
+# Hebrew blocks (also RTL)
+_HEBREW_BLOCKS = (
+    (0x0590, 0x05FF),  # Hebrew
+    (0xFB1D, 0xFB4F),  # Hebrew Presentation Forms
+)
+
+
+def _is_rtl_char(ch: str) -> bool:
+    """Check if a character is RTL (Arabic/Hebrew)."""
+    o = ord(ch)
+    return any(a <= o <= b for a, b in _ARABIC_BLOCKS + _HEBREW_BLOCKS)
+
 
 def _is_arabic(text: str) -> bool:
     for ch in text:
-        o = ord(ch)
-        if any(a <= o <= b for a, b in _ARABIC_BLOCKS):
+        if _is_rtl_char(ch):
             return True
     return False
+
+
+def _split_bidi_runs(text: str) -> list[tuple[str, str]]:
+    """
+    Split text into directional runs: [(direction, text_segment), ...]
+    direction is "rtl" or "ltr"
+    
+    Neutral characters (spaces, punctuation) are grouped with the
+    PREVIOUS run to avoid breaking RTL/LTR flows.
+    """
+    if not text:
+        return []
+    
+    # Characters that are "neutral" - they join the surrounding context
+    _NEUTRAL = set(" \t\n\r.,;:!?-()[]{}'\"@#$%^&*+=<>/\\|~`")
+    
+    runs = []
+    first_rtl = _is_rtl_char(text[0])
+    current_dir = "rtl" if first_rtl else "ltr"
+    current_chars = [text[0]]
+    
+    for ch in text[1:]:
+        if ch in _NEUTRAL:
+            # Neutral chars join the current run
+            current_chars.append(ch)
+            continue
+        
+        ch_dir = "rtl" if _is_rtl_char(ch) else "ltr"
+        if ch_dir == current_dir:
+            current_chars.append(ch)
+        else:
+            runs.append((current_dir, "".join(current_chars)))
+            current_dir = ch_dir
+            current_chars = [ch]
+    
+    runs.append((current_dir, "".join(current_chars)))
+    return runs
+
+
+# Import fonts from master config - SINGLE SOURCE OF TRUTH
+from core.master_config import MASTER_FONTS
 
 
 class ArabicRenderer:
     """Cached HarfBuzz + FreeType renderer for Arabic-script text."""
 
-    def __init__(self, font_path: str = None):
-        if font_path is None:
+    def __init__(self, font_path: str = None, font_key: str = None):
+        if font_key and font_key in MASTER_FONTS:
+            font_info = MASTER_FONTS[font_key]
+            font_path = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "assets", "fonts", font_info["file"])
+        elif font_path is None:
             font_path = os.path.join(
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 "assets", "fonts", "Amiri-Bold.ttf")
@@ -86,22 +143,62 @@ class ArabicRenderer:
 
     def _shape(self, text: str, size: int, direction: str = "rtl"):
         """Shape logical text -> (glyph_index, x_adv, y_adv, x_off, y_off,
-        cluster) in FONT UNITS. Returns list aligned to glyph order (visual
-        L->R for RTL runs). ``cluster`` is the LOGICAL char index each glyph
-        belongs to (HarfBuzz buffer cluster values)."""
+        cluster) in FONT UNITS. Handles bidirectional text by splitting
+        into directional runs and shaping each separately.
+        
+        For RTL base direction: LTR segments are embedded within RTL flow.
+        Returns list aligned to visual L->R order.
+        ``cluster`` is the LOGICAL char index each glyph belongs to."""
         import uharfbuzz as hb
         self._load()
-        buf = hb.Buffer()
-        buf.add_str(text)
-        buf.direction = direction
-        buf.script = "Arab"
-        buf.language = "ar"
-        hb.shape(self._hb_font, buf)
-        out = []
-        for gi, gp in zip(buf.glyph_infos, buf.glyph_positions):
-            out.append((gi.codepoint, gp.x_advance, gp.y_advance,
-                        gp.x_offset, gp.y_offset, gi.cluster))
-        return out
+        
+        if not text:
+            return []
+        
+        # Check if text has mixed directions
+        runs = _split_bidi_runs(text)
+        has_mixed = len(runs) > 1
+        
+        if not has_mixed:
+            # Pure RTL or pure LTR - shape normally
+            buf = hb.Buffer()
+            buf.add_str(text)
+            buf.direction = direction
+            buf.script = "Arab" if direction == "rtl" else "Latn"
+            buf.language = "ar" if direction == "rtl" else "en"
+            hb.shape(self._hb_font, buf)
+            
+            out = []
+            for gi, gp in zip(buf.glyph_infos, buf.glyph_positions):
+                out.append((gi.codepoint, gp.x_advance, gp.y_advance,
+                            gp.x_offset, gp.y_offset, gi.cluster))
+            return out
+        else:
+            # Mixed text - shape each run separately
+            # For RTL base direction, the visual order is:
+            # LTR runs appear as-is (left to right), RTL runs appear reversed
+            # We need to concatenate in visual order
+            all_glyphs = []
+            offset = 0
+            
+            for run_dir, run_text in runs:
+                buf = hb.Buffer()
+                buf.add_str(run_text)
+                buf.direction = run_dir
+                buf.script = "Arab" if run_dir == "rtl" else "Latn"
+                buf.language = "ar" if run_dir == "rtl" else "en"
+                hb.shape(self._hb_font, buf)
+                
+                for gi, gp in zip(buf.glyph_infos, buf.glyph_positions):
+                    all_glyphs.append((
+                        gi.codepoint,
+                        gp.x_advance, gp.y_advance,
+                        gp.x_offset, gp.y_offset,
+                        gi.cluster + offset
+                    ))
+                offset += len(run_text)
+            
+            return all_glyphs
 
     # -- measurement ---------------------------------------------------
     def measure_width(self, text: str, size: int) -> float:
@@ -229,6 +326,69 @@ class ArabicRenderer:
         max_x = max(p[1] + p[0].shape[1] for p in pieces) + pad
         max_y = max(p[2] + p[0].shape[0] for p in pieces) + pad
         return min_x, min_y, max_x - min_x, max_y - min_y
+
+    def render_styled(self, text: str, size: int,
+                      color=(255, 255, 255),
+                      style: str = "solid",
+                      glow_color=(212, 175, 55),
+                      gradient_top=(255, 240, 185),
+                      gradient_bottom=(216, 178, 80),
+                      direction: str = "rtl") -> Image.Image:
+        """
+        Render text with various styles.
+
+        Styles:
+        - solid: plain text with optional outline
+        - outline: text with visible stroke
+        - glow: text with neon glow effect
+        - gradient: vertical gradient fill
+        - gold_gradient: gold gradient fill
+        - shadow: text with drop shadow
+        """
+        if style == "solid":
+            return self.render_line(text, size, color=color,
+                                    outline_color=(10, 12, 20),
+                                    outline_width=2, direction=direction)
+        elif style == "outline":
+            return self.render_line(text, size, color=color,
+                                    outline_color=(0, 0, 0),
+                                    outline_width=4, direction=direction)
+        elif style == "glow":
+            base = self.render_line(text, size, color=color,
+                                    direction=direction)
+            glow = base.filter(ImageFilter.GaussianBlur(radius=8))
+            enhancer = ImageEnhance.Brightness(glow)
+            glow = enhancer.enhance(1.8)
+            result = Image.new("RGBA", base.size, (0, 0, 0, 0))
+            result = Image.alpha_composite(result, glow)
+            result = Image.alpha_composite(result, base)
+            return result
+        elif style == "gradient":
+            base = self.render_line(text, size, color=(255, 255, 255),
+                                    direction=direction)
+            return apply_vertical_gradient(base, gradient_top, gradient_bottom)
+        elif style == "gold_gradient":
+            base = self.render_line(text, size, color=(255, 255, 255),
+                                    direction=direction)
+            return apply_vertical_gradient(base, (255, 240, 185), (216, 178, 80))
+        elif style == "shadow":
+            base = self.render_line(text, size, color=color,
+                                    direction=direction)
+            shadow = self.render_line(text, size, color=(0, 0, 0),
+                                      direction=direction)
+            result = Image.new("RGBA", (base.width + 8, base.height + 8),
+                              (0, 0, 0, 0))
+            s_rgba = shadow.convert("RGBA")
+            s_arr = np.array(s_rgba)
+            s_arr[:, :, 3] = (s_arr[:, :, 3] * 0.6).astype(np.uint8)
+            shadow_rgba = Image.fromarray(s_arr)
+            result.paste(shadow_rgba, (6, 6), shadow_rgba)
+            result.paste(base, (0, 0), base)
+            return result
+        else:
+            return self.render_line(text, size, color=color,
+                                    outline_color=(10, 12, 20),
+                                    outline_width=2, direction=direction)
 
     def word_spans(self, text: str, size: int) -> dict:
         """
