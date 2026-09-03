@@ -32,9 +32,12 @@ function loadOrCreateToken() {
 const AUTH_TOKEN = loadOrCreateToken();
 
 const rateLimit = {map: {}, window: 2000, max: 30, lastCleanup: 0};
+const TRUST_PROXY = /^true$/i.test(process.env.TRUST_PROXY || '');
 function getClientIp(req) {
-  const fwd = req.headers['x-forwarded-for'];
-  if (fwd) return String(fwd).split(',')[0].trim();
+  if (TRUST_PROXY) {
+    const fwd = req.headers['x-forwarded-for'];
+    if (fwd) return String(fwd).split(',')[0].trim();
+  }
   return req.socket.remoteAddress || 'unknown';
 }
 function checkRateLimit(ip) {
