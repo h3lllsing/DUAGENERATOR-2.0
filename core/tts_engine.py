@@ -205,17 +205,17 @@ class TTSEngine:
                 # If we got here, generation failed
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
-                    logger.info(f"Attempt {attempt + 1} failed, retrying in {delay}s...")
+                    logger.info("Attempt %d failed, retrying in %ds...", attempt + 1, delay)
                     time.sleep(delay)
 
             except Exception as e:
-                logger.error(f"Attempt {attempt + 1}: {e}")
+                logger.error("Attempt %d: %s", attempt + 1, e)
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
-                    logger.info(f"Retrying in {delay}s...")
+                    logger.info("Retrying in %ds...", delay)
                     time.sleep(delay)
 
-        logger.error(f"All {TTSEngine.MAX_RETRIES} attempts failed")
+        logger.error("All %d attempts failed", TTSEngine.MAX_RETRIES)
         return False
 
     @staticmethod
@@ -259,18 +259,18 @@ class TTSEngine:
                 # Partial success — don't retry the succeeded side
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
-                    logger.info(f"Parallel TTS attempt {attempt+1} partial "
-                                f"(ar={ar_ok}, ur={ur_ok}), retry in {delay}s...")
+                    logger.info("Parallel TTS attempt %d partial (ar=%s, ur=%s), retry in %ds...",
+                                attempt+1, ar_ok, ur_ok, delay)
                     time.sleep(delay)
                 else:
                     return (ar_ok, ur_ok)
             except Exception as e:
-                logger.error(f"Parallel TTS attempt {attempt+1}: {e}")
+                logger.error("Parallel TTS attempt %d: %s", attempt+1, e)
                 if attempt < TTSEngine.MAX_RETRIES - 1:
                     delay = TTSEngine.RETRY_DELAY_BASE ** (attempt + 1)
                     time.sleep(delay)
 
-        logger.error(f"All {TTSEngine.MAX_RETRIES} parallel TTS attempts failed")
+        logger.error("All %d parallel TTS attempts failed", TTSEngine.MAX_RETRIES)
         return (False, False)
 
     @staticmethod

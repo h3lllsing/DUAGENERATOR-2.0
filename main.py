@@ -933,16 +933,16 @@ class DuaVideoPipeline:
         for idx, dua in enumerate(duas, 1):
             dua_id = dua.get('id')
             title = dua.get('title', 'Unknown')
-            logger.info(f"[{idx}/{total}] Processing: {title} ({dua_id})")
+            logger.info("[%d/%d] Processing: %s (%s)", idx, total, title, dua_id)
             logger.info("-" * 30)
 
             if self.generate_video(dua_id):
                 success_count += 1
             else:
-                logger.error(f"[{idx}/{total}] Failed for {title}")
+                logger.error("[%d/%d] Failed for %s", idx, total, title)
 
         logger.info("=" * 50)
-        logger.info(f"BATCH COMPLETE! Successfully generated {success_count}/{total} videos.")
+        logger.info("BATCH COMPLETE! Successfully generated %d/%d videos.", success_count, total)
         logger.info("=" * 50)
 
     def _ai_mode(self):

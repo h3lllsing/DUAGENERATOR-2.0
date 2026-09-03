@@ -203,7 +203,7 @@ class VideoBuilder:
                     else:
                         raise TypeError(f"Unsupported frame type: {type(frame)}")
                     if (i + 1) % 100 == 0:
-                        logger.info(f"  Written {i + 1} frames...")
+                        logger.info("  Written %d frames...", i + 1)
 
             logger.info("Temp video created successfully.")
 

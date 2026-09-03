@@ -522,7 +522,7 @@ class EffectsEngine:
                 res = self.apply_effect(effect_name, frame, i, total)
                 out.append(res.convert('RGB'))
             except Exception as e:
-                logger.warning(f"Effect '{effect_name}' failed on frame {i}: {e}")
+                logger.warning("Effect '%s' failed on frame %d: %s", effect_name, i, e)
                 # Return original frame on failure
                 out.append(frame.convert('RGB') if frame.mode != 'RGB' else frame)
         return out
