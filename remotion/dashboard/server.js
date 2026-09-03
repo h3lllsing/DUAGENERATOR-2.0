@@ -31,12 +31,24 @@ function loadOrCreateToken() {
 }
 const AUTH_TOKEN = loadOrCreateToken();
 
-const rateLimit = {map: {}, window: 2000, max: 30};
-function checkRateLimit(key) {
+const rateLimit = {map: {}, window: 2000, max: 30, lastCleanup: 0};
+function getClientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (fwd) return String(fwd).split(',')[0].trim();
+  return req.socket.remoteAddress || 'unknown';
+}
+function checkRateLimit(ip) {
   const now = Date.now();
-  const bucket = rateLimit.map[key];
+  // Lazy eviction: purge stale entries every 60s
+  if (now - rateLimit.lastCleanup > 60000) {
+    rateLimit.lastCleanup = now;
+    for (const k in rateLimit.map) {
+      if (now - rateLimit.map[k].t > rateLimit.window) delete rateLimit.map[k];
+    }
+  }
+  const bucket = rateLimit.map[ip];
   if (!bucket || now - bucket.t > rateLimit.window) {
-    rateLimit.map[key] = {t: now, c: 1};
+    rateLimit.map[ip] = {t: now, c: 1};
     return true;
   }
   bucket.c++;
@@ -150,7 +162,7 @@ const server = http.createServer((req, res) => {
     return send(res, 401, JSON.stringify({ok: false, error: 'unauthorized'}));
   }
   if (req.method === 'POST' && /^\/api\//.test(url.pathname)) {
-    if (!checkRateLimit(url.pathname)) {
+    if (!checkRateLimit(getClientIp(req))) {
       return send(res, 429, JSON.stringify({ok: false,
         error: 'rate limit (30 requests per 2s)'}));
     }
