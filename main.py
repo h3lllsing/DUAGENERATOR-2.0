@@ -1058,7 +1058,7 @@ if __name__ == "__main__":
             ok = pipeline.generate_video(args.dua, theme=args.theme, effect=args.effect, dry_run=args.dry_run)
             sys.exit(0 if ok else 1)
         elif args.batch:
-            pipeline._batch_generate()
+            pipeline._batch_mode()
         elif args.list:
             for dua in DB.get_all_duas():
                 print(dua.get('id', ''))
