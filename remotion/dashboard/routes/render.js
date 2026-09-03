@@ -783,7 +783,7 @@ module.exports = function renderRoutes(deps) {
           }
           for (const ch of ['channel1', 'channel2']) {
             try {
-              const lp = path.join(DATA, 'upload_state_' + ch + '.json');
+              const lp = path.join(PROJECT, 'data', 'upload_state_' + ch + '.json');
               const ledger = JSON.parse(fs.readFileSync(lp, 'utf8').replace(/^\uFEFF/, ''));
               if (ledger[id] && ledger[id].status === 'uploaded') {
                 throw err(409, 'Ye dua YouTube pe upload ho chuki hai. Dubara TTS banane ki zaroorat nahi.');
@@ -1041,7 +1041,7 @@ module.exports = function renderRoutes(deps) {
           }
           for (const ch of ['channel1', 'channel2']) {
             try {
-              const lp = path.join(DATA, 'upload_state_' + ch + '.json');
+              const lp = path.join(PROJECT, 'data', 'upload_state_' + ch + '.json');
               const ledger = JSON.parse(fs.readFileSync(lp, 'utf8').replace(/^\uFEFF/, ''));
               if (ledger[id] && ledger[id].status === 'uploaded') {
                 throw err(409, 'Ye dua YouTube pe upload ho chuki hai. Dubara render karne ki zaroorat nahi.');
