@@ -69,10 +69,7 @@ function writeAtomic(f, data) {
   fs.writeFileSync(tmp, data, 'utf8');
   fs.renameSync(tmp, f);
 }
-function safeTitle(t) {
-  return String(t || 'Dua').replace(/[<>:"/\\|?*\x00-\x1f]+/g, '')
-    .trim().replace(/\.mp4$/i, '').replace(/[. ]+$/, '') || 'Dua';
-}
+const {safeTitle} = require('./routes/utils');
 function log(line) { console.log(line); }
 
 const CACHE_PATH = path.join(__dirname, 'cache.json');

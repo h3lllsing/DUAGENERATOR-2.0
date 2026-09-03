@@ -5,6 +5,7 @@
  */
 module.exports = function configRoutes(deps) {
   const {CFG_PATH, fs, send, writeAtomic, log, STYLE_PRESETS, fxg} = deps;
+  const {readBody} = require('./utils');
 
   // ── Config cache (5s TTL) ──
   let _cfgCache = null;
@@ -32,18 +33,6 @@ module.exports = function configRoutes(deps) {
     _cfgCacheTime = 0;
   }
 
-  function readBody(req, res, cb) {
-    let body = '';
-    req.on('data', (c) => {
-      if (body.length > 1e6) {
-        if (!res.headersSent) send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
-        setTimeout(() => { try { req.destroy(); } catch (e) {} }, 100);
-        return;
-      }
-      body += c;
-    });
-    req.on('end', () => cb(body));
-  }
 
   return function handleConfig(req, url, res) {
     const method = req.method;
@@ -57,7 +46,7 @@ module.exports = function configRoutes(deps) {
 
     // ── POST /api/config ──
     if (method === 'POST' && p === '/api/config') {
-      readBody(req, res, (body) => {
+      readBody(req, res).then((body) => {
         try {
           const f = JSON.parse(body);
           const old = readConfigCached();

@@ -6,6 +6,8 @@
 module.exports = function ytRoutes(deps) {
   const {PROJECT, REMOTION, PY, fs, path, spawn, getDuaTitle, send} = deps;
 
+  const {readBody} = require('./utils');
+
   const YT_CANCEL_FLAG = path.join(PROJECT, 'data', '.yt_cancel');
   const SECRET_PATH    = path.join(PROJECT, 'client_secret.json');
   const DATA_SECRET_PATH = path.join(PROJECT, 'data', 'client_secret.json');
@@ -325,22 +327,6 @@ module.exports = function ytRoutes(deps) {
     return {ok: true};
   }
 
-  // ── Read body helper ──
-  function readBody(req, res, cb) {
-    let body = '';
-    req.on('data', (c) => {
-      if (body.length > 1e6) {
-        if (!res.headersSent) {
-          send(res, 413, JSON.stringify({ok: false,
-            error: 'payload too large (max 1MB)'}));
-        }
-        setTimeout(() => { try { req.destroy(); } catch (e) {} }, 100);
-        return;
-      }
-      body += c;
-    });
-    req.on('end', () => cb(body));
-  }
 
   // ══════════════════════════════════════════════════════════════
   //  ROUTE HANDLER — returns true if request was handled
@@ -412,7 +398,7 @@ module.exports = function ytRoutes(deps) {
 
     // ── POST /api/youtube/settings ──
     if (method === 'POST' && p === '/api/youtube/settings') {
-      readBody(req, res, (body) => {
+      readBody(req, res).then((body) => {
         try {
           const f = JSON.parse(body || '{}');
           const clientId = typeof f.clientId === 'string'
@@ -447,7 +433,7 @@ module.exports = function ytRoutes(deps) {
 
     // ── POST /api/youtube/secret ──
     if (method === 'POST' && p === '/api/youtube/secret') {
-      readBody(req, res, (body) => {
+      readBody(req, res).then((body) => {
         try {
           const f = JSON.parse(body || '{}');
           const r = ytSaveSecret(String(f.content || ''));
@@ -470,7 +456,7 @@ module.exports = function ytRoutes(deps) {
           error: 'auth cooldown active (10s)'}));
       }
       ytLastAuthReq = now;
-      readBody(req, res, (body) => {
+      readBody(req, res).then((body) => {
         try {
           const f = JSON.parse(body || '{}');
           const channel = String(f.channel || '');
@@ -501,7 +487,7 @@ module.exports = function ytRoutes(deps) {
           error: 'thoda ruk kar koshish karein (5s cooldown)'}));
       }
       ytLastUploadReq = now;
-      readBody(req, res, (body) => {
+      readBody(req, res).then((body) => {
         ytFileLog('   body: ' + body.slice(0, 300));
         try {
           const f = JSON.parse(body || '{}');
@@ -642,7 +628,7 @@ module.exports = function ytRoutes(deps) {
       if (ytJob.running) {
         return send(res, 409, JSON.stringify({ok: false, error: 'Upload chal raha hai - pehle ruko'}));
       }
-      readBody(req, res, (body) => {
+      readBody(req, res).then((body) => {
         try {
           const f = JSON.parse(body || '{}');
           const duaId = String(f.duaId || '').trim();

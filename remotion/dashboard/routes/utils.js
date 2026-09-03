@@ -58,13 +58,18 @@ function routeCatch(res, fn, logFn) {
   });
 }
 
-async function exists(p, fs) {
+async function exists(p, fsRef) {
   try {
-    await fs.access(p);
+    await (fsRef || require('fs')).access(p);
     return true;
   } catch (_) {
     return false;
   }
 }
 
-module.exports = {err, parseJson, cleanStr, readBody, routeCatch, exists};
+function safeTitle(t) {
+  return String(t || 'Dua').replace(/[<>:"/\\|?*\x00-\x1f]+/g, '')
+    .trim().replace(/\.mp4$/i, '').replace(/[. ]+$/, '') || 'Dua';
+}
+
+module.exports = {err, parseJson, cleanStr, readBody, routeCatch, exists, safeTitle};

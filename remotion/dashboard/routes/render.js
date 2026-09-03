@@ -10,6 +10,7 @@ module.exports = function renderRoutes(deps) {
     lookspec, fxg, themeMap, cacheStore, saveCache, qcStore, saveQc} = deps;
   const F = fs.promises;
   const customVfx = require('../custom-vfx');
+  const {err, parseJson, cleanStr, readBody, routeCatch, exists, safeTitle} = require('./utils');
 
   // ── Mutable state (shared by reference with server.js) ──
   const job = {running: false, duaId: null, step: '', percent: 0,
@@ -72,23 +73,6 @@ module.exports = function renderRoutes(deps) {
     'desertmirage', 'waterripple', 'silkmarble', 'cinemafocus',
     'auroranova', 'qadrtilt'];
 
-  // ── Graceful errors / helpers ──
-  function err(code, msg) { const e = new Error(msg); e.statusCode = code; return e; }
-  function parseJson(body, label) {
-    try { return JSON.parse(body || '{}'); }
-    catch (_) { throw err(400, 'bad JSON payload' + (label ? ' (' + label + ')' : '')); }
-  }
-  function cleanStr(v, max, label) {
-    const s = String(v == null ? '' : v)
-      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').trim();
-    if (s.length > max) {
-      const e = new Error(label + ' bahut lamba hai (max ' + max + ' chars)');
-      e.statusCode = 400;
-      throw e;
-    }
-    return s;
-  }
-  async function exists(p) { return F.access(p).then(() => true).catch(() => false); }
 
   // ── Helpers ──
   function log(line) {
@@ -119,10 +103,6 @@ module.exports = function renderRoutes(deps) {
     } catch (_) { return id; }
   }
 
-  function safeTitle(title) {
-    return String(title || 'Dua').replace(/[<>:"/\\|?*\x00-\x1f]+/g, '')
-      .trim().replace(/\.mp4$/i, '').replace(/[. ]+$/, '') || 'Dua';
-  }
 
   function registerChild(p) {
     children.add(p.pid);
@@ -729,41 +709,8 @@ module.exports = function renderRoutes(deps) {
     return {ok: true};
   }
 
-  // ── Graceful route wrapper: converts any throw into a structured 4xx/5xx ──
-  function routeCatch(res, fn) {
-    return Promise.resolve().then(fn).catch((e) => {
-      const code = (e && e.statusCode) || 500;
-      const msg = (e && e.message) || String(e);
-      if (!res.headersSent && !res.writableEnded) {
-        send(res, code, JSON.stringify({ok: false, error: msg}));
-      } else {
-        log('render route error after send: ' + msg);
-      }
-    });
-  }
 
-  // ── Read body (promise), cap 1MB, graceful 413 ──
-  function readBody(req, res) {
-    return new Promise((resolve, reject) => {
-      let body = '';
-      let settled = false;
-      const abort = () => {
-        settled = true;
-        if (!res.headersSent && !res.writableEnded) {
-          send(res, 413, JSON.stringify({ok: false, error: 'payload too large (max 1MB)'}));
-        }
-        try { req.destroy(); } catch (_) {}
-        reject(err(413, 'aborted'));
-      };
-      req.on('data', (c) => {
-        if (body.length > 1e6) return abort();
-        body += c;
-      });
-      req.on('end', () => { if (!settled) { settled = true; resolve(body); } });
-      req.on('error', (e) => { if (!settled) { settled = true; reject(e); } });
-      req.on('close', () => { if (!settled) { settled = true; reject(err(400, 'connection closed')); } });
-    });
-  }
+
 
   // ══════════════════════════════════════════════════════════════
   //  ROUTE HANDLER — returns true if request was handled
@@ -791,7 +738,7 @@ module.exports = function renderRoutes(deps) {
             } catch (e) { if (e.statusCode === 409) throw e; }
           }
           send(res, 200, JSON.stringify(await startVoiceJob(id, !!f.force)));
-        });
+        }, log);
       }, () => {});
       return true;
     }
@@ -841,7 +788,7 @@ module.exports = function renderRoutes(deps) {
           log('CUSTOM TTS SAVED: ' + savedFile);
           send(res, 200, JSON.stringify({ok: true, okA: !!a, okU: !!u,
             merged: !!(a && u), savedFile: savedOk ? savedFile : null, ts: Date.now()}));
-        });
+        }, log);
       }, () => {});
       return true;
     }
@@ -858,7 +805,7 @@ module.exports = function renderRoutes(deps) {
           eproc.on('error', () => log('explorer spawn fail (ige ENOENT)'));
           eproc.unref();
           send(res, 200, JSON.stringify({ok: true}));
-        });
+        }, log);
       }, () => {});
       return true;
     }
@@ -877,7 +824,7 @@ module.exports = function renderRoutes(deps) {
           if (rc !== 0) throw err(500, 'preview generation failed');
           if (!fs.existsSync(outPath)) throw err(500, 'preview file not created');
           send(res, 200, JSON.stringify({ok: true, path: '/temp/voice_preview_' + lang + '.mp3'}));
-        });
+        }, log);
       }, () => {});
       return true;
     }
@@ -930,7 +877,7 @@ module.exports = function renderRoutes(deps) {
         let arr = [];
         try { arr = JSON.parse((await F.readFile(HIST_PATH, 'utf8')).replace(/^\uFEFF/, '')); } catch (_) { arr = []; }
         send(res, 200, JSON.stringify({ok: true, history: arr}));
-      });
+      }, log);
       return true;
     }
 
@@ -1016,7 +963,7 @@ module.exports = function renderRoutes(deps) {
         processQueue();
         log('BATCH START: ' + items.length + ' videos (sirf missing - rendered skip)');
         send(res, 200, JSON.stringify({ok: true, total: items.length}));
-      });
+      }, log);
       return true;
     }
 
@@ -1049,7 +996,7 @@ module.exports = function renderRoutes(deps) {
             } catch (e) { if (e.statusCode === 409) throw e; }
           }
           send(res, 200, JSON.stringify(await startJob(id, !!f.force)));
-        });
+        }, log);
       }, () => {});
       return true;
     }
