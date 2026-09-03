@@ -18,6 +18,7 @@ requires-python = ">=3.11"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 timeout = 30
+addopts = "--cov=core --cov=main --cov-fail-under=15"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')"
 ]

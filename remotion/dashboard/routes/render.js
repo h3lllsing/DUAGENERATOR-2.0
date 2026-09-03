@@ -554,7 +554,7 @@ module.exports = function renderRoutes(deps) {
       job.step = 'TTS + merge';
       const a = ['scripts/prepare_dua.py', duaId];
       if (force) a.push('--force');
-      let code = await run(PY, a);
+      const code = await run(PY, a);
       if (cancelled()) throw new Error('Cancelled');
       if (code === 3) throw new Error('Duration policy: speech >40s (video not allowed)');
       if (code !== 0) throw new Error('prepare failed (exit ' + code + ')');

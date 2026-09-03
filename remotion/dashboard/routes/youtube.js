@@ -25,8 +25,8 @@ module.exports = function ytRoutes(deps) {
 
   // ── Auth status cache (30s TTL) — avoid re-running youtube_auth.py on every poll ──
   const AUTH_CACHE_TTL = 30000;
-  let _authCache = {};
-  let _authCacheTime = {};
+  const _authCache = {};
+  const _authCacheTime = {};
 
   async function getCachedAuthStatus(ch, tokPath) {
     const now = Date.now();
