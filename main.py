@@ -86,9 +86,9 @@ def _cleanup_temp():
         if cleaned:
             try:
                 logger.info(f"Cleaned {cleaned} stale temp file(s) from previous run")
-            except Exception:
+            except (OSError, ValueError):
                 pass  # stdout may be closed during atexit
-    except Exception:
+    except (OSError, ValueError):
         pass
 
 atexit.register(_cleanup_temp)

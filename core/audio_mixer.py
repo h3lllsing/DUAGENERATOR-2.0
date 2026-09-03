@@ -176,7 +176,7 @@ class AudioMixer:
                 for clip in clips:
                     try:
                         clip.close()
-                    except Exception:
+                    except (OSError, ValueError):
                         pass
                 raise
 
