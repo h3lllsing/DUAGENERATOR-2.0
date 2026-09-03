@@ -22,7 +22,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter, ImageEnhance
 
 __all__ = ["ArabicRenderer", "apply_vertical_gradient", "render_text", "measure_text_width"]
 
