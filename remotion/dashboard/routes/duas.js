@@ -352,7 +352,7 @@ module.exports = function duaRoutes(deps) {
           refShared: !!(normRef(d.reference) && refCount[normRef(d.reference)] > 1),
         }));
         const statuses = themed.map(duaStatus);
-        send(res, 200, JSON.stringify({duas: statuses}));
+        send(res, 200, JSON.stringify({ok: true, duas: statuses}));
       });
       return true;
     }

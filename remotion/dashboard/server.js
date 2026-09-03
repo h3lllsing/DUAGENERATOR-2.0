@@ -194,14 +194,14 @@ const server = http.createServer((req, res) => {
   const ext = path.extname(url.pathname);
   if (ext && ['.css', '.js', '.png', '.jpg', '.ico', '.svg', '.json'].includes(ext)) {
     const fp = path.resolve(PUBLIC_DIR, '.' + url.pathname);
-    if (!fp.startsWith(PUBLIC_DIR + path.sep) && fp !== PUBLIC_DIR) return send(res, 403, '{"error":"forbidden"}');
+    if (!fp.startsWith(PUBLIC_DIR + path.sep) && fp !== PUBLIC_DIR) return send(res, 403, JSON.stringify({ok: false, error: 'forbidden'}));
     if (fs.existsSync(fp)) {
       const types = {'.css':'text/css','.js':'application/javascript','.png':'image/png',
         '.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.ico':'image/x-icon'};
       return send(res, 200, fs.readFileSync(fp), types[ext] || 'application/octet-stream');
     }
   }
-  send(res, 404, '{"error":"not found"}');
+  send(res, 404, JSON.stringify({ok: false, error: 'not found'}));
 });
 
 server.on('error', (e) => {
