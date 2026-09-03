@@ -1,16 +1,8 @@
 let duas=[], busy=false, searchTerm='', activeCat='All';
 let forceFlags={}, lastGridKey='', prevStep=null, barHidden=false, editingId=null, jobDua='', prevQueueActive=false, autoHideBarT=null;
-const _AUTH=(window.AUTH_TOKEN||'');
 const _origFetch=window.fetch;
 window.fetch=function(url,opts){
-  opts=opts||{};
-  if(typeof url==='string'&&url.startsWith('/api/')){
-    opts.headers=opts.headers||{};
-    if(opts.headers instanceof Headers){opts.headers.set('Authorization','Bearer '+_AUTH);}
-    else if(Array.isArray(opts.headers)){opts.headers.push(['Authorization','Bearer '+_AUTH]);}
-    else{opts.headers['Authorization']='Bearer '+_AUTH;}
-  }
-  return _origFetch(url,opts);
+  return _origFetch(url,opts||{});
 };
 var EXPERT=/[?&]expert=1/.test(location.search);
 if(EXPERT){document.body.classList.add('expert');}
@@ -1645,7 +1637,7 @@ var _sseSource=null;
 function _startSSE(){
   if(_sseSource){return;}
   try{
-    _sseSource=new EventSource('/api/status/stream?token='+encodeURIComponent(_AUTH));
+    _sseSource=new EventSource('/api/status/stream');
     _sseSource.onmessage=function(e){
       try{
         var j=JSON.parse(e.data);

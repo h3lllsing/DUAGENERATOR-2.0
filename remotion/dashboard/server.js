@@ -74,9 +74,8 @@ function saveQc() {
 }
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
-let AUTH_INJECT = '<script>window.AUTH_TOKEN=' + JSON.stringify(AUTH_TOKEN) + ';</script>';
 function readHtml() {
-  try { return fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8').replace('<!--INJECT_AUTH-->', AUTH_INJECT); }
+  try { return fs.readFileSync(path.join(PUBLIC_DIR, 'index.html'), 'utf8'); }
   catch (_) { return '<h1>index.html not found</h1>'; }
 }
 
@@ -110,12 +109,27 @@ const duaHandler = require('./routes/duas')(Object.assign({}, deps, {
 const configHandler = require('./routes/config')(deps);
 const vfxHandler = require('./routes/vfx')(deps);
 
+function parseCookies(header) {
+  const cookies = {};
+  if (!header) return cookies;
+  for (const pair of header.split(';')) {
+    const idx = pair.indexOf('=');
+    if (idx > 0) cookies[pair.slice(0, idx).trim()] = pair.slice(idx + 1).trim();
+  }
+  return cookies;
+}
+function timingSafeCompare(a, b) {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 function verifyAuth(req) {
   const auth = req.headers.authorization || '';
-  if (auth.startsWith('Bearer ') && auth.slice(7) === AUTH_TOKEN) return true;
-  const url = new URL(req.url, 'http://localhost');
-  const tok = url.searchParams.get('token');
-  return tok === AUTH_TOKEN;
+  if (auth.startsWith('Bearer ') && timingSafeCompare(auth.slice(7), AUTH_TOKEN)) return true;
+  const cookies = parseCookies(req.headers.cookie);
+  if (cookies.auth_token && timingSafeCompare(cookies.auth_token, AUTH_TOKEN)) return true;
+  return false;
 }
 
 const server = http.createServer((req, res) => {
@@ -132,7 +146,7 @@ const server = http.createServer((req, res) => {
       !/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/i.test(origin)) {
     return send(res, 403, JSON.stringify({ok: false, error: 'cross-origin blocked'}));
   }
-  if (url.pathname.startsWith('/api/') && !verifyAuth(req)) {
+  if (url.pathname.startsWith('/api/') && url.pathname !== '/api/health' && !verifyAuth(req)) {
     return send(res, 401, JSON.stringify({ok: false, error: 'unauthorized'}));
   }
   if (req.method === 'POST' && /^\/api\//.test(url.pathname)) {
@@ -161,6 +175,7 @@ const server = http.createServer((req, res) => {
       'Content-Type': 'text/html; charset=utf-8',
       'ETag': etag,
       'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Set-Cookie': 'auth_token=' + AUTH_TOKEN + '; Path=/; HttpOnly; SameSite=Strict',
     });
     return res.end(html);
   }
