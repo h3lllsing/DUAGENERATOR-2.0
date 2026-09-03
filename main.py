@@ -327,6 +327,38 @@ class DuaVideoPipeline:
             return False
         return True
 
+    def _check_disk_space(self) -> bool:
+        """Pre-flight: return True if enough disk space, False to abort."""
+        try:
+            usage = shutil.disk_usage(self.temp_dir)
+            free_mb = usage.free / (1024 * 1024)
+            min_disk = getattr(__import__('config'), 'DISK_SPACE_MIN_MB', 500)
+            if free_mb < min_disk:
+                logger.error(f"Low disk space: {free_mb:.0f}MB free. "
+                             f"Need at least {min_disk}MB. Aborting.")
+                return False
+        except Exception:
+            logger.warning("Could not check disk space", exc_info=True)
+        return True
+
+    def _make_temp_paths(self, prefix: str):
+        """Return (ar_audio, ur_audio, ar_timing, ur_timing, temp_files)."""
+        ar_audio = os.path.join(self.temp_dir, f"{prefix}_ar.mp3")
+        ur_audio = os.path.join(self.temp_dir, f"{prefix}_ur.mp3")
+        ar_timing = os.path.join(self.temp_dir, f"{prefix}_ar_timing.jsonl")
+        ur_timing = os.path.join(self.temp_dir, f"{prefix}_ur_timing.jsonl")
+        temp_files = [ar_audio, ur_audio, ar_timing, ur_timing]
+        return ar_audio, ur_audio, ar_timing, ur_timing, temp_files
+
+    def _cleanup_temp(self, temp_files):
+        """Remove temp files, ignoring errors."""
+        for tf in temp_files:
+            try:
+                if os.path.exists(tf):
+                    os.remove(tf)
+            except OSError:
+                pass
+
     def generate_video(self, dua_id: str, theme: str = "dark",
                        effect: str = "auto", dry_run: bool = False) -> bool:
         """
@@ -395,16 +427,8 @@ class DuaVideoPipeline:
             return True
 
         # Pre-flight: disk space check (need ~500MB free minimum)
-        try:
-            usage = shutil.disk_usage(self.temp_dir)
-            free_mb = usage.free / (1024 * 1024)
-            min_disk = getattr(__import__('config'), 'DISK_SPACE_MIN_MB', 500)
-            if free_mb < min_disk:
-                logger.error(f"Low disk space: {free_mb:.0f}MB free. "
-                             f"Need at least {min_disk}MB. Aborting.")
-                return False
-        except Exception:
-            pass  # non-critical on exotic filesystems
+        if not self._check_disk_space():
+            return False
 
         category = dua_data.get('category', 'general')
         arabic_text = dua_data.get('arabic', '')
@@ -420,23 +444,14 @@ class DuaVideoPipeline:
         # Word-boundary timing is captured (optional, backward compatible) to
         # prepare future audio-synchronized highlighting; it never blocks audio.
         logger.info("[1/5] Generating TTS...")
-        ar_audio = os.path.join(self.temp_dir, f"{dua_id}_ar.mp3")
-        ur_audio = os.path.join(self.temp_dir, f"{dua_id}_ur.mp3")
-        ar_timing = os.path.join(self.temp_dir, f"{dua_id}_ar_timing.jsonl")
-        ur_timing = os.path.join(self.temp_dir, f"{dua_id}_ur_timing.jsonl")
+        ar_audio, ur_audio, ar_timing, ur_timing, temp_files = self._make_temp_paths(dua_id)
 
-        temp_files = [ar_audio, ur_audio, ar_timing, ur_timing]
         try:
             return self._run_pipeline(dua_data, ar_audio, ur_audio, ar_timing,
                                       ur_timing, temp_files, start_time,
                                       dua_id, theme, effect)
         finally:
-            for tf in temp_files:
-                try:
-                    if os.path.exists(tf):
-                        os.remove(tf)
-                except OSError:
-                    pass
+            self._cleanup_temp(temp_files)
 
     def _run_pipeline(self, dua_data, ar_audio, ur_audio, ar_timing, ur_timing,
                       temp_files, start_time, dua_id, theme, effect):
@@ -605,36 +620,19 @@ class DuaVideoPipeline:
         category = "general"
 
         # Pre-flight: disk space check
-        try:
-            usage = shutil.disk_usage(self.temp_dir)
-            free_mb = usage.free / (1024 * 1024)
-            min_disk = getattr(__import__('config'), 'DISK_SPACE_MIN_MB', 500)
-            if free_mb < min_disk:
-                logger.error(f"Low disk space: {free_mb:.0f}MB free. "
-                             f"Need at least {min_disk}MB. Aborting.")
-                return False
-        except Exception:
-            pass
+        if not self._check_disk_space():
+            return False
 
         # Generate TTS
         logger.info("[1/5] Generating TTS...")
-        ar_audio = os.path.join(self.temp_dir, "custom_ar.mp3")
-        ur_audio = os.path.join(self.temp_dir, "custom_ur.mp3")
-        ar_timing = os.path.join(self.temp_dir, "custom_ar_timing.jsonl")
-        ur_timing = os.path.join(self.temp_dir, "custom_ur_timing.jsonl")
+        ar_audio, ur_audio, ar_timing, ur_timing, temp_files = self._make_temp_paths("custom")
 
-        temp_files = [ar_audio, ur_audio, ar_timing, ur_timing]
         try:
             return self._run_custom_pipeline(
                 arabic_text, urdu_text, title, effect, category,
                 ar_audio, ur_audio, ar_timing, ur_timing, start_time)
         finally:
-            for tf in temp_files:
-                try:
-                    if os.path.exists(tf):
-                        os.remove(tf)
-                except OSError:
-                    pass
+            self._cleanup_temp(temp_files)
 
     def _run_custom_pipeline(self, arabic_text, urdu_text, title, effect,
                              category, ar_audio, ur_audio, ar_timing, ur_timing,
