@@ -788,7 +788,7 @@ module.exports = function renderRoutes(deps) {
               if (ledger[id] && ledger[id].status === 'uploaded') {
                 throw err(409, 'Ye dua YouTube pe upload ho chuki hai. Dubara TTS banane ki zaroorat nahi.');
               }
-            } catch (e) { if (e.status === 409) throw e; }
+            } catch (e) { if (e.statusCode === 409) throw e; }
           }
           send(res, 200, JSON.stringify(await startVoiceJob(id, !!f.force)));
         });
@@ -1046,7 +1046,7 @@ module.exports = function renderRoutes(deps) {
               if (ledger[id] && ledger[id].status === 'uploaded') {
                 throw err(409, 'Ye dua YouTube pe upload ho chuki hai. Dubara render karne ki zaroorat nahi.');
               }
-            } catch (e) { if (e.status === 409) throw e; }
+            } catch (e) { if (e.statusCode === 409) throw e; }
           }
           send(res, 200, JSON.stringify(await startJob(id, !!f.force)));
         });
