@@ -21,8 +21,9 @@ Key capabilities:
 - **Automated video generation** — Arabic karaoke, phase-change clock-wipe reveal, corner/cinematic FX, particle atmosphere, intro + end card with CTA.
 - **Premium TTS** — edge-tts neural voices (Arabic `ar-*` + Urdu `ur-*`), word-timing sidecars for frame-accurate on-screen highlighting, studio mastering (noise floor, warmth, compressors, loudnorm to -14 LUFS).
 - **Background media** — procedural cinematic grade plus optional **Pexels-generated photo backgrounds** (`remotion/scripts/download_backgrounds.py`) with per-category matching (mosque, nature, food, travel, etc.). Supports static, Ken Burns zoom, and video-background modes.
-- **YouTube integration** — full OAuth flow, **Live vs Dry-Run mode**, upload, auto MP4 cleanup after success, per-video stats (views/likes/comments) + channel stats (subscribers/views), quota tracking.
-- **Web dashboard** — browser portal (port 7860) to pick a dua, render, preview, and upload. YouTube stats table, channel management, re-upload queue.
+- **Additive render queue** — select multiple dua cards, click "Render Selected", add more later — queue appends and keeps running server-side even if browser is closed.
+- **YouTube integration** — full OAuth flow, **Live vs Dry-Run mode**, upload, auto MP4 cleanup after success, per-video stats (views/likes/comments) + channel stats (subscribers/views), quota tracking, per-channel duplicate prevention.
+- **Web dashboard** — browser portal (port 7860) to pick a dua, render, preview, and upload. YouTube stats table, channel management, re-upload queue. Card selection UI with checkboxes on Not Started cards.
 - **AI dua import** — OpenAI-compatible endpoint (e.g. aihubmix) to auto-generate new authentic Sunni duas with **duplicate prevention** on ID / Arabic / Urdu (fuzzy 90%). Custom API base URL + keys + models configurable from the dashboard.
 - **Security** — dashboard bearer-token auth, YouTube OAuth tokens excluded from the repo, background media excluded from the repo.
 
@@ -38,12 +39,15 @@ DuaVideoGenerator/
   core/                     - Python engine
     asset_registry.py       - Approved background manifest + category selector
     tts_engine.py           - TTS (edge-tts) with retries + routing
-    audio_mixer.py          - Audio merge + loudnorm mastering
+    audio_mixer.py          - Audio merge + loudnorm mastering (async FFmpeg)
     effect_director.py      - Deterministic palette/effect selection
-    scene_engine.py         - Procedural scene/palette/motion builder
-    timeline_builder.py     - Scene timeline assembly
+    effects_engine.py       - Visual effects with buffer reuse
+    scene_engine.py         - Procedural scene/palette/motion builder + aurora gradient
+    timeline_builder.py     - Scene timeline assembly + highlight/gradient params
     revamp_engine.py        - Visual revamp layout builder
     dua_database.py         - Dua data access layer
+    word_highlight.py       - Word highlight box styles (classic, glow, pulse, box)
+    master_config.py        - Single source of truth for all config (Ultra Pack)
     security.py             - Auth / token handling
     logging_config.py       - Centralized logging setup
     ...more helpers
@@ -51,8 +55,15 @@ DuaVideoGenerator/
   assets/backgrounds/       - Background manifest (media downloaded separately)
   remotion/                 - Video composition (React / Remotion)
     src/                    - TSX components (Background, DuaVideo, themes, FX)
-    scripts/                - Python helpers (render, upload, TTS, stats, ai_import)
+    scripts/                - Python helpers (render, upload, TTS, stats, ai_import, youtube_sync)
     dashboard/              - Web portal (Node server.js + public/)
+      routes/
+        render.js           - Render + additive queue system
+        status_store.js     - Per-channel upload tracking + sync
+        batch.js            - Python pipeline batch integration
+        youtube.js          - YouTube upload + per-channel duplicate prevention
+        vfx.js              - VFX management
+        utils.js            - Shared helpers
   scripts/                  - Utility scripts (cleanup_temp, etc.)
   tests/                    - Test suite (audio, render, video, security)
 ```

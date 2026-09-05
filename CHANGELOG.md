@@ -6,6 +6,38 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.12.0] - 2026-09-05
+
+### Added
+- **Additive Render Queue**: `POST /api/render-selected` — select multiple cards, append to running queue, server-side persistence survives browser close
+- **Card Selection UI**: Gold checkboxes on Not Started cards only, selection toolbar with Render Selected button
+- **Queue Counter**: Job bar shows remaining + done count across multiple batch additions
+- **YouTube Sync**: `POST /api/youtube/sync` — backfill upload status from ledgers or YouTube API
+- **Per-Channel Upload Tracking**: `status_store.js` — `uploaded_channels` map per dua, duplicate prevention per channel
+- **Word Highlight Box**: `HIGHLIGHT_BOX_STYLES` (classic, glow, pulse, box) in `core/word_highlight.py`
+- **Aurora Gradient**: `_build_aurora_gradient()` in `core/scene_engine.py` + `gradient_kind` param
+- **Batch JS Routes**: `routes/batch.js` — Python pipeline batch integration
+- **Status Store**: `routes/status_store.js` — atomic writes, ledger sync, YouTube API sync
+- **YouTube Sync Script**: `remotion/scripts/youtube_sync.py` — list channel videos, match to DB
+- **Cancel Cleanup**: Partial `.mp4` and `.bt709.mp4` files cleaned on cancel/fail
+- **Stale Flag Reset**: Cancel endpoint resets flags when nothing running
+- **Graceful Cancel**: Cancel button visible for single renders (not just batch)
+
+### Fixed
+- **Loading Bar Stuck**: Auto-hides on page load when no active job; SSE handler calls `scheduleBarHide` on completion
+- **Cancel Button Visibility**: Now shown whenever `j.running` or `queue.active` (was batch-only)
+- **Syntax Error**: Ternary operator in queue display — extracted to `qPrefix` variable
+- **Duplicate Check**: `render-selected` skips already-queued items with reason
+- **Uploaded Card Selection**: Not Started cards only — uploaded/rendered excluded from selection
+
+### Changed
+- **Audio Mixer**: Async FFmpeg with thread pool + try/finally cleanup
+- **Effects Engine**: Buffer reuse for particle rendering
+- **master_config.py**: Added `HIGHLIGHT_BOX_STYLES`, `BACKGROUND_GRADIENT_KINDS`
+- **App Version**: `v0.13.0` (cache-bust)
+
+---
+
 ## [0.11.0] - 2026-09-02
 
 ### Added

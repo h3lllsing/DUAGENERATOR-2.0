@@ -19,7 +19,7 @@ Dashboard runs on `http://127.0.0.1:7860`. Auth token is auto-generated in `auth
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/health` | Health check |
-| GET | `/api/duas` | List all duas |
+| GET | `/api/duas` | List all duas (includes `duaStatus`, `uploadedChannels`) |
 | POST | `/api/add-dua` | Add new dua |
 | POST | `/api/update-dua` | Update existing dua |
 | POST | `/api/delete-dua` | Soft-delete dua (to trash) |
@@ -28,10 +28,12 @@ Dashboard runs on `http://127.0.0.1:7860`. Auth token is auto-generated in `auth
 | POST | `/api/trash/restore/:id` | Restore from trash |
 | GET | `/api/config` | Get dashboard config |
 | POST | `/api/config` | Save dashboard config |
-| POST | `/api/render` | Render a dua video |
+| POST | `/api/render` | Render a single dua video |
+| POST | `/api/render-selected` | Add selected to render queue (additive, skip dupes) |
 | POST | `/api/render-all` | Batch render all pending |
-| GET | `/api/status` | Current render job status |
-| POST | `/api/cancel` | Cancel running job |
+| GET | `/api/status` | Current render job status + queue (remaining, done) |
+| GET | `/api/status/stream` | SSE stream for real-time job updates |
+| POST | `/api/cancel` | Cancel running job or batch queue |
 | POST | `/api/voice-only` | Generate TTS only |
 | POST | `/api/voice-preview` | Preview voice sample |
 | POST | `/api/tts-custom` | Custom TTS generation |
@@ -43,9 +45,13 @@ Dashboard runs on `http://127.0.0.1:7860`. Auth token is auto-generated in `auth
 | POST | `/api/vfx/import` | Import VFX presets |
 | POST | `/api/vfx/preview` | Preview VFX still |
 | GET | `/api/vfx/list` | List VFX registry |
-| POST | `/api/youtube/upload` | Upload to YouTube |
+| POST | `/api/youtube/upload` | Upload to YouTube (per-channel duplicate check) |
+| POST | `/api/youtube/sync` | Sync upload status from ledgers/API |
 | GET | `/api/youtube/status` | YouTube upload status |
 | GET | `/api/youtube/uploaded` | List uploaded videos |
+| POST | `/api/batch/start` | Start Python pipeline batch |
+| GET | `/api/batch/status` | Get batch status |
+| POST | `/api/batch/cancel` | Cancel batch |
 
 ## Auth
 
@@ -65,14 +71,16 @@ dashboard/
   look-spec.js        # Visual style specs
   routes/
     duas.js           # Dua CRUD + trash
-    render.js         # Video rendering
+    render.js         # Video rendering + additive queue system
+    status_store.js   # Per-channel upload tracking + ledger sync
+    batch.js          # Python pipeline batch integration
     config.js         # Settings
-    youtube.js        # YouTube upload
+    youtube.js        # YouTube upload + per-channel duplicate prevention
     vfx.js            # VFX management
     utils.js          # Shared helpers
   public/
-    index.html        # Dashboard UI
-    app.js            # Frontend JS
-    *.css             # Styles
+    index.html        # Dashboard UI (v0.13.0)
+    app.js            # Frontend JS (selection, queue, SSE)
+    style.css         # Styles (selection bar, grid sections)
   data/trash/         # Soft-deleted duas (auto-cleaned after 30 days)
 ```

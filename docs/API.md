@@ -12,11 +12,12 @@ Dua Video Generator Dashboard API endpoints.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/render` | Render a single dua video |
-| POST | `/api/render-all` | Render all queued duas |
-| POST | `/api/render-batch` | Render batch of duas |
-| GET | `/api/status` | Get current render status |
-| GET | `/api/progress` | Get render progress percentage |
-| POST | `/api/cancel` | Cancel current render |
+| POST | `/api/render-selected` | Add selected duas to render queue (additive, skip duplicates) |
+| POST | `/api/render-all` | Render all pending (not yet rendered) duas |
+| GET | `/api/status` | Get current render status + queue info (remaining, done, failed) |
+| GET | `/api/status/stream` | SSE stream for real-time job updates |
+| POST | `/api/cancel` | Cancel current render or batch queue |
+| POST | `/api/voice-only` | Generate TTS + manifest only (no video render) |
 
 ## Dua Management
 
@@ -49,8 +50,18 @@ Dua Video Generator Dashboard API endpoints.
 |--------|----------|-------------|
 | POST | `/api/youtube/auth` | Authenticate with YouTube |
 | GET | `/api/youtube/status` | Get upload status |
-| POST | `/api/youtube/upload` | Upload video to YouTube |
-| GET | `/api/youtube/history` | Get upload history |
+| POST | `/api/youtube/upload` | Upload video (per-channel duplicate check, 409 if already uploaded) |
+| POST | `/api/youtube/sync` | Sync upload status from ledgers or YouTube API |
+| GET | `/api/youtube/uploaded` | List uploaded videos |
+| GET | `/api/youtube/stats` | Get video/channel statistics |
+
+## Batch (Python Pipeline)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/batch/start` | Start Python pipeline batch |
+| GET | `/api/batch/status` | Get batch status |
+| POST | `/api/batch/cancel` | Cancel batch |
 
 ## Config & System
 
