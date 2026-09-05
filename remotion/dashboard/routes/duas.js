@@ -54,6 +54,8 @@ module.exports = function duaRoutes(deps) {
   function findDuplicates(list, fields, value, selfId) {
     const results = [];
     const normArabic = fields.includes('arabic');
+    const isTitle = fields.includes('title');
+    const threshold = isTitle ? 0.75 : 0.90;
     for (const d of list) {
       if (selfId && d.id === selfId) continue;
       for (const f of fields) {
@@ -62,7 +64,7 @@ module.exports = function duaRoutes(deps) {
         if (!b) continue;
         if (normArabic) { a = _normArabic(a); b = _normArabic(b); }
         const exact = a === b;
-        const fuzzy = (!exact && a && b) && _sim(a, b) >= 0.90;
+        const fuzzy = (!exact && a && b) && _sim(a, b) >= threshold;
         if (exact || fuzzy) {
           if (!results.some((r) => r.id === d.id && r.field === f)) {
             results.push({id: d.id, field: f});

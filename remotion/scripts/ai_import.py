@@ -375,9 +375,11 @@ def save_duas(new_items):
             return max(difflib.SequenceMatcher(None, text, p).ratio()
                        for p in pool)
 
-        # Title duplicate check (exact + fuzzy 90%+) — NEW
+        # Title duplicate check (exact + fuzzy 75%+) — lenient, since
+        # similar titles for different duas are normal (e.g. "Hidayat ki Dua"
+        # vs "Hidayat Aur Taqwa Ki Dua"). Arabic/Urdu are the real dup checks.
         if ti_norm:
-            if ti_norm in existing_ti or _best_ratio(ti_norm, existing_ti) >= 0.90:
+            if ti_norm in existing_ti or _best_ratio(ti_norm, existing_ti) >= 0.75:
                 continue
 
         # Arabic duplicate check (exact + best fuzzy 90%+)
