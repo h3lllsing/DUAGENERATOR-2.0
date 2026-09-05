@@ -372,7 +372,7 @@ def main(dua_id="rabbana_hasanah"):
         "dua_id": dua_id,
         "title": dua["title"],
         "reference": dua["reference"],
-        "fps": getattr(project_config, "VIDEO_FPS", 45),
+        "fps": getattr(project_config, "VIDEO_FPS", 30),
         "width": 1080,
         "height": 1920,
         "totalDuration": round(total, 3),

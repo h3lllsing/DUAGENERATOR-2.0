@@ -488,7 +488,7 @@ function render(){
     el.dataset.id=d.id;
     const thumb=d.thumbFile
       ?'<img class="card-thumb" src="/thumb/'+encodeURIComponent(d.thumbFile)+'" loading="lazy" '+(stRendered||stUploaded?'onclick="openPlayer(\''+encodeURIComponent(vid||'')+'\')" style="cursor:pointer"':'')+' >'
-      :'<div class="card-thumb" style="display:flex;align-items:center;justify-content:center;color:#39445a;font-size:18px">&#9654;</div>';
+      :'<div class="card-thumb ph" style="height:100%">&#9654;</div>';
     const ytOn=!!ytSel[d.id];
     const ref=String(d.reference||'').trim();
     // Status badge: uploaded > rendered+file > rendered(no file) > audio ready > not started
@@ -511,10 +511,9 @@ function render(){
         return '<span class="b cat" style="font-size:9px">'+escHtml(names[k]||k)+'</span>';
       }).join('');
     })();
+    const isNotStarted=!stUploaded&&!stRendered;
     el.innerHTML=
       '<div class="card-tt thumb">'
-      + (stUploaded?'<span class="up-badge">&#10003;&#65039; Uploaded</span>':'')
-      + (!stUploaded&&!stRendered?'<div class="sel-check'+(_selCards.has(d.id)?' selected':'')+'" onclick="event.stopPropagation();toggleSelect(\''+d.id+'\')" title="'+(_selCards.has(d.id)?'Selection hatao':'Select karo for render')+'">'+(_selCards.has(d.id)?'&#10003;':'')+'</div>':'')
       + (thumb?thumb:'<div class="card-thumb ph"><span>&#9654;</span></div>')
       +'</div>'
       +'<div class="card-body">'
@@ -529,12 +528,13 @@ function render(){
         +'</div>'
       +'</div>'
       +'<div class="card-actions">'
+        +(isNotStarted?'<div class="sel-check'+(_selCards.has(d.id)?' selected':'')+'" onclick="event.stopPropagation();toggleSelect(\''+d.id+'\')" title="'+(_selCards.has(d.id)?'Selection hatao':'Select karo for render')+'">'+(_selCards.has(d.id)?'&#10003;':'')+'</div>':'')
         +(ytOn?'<button class="btn-icon sel" title="YouTube me selected - hatao" onclick="cardYtToggle(\''+d.id+'\')">&#10003;</button>'
              :'<button class="btn-icon'+(isUp?' upi':'')+'" title="'+(isUp?'Ye pehle upload ho chuki hai':'YouTube ke liye select karo')+'" onclick="cardYtToggle(\''+d.id+'\')">'+ (isUp?'&#9679;':'&#9711;') +'</button>')
         +'<button class="btn-icon del" title="Hamesha ke liye delete" onclick="delDua(\''+d.id+'\')">&#128465;</button>'
         +'<div class="spacer"></div>'
-        +(vid?'<button class="btn-play" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')">PLAY</button>'
-          :(stUploaded?'<span class="btn-render uploaded-lock" title="Ye dua YouTube pe upload ho chuki hai. Local file delete ho chuka hai.">&#10003; Uploaded</span>'
+        +(vid?'<button class="btn-render" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')">PLAY</button>'
+          :(stUploaded?'<button class="btn-render uploaded-lock" disabled title="Ye dua YouTube pe upload ho chuki hai.">&#10003; Uploaded</button>'
             :'<button class="btn-render" '+(busy?'disabled':'')+' onclick="startRender(\''+d.id+'\')">'+(d.audioReady?'Render':'TTS')+'</button>'))
       +'</div>'
       +'<div class="card-pop">'
@@ -550,7 +550,7 @@ function render(){
         +'</div>'
       +'</div>';
     el.addEventListener('click',function(ev){
-      if(ev.target.closest('button,.btn-icon,.btn-render,.btn-play,.sel-check'))return;
+      if(ev.target.closest('button,.btn-icon,.btn-render,.sel-check'))return;
       if(matchMedia('(hover:none)and(pointer:coarse)').matches){
         const wasOpen=el.classList.contains('pop-open');
         document.querySelectorAll('.card.pop-open').forEach(function(c){c.classList.remove('pop-open');});

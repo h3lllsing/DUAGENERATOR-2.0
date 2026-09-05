@@ -37,7 +37,7 @@ TESTS_DIR = os.path.join(BASE_DIR, "tests")
 # ============================================================
 VIDEO_WIDTH = 1080
 VIDEO_HEIGHT = 1920
-VIDEO_FPS = 45  # Smooth playback for YouTube Shorts
+VIDEO_FPS = 30  # Smooth playback for YouTube Shorts (30fps standard)
 BACKGROUND_PREFER_VIDEO = True  # stock video backgrounds over stills jab available hon
 
 # VIDEO-002: Product duration specification for YouTube Shorts.
@@ -52,7 +52,7 @@ FFMPEG_CRF = 15          # Near-lossless (0=lossless, 15=visually transparent)
 FFMPEG_PRESET = "slow"   # Better compression at same quality (5% smaller files)
 FFMPEG_PROFILE = "high"  # Best compression efficiency (YouTube recommended)
 FFMPEG_LEVEL = "4.1"     # Max for 1080p@60fps
-FFMPEG_GOP = 30          # Half of 60fps — better seeking
+FFMPEG_GOP = 60          # 2 seconds at 30fps — standard keyframe interval
 FFMPEG_MOVFLAGS = "+faststart"  # moov atom at front for web streaming
 FFMPEG_PIX_FMT = "yuv420p"     # Maximum compatibility
 

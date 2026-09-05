@@ -1,5 +1,5 @@
 """
-VIDEO-002 tests: 15-50s duration policy, exact 45 FPS gate, short-dua padding,
+VIDEO-002 tests: 15-50s duration policy, exact 30 FPS gate, short-dua padding,
 long-dua hold reduction, and edge-tts word-boundary parsing.
 
 Run with: python -m pytest tests/test_video_002.py -v
@@ -75,7 +75,7 @@ class TestQualityCheckerVideo002:
         qc = QualityChecker()
         assert qc.min_duration == 15.0
         assert qc.max_duration == 50.0
-        assert qc.required_fps == 45.0
+        assert qc.required_fps == 30.0
 
     def test_duration_boundaries(self):
         qc = QualityChecker()
@@ -85,11 +85,11 @@ class TestQualityCheckerVideo002:
         assert qc.validate_duration(50.00) is True
         assert qc.validate_duration(50.01) is False
 
-    def test_fps_exact_45(self):
+    def test_fps_exact_30(self):
         qc = QualityChecker()
-        assert qc.validate_fps(45.0) is True
-        assert qc.validate_fps(44.98) is False
-        assert qc.validate_fps(30.0) is False
+        assert qc.validate_fps(30.0) is True
+        assert qc.validate_fps(29.98) is False
+        assert qc.validate_fps(45.0) is False
 
     def test_resolution_unchanged(self):
         qc = QualityChecker()

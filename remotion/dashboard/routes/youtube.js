@@ -41,6 +41,40 @@ module.exports = function ytRoutes(deps) {
     return cap;
   }
 
+  // ── Arabic text similarity check (Jaccard on words) ──
+  function normalizeArabic(text) {
+    return String(text || '')
+      .replace(/[\u0610-\u061A\u06D6-\u06ED\u064B-\u065F\u0670]/g, '')
+      .replace(/[^\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\s]/g, '')
+      .replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+  function arabicSimilarity(a, b) {
+    const na = normalizeArabic(a), nb = normalizeArabic(b);
+    if (!na || !nb) return 0;
+    const wa = new Set(na.split(' ')), wb = new Set(nb.split(' '));
+    let inter = 0;
+    for (const w of wa) if (wb.has(w)) inter++;
+    const union = wa.size + wb.size - inter;
+    return union > 0 ? inter / union : 0;
+  }
+  function checkArabicDuplicate(selectedIds, duasData, uploadedIds) {
+    const dupes = [];
+    for (const id of selectedIds) {
+      const dua = duasData.find(d => d.id === id);
+      if (!dua || !dua.arabic) continue;
+      for (const upId of uploadedIds) {
+        if (upId === id) continue;
+        const upDua = duasData.find(d => d.id === upId);
+        if (!upDua || !upDua.arabic) continue;
+        const sim = arabicSimilarity(dua.arabic, upDua.arabic);
+        if (sim >= 0.85) {
+          dupes.push({id, duplicateOf: upId, similarity: Math.round(sim * 100)});
+        }
+      }
+    }
+    return dupes;
+  }
+
   // ── Helpers ──
   function ytFileLog(line) {
     try {
@@ -565,6 +599,26 @@ module.exports = function ytRoutes(deps) {
                   + ledgerBlocked.join(', ')
                   + ' — Re-upload ke liye pehle ledger se hatao.'}));
             }
+            // Arabic text similarity check (prevent same dua under different title)
+            try {
+              const duasData = JSON.parse(fs.readFileSync(
+                path.join(PROJECT, 'data', 'duas.json'), 'utf8'));
+              const duaStatus = JSON.parse(fs.readFileSync(
+                path.join(PROJECT, 'data', 'dua_status.json'), 'utf8'));
+              const allUploaded = Object.keys(duaStatus).filter(
+                id => duaStatus[id] && duaStatus[id].status === 'uploaded');
+              const arabicDupes = checkArabicDuplicate(
+                only, duasData, allUploaded);
+              if (arabicDupes.length) {
+                const msgs = arabicDupes.map(d =>
+                  d.id + ' ≈ ' + d.duplicateOf + ' (' + d.similarity + '% similar)');
+                ytFileLog('   BLOCKED (arabic-dup): ' + msgs.join('; '));
+                return send(res, 409, JSON.stringify({ok: false,
+                  error: arabicDupes.length + ' dua(s) ka Arabic text pehle se upload ho chuka hai: '
+                    + msgs.join(' | ')
+                    + ' — Same dua alag title se dobara upload nahi ho sakti.'}));
+              }
+            } catch (_) {}
           }
           ytFileLog('   -> start: ch=' + channel + ' mode=' + mode +
             ' privacy=' + privacy + ' only=' + only.join(','));

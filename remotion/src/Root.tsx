@@ -16,17 +16,19 @@ const manifests: DuaManifest[] = manifestFiles.keys()
 export const compositionIdFor = (duaId: string) => duaId.replace(/_/g, '-');
 
 export const RemotionRoot: React.FC = () => {
+  const TARGET_FPS = 30;
+
   return (
     <>
       {manifests.map((data) => {
-        const contentFrames = Math.ceil(data.totalDuration * data.fps);
+        const contentFrames = Math.ceil(data.totalDuration * TARGET_FPS);
         return (
           <Composition
             key={data.dua_id}
             id={compositionIdFor(data.dua_id)}
             component={DuaVideo}
             durationInFrames={INTRO_FRAMES + contentFrames + END_FRAMES - 14}
-            fps={data.fps}
+            fps={TARGET_FPS}
             width={data.width}
             height={data.height}
             defaultProps={{data}}
@@ -37,7 +39,7 @@ export const RemotionRoot: React.FC = () => {
         id="StylePreview"
         component={StylePreview}
         durationInFrames={30}
-        fps={45}
+        fps={30}
         width={1280}
         height={720}
         defaultProps={{template: 'dark'}}
@@ -46,7 +48,7 @@ export const RemotionRoot: React.FC = () => {
         id="thumbnail-card"
         component={ThumbCard}
         durationInFrames={1}
-        fps={45}
+        fps={30}
         width={1080}
         height={1920}
         defaultProps={{data: manifests[0]}}

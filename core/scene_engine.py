@@ -2,7 +2,7 @@
 Scene Engine (VISUAL Phase 2).
 
 Deterministic procedural SceneEngine that produces visual variety for
-1080x1920 @ 45 FPS dua Shorts WITHOUT requiring any background image
+1080x1920 @ 30 FPS dua Shorts WITHOUT requiring any background image
 assets. Everything is generated procedurally from a seed (dua_id) so the
 same dua always looks the same and different duas can look different.
 
@@ -76,7 +76,7 @@ __all__ = ["MotionSpec", "TextLayer", "Transition", "Scene", "Timeline", "rect_i
 # ----------------------------------------------------------------------
 CANVAS_WIDTH = 1080
 CANVAS_HEIGHT = 1920
-DEFAULT_FPS = 45
+DEFAULT_FPS = 30
 
 # Formal content safe rectangle (x0, y0, x1, y1). Critical Arabic/Urdu/title
 # text must ALWAYS lie fully inside this rectangle.

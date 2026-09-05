@@ -59,9 +59,11 @@ function checkRateLimit(ip) {
   return true;
 }
 
-function send(res, code, body, type) {
+function send(res, code, body, type, extra) {
   if (res.headersSent || res.writableEnded) return;
-  res.writeHead(code, {'Content-Type': type || 'application/json; charset=utf-8'});
+  const headers = {'Content-Type': type || 'application/json; charset=utf-8'};
+  if (extra) Object.assign(headers, extra);
+  res.writeHead(code, headers);
   res.end(body);
 }
 function writeAtomic(f, data) {
@@ -200,7 +202,8 @@ const server = http.createServer((req, res) => {
     if (fs.existsSync(fp)) {
       const types = {'.css':'text/css','.js':'application/javascript','.png':'image/png',
         '.jpg':'image/jpeg','.svg':'image/svg+xml','.json':'application/json','.ico':'image/x-icon'};
-      return send(res, 200, fs.readFileSync(fp), types[ext] || 'application/octet-stream');
+      return send(res, 200, fs.readFileSync(fp), types[ext] || 'application/octet-stream',
+        {'Cache-Control':'no-cache, no-store, must-revalidate','Pragma':'no-cache'});
     }
   }
   send(res, 404, JSON.stringify({ok: false, error: 'not found'}));

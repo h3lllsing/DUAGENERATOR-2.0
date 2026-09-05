@@ -18,7 +18,7 @@ class TestProjectInfo:
         assert PROJECT.VIDEO_HEIGHT == 1920
 
     def test_fps(self):
-        assert PROJECT.FPS == 45
+        assert PROJECT.FPS == 30
 
     def test_directories_exist(self):
         assert os.path.isdir(PROJECT.OUTPUT_DIR)
@@ -56,13 +56,13 @@ class TestProjectInfo:
         assert "0.10.0" in summary
         assert "1080" in summary
         assert "1920" in summary
-        assert "45" in summary
+        assert "30" in summary
 
     def test_singleton_consistency(self):
         # PROJECT is a module-level instance, not a true singleton
         # Just verify it exists and has correct values
         assert PROJECT.VIDEO_WIDTH == 1080
-        assert PROJECT.FPS == 45
+        assert PROJECT.FPS == 30
 
     def test_custom_dimensions(self):
         custom = ProjectInfo(VIDEO_WIDTH=720, VIDEO_HEIGHT=1280, FPS=30)

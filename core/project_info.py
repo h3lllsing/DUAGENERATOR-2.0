@@ -23,7 +23,7 @@ class ProjectInfo:
     # Video Standards
     VIDEO_WIDTH: int = 1080
     VIDEO_HEIGHT: int = 1920
-    FPS: int = 45
+    FPS: int = 30
 
     # Folder Paths (Relative to project root)
     PROJECT_ROOT: str = ""

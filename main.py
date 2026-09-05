@@ -481,7 +481,7 @@ class DuaVideoPipeline:
     def _enforce_quality_gate(self, quality_results: dict) -> bool:
         """
         VIDEO-002 hard gate. Resolution (VIDEO-001), duration (15-50s), and
-        FPS (exactly 45) failures abort generation. Other checks (e.g. file
+        FPS (exactly 30) failures abort generation. Other checks (e.g. file
         size) remain advisory.
         """
         if quality_results["valid"]:
@@ -506,7 +506,7 @@ class DuaVideoPipeline:
                   f"15-50 second window. Generation FAILED.")
             return False
         if not self.quality_checker.validate_fps(fps):
-            logger.error(f"Video FPS {fps:.1f} is not exactly 45. "
+            logger.error(f"Video FPS {fps:.1f} is not exactly 30. "
                   "Generation FAILED.")
             return False
         return True

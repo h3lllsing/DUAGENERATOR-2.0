@@ -234,7 +234,7 @@ class TestFullPipeline:
     def test_qc_fps(self):
         results = qc.check_video(self.output_path)
         fps = results['video_info']['fps']
-        assert abs(fps - 45.0) < 0.1, f"FPS {fps}, expected 45"
+        assert abs(fps - 30.0) < 0.1, f"FPS {fps}, expected 30"
 
     def test_qc_overall_valid(self):
         results = qc.check_video(self.output_path)
