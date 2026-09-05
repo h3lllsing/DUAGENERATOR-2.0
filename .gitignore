@@ -88,3 +88,6 @@ remotion/public/backgrounds/*.png
 
 # --- Tools (NSSM binary) ---
 tools/
+
+# --- Opencode config (local paths) ---
+opencode.json

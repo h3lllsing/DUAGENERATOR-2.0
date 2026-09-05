@@ -39,9 +39,8 @@
 
 | File | Location |
 |------|----------|
-| Global Config | `C:\Users\MASOOD NASIR\.config\opencode\opencode.json` |
-| Project Config | `H:\DuaVideoGenerator\opencode.json` |
-| Documentation | `H:\MCP\README.md` |
+| Global Config | `~/.config/opencode/opencode.json` |
+| Project Config | `./opencode.json` |
 
 ---
 
@@ -56,7 +55,7 @@
 ## Troubleshooting
 
 ### MCP not working?
-1. Check config: `C:\Users\MASOOD NASIR\.config\opencode\opencode.json`
+1. Check config: `~/.config/opencode/opencode.json`
 2. Check token: `[Environment]::GetEnvironmentVariable("GITHUB_TOKEN", "User")`
 3. Restart opencode
 

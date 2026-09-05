@@ -160,9 +160,8 @@ This project is configured with MCP (Model Context Protocol) servers for enhance
 
 | File | Location |
 |------|----------|
-| Global Config | `C:\Users\MASOOD NASIR\.config\opencode\opencode.json` |
-| Project Config | `H:\DuaVideoGenerator\opencode.json` |
-| Documentation | `H:\MCP\README.md` |
+| Global Config | `~/.config/opencode/opencode.json` |
+| Project Config | `./opencode.json` |
 
 ### Usage
 
