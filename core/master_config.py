@@ -50,6 +50,10 @@ __all__ = [
     "MASTER_VFX_MOTION", "VFX_MOTION_IDS",
     # VFX Audio system
     "MASTER_VFX_AUDIO", "VFX_AUDIO_IDS",
+    # Highlight box styles (Reels/TikTok trending)
+    "HIGHLIGHT_BOX_STYLES",
+    # Background gradient kinds
+    "BACKGROUND_GRADIENT_KINDS",
     # Randomizer
     "generate_random_config", "UltraConfig",
     # VFX helpers
@@ -459,6 +463,28 @@ CORNER_STYLES = (
 
 
 # ============================================================
+# 4b. HIGHLIGHT BOX STYLES (Reels/TikTok trending captions)
+# ============================================================
+
+HIGHLIGHT_BOX_STYLES = (
+    "",         # Legacy subtle overlay (default)
+    "gold",     # Gold pill with warm glow
+    "teal",     # Teal/cyan pill with cool glow
+    "rose",     # Rose/pink pill with soft glow
+)
+
+
+# ============================================================
+# 4c. BACKGROUND GRADIENT KINDS
+# ============================================================
+
+BACKGROUND_GRADIENT_KINDS = (
+    "",         # Default static linear gradient
+    "aurora",   # Animated shifting aurora/northern-lights gradient
+)
+
+
+# ============================================================
 # 5. ISLAMIC CONSTRAINTS
 # ============================================================
 
@@ -507,6 +533,8 @@ class UltraConfig:
     corner_style: str = "classic"
     particle_density: int = 40
     motion_kind: str = "static"
+    highlight_style: str = ""        # "" / "gold" / "teal" / "rose"
+    gradient_kind: str = ""          # "" / "aurora"
     
     # Palette
     palette: str = "midnight"
@@ -534,6 +562,8 @@ class UltraConfig:
             "corner_style": self.corner_style,
             "particle_density": self.particle_density,
             "motion_kind": self.motion_kind,
+            "highlight_style": self.highlight_style,
+            "gradient_kind": self.gradient_kind,
             "palette": self.palette,
             "vfx_pattern": self.vfx_pattern,
             "vfx_plugin": self.vfx_plugin,
@@ -641,6 +671,8 @@ def generate_random_config(
     corner_style = rng.choice(CORNER_STYLES)
     particle_density = rng.randint(20, 60)
     motion_kind = rng.choice(MOTION_KINDS)
+    highlight_style = rng.choice(HIGHLIGHT_BOX_STYLES)  # "" most of the time
+    gradient_kind = rng.choice(BACKGROUND_GRADIENT_KINDS)  # "" most of the time
     
     # 7. Random palette
     palette = rng.choice(PALETTE_NAMES)
@@ -658,6 +690,8 @@ def generate_random_config(
         corner_style=corner_style,
         particle_density=particle_density,
         motion_kind=motion_kind,
+        highlight_style=highlight_style,
+        gradient_kind=gradient_kind,
         palette=palette,
     )
     

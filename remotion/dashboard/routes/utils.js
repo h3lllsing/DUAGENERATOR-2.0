@@ -60,7 +60,7 @@ function routeCatch(res, fn, logFn) {
 
 async function exists(p, fsRef) {
   try {
-    await (fsRef || require('fs')).access(p);
+    await (fsRef || require('fs')).promises.access(p);
     return true;
   } catch (_) {
     return false;

@@ -1,5 +1,6 @@
 let duas=[], busy=false, searchTerm='', activeCat='All';
-let forceFlags={}, lastGridKey='', prevStep=null, barHidden=false, editingId=null, jobDua='', prevQueueActive=false, autoHideBarT=null;
+let forceFlags={}, lastGridKey='', prevStep=null, barHidden=false, editingId=null, jobDua='', prevQueueActive=false, autoHideBarT=null, prevRunning=false, prevStepDone=false, prevStepFailed=false;
+const _selCards=new Set();
 const _origFetch=window.fetch;
 window.fetch=function(url,opts){
   return _origFetch(url,opts||{});
@@ -50,6 +51,7 @@ async function load(){
     buildChips();
     render();
     stats();
+    updateSelBar();
     _loaded=true;
     if(document.getElementById('ytHub').style.display!=='none') ytRenderPicker();
   }catch(e){
@@ -58,14 +60,17 @@ async function load(){
   }
 }
 function stats(){
-  const done=duas.filter(d=>d.videoFile).length;
-  document.getElementById('statline').innerHTML='<b>'+done+'</b> / '+duas.length+' Rendered';
+  const done=duas.filter(d=>d.videoFile||d.duaStatus==='uploaded').length;
+  const uploaded=duas.filter(d=>d.duaStatus==='uploaded').length;
+  const rendered=duas.filter(d=>d.duaStatus==='rendered'||(d.videoFile&&d.duaStatus!=='uploaded')).length;
+  document.getElementById('statline').innerHTML=
+    '<b>'+uploaded+'</b> / '+duas.length+' Uploaded'+(rendered?' | <b>'+rendered+'</b> Rendered':'');
   const pct=duas.length?Math.round(done*100/duas.length):0;
   document.getElementById('ring').style.setProperty('--p',pct+'%');
   document.getElementById('ringtxt').textContent=pct+'%';
   const upCount=(window.ytUploadedIds||[]).length;
   const el=document.getElementById('uploaded_count');
-  if(el) el.textContent=upCount;
+  if(el) el.textContent=uploaded;
 }
 function buildChips(){
   const cats=['All',...new Set(duas.map(d=>d.category))];
@@ -75,9 +80,7 @@ function buildChips(){
 function setCat(c){ activeCat=c; buildChips(); render(); }
 function onSearch(v){ searchTerm=v.trim().toLowerCase(); render(); }
 function filtered(){
-  const upIds=window.ytUploadedIds||[];
   return duas.filter(d=>{
-    if(upIds.indexOf(d.id)>=0) return false;
     const okCat=activeCat==='All'||d.category===activeCat;
     const q=searchTerm;
     const okQ=!q||d.title.toLowerCase().includes(q)||(d.reference||'').toLowerCase().includes(q)||d.id.includes(q);
@@ -382,7 +385,7 @@ async function cardYtToggle(id){
     toast('Selection hat gayi: '+id,'ok');
     return;
   }
-  if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!await styledConfirm('Re-select','Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
+  if(window.ytUploadedIds&&window.ytUploadedIds.indexOf(id)>=0&&!await styledConfirm('Re-select','Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
   if(Object.keys(ytSel).length>=6){toast('Max 6 videos ek run me select kar sakte ho','err');return;}
   ytSel[id]=true;
   ytUpdateCount();
@@ -391,7 +394,15 @@ async function cardYtToggle(id){
   toast('Select ho gayi - YouTube me already selected dikhegi','ok');
 }
 async function quickUpload(id){
-  if(window.ytUploadedIds&&ytUploadedIds.indexOf(id)>=0&&!await styledConfirm('Re-upload','Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
+  // Per-channel check: warn if already uploaded to selected channel
+  const ch=document.getElementById('yt_channel').value;
+  const duaObj=duas.find(d=>d.id===id);
+  const uploadedChannels=duaObj&&duaObj.uploadedChannels||{};
+  if(uploadedChannels[ch]){
+    if(!await styledConfirm('Re-upload','Ye dua is channel pe pehle se upload ho chuki hai ('+uploadedChannels[ch].videoId+'). Phir bhi select karni hai?'))return;
+  } else if(window.ytUploadedIds&&window.ytUploadedIds.indexOf(id)>=0){
+    if(!await styledConfirm('Re-upload','Ye pehle upload ho chuki hai (ledger). Phir bhi select karni hai?'))return;
+  }
   if(!ytSel[id]){
     if(Object.keys(ytSel).length>=6){toast('Max 6 videos ek run me select kar sakte ho','err');return;}
     ytSel[id]=true;
@@ -442,39 +453,79 @@ function logClass(l){
 }
 function render(){
   const list=filtered();
-  const done=list.filter(d=>d.videoFile).length;
   const total=list.length;
   const busyKey=busy?jobDua:'';
-  const key=total+':'+done+':'+busyKey+':'+searchTerm+':'+activeCat;
+  // Include duaStatus hash so uploaded/rendered transitions re-render the grid
+  const stHash=list.map(d=>d.id+':'+(d.duaStatus||'')).join(',');
+  const key=total+':'+busyKey+':'+searchTerm+':'+activeCat+':'+stHash;
   if(key===lastGridKey)return;
   lastGridKey=key;
   const grid=document.getElementById('grid');
   if(!total){grid.innerHTML='<div class="empty">Koi dua nahi mili</div>';return;}
-  const frag=document.createDocumentFragment();
+
+  // Group into 3 sections
+  const grpUploaded=[], grpRendered=[], grpNotStarted=[];
   list.forEach(d=>{
+    const duaSt=d.duaStatus||'';
+    const upIds=window.ytUploadedIds||[];
+    const isUp=upIds.indexOf(d.id)>=0||duaSt==='uploaded';
+    if(isUp) { grpUploaded.push(d); return; }
     const vid=d.videoFile;
+    const stRendered=duaSt==='rendered'||!!vid;
+    if(stRendered) { grpRendered.push(d); return; }
+    grpNotStarted.push(d);
+  });
+
+  function makeCard(d){
+    const vid=d.videoFile;
+    const duaSt=d.duaStatus||'';
+    const upIds=window.ytUploadedIds||[];
+    const isUp=upIds.indexOf(d.id)>=0||duaSt==='uploaded';
+    const stUploaded=isUp;
+    const stRendered=duaSt==='rendered'||!!vid;
     const el=document.createElement('div');
-    el.className='card'+(vid?' rendered':'')+((busy&&jobDua===d.id)?' active-job':'');
+    el.className='card'+(_selCards.has(d.id)?' selected':'')+(stRendered||stUploaded?' rendered':'')+((busy&&jobDua===d.id)?' active-job':'');
+    el.dataset.id=d.id;
     const thumb=d.thumbFile
-      ?'<img class="card-thumb" src="/thumb/'+encodeURIComponent(d.thumbFile)+'" loading="lazy" '+(vid?'onclick="openPlayer(\''+encodeURIComponent(vid)+'\')" style="cursor:pointer"':'')+' >'
+      ?'<img class="card-thumb" src="/thumb/'+encodeURIComponent(d.thumbFile)+'" loading="lazy" '+(stRendered||stUploaded?'onclick="openPlayer(\''+encodeURIComponent(vid||'')+'\')" style="cursor:pointer"':'')+' >'
       :'<div class="card-thumb" style="display:flex;align-items:center;justify-content:center;color:#39445a;font-size:18px">&#9654;</div>';
     const ytOn=!!ytSel[d.id];
-    const upIds=window.ytUploadedIds||[];
-    const isUp=upIds.indexOf(d.id)>=0;
     const ref=String(d.reference||'').trim();
+    // Status badge: uploaded > rendered+file > rendered(no file) > audio ready > not started
+    const statusBadge=stUploaded
+      ?'<span class="b up">&#10003; Uploaded</span>'
+      :(vid
+        ?'<span class="b ok">Done</span>'
+        :(stRendered
+          ?'<span class="b warn">Rendered</span>'
+          :(d.audioReady?'<span class="b warn">Pending</span>':'<span class="b no">No Audio</span>')));
+    // YouTube link (if uploaded)
+    const ytLink=d.youtubeUrl
+      ?' <a href="'+escHtml(d.youtubeUrl)+'" target="_blank" rel="noopener" style="color:#0d7;font-size:11px;text-decoration:underline">&#127909; YouTube</a>'
+      :'';
+    // Channel badges for uploaded
+    const chBadges=(function(){
+      const chs=d.uploadedChannels||{};
+      const names={channel1:'Ch1',channel2:'Ch2'};
+      return Object.keys(chs).map(function(k){
+        return '<span class="b cat" style="font-size:9px">'+escHtml(names[k]||k)+'</span>';
+      }).join('');
+    })();
     el.innerHTML=
       '<div class="card-tt thumb">'
-      + (isUp?'<span class="up-badge">&#10003;&#65039; Uploaded</span>':'')
+      + (stUploaded?'<span class="up-badge">&#10003;&#65039; Uploaded</span>':'')
+      + (!stUploaded&&!stRendered?'<div class="sel-check'+(_selCards.has(d.id)?' selected':'')+'" onclick="event.stopPropagation();toggleSelect(\''+d.id+'\')" title="'+(_selCards.has(d.id)?'Selection hatao':'Select karo for render')+'">'+(_selCards.has(d.id)?'&#10003;':'')+'</div>':'')
       + (thumb?thumb:'<div class="card-thumb ph"><span>&#9654;</span></div>')
       +'</div>'
       +'<div class="card-body">'
         +(ref?'<div class="card-ref" title="'+escHtml(ref)+'">'+escHtml(ref)+'</div>':'')
         +'<div class="card-title" title="'+escHtml(d.title)+'">'+escHtml(d.title)+'</div>'
         +'<div class="card-meta">'
-          +(vid?'<span class="b ok">Done</span>':(d.audioReady?'<span class="b warn">Pending</span>':'<span class="b no">No Audio</span>'))
+          +statusBadge
           +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
           +(d.category?'<span class="b cat">'+escHtml(d.category)+'</span>':'')
-          +(isUp?'<span class="b up">&#10003; Uploaded</span>':'')
+          +ytLink
+          +chBadges
         +'</div>'
       +'</div>'
       +'<div class="card-actions">'
@@ -483,7 +534,7 @@ function render(){
         +'<button class="btn-icon del" title="Hamesha ke liye delete" onclick="delDua(\''+d.id+'\')">&#128465;</button>'
         +'<div class="spacer"></div>'
         +(vid?'<button class="btn-play" onclick="openPlayer(\''+encodeURIComponent(vid)+'\')">PLAY</button>'
-          :(isUp?'<span class="btn-render uploaded-lock" title="Ye dua YouTube pe upload ho chuki hai. TTS dubara banane ki zaroorat nahi.">&#10003; Uploaded</span>'
+          :(stUploaded?'<span class="btn-render uploaded-lock" title="Ye dua YouTube pe upload ho chuki hai. Local file delete ho chuka hai.">&#10003; Uploaded</span>'
             :'<button class="btn-render" '+(busy?'disabled':'')+' onclick="startRender(\''+d.id+'\')">'+(d.audioReady?'Render':'TTS')+'</button>'))
       +'</div>'
       +'<div class="card-pop">'
@@ -493,21 +544,48 @@ function render(){
         +(d.urdu?'<div class="cpop-urdu">'+escHtml(d.urdu)+'</div>':'')
         +(d.explanation?'<div class="cpop-exp">'+escHtml(d.explanation)+'</div>':'')
         +'<div class="cpop-meta">'
-          +(vid?'<span class="b ok">Done</span>':(d.audioReady?'<span class="b warn">Pending</span>':'<span class="b no">No Audio</span>'))
+          +statusBadge
           +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
           +(d.category?'<span class="b cat">'+escHtml(d.category)+'</span>':'')
         +'</div>'
       +'</div>';
-    frag.appendChild(el);
     el.addEventListener('click',function(ev){
-      if(ev.target.closest('button,.btn-icon,.btn-render,.btn-play'))return;
+      if(ev.target.closest('button,.btn-icon,.btn-render,.btn-play,.sel-check'))return;
       if(matchMedia('(hover:none)and(pointer:coarse)').matches){
         const wasOpen=el.classList.contains('pop-open');
         document.querySelectorAll('.card.pop-open').forEach(function(c){c.classList.remove('pop-open');});
         if(!wasOpen)el.classList.add('pop-open');
       }
     });
-  });
+    return el;
+  }
+
+  // Build grouped grid
+  const frag=document.createDocumentFragment();
+  function addSection(id, label, count, cls, items){
+    if(!items.length)return;
+    const collapsed=localStorage.getItem('sec_'+id)==='1';
+    const hdr=document.createElement('div');
+    hdr.className='grid-section-header '+cls+(collapsed?' collapsed':'');
+    hdr.innerHTML='<span class="grid-section-title">'+(collapsed?'\u25B6':'\u25BC')+' '+label+'</span><span class="grid-section-count">'+count+'</span>';
+    hdr.style.cursor='pointer';
+    hdr.onclick=function(){
+      const isClosed=hdr.classList.toggle('collapsed');
+      localStorage.setItem('sec_'+id,isClosed?'1':'0');
+      const arrow=isClosed?'\u25B6':'\u25BC';
+      hdr.querySelector('.grid-section-title').innerHTML=arrow+' '+label;
+      row.style.display=isClosed?'none':'';
+    };
+    frag.appendChild(hdr);
+    const row=document.createElement('div');
+    row.className='grid-section';
+    if(collapsed)row.style.display='none';
+    items.forEach(d=>row.appendChild(makeCard(d)));
+    frag.appendChild(row);
+  }
+  addSection('uploaded','Uploaded &#10003;',grpUploaded.length,'sec-uploaded',grpUploaded);
+  addSection('rendered','Rendered \u2014 Upload Baqi',grpRendered.length,'sec-rendered',grpRendered);
+  addSection('notstarted','Not Started',grpNotStarted.length,'sec-notstarted',grpNotStarted);
   grid.innerHTML='';
   grid.appendChild(frag);
 }
@@ -521,6 +599,46 @@ function render(){
  * Start rendering a video for the given dua ID.
  * @param {string} id - Dua identifier (e.g. "bismillah_001")
  */
+function toggleSelect(id){
+  const d=duas.find(function(x){return x.id===id;});
+  if(!d)return;
+  const duaSt=d.duaStatus||'';
+  const upIds=window.ytUploadedIds||[];
+  const isUp=upIds.indexOf(d.id)>=0||duaSt==='uploaded';
+  if(isUp){toast('Ye dua uploaded hai - render ki zaroorat nahi','warn');return;}
+  if(_selCards.has(id))_selCards.delete(id);else _selCards.add(id);
+  const card=document.querySelector('.card[data-id="'+id+'"]');
+  if(card){card.classList.toggle('selected',_selCards.has(id));
+    const chk=card.querySelector('.sel-check');
+    if(chk)chk.innerHTML=_selCards.has(id)?'&#10003;':'';
+  }
+  updateSelBar();
+}
+function clearSelection(){
+  _selCards.clear();
+  document.querySelectorAll('.card.selected').forEach(function(c){c.classList.remove('selected');
+    var chk=c.querySelector('.sel-check');if(chk)chk.innerHTML='';
+  });
+  updateSelBar();
+}
+function updateSelBar(){
+  const bar=document.getElementById('selbar');
+  const cnt=document.getElementById('selcount');
+  const n=_selCards.size;
+  if(n>0){bar.style.display='flex';cnt.textContent=n+' selected';}
+  else{bar.style.display='none';}
+}
+async function renderSelected(){
+  if(!_selCards.size)return toast('Pehle duaon ko select karo','err');
+  const ids=Array.from(_selCards);
+  const r=await fetch('/api/render-selected',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaIds:ids})});
+  const j=await r.json();
+  if(j.ok){
+    toast('\u26A1 '+j.added+' video(s) queue mein add ho gayi!'+(j.skipped.length?' ('+j.skipped.length+' skipped)':''),'ok');
+    clearSelection();
+    barHidden=false;
+  }else{toast(j.error||'Queue add fail','err');}
+}
 async function startRender(id){
   const force=!!forceFlags[id];
   const r=await fetch('/api/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({duaId:id,force})});
@@ -665,6 +783,9 @@ async function poll(){
       barHidden=false;
       if(autoHideBarT){clearTimeout(autoHideBarT);autoHideBarT=null;}
     }
+    if(!j.running && prevStep===null && (j.step==='done'||j.error)){
+      barHidden=true;
+    }
     const showBar=j.running||(!barHidden&&(j.step==='done'||!!j.error));
     document.getElementById('jobbar').classList.toggle('show',showBar);
     document.getElementById('jstep').textContent=(j.step||'-').toUpperCase();
@@ -683,17 +804,30 @@ async function poll(){
     }
     const jb=document.getElementById('jbatch');
     const jc=document.getElementById('jcancel');
-    if(j.queue&&j.queue.active){
+    if(j.queue&&(j.queue.active||(j.queue.remaining||0)>0)){
       jc.style.display='inline-block';
       jb.style.display='inline';
       const qt=j.queue.total||0;
-      const qp=qt?Math.round((j.queue.done||0)*100/qt):0;
-      jb.textContent=qp+'% '+(j.queue.idx)+'/'+qt+
-        ' \u2705'+j.queue.done+' \u274C'+(j.queue.failed?j.queue.failed.length:0)+
-        (j.queue.skipped&&j.queue.skipped.length?(' \u23ED'+j.queue.skipped.length):'')+
+      const qd=j.queue.done||0;
+      const qr=j.queue.remaining||0;
+      const qp=qt?Math.round(qd*100/qt):0;
+      const qPrefix=j.queue.active?(qp+'% '+j.queue.idx+'/'+qt+' '):'';
+      jb.textContent=qPrefix+
+        '\u2705'+qd+' \u23ED'+qr+
+        (j.queue.failed&&j.queue.failed.length?(' \u274C'+j.queue.failed.length):'')+
+        (j.queue.skipped&&j.queue.skipped.length?(' \u23F9'+j.queue.skipped.length):'')+
         ' | '+(j.duaId||'-');
-    }else{jb.style.display='none';jc.style.display='none';}
+    }else{jb.style.display='none';}
+    jc.style.display=(j.running||(j.queue&&j.queue.active))?'inline-block':'none';
     document.title = j.running ? (j.percent + '% - Dua Studio') : 'Dua Video Studio';
+    if(!j.running && (j.step==='done'||j.error)){
+      if(prevStep===null){
+        barHidden=true;
+        document.getElementById('jobbar').classList.remove('show');
+      }else{
+        scheduleBarHide();
+      }
+    }
     if(prevStep && prevStep!=='done' && j.step==='done' && !j.running){
       toast('\u2705 '+(j.lastVideo||'Video').split('\\').pop()+' ready!','ok');
       lastGridKey=''; load();
@@ -704,7 +838,20 @@ async function poll(){
       lastGridKey=''; load();
       scheduleBarHide();
     }
+    if(prevRunning && !j.running){
+      if(j.step==='done' && !prevStepDone){
+        toast('\u2705 '+(j.lastVideo||'Video').split('\\').pop()+' ready!','ok');
+      }
+      if(j.step==='failed' && !prevStepFailed){
+        toast('\u274C Render failed: '+j.error,'err');
+      }
+      lastGridKey=''; load();
+      scheduleBarHide();
+    }
     prevStep=j.step;
+    prevRunning=!!j.running;
+    prevStepDone=(j.step==='done');
+    prevStepFailed=(j.step==='failed');
     const qa=!!(j.queue&&j.queue.active);
     if(prevQueueActive&&!qa){
       const qt=(j.queue&&j.queue.total)||0;
@@ -1676,17 +1823,32 @@ function _handleJobUpdate(j){
   }
   const jb=document.getElementById('jbatch');
   const jc=document.getElementById('jcancel');
-  if(j.queue&&j.queue.active){
+  if(j.queue&&(j.queue.active||(j.queue.remaining||0)>0)){
     jc.style.display='inline-block';
     jb.style.display='inline';
     const qt=j.queue.total||0;
-    const qp=qt?Math.round((j.queue.done||0)*100/qt):0;
-    jb.textContent=qp+'% '+(j.queue.idx)+'/'+qt+
-      ' \u2705'+j.queue.done+' \u274C'+(j.queue.failed?j.queue.failed.length:0)+
-      (j.queue.skipped&&j.queue.skipped.length?(' \u23ED'+j.queue.skipped.length):'')+
+    const qd=j.queue.done||0;
+    const qr=j.queue.remaining||0;
+    const qp=qt?Math.round(qd*100/qt):0;
+    const qPrefix=j.queue.active?(qp+'% '+j.queue.idx+'/'+qt+' '):'';
+    jb.textContent=qPrefix+
+      '\u2705'+qd+' \u23ED'+qr+
+      (j.queue.failed&&j.queue.failed.length?(' \u274C'+j.queue.failed.length):'')+
+      (j.queue.skipped&&j.queue.skipped.length?(' \u23F9'+j.queue.skipped.length):'')+
       ' | '+(j.duaId||'-');
-  }else{jb.style.display='none';jc.style.display='none';}
+  }else{jb.style.display='none';}
+  jc.style.display=(j.running||(j.queue&&j.queue.active))?'inline-block':'none';
   document.title=j.running?(j.percent+'% - Dua Studio'):'Dua Video Studio';
+  if(!j.running && (j.step==='done'||j.error)){
+    if(prevRunning===false && !j.running){
+      scheduleBarHide();
+    }
+  }
+  if(prevRunning && !j.running){
+    lastGridKey=''; load();
+    scheduleBarHide();
+  }
+  prevRunning=!!j.running;
 }
 function _startPolling(){
   _stopPolling();
@@ -1918,4 +2080,114 @@ function copyFmtPrompt(){
 function setMsg2(id,msg,type){
   const el=document.getElementById(id);if(!el)return;
   el.textContent=msg;el.className='formmsg'+(type==='ok'?' ok':type==='err'?' err':type==='warn'?' warn':'');
+}
+
+// ── Batch Manager (Python Pipeline) ──
+let _batchPollId=null;
+let _batchSelected=new Set();
+function openBatchManager(){
+  document.getElementById('batchbg').classList.add('show');
+  _pushModal('batch');
+  _batchSelected.clear();
+  document.getElementById('b_status_section').style.display='none';
+  document.getElementById('b_results_section').style.display='none';
+  document.getElementById('b_cancel').style.display='none';
+  setMsg2('b_msg','','');
+  loadBatchDuaList();
+  batchPollStatus();
+}
+function closeBatchManager(){
+  document.getElementById('batchbg').classList.remove('show');
+  _popModal('batch');
+  if(_batchPollId){clearInterval(_batchPollId);_batchPollId=null;}
+}
+async function loadBatchDuaList(){
+  try{
+    const r=await fetch('/api/duas');const j=await r.json();
+    const el=document.getElementById('b_dualist');
+    if(!j.ok||!j.duas||!j.duas.length){el.innerHTML='<div style="color:#5a6474;font-size:12px">Koi dua nahi</div>';return;}
+    el.innerHTML=j.duas.map(function(d){
+      return '<label style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #1a2030;font-size:12px;cursor:pointer">'
+        +'<input type="checkbox" class="b_cb" data-id="'+escHtml(d.id)+'" onchange="batchToggle(this)">'
+        +'<span style="flex:1">'+escHtml(d.title)+'</span>'
+        +'<span style="color:#5a6474">'+escHtml(d.id)+'</span></label>';
+    }).join('');
+  }catch(e){}
+}
+function batchToggle(cb){
+  const id=cb.dataset.id;
+  if(cb.checked)_batchSelected.add(id);else _batchSelected.delete(id);
+  document.getElementById('b_pickcount').textContent=_batchSelected.size+' selected';
+}
+function batchSelectAll(){
+  document.querySelectorAll('.b_cb').forEach(function(cb){cb.checked=true;_batchSelected.add(cb.dataset.id);});
+  document.getElementById('b_pickcount').textContent=_batchSelected.size+' selected';
+}
+function batchSelectNone(){
+  document.querySelectorAll('.b_cb').forEach(function(cb){cb.checked=false;});
+  _batchSelected.clear();
+  document.getElementById('b_pickcount').textContent='0 selected';
+}
+async function batchStart(){
+  const btn=document.getElementById('b_start');
+  const theme=document.getElementById('b_theme').value;
+  const effect=document.getElementById('b_effect').value;
+  const dryRun=document.getElementById('b_dryrun').checked;
+  const duaIds=_batchSelected.size>0?Array.from(_batchSelected):null;
+  const label=duaIds?duaIds.length+' dua(s)':'SABHI duas';
+  if(!await styledConfirm('Batch Start',label+' queue mein lag jayengi?\nTheme: '+theme+', Effect: '+effect+(dryRun?' (DRY-RUN)':'')))return;
+  btn.disabled=true;btn.textContent='Starting...';
+  setMsg2('b_msg','Batch shuru ho raha hai...','warn');
+  try{
+    const r=await fetch('/api/batch/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dua_ids:duaIds,theme:theme,effect:effect,dry_run:dryRun})});
+    const j=await r.json();
+    if(j.ok){
+      setMsg2('b_msg','Batch shuru ho gaya! ('+j.queued+' queued)','ok');
+      document.getElementById('b_cancel').style.display='inline-block';
+      batchPollStatus();
+    }else{
+      setMsg2('b_msg',j.error||'Batch start fail','err');
+    }
+  }catch(e){setMsg2('b_msg','Network error: '+e.message,'err');}
+  btn.disabled=false;btn.textContent='\u26A1 START BATCH';
+}
+async function batchPollStatus(){
+  try{
+    const r=await fetch('/api/batch/status');const j=await r.json();
+    if(!j.ok)return;
+    const sec=document.getElementById('b_status_section');
+    sec.style.display='block';
+    document.getElementById('b_total').textContent=j.total||0;
+    document.getElementById('b_done').textContent=j.done||0;
+    document.getElementById('b_failed').textContent=j.failed||0;
+    document.getElementById('b_pending').textContent=j.pending||0;
+    document.getElementById('b_running').textContent=j.running?'YES':'no';
+    document.getElementById('b_running').style.color=j.running?'#f0e68c':'#8b93a3';
+    const pct=j.total?Math.round((j.done||0)/j.total*100):0;
+    document.getElementById('b_fill').style.width=pct+'%';
+    if(j.running&&!_batchPollId){
+      _batchPollId=setInterval(batchPollStatus,3000);
+      document.getElementById('b_cancel').style.display='inline-block';
+    }
+    if(!j.running&&_batchPollId){clearInterval(_batchPollId);_batchPollId=null;}
+    if(!j.running)document.getElementById('b_cancel').style.display='none';
+    if(j.results&&j.results.length){
+      const resSec=document.getElementById('b_results_section');
+      resSec.style.display='block';
+      document.getElementById('b_results').innerHTML=j.results.map(function(r){
+        const icon=r.ok?'\u2705':'\u274C';
+        return '<div style="padding:3px 0;border-bottom:1px solid #1a2030">'+icon+' '+escHtml(r.dua_id)+'</div>';
+      }).join('');
+    }
+  }catch(e){}
+}
+async function batchCancel(){
+  if(!await styledConfirm('Batch Cancel','Batch cancel kar dein?\nIn-progress video complete ho jayegi, nayi start nahi hongi.'))return;
+  setMsg2('b_msg','Batch cancel ho raha hai...','warn');
+  try{
+    const r=await fetch('/api/batch/cancel',{method:'POST'});const j=await r.json();
+    if(j.ok)setMsg2('b_msg','Batch cancel ho gaya','ok');
+    else setMsg2('b_msg',j.error||'Cancel fail','err');
+    batchPollStatus();
+  }catch(e){setMsg2('b_msg','Network error','err');}
 }

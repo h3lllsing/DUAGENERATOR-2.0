@@ -30,7 +30,9 @@ from collections.abc import Callable
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["normalize_events", "resolve_active_word", "build_word_geometry", "highlight_targets", "make_word_overlay"]
+__all__ = ["normalize_events", "resolve_active_word", "build_word_geometry",
+           "highlight_targets", "make_word_overlay",
+           "HIGHLIGHT_BOX_STYLES", "make_word_highlight_box"]
 
 
 Rect = tuple[int, int, int, int]
@@ -208,3 +210,106 @@ def make_word_overlay(rect: Rect, accent_rgb: tuple[int, int, int],
                         fill=(r, g, b, fill_alpha),
                         outline=(r, g, b, outline_alpha), width=2)
     return img
+
+
+# ----------------------------------------------------------------------
+# Highlight Box styles (Reels/TikTok trending caption look)
+# ----------------------------------------------------------------------
+HIGHLIGHT_BOX_STYLES: dict[str, dict] = {
+    "gold": {
+        "fill": (212, 175, 55, 70),
+        "outline": (255, 215, 0, 200),
+        "glow": (255, 215, 0, 40),
+        "radius_ratio": 0.45,
+        "padding_x": 14,
+        "padding_y": 6,
+        "width": 3,
+    },
+    "teal": {
+        "fill": (0, 180, 180, 65),
+        "outline": (0, 220, 220, 190),
+        "glow": (0, 220, 220, 35),
+        "radius_ratio": 0.45,
+        "padding_x": 14,
+        "padding_y": 6,
+        "width": 3,
+    },
+    "rose": {
+        "fill": (180, 50, 80, 65),
+        "outline": (220, 80, 110, 190),
+        "glow": (220, 80, 110, 35),
+        "radius_ratio": 0.45,
+        "padding_x": 14,
+        "padding_y": 6,
+        "width": 3,
+    },
+}
+
+
+def make_word_highlight_box(
+    rect: Rect,
+    accent_rgb: tuple[int, int, int],
+    style: str = "gold",
+) -> "Image.Image":
+    """
+    Build a Reels/TikTok-style rounded pill highlight behind the active word.
+
+    Creates a semi-transparent filled box with a glowing outline, padded
+    slightly beyond the word's ink bounds.  The overlay is composited on top
+    of already-pasted text and never re-renders it.
+
+    Args:
+        rect:        (x0, y0, x1, y1) bounding box of the active word.
+        accent_rgb:  Fallback accent colour (unused when ``style`` matches
+                     a preset in HIGHLIGHT_BOX_STYLES).
+        style:       Key into HIGHLIGHT_BOX_STYLES ("gold" / "teal" / "rose").
+
+    Returns:
+        RGBA PIL.Image sized to the padded box, ready for paste().
+    """
+    from PIL import Image, ImageDraw, ImageFilter
+
+    preset = HIGHLIGHT_BOX_STYLES.get(style, HIGHLIGHT_BOX_STYLES["gold"])
+    fill_rgba = tuple(preset["fill"])
+    outline_rgba = tuple(preset["outline"])
+    glow_rgba = tuple(preset["glow"])
+    radius_ratio = float(preset["radius_ratio"])
+    pad_x = int(preset["padding_x"])
+    pad_y = int(preset["padding_y"])
+    border_w = int(preset["width"])
+
+    x0, y0, x1, y1 = (int(v) for v in rect)
+    w = max(1, x1 - x0)
+    h = max(1, y1 - y0)
+
+    # Padded canvas
+    cw = w + 2 * pad_x
+    ch = h + 2 * pad_y
+
+    # Glow layer (soft blur behind the box)
+    glow_layer = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow_layer)
+    gd.rounded_rectangle(
+        [0, 0, cw - 1, ch - 1],
+        radius=max(4, int(ch * radius_ratio)),
+        fill=glow_rgba,
+    )
+    glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(radius=8))
+
+    # Main box
+    box_layer = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+    bd = ImageDraw.Draw(box_layer)
+    bd.rounded_rectangle(
+        [0, 0, cw - 1, ch - 1],
+        radius=max(4, int(ch * radius_ratio)),
+        fill=fill_rgba,
+        outline=outline_rgba,
+        width=border_w,
+    )
+
+    # Composite: glow behind, box on top
+    result = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
+    result = Image.alpha_composite(result, glow_layer)
+    result = Image.alpha_composite(result, box_layer)
+
+    return result

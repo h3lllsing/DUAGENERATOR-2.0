@@ -1,7 +1,9 @@
+import asyncio
 import logging
 import os
 import re
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 
 import imageio_ffmpeg
 import numpy as np
@@ -16,6 +18,10 @@ except Exception:
     config = None
 
 __all__ = ["AudioMixer"]
+
+# Thread pool for offloading blocking moviepy write_audiofile calls
+# so they don't block the main thread / event loop.
+_AUDIO_THREAD_POOL = ThreadPoolExecutor(max_workers=2, thread_name_prefix="audio_io")
 
 # AUDIO-001: 48 kHz PCM/WAV downstream intermediate (lossless; single AAC at end)
 # PILLAR 2: broadcast retarget - platform anchor -14 LUFS / -1.0 dBTP
@@ -153,32 +159,24 @@ class AudioMixer:
         Returns:
             bool: True if successful, False otherwise.
         """
+        clips = []
+        final_clip = None
         try:
             sample_rate = AudioMixer._get_sample_rate(sample_rate)
 
             # Ensure temp directory exists
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-            clips = []
-            try:
-                for path in audio_paths:
-                    if os.path.exists(path):
-                        clip = AudioFileClip(path, fps=sample_rate)
-                        clips.append(clip)
+            for path in audio_paths:
+                if os.path.exists(path):
+                    clip = AudioFileClip(path, fps=sample_rate)
+                    clips.append(clip)
 
-                        # Add a silent gap after each clip except the last
-                        if gap_seconds > 0 and len(clips) < len(audio_paths):
-                            clips.append(AudioMixer._make_silence(gap_seconds, sample_rate))
-                    else:
-                        logger.warning(f"Audio file not found: {path}")
-            except Exception:
-                # Clean up any clips already opened on partial failure
-                for clip in clips:
-                    try:
-                        clip.close()
-                    except (OSError, ValueError):
-                        pass
-                raise
+                    # Add a silent gap after each clip except the last
+                    if gap_seconds > 0 and len(clips) < len(audio_paths):
+                        clips.append(AudioMixer._make_silence(gap_seconds, sample_rate))
+                else:
+                    logger.warning("Audio file not found: %s", path)
 
             if not clips:
                 logger.error("No valid audio clips to merge.")
@@ -190,39 +188,50 @@ class AudioMixer:
                 speech_duration = sum(c.duration for c in clips)
                 if pad_to_duration > speech_duration + 1e-6:
                     hold = pad_to_duration - speech_duration
-                    logger.info(f"Padding track with {hold:.2f}s trailing "
-                                f"silence (speech {speech_duration:.2f}s -> "
-                                f"{pad_to_duration:.2f}s)")
+                    logger.info("Padding track with %.2fs trailing "
+                                "silence (speech %.2fs -> %.2fs)",
+                                hold, speech_duration, pad_to_duration)
                     clips.append(AudioMixer._make_silence(hold, sample_rate))
                 elif pad_to_duration < speech_duration - 1e-6:
-                    logger.warning(f"pad_to_duration {pad_to_duration:.2f}s "
-                                   f"is shorter than speech {speech_duration:.2f}s; "
-                                   "speech will NOT be trimmed.")
+                    logger.warning("pad_to_duration %.2fs "
+                                   "is shorter than speech %.2fs; "
+                                   "speech will NOT be trimmed.",
+                                   pad_to_duration, speech_duration)
 
             # Concatenate all clips
             final_clip = concatenate_audioclips(clips)
 
-            # Write lossless PCM/WAV (AUDIO-001: no lossy re-encode here)
-            final_clip.write_audiofile(
+            # Write lossless PCM/WAV (AUDIO-001: no lossy re-encode here).
+            # Offload to thread pool so FFmpeg doesn't block the main thread.
+            future = _AUDIO_THREAD_POOL.submit(
+                final_clip.write_audiofile,
                 output_path,
                 codec='pcm_s16le',
                 fps=sample_rate,
-                logger=None
+                logger=None,
             )
+            future.result(timeout=300)
 
-            # Clean up
-            for clip in clips:
-                clip.close()
-            final_clip.close()
-
-            logger.info(f"Successfully merged audio to: {output_path}")
+            logger.info("Successfully merged audio to: %s", output_path)
             return True
 
         except Exception as e:
-            logger.error(f"Error merging audio: {e}")
+            logger.error("Error merging audio: %s", e)
             import traceback
             traceback.print_exc()
             return False
+
+        finally:
+            for clip in clips:
+                try:
+                    clip.close()
+                except (OSError, ValueError):
+                    pass
+            if final_clip is not None:
+                try:
+                    final_clip.close()
+                except (OSError, ValueError):
+                    pass
 
     @staticmethod
     def merge_audio_crossfade(
@@ -250,22 +259,17 @@ class AudioMixer:
         """
         from moviepy import CompositeAudioClip
 
+        clips = []
+        final = None
         try:
             sample_rate = AudioMixer._get_sample_rate(sample_rate)
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-            clips = []
-            try:
-                for ap in audio_paths:
-                    if os.path.exists(ap):
-                        clips.append(AudioFileClip(ap, fps=sample_rate))
-                    else:
-                        logger.warning(f"Audio file not found: {ap}")
-            except Exception:
-                for c in clips:
-                    try: c.close()
-                    except Exception: pass
-                raise
+            for ap in audio_paths:
+                if os.path.exists(ap):
+                    clips.append(AudioFileClip(ap, fps=sample_rate))
+                else:
+                    logger.warning("Audio file not found: %s", ap)
 
             if not clips:
                 logger.error("No valid audio clips to crossfade.")
@@ -289,33 +293,76 @@ class AudioMixer:
                 speech_dur = final.duration
                 if pad_to_duration > speech_dur + 1e-6:
                     hold = pad_to_duration - speech_dur
-                    logger.info(f"Crossfade: padding {hold:.2f}s trailing silence")
+                    logger.info("Crossfade: padding %.2fs trailing silence", hold)
                     silence = AudioMixer._make_silence(hold, sample_rate)
                     silence.start = final.duration
                     final = CompositeAudioClip([final, silence])
 
-            final.write_audiofile(
+            # Offload blocking FFmpeg write to thread pool
+            future = _AUDIO_THREAD_POOL.submit(
+                final.write_audiofile,
                 output_path,
                 codec='pcm_s16le',
                 fps=sample_rate,
                 nbytes=2,
-                logger=None
+                logger=None,
             )
+            future.result(timeout=300)
 
-            for c in clips:
-                try: c.close()
-                except Exception: pass
-            try: final.close()
-            except Exception: pass
-
-            logger.info(f"Crossfade merged audio to: {output_path}")
+            logger.info("Crossfade merged audio to: %s", output_path)
             return True
 
         except Exception as e:
-            logger.error(f"Error crossfade merging: {e}")
+            logger.error("Error crossfade merging: %s", e)
             import traceback
             traceback.print_exc()
             return False
+
+        finally:
+            for c in clips:
+                try:
+                    c.close()
+                except (OSError, ValueError):
+                    pass
+            if final is not None:
+                try:
+                    final.close()
+                except (OSError, ValueError):
+                    pass
+
+    @staticmethod
+    async def _measure_loudness_async(input_path: str) -> dict:
+        """
+        Async: Measure EBU R128 loudness using bundled ffmpeg (loudnorm,
+        print_format=json). Non-blocking subprocess.
+        """
+        try:
+            ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+            cmd = [
+                ffmpeg, "-hide_banner", "-i", input_path,
+                "-af", "loudnorm=I=%s:TP=%s:LRA=%s:print_format=json"
+                       % (LOUDNESS_TARGET, TRUE_PEAK_TARGET, LRA_TARGET),
+                "-f", "null", "-",
+            ]
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            _stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=120,
+            )
+            stderr_text = stderr.decode("utf-8", errors="replace")
+            out = {}
+            for key in ("input_i", "input_tp", "input_lra", "input_thresh",
+                        "target_offset"):
+                m = re.search(r'"%s"\s*:\s*"(-?[\d.]+)"' % key, stderr_text)
+                if m:
+                    out[key] = float(m.group(1))
+            return out
+        except Exception as e:
+            logger.error("Loudness measurement failed: %s", e)
+            return {}
 
     @staticmethod
     def measure_loudness(input_path: str) -> dict:
@@ -327,28 +374,58 @@ class AudioMixer:
             dict with input_i (LUFS), input_tp (dBTP), input_lra, input_thresh,
             target_offset, or an empty dict on failure.
         """
+        return asyncio.run(
+            AudioMixer._measure_loudness_async(input_path))
+
+    @staticmethod
+    async def _normalize_loudness_async(input_path: str, output_path: str,
+                                        sample_rate: int = None) -> tuple:
+        """
+        Async: AUDIO-001 two-pass LINEAR ffmpeg loudnorm.
+        Non-blocking subprocess calls.
+        """
         try:
+            sample_rate = AudioMixer._get_sample_rate(sample_rate)
             ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-            cmd = [
-                ffmpeg, "-hide_banner", "-i", input_path,
-                "-af", "loudnorm=I=%s:TP=%s:LRA=%s:print_format=json"
-                       % (LOUDNESS_TARGET, TRUE_PEAK_TARGET, LRA_TARGET),
-                "-f", "null", "-",
-            ]
-            result = subprocess.run(
-                cmd, capture_output=True, text=True,
-                encoding="utf-8", errors="replace", timeout=120,
+
+            measured = await AudioMixer._measure_loudness_async(input_path)
+            if not measured.get("input_i"):
+                logger.warning("loudnorm measure failed; skipping normalization.")
+                return False, {}
+
+            af = (
+                "loudnorm=I=%s:TP=%s:LRA=%s:measured_I=%s:measured_TP=%s:"
+                "measured_LRA=%s:measured_thresh=%s:offset=%s:linear=true"
+                % (LOUDNESS_TARGET, TRUE_PEAK_TARGET, LRA_TARGET,
+                   measured["input_i"], measured["input_tp"],
+                   measured["input_lra"], measured["input_thresh"],
+                   measured.get("target_offset", 0))
             )
-            out = {}
-            for key in ("input_i", "input_tp", "input_lra", "input_thresh",
-                        "target_offset"):
-                m = re.search(r'"%s"\s*:\s*"(-?[\d.]+)"' % key, result.stderr)
-                if m:
-                    out[key] = float(m.group(1))
-            return out
+            cmd = [
+                ffmpeg, "-y", "-hide_banner", "-loglevel", "error",
+                "-i", input_path, "-af", af,
+                "-ar", str(sample_rate), "-ac", "2",
+                "-c:a", "pcm_s16le", output_path,
+            ]
+            process = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            _stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=300,
+            )
+            if process.returncode != 0 or not os.path.exists(output_path):
+                err_text = stderr.decode("utf-8", errors="replace")
+                logger.error("loudnorm apply failed: %s", err_text[-400:])
+                return False, {}
+
+            logger.info("Loudness normalized %.1f LUFS -> %d LUFS",
+                        measured["input_i"], LOUDNESS_TARGET)
+            return True, await AudioMixer._measure_loudness_async(output_path)
         except Exception as e:
-            logger.error(f"Loudness measurement failed: {e}")
-            return {}
+            logger.error("Normalization error: %s", e)
+            return False, {}
 
     @staticmethod
     def normalize_loudness(input_path: str, output_path: str,
@@ -367,44 +444,9 @@ class AudioMixer:
             (bool ok, dict measured_out). measured_out contains the measured
             loudness of the OUTPUT file (input_i/input_tp of the result).
         """
-        try:
-            sample_rate = AudioMixer._get_sample_rate(sample_rate)
-            ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-
-            measured = AudioMixer.measure_loudness(input_path)
-            if not measured.get("input_i"):
-                logger.warning("loudnorm measure failed; skipping normalization.")
-                return False, {}
-
-            # Pass 2: linear gain with measured values (no dynamic compression).
-            af = (
-                "loudnorm=I=%s:TP=%s:LRA=%s:measured_I=%s:measured_TP=%s:"
-                "measured_LRA=%s:measured_thresh=%s:offset=%s:linear=true"
-                % (LOUDNESS_TARGET, TRUE_PEAK_TARGET, LRA_TARGET,
-                   measured["input_i"], measured["input_tp"],
-                   measured["input_lra"], measured["input_thresh"],
-                   measured.get("target_offset", 0))
-            )
-            cmd = [
-                ffmpeg, "-y", "-hide_banner", "-loglevel", "error",
-                "-i", input_path, "-af", af,
-                "-ar", str(sample_rate), "-ac", "2",
-                "-c:a", "pcm_s16le", output_path,
-            ]
-            result = subprocess.run(
-                cmd, capture_output=True, text=True,
-                encoding="utf-8", errors="replace", timeout=300,
-            )
-            if result.returncode != 0 or not os.path.exists(output_path):
-                logger.error(f"loudnorm apply failed: {result.stderr[-400:]}")
-                return False, {}
-
-            logger.info(f"Loudness normalized "
-                        f"{measured['input_i']:.1f} LUFS -> {LOUDNESS_TARGET:.0f} LUFS")
-            return True, AudioMixer.measure_loudness(output_path)
-        except Exception as e:
-            logger.error(f"Normalization error: {e}")
-            return False, {}
+        return asyncio.run(
+            AudioMixer._normalize_loudness_async(
+                input_path, output_path, sample_rate))
 
     @staticmethod
     def _make_silence(duration: float, sample_rate: int = DEFAULT_SAMPLE_RATE):

@@ -11,6 +11,7 @@ module.exports = function renderRoutes(deps) {
   const F = fs.promises;
   const customVfx = require('../custom-vfx');
   const {err, parseJson, cleanStr, readBody, routeCatch, exists, safeTitle} = require('./utils');
+  const duaStatusStore = require('./status_store');
 
   // ── Mutable state (shared by reference with server.js) ──
   const job = {running: false, duaId: null, step: '', percent: 0,
@@ -286,7 +287,7 @@ module.exports = function renderRoutes(deps) {
       const args = ['render', compId,
         'out/' + outName,
         '--browser-executable=' + CHROME,
-        '--crf=18', '--jpeg-quality=100', '--log=error',
+        '--crf=18', '--jpeg-quality=100', '--log=warn',
         ...propsArgs];
       log('$ node remotion-cli ' + args.join(' '));
       const p = spawn(process.execPath, [cli, ...args], {cwd: REMOTION, windowsHide: true});
@@ -411,11 +412,12 @@ module.exports = function renderRoutes(deps) {
           log('THUMB LOOK: ' + [lk.preset, lk.frame, lk.camera].filter(Boolean).join('/'));
         }
       } catch (_) {}
-      await run(process.execPath, [cli, 'still', compId,
+      const rc = await run(process.execPath, [cli, 'still', compId,
         'out/thumbs/' + tname, '--frame=100',
-        '--browser-executable=' + CHROME, '--log=error',
+        '--browser-executable=' + CHROME, '--log=warn',
         ...await stylePropsArgs(duaId)]);
-    } catch (_) { log('thumb skip (non-fatal)'); }
+      if (rc !== 0) log('THUMB WARN: still exited ' + rc + ' for ' + duaId);
+    } catch (e) { log('THUMB FAIL: ' + duaId + ' — ' + (e.message || e)); }
   }
 
   function resetJob(duaId) {
@@ -453,19 +455,21 @@ module.exports = function renderRoutes(deps) {
     }
     const thumbFile = fs.existsSync(path.join(OUT, 'thumbs', thumbName)) ? thumbName : null;
     const qcs = qcStore[id];
-    return {id, title: d.title, reference: d.reference,
+    const result = {id, title: d.title, reference: d.reference || '',
       category: d.category || '', audioReady, manifest, videoFile, videoMB,
       thumbFile,
       qc: qcs ? {pass: !!qcs.pass, ts: qcs.ts} : null,
       theme: d.theme,
       refShared: !!d.refShared,
-      reference: d.reference || '',
       arabic: d.arabic || '', urdu: d.urdu || '',
       explanation: d.explanation || '',
       voiceArabic: d.voice_arabic || 'ar-SA-HamedNeural',
       voiceUrdu: d.voice_urdu || 'ur-PK-AsadNeural',
       template: d.template || '',
       bismillah: d.bismillah !== false};
+    // Merge persistent status (uploaded/rendered/not_started).
+    // This ensures uploaded duas stay marked even if local files are deleted.
+    return duaStatusStore.mergeStatus(id, result);
   }
 
   function serveVideo(req, res, name) {
@@ -590,6 +594,11 @@ module.exports = function renderRoutes(deps) {
     if (cancelled()) throw new Error('Cancelled');
     if (code !== 0) throw new Error('render failed (exit ' + code + ')');
 
+    // Wait for output file to appear (Remotion/Chrome may flush after exit)
+    for (let i = 0; i < 30; i++) {
+      if (await exists(vidPath)) break;
+      await new Promise((r) => setTimeout(r, 1000));
+    }
     if (!(await exists(vidPath))) throw new Error('output missing: ' + outName);
     await tagBt709(vidPath);
 
@@ -621,6 +630,8 @@ module.exports = function renderRoutes(deps) {
     job.percent = 100;
     job.step = 'done';
     log('DONE: ' + vidPath);
+    // Mark persistent status as rendered (never downgrades from uploaded)
+    duaStatusStore.setRendered(duaId);
   }
 
   async function processQueue() {
@@ -673,6 +684,20 @@ module.exports = function renderRoutes(deps) {
         job.step = msg === 'Cancelled' ? 'cancelled' : 'failed';
         if (job.step === 'failed') await recordHistory(duaId, false, {error: msg});
         log((job.step === 'cancelled' ? 'CANCELLED: ' : 'FAILED: ') + msg);
+        // Clean up partial files on cancel/fail
+        if (job.step === 'cancelled' || job.step === 'failed') {
+          try {
+            const list = await loadDuas();
+            const dua = list.find((d) => d.id === duaId);
+            if (dua) {
+              const base = safeTitle(dua.title);
+              for (const ext of ['.mp4', '.bt709.mp4']) {
+                const fp = path.join(OUT, base + ext);
+                try { if (await exists(fp)) { await F.rm(fp, {force: true}); log('CLEANUP: ' + path.basename(fp)); } } catch (_) {}
+              }
+            }
+          } catch (_) {}
+        }
       } finally {
         job.running = false;
       }
@@ -901,7 +926,7 @@ module.exports = function renderRoutes(deps) {
             log('THUMB [' + (++n) + ']: ' + d.id);
             await run(process.execPath, [cli, 'still', compId,
               'out/thumbs/' + t, '--frame=100',
-              '--browser-executable=' + CHROME, '--log=error']);
+              '--browser-executable=' + CHROME, '--log=warn']);
           }
           log('THUMBS COMPLETE');
         } catch (e) {
@@ -918,6 +943,7 @@ module.exports = function renderRoutes(deps) {
           current: job.running ? job.duaId : null,
           total: queue.items.length, idx: queue.idx,
           done: queue.done.length,
+          remaining: Math.max(0, queue.items.length - queue.idx),
           failed: queue.failed.map((f) => f.id),
           skipped: queue.skipped},
       })));
@@ -940,7 +966,8 @@ module.exports = function renderRoutes(deps) {
       const iv = setInterval(() => {
         sendSSE(Object.assign({}, job, {
           queue: {active: queue.active, total: queue.items.length,
-            idx: queue.idx, done: queue.done.length},
+            idx: queue.idx, done: queue.done.length,
+            remaining: Math.max(0, queue.items.length - queue.idx)},
         }));
       }, 1000);
       req.on('close', () => clearInterval(iv));
@@ -967,12 +994,81 @@ module.exports = function renderRoutes(deps) {
       return true;
     }
 
+    // ── POST /api/render-selected ──
+    if (method === 'POST' && p === '/api/render-selected') {
+      readBody(req, res).then((body) => {
+        routeCatch(res, async () => {
+          const f = parseJson(body, 'render-selected');
+          const duaIds = Array.isArray(f.duaIds)
+            ? f.duaIds.map((x) => String(x || '').trim()).filter(Boolean)
+            : [];
+          if (!duaIds.length) throw err(400, 'duaIds array empty');
+
+          const list = await loadDuas();
+          const validIds = new Set(list.filter((d) => !d.archived && !d.locked).map((d) => d.id));
+          const queuedSet = new Set(queue.items.slice(queue.idx));
+          const skipped = [];
+          const toAdd = [];
+          for (const id of duaIds) {
+            if (!validIds.has(id)) { skipped.push({id, reason: 'not found or archived'}); continue; }
+            if (queuedSet.has(id)) { skipped.push({id, reason: 'already queued'}); continue; }
+            toAdd.push(id);
+            queuedSet.add(id);
+          }
+          if (!toAdd.length) {
+            return send(res, 200, JSON.stringify({ok: true, added: 0, skipped, queueTotal: queue.items.length - queue.idx}));
+          }
+
+          queue.items.push(...toAdd);
+          saveQueueState();
+          log('QUEUE APPEND: +' + toAdd.length + ' (total pending: ' + (queue.items.length - queue.idx) + ')');
+
+          if (!queue.active && !job.running) {
+            queue.active = true; queue.cancelRequested = false;
+            processQueue();
+          }
+          send(res, 200, JSON.stringify({
+            ok: true, added: toAdd.length, skipped,
+            queueTotal: queue.items.length - queue.idx,
+          }));
+        }, log);
+      }, () => {});
+      return true;
+    }
+
     // ── POST /api/cancel ──
     if (method === 'POST' && p === '/api/cancel') {
       const wasBatch = queue.active;
+      if (!job.running && !wasBatch) {
+        // Nothing to cancel — reset stale flags and respond
+        job.cancelFlag = false;
+        queue.cancelRequested = false;
+        send(res, 200, JSON.stringify({ok: true, batch: false, note: 'Nothing was running'}));
+        return true;
+      }
+      const cancelDuaId = job && job.duaId;
       queue.cancelRequested = true;
       job.cancelFlag = true;
       killChildren('CANCEL');
+      // Clean up partial video files
+      if (cancelDuaId) {
+        (async () => {
+          try {
+            const list = await loadDuas();
+            const dua = list.find((d) => d.id === cancelDuaId);
+            if (dua) {
+              const base = safeTitle(dua.title);
+              const candidates = [
+                path.join(OUT, base + '.mp4'),
+                path.join(OUT, base + '.bt709.mp4'),
+              ];
+              for (const fp of candidates) {
+                try { if (await exists(fp)) { await F.rm(fp, {force: true}); log('CLEANUP: removed ' + path.basename(fp)); } } catch (_) {}
+              }
+            }
+          } catch (_) {}
+        })();
+      }
       send(res, 200, JSON.stringify({ok: true, batch: wasBatch}));
       return true;
     }

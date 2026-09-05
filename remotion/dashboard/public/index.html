@@ -4,7 +4,7 @@
 <title>Dua Video Studio</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%95%8C%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=0.11.1">
+<link rel="stylesheet" href="style.css?v=0.13.0">
 </head>
 <body>
 <noscript><div style="padding:20px;text-align:center;color:#d4af37;font-size:16px">JavaScript disable hai. Dashboard use karne ke liye JavaScript enable karein.</div></noscript>
@@ -104,9 +104,15 @@
 
 <main>
 <div class="grid" id="grid"></div>
+<div class="sel-bar" id="selbar" style="display:none">
+  <span id="selcount">0 selected</span>
+  <button class="btn-save" id="selrenderbtn" onclick="renderSelected()">&#9654;&#65039; RENDER SELECTED</button>
+  <button class="btn-sm" onclick="clearSelection()">Clear</button>
+</div>
 </main>
 <button class="aibtn js-expert" onclick="if(confirm('Sab un-rendered duas ki video banao?'))renderAll()">&#9654;&#65039; RENDER ALL</button>
 <button class="aibtn js-expert" onclick="if(confirm('Sab thumbnails regenerate karo?'))thumbsAll()">&#128247; THUMBS ALL</button>
+<button class="aibtn js-expert" onclick="openBatchManager()" style="background:#0f1a2e;border-color:#f59e0b;color:#f59e0b" title="Python batch pipeline">&#9881;&#65039; BATCH MANAGER</button>
 
 <div class="modal-bg" id="playerbg" onclick="if(event.target===this)closePlayer()" role="dialog" aria-modal="true">
   <div class="playerbox">
@@ -531,6 +537,71 @@
     </div>
   </div>
 </div>
+<div class="modal-bg" id="batchbg" onclick="if(event.target===this)closeBatchManager()" role="dialog" aria-modal="true" aria-labelledby="batch_title">
+  <div class="modal" style="width:min(600px,94vw)">
+    <h2 id="batch_title">&#9881;&#65039; Batch Manager <span style="font-size:12px;color:#8b93a3">(Python Pipeline)</span></h2>
+    <div class="aihint" style="margin-bottom:12px">&#9734; Python pipeline ka batch system — ek saath saari videos queue mein lagao. Progress aur status yahan dikhega.</div>
+
+    <div class="panel-section" style="margin-bottom:12px">
+      <div class="panel-section-title">Batch Options</div>
+      <label>Theme</label>
+      <select id="b_theme">
+        <option value="dark">Dark</option><option value="mosque">Mosque</option>
+        <option value="sunset">Sunset</option><option value="manuscript">Manuscript</option>
+        <option value="emerald">Emerald</option><option value="ocean">Ocean</option>
+        <option value="desert">Desert</option><option value="royal">Royal</option>
+        <option value="ramadan">Ramadan</option><option value="eid">Eid</option>
+        <option value="qadr">Qadr</option>
+      </select>
+      <label>Effect</label>
+      <select id="b_effect">
+        <option value="auto">Auto (Random)</option><option value="none">None</option>
+        <option value="neon_glow">Neon Glow</option><option value="three_d_shadow">3D Shadow</option>
+        <option value="neon_outline">Neon Outline</option><option value="golden_emboss">Golden Emboss</option>
+      </select>
+      <label style="margin-top:10px"><input type="checkbox" id="b_dryrun"> Dry-run (validate only)</label>
+    </div>
+
+    <div class="panel-section" style="margin-bottom:12px">
+      <div class="panel-section-title">Select Duas (empty = all)</div>
+      <div id="b_dualist" style="max-height:200px;overflow:auto;margin-top:6px">Loading...</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn-sm gold" id="b_select_all" onclick="batchSelectAll()">Sab Chuno</button>
+        <button class="btn-sm" onclick="batchSelectNone()">Reset</button>
+        <span id="b_pickcount" style="font-size:12px;color:#8b93a3;align-self:center">0 selected</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <button class="btn-save" id="b_start" onclick="batchStart()">&#9654;&#65039; START BATCH</button>
+      <button class="chip" onclick="batchPollStatus()" style="background:#172a1e;border-color:#3fb950;color:#3fb950">&#128260; Refresh Status</button>
+      <button class="chip" id="b_cancel" onclick="batchCancel()" style="display:none;background:#3a1520;color:#ff7b72;border-color:#6b2737">&#9209; CANCEL</button>
+    </div>
+
+    <div class="panel-section" id="b_status_section" style="display:none">
+      <div class="panel-section-title">Batch Progress</div>
+      <div style="display:flex;gap:16px;margin:8px 0;font-size:13px;flex-wrap:wrap">
+        <span>Total: <b id="b_total">0</b></span>
+        <span style="color:#3fb950">Done: <b id="b_done">0</b></span>
+        <span style="color:#ff7b72">Failed: <b id="b_failed">0</b></span>
+        <span>Pending: <b id="b_pending">0</b></span>
+        <span>Running: <b id="b_running" style="color:#f0e68c">false</b></span>
+      </div>
+      <div class="track" style="margin:8px 0"><div class="fill" id="b_fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="panel-section" id="b_results_section" style="display:none">
+      <div class="panel-section-title">Results</div>
+      <div id="b_results" style="max-height:200px;overflow:auto;margin-top:6px;font-size:12px"></div>
+    </div>
+
+    <div class="mbtns" style="margin-top:14px">
+      <button class="btn-cancel" onclick="closeBatchManager()">Band karo</button>
+    </div>
+    <div class="formmsg" id="b_msg"></div>
+  </div>
+</div>
+
 <div class="modal-bg" id="confirmbg" role="dialog" aria-modal="true" aria-labelledby="confirm_title" style="display:none">
   <div class="modal" style="max-width:380px;text-align:center">
     <h2 id="confirm_title" style="font-size:16px;margin-bottom:8px">Confirm</h2>
@@ -544,4 +615,4 @@
 <script src="vendor/wavesurfer.min.js"></script>
 <script src="vfx-schema-ui.js"></script>
 <script src="master-schema-ui.js"></script>
-<script src="app.js?v=0.11.1"></script></body></html>
+<script src="app.js?v=0.13.0"></script></body></html>

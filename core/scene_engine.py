@@ -100,6 +100,7 @@ _AR_GRADIENT_BOTTOM = (255, 222, 140)
 # Import from master config - SINGLE SOURCE OF TRUTH
 from core.master_config import (
     MASTER_PALETTES, PALETTE_NAMES, TEXT_STYLES, MOTION_KINDS, CORNER_STYLES,
+    HIGHLIGHT_BOX_STYLES, BACKGROUND_GRADIENT_KINDS,
 )
 
 
@@ -226,6 +227,10 @@ class Scene:
     # VISUAL Phase 4: optional WordBoundary events per role ("arabic"/"urdu"),
     # scene-relative seconds. None => legacy rendering (no highlighting).
     word_events: dict[str, list[dict]] | None = None
+    # Highlight style: None/"" = legacy subtle overlay, "gold"/"teal"/"rose" = box style
+    highlight_style: str = ""
+    # Background gradient kind: "" = default linear, "aurora" = animated shifting gradient
+    gradient_kind: str = ""
 
     def palette_name(self) -> str:
         return self.palette.get("name", "midnight")
@@ -526,6 +531,63 @@ class SceneRenderer:
         img = np.repeat(grad[:, None, :], bg_w, axis=1)
         return Image.fromarray(img)
 
+    @staticmethod
+    def _build_aurora_gradient(palette: dict, bg_w: int, bg_h: int,
+                               progress: float) -> Image.Image:
+        """Animated aurora/northern-lights gradient.
+
+        Shifts 3 soft colour bands vertically over time using sine waves,
+        producing a slowly morphing, ethereal background.  The palette's
+        ``top`` / ``bottom`` colours define the two main bands; a third
+        accent band (from ``accent``) floats between them.
+
+        Args:
+            palette:   Standard palette dict with top/bottom/accent.
+            bg_w:      Output width (oversized for motion crop).
+            bg_h:      Output height.
+            progress:  Scene progress 0..1 (drives the animation).
+
+        Returns:
+            PIL.Image RGB at (bg_w, bg_h).
+        """
+        top = np.array(palette["top"], dtype=np.float64)
+        bottom = np.array(palette["bottom"], dtype=np.float64)
+        accent = np.array(palette.get("accent", (212, 175, 55)),
+                          dtype=np.float64)
+
+        ys = np.linspace(0.0, 1.0, bg_h)[:, None]   # (H, 1)
+
+        # Three gaussian-ish bands that drift vertically with progress.
+        # Band centres oscillate gently via sine.
+        c1 = 0.20 + 0.08 * np.sin(progress * np.pi * 2)       # top band
+        c2 = 0.50 + 0.06 * np.cos(progress * np.pi * 2 + 1.0) # middle (accent)
+        c3 = 0.80 + 0.08 * np.sin(progress * np.pi * 2 + 2.5) # bottom band
+
+        sigma = 0.18  # band width
+        w1 = np.exp(-((ys - c1) ** 2) / (2 * sigma ** 2))
+        w2 = np.exp(-((ys - c2) ** 2) / (2 * sigma ** 2))
+        w3 = np.exp(-((ys - c3) ** 2) / (2 * sigma ** 2))
+
+        # Normalise weights so they sum to ~1 per row.
+        wt = w1 + w2 + w3 + 1e-8
+        w1, w2, w3 = w1 / wt, w2 / wt, w3 / wt
+
+        # Weighted blend of the three colours per row.
+        grad = (w1 * top + w2 * accent + w3 * bottom).astype(np.uint8)
+        # Horizontal tiling with subtle horizontal oscillation.
+        grad_row = grad[:, None, :]                                # (H, 1, 3)
+        grad_2d = np.repeat(grad_row, bg_w, axis=1)               # (H, W, 3)
+        h_shift = (3 * np.sin(progress * np.pi * 3
+                              + np.linspace(0, np.pi, bg_w))).astype(np.float32)
+        # Apply a mild horizontal colour temperature shift.
+        r_shift = (h_shift * 0.6).astype(np.int16)
+        grad_2d[:, :, 0] = np.clip(
+            grad_2d[:, :, 0].astype(np.int16) + r_shift.T, 0, 255).astype(np.uint8)
+        grad_2d[:, :, 2] = np.clip(
+            grad_2d[:, :, 2].astype(np.int16) - r_shift.T, 0, 255).astype(np.uint8)
+
+        return Image.fromarray(grad_2d)
+
     def _load_pexels_background(self, dua_id: str, category: str,
                                  bg_w: int, bg_h: int) -> Image.Image | None:
         """Load Pexels background image/video frame.
@@ -778,23 +840,31 @@ class SceneRenderer:
         return hl or None
 
     def _apply_highlight(self, frame: Image.Image, highlight: dict,
-                         t: float):
+                         t: float, highlight_style: str = ""):
         """Draw the active word's overlay on the frame at scene time ``t``."""
-        from core.word_highlight import highlight_targets, make_word_overlay
+        from core.word_highlight import highlight_targets, make_word_overlay, make_word_highlight_box
 
         for role, info in highlight.items():
             rect = highlight_targets(info["events"], info["geometry"], t)
             if rect is None:
                 continue
-            overlay = make_word_overlay(rect, info["accent"])
-            frame.paste(overlay, (int(rect[0]), int(rect[1])), overlay)
+            if highlight_style and highlight_style in ("gold", "teal", "rose"):
+                overlay = make_word_highlight_box(rect, info["accent"],
+                                                  style=highlight_style)
+            else:
+                overlay = make_word_overlay(rect, info["accent"])
+            frame.paste(overlay, (int(rect[0]) - max(0, (overlay.width - (rect[2] - rect[0])) // 2),
+                                  int(rect[1]) - max(0, (overlay.height - (rect[3] - rect[1])) // 2)),
+                        overlay)
 
     # -- scene construction ---------------------------------------------
     def build_single_scene(self, seed: str, arabic: str, urdu: str,
                            title: str = "", duration: float = None,
                            palette: dict | None = None,
                            motion: MotionSpec | None = None,
-                           font_style: str = None) -> Scene:
+                           font_style: str = None,
+                           highlight_style: str = "",
+                           gradient_kind: str = "") -> Scene:
         """
         Deterministically build one procedural Scene from content + seed.
         This is NOT TimelineBuilder (Phase 3); it renders a single timed
@@ -862,6 +932,8 @@ class SceneRenderer:
             particle_count=density,
             corner_style=corner,
             text_style=text_style,
+            highlight_style=highlight_style,
+            gradient_kind=gradient_kind,
         )
 
     # -- rendering -------------------------------------------------------
@@ -923,8 +995,13 @@ class SceneRenderer:
             particles.append((x, y, r, phase, alpha))
 
         accent = scene.palette["accent"]
+        use_aurora = scene.gradient_kind == "aurora"
         for i in range(frame_count):
             p = 0.0 if frame_count <= 1 else i / (frame_count - 1)
+            if use_aurora:
+                # Per-frame animated gradient (no caching)
+                gradient = self._build_aurora_gradient(
+                    scene.palette, bg_w, bg_h, p)
             crop = scene.motion.crop(p, self.width, self.height)
             frame = gradient.crop(crop).resize(
                 (self.width, self.height), Image.Resampling.LANCZOS)
@@ -938,7 +1015,8 @@ class SceneRenderer:
                             surf["surface"])
             if highlight is not None:
                 t = i / self.fps
-                self._apply_highlight(frame, highlight, t)
+                self._apply_highlight(frame, highlight, t,
+                                      scene.highlight_style)
             self._apply_transition(frame, scene, i, frame_count, self.fps)
             yield frame.convert("RGB")
 

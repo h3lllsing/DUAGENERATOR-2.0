@@ -45,6 +45,7 @@ class EffectsEngine:
             "scale_up": self.scale_up,
         }
         self._summary_cache = {}
+        self._buffers: dict[str, Image.Image] = {}
 
     def apply_effect(self, effect_name: str, text_img: Image.Image,
                      frame_num: int, total_frames: int) -> Image.Image:
@@ -101,20 +102,13 @@ class EffectsEngine:
 
         # Create glow layer
         glow = text_img.copy()
-
-        # Apply blur for glow effect
         glow = glow.filter(ImageFilter.GaussianBlur(radius=5))
-
-        # Enhance brightness for glow
         enhancer = ImageEnhance.Brightness(glow)
         glow = enhancer.enhance(1.5 + glow_intensity)
 
-        # Create main text layer
-        main_text = text_img.copy()
-
-        # Apply alpha based on fade-in
+        # Apply alpha based on fade-in — split directly, no copy needed
         alpha = int(255 * min(1.0, progress * 2))
-        r, g, b, a = main_text.split()
+        r, g, b, a = text_img.split()
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         main_text = Image.merge('RGBA', (r, g, b, a))
 
@@ -224,8 +218,13 @@ class EffectsEngine:
         a = a.point(lambda p: int(p * (alpha / 255.0)))
         text_faded = Image.merge('RGBA', (r, g, b, a))
 
+        shadow = Image.new('RGBA', text_faded.size, (0, 0, 0, 0))
+        shadow_alpha = Image.new('L', shadow.size, 0)
+        alpha_draw = ImageDraw.Draw(shadow_alpha)
+        W_s, H_s = shadow.size
         for i in range(8, 0, -1):
-            shadow = Image.new('RGBA', text_faded.size, (0, 0, 0, int(40 * i / 8)))
+            alpha_draw.rectangle([(0, 0), (W_s, H_s)], fill=int(40 * i / 8))
+            shadow.putalpha(shadow_alpha)
             offset_x = int(i * 1.5)
             offset_y = int(i * 2)
             result.paste(shadow, (offset_x, offset_y), shadow)
@@ -251,9 +250,7 @@ class EffectsEngine:
             255
         )
 
-        outline_img = text_img.copy()
-        r, g, b, a = outline_img.split()
-        outline_mask = a.point(lambda p: 255 if p > 0 else 0)
+        outline_mask = text_img.split()[3].point(lambda p: 255 if p > 0 else 0)
         outline_layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
         ImageDraw.Draw(outline_layer).rectangle(
             [(0, 0), (W, H)], fill=glow_color + (100,))
@@ -369,8 +366,13 @@ class EffectsEngine:
         # Calculate visible width
         visible_width = int(text_img.size[0] * min(1.0, progress * 2))
 
-        # Create mask for visible portion
-        mask = Image.new('L', text_img.size, 0)
+        # Create mask for visible portion (reuse buffer across frames)
+        mask = self._buffers.get('typewriter_mask')
+        if mask is None or mask.size != text_img.size:
+            mask = Image.new('L', text_img.size, 0)
+            self._buffers['typewriter_mask'] = mask
+        else:
+            mask.paste(0)  # Clear to black
         draw = ImageDraw.Draw(mask)
         draw.rectangle([(0, 0), (visible_width, text_img.size[1])], fill=255)
 
@@ -489,18 +491,16 @@ class EffectsEngine:
 
         # Red channel
         r, g, b, a = text_faded.split()
-        red_channel = Image.merge('RGBA', (r, Image.new('L', r.size, 128),
-                                           Image.new('L', r.size, 128), a))
+        gray = Image.new('L', r.size, 128)
+        red_channel = Image.merge('RGBA', (r, gray, gray, a))
         result.paste(red_channel, (glitch_offset, 0), red_channel)
 
         # Green channel
-        green_channel = Image.merge('RGBA', (Image.new('L', g.size, 128), g,
-                                             Image.new('L', g.size, 128), a))
+        green_channel = Image.merge('RGBA', (gray, g, gray, a))
         result.paste(green_channel, (0, 0), green_channel)
 
         # Blue channel
-        blue_channel = Image.merge('RGBA', (Image.new('L', b.size, 128),
-                                            Image.new('L', b.size, 128), b, a))
+        blue_channel = Image.merge('RGBA', (gray, gray, b, a))
         result.paste(blue_channel, (-glitch_offset, 0), blue_channel)
 
         return result

@@ -7,6 +7,7 @@ module.exports = function ytRoutes(deps) {
   const {PROJECT, REMOTION, PY, fs, path, spawn, getDuaTitle, send} = deps;
 
   const {readBody} = require('./utils');
+  const duaStatusStore = require('./status_store');
 
   const YT_CANCEL_FLAG = path.join(PROJECT, 'data', '.yt_cancel');
   const SECRET_PATH    = path.join(PROJECT, 'client_secret.json');
@@ -215,6 +216,14 @@ module.exports = function ytRoutes(deps) {
         const hit = led.find((e) => e.videoId === v.videoId);
         if (hit) { v.duaId = hit.duaId; v.title = hit.title; }
       });
+      // Mark uploaded in persistent status store (per-channel)
+      // (survives local file deletion)
+      try {
+        duaStatusStore.setUploadedBatch(
+          ytJob.videos.filter((v) => v.duaId && v.videoId),
+          ytJob.channel || 'channel1'
+        );
+      } catch (_) {}
       ytLog(code === 0 ? 'DONE (exit 0)' : 'FINISHED exit=' + code);
     });
     p.on('error', (e) => {
@@ -534,14 +543,26 @@ module.exports = function ytRoutes(deps) {
                 + '(auto picking band hai)'}));
           }
           if (!f.force) {
+            // Per-channel duplicate check
             const alreadyUploaded = only.filter(function(id) {
-              return ytAllUploadedIds().indexOf(id) >= 0;
+              return duaStatusStore.isUploadedToChannel(id, channel);
             });
             if (alreadyUploaded.length) {
-              ytFileLog('   ERROR: already uploaded: ' + alreadyUploaded.join(','));
+              ytFileLog('   BLOCKED (per-channel): ' + alreadyUploaded.join(','));
               return send(res, 409, JSON.stringify({ok: false,
-                error: alreadyUploaded.length + ' video(s) pehle upload ho '
-                  + 'chuki hain: ' + alreadyUploaded.join(', ')
+                error: alreadyUploaded.length + ' dua(s) is channel pe pehle se upload ho chuki hain: '
+                  + alreadyUploaded.join(', ')
+                  + ' — Ye dua already ' + channel + ' pe hai. Re-upload ke liye pehle RE-UPLOAD button dabao.'}));
+            }
+            // Also check ledger (belt-and-suspenders for pre-v2 data)
+            const ledgerBlocked = only.filter(function(id) {
+              return ytAllUploadedIds().indexOf(id) >= 0;
+            });
+            if (ledgerBlocked.length) {
+              ytFileLog('   BLOCKED (ledger): ' + ledgerBlocked.join(','));
+              return send(res, 409, JSON.stringify({ok: false,
+                error: ledgerBlocked.length + ' video(s) ledger mein hain: '
+                  + ledgerBlocked.join(', ')
                   + ' — Re-upload ke liye pehle ledger se hatao.'}));
             }
           }
@@ -600,6 +621,61 @@ module.exports = function ytRoutes(deps) {
       }
       items.sort((a, b) => String(b.uploadedAt || '').localeCompare(String(a.uploadedAt || '')));
       send(res, 200, JSON.stringify({ok: true, items}));
+      return true;
+    }
+
+    // ── POST /api/youtube/sync — sync dua_status.json from ledger files ──
+    if (method === 'POST' && p === '/api/youtube/sync') {
+      readBody(req, res).then((body) => {
+        try {
+          const f = JSON.parse(body || '{}');
+          const mode = String(f.mode || 'ledger'); // 'ledger' or 'youtube_api'
+          if (mode === 'youtube_api') {
+            // YouTube API sync — call Python script
+            const channel = String(f.channel || 'channel1');
+            if (!/^channel[12]$/.test(channel)) {
+              return send(res, 400, JSON.stringify({ok: false,
+                error: 'channel channel1 ya channel2 hona chahiye'}));
+            }
+            const args = [path.join('scripts', 'youtube_sync.py'),
+              '--channel', channel];
+            const cap = ytCapture(args);
+            cap.then((result) => {
+              try {
+                const parsed = JSON.parse(result.out.trim().split(/\r?\n/).pop() || '{}');
+                if (parsed.ok && parsed.matches && parsed.matches.length) {
+                  const backfilled = duaStatusStore.syncFromYouTubeApi(
+                    parsed.matches.map((m) => ({
+                      duaId: m.duaId,
+                      videoId: m.videoId,
+                      channel: channel,
+                      uploadedAt: m.publishedAt || null,
+                    }))
+                  );
+                  send(res, 200, JSON.stringify({ok: true, mode: 'youtube_api',
+                    channel, found: parsed.matches.length,
+                    backfilled: backfilled.backfilled,
+                    matches: parsed.matches}));
+                } else {
+                  send(res, 200, JSON.stringify({ok: true, mode: 'youtube_api',
+                    channel, found: 0, backfilled: 0,
+                    error: parsed.error || 'No matching videos found'}));
+                }
+              } catch (e) {
+                send(res, 500, JSON.stringify({ok: false,
+                  error: 'YouTube API sync failed: ' + String(e.message || e)}));
+              }
+            });
+          } else {
+            // Ledger sync — read local upload_state files
+            const result = duaStatusStore.syncFromLedgers();
+            send(res, 200, JSON.stringify({ok: true, mode: 'ledger',
+              backfilled: result.backfilled, channels: result.channels}));
+          }
+        } catch (e) {
+          send(res, 400, JSON.stringify({ok: false, error: 'bad request'}));
+        }
+      });
       return true;
     }
 

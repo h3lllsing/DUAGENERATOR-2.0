@@ -64,7 +64,9 @@ class TimelineBuilder:
               title: str = "", arabic_duration: float = 0.0,
               urdu_duration: float = 0.0, final_duration: float = None,
               category: str = None, palette: dict | None = None,
-              motion=None, word_events: dict[str, list] | None = None) -> dict:
+              motion=None, word_events: dict[str, list] | None = None,
+              highlight_style: str = "",
+              gradient_kind: str = "") -> dict:
         """
         Build the visual timeline.
 
@@ -134,7 +136,8 @@ class TimelineBuilder:
 
         if ar_present:
             sc = self._build_scene(f"{dua_id}:arabic", arabic_text, "",
-                                   title, F_ar, palette, motion)
+                                   title, F_ar, palette, motion,
+                                   highlight_style, gradient_kind)
             self._attach_events(sc, "arabic", word_events)
             sc.transition_in = Transition(
                 "fade", min(self.intro_seconds, sc.duration / 2))
@@ -144,7 +147,8 @@ class TimelineBuilder:
 
         if gap_frames > 0:
             sc = self._build_scene(f"{dua_id}:gap", "", "", "", gap_frames,
-                                   palette, motion)
+                                   palette, motion,
+                                   highlight_style, gradient_kind)
             sc.transition_in = Transition("fade", 0.15)
             sc.transition_out = Transition("fade", 0.15)
             scenes.append(sc)
@@ -154,7 +158,8 @@ class TimelineBuilder:
         if ur_present:
             sc = self._build_scene(f"{dua_id}:urdu", "", urdu_text,
                                    "" if ar_present else title, F_ur,
-                                   palette, motion)
+                                   palette, motion,
+                                   highlight_style, gradient_kind)
             self._attach_events(sc, "urdu", word_events)
             intro = self.intro_seconds if not ar_present else 0.3
             sc.transition_in = Transition("fade", min(intro, sc.duration / 2))
@@ -168,7 +173,8 @@ class TimelineBuilder:
 
         if F_hold > 0:
             sc = self._build_scene(f"{dua_id}:hold", "", "", "", F_hold,
-                                   palette, motion)
+                                   palette, motion,
+                                   highlight_style, gradient_kind)
             sc.transition_out = Transition(
                 "fade", min(self.outro_seconds, sc.duration / 2))
             scenes.append(sc)
@@ -271,11 +277,15 @@ class TimelineBuilder:
             scene.word_events = {role: clean}
 
     def _build_scene(self, seed: str, arabic: str, urdu: str, title: str,
-                     frames: int, palette, motion) -> Scene:
+                     frames: int, palette, motion,
+                     highlight_style: str = "",
+                     gradient_kind: str = "") -> Scene:
         duration = frames / self.fps
         scene = self._renderer.build_single_scene(
             seed, arabic, urdu, title, duration=duration,
-            palette=palette, motion=motion)
+            palette=palette, motion=motion,
+            highlight_style=highlight_style,
+            gradient_kind=gradient_kind)
         # Drop empty-text layers (empty title/arabic/urdu must not waste
         # vertical layout space or produce collision-prone blocks).
         scene.layers = [l for l in scene.layers if (l.text or "").strip()]

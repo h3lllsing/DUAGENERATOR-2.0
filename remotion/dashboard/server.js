@@ -120,6 +120,7 @@ const duaHandler = require('./routes/duas')(Object.assign({}, deps, {
 }));
 const configHandler = require('./routes/config')(deps);
 const vfxHandler = require('./routes/vfx')(deps);
+const batchHandler = require('./routes/batch')(deps);
 
 function parseCookies(header) {
   const cookies = {};
@@ -172,6 +173,7 @@ const server = http.createServer((req, res) => {
   if (duaHandler(req, url, res)) return;
   if (configHandler(req, url, res)) return;
   if (vfxHandler(req, url, res)) return;
+  if (batchHandler(req, url, res)) return;
   // ── GET /api/health ──
   if (req.method === 'GET' && url.pathname === '/api/health') {
     return send(res, 200, JSON.stringify({ok: true, status: 'healthy', ts: Date.now()}));
@@ -257,6 +259,20 @@ process.on('SIGTERM', () => shutdownAll('SIGTERM'));
 
 server.listen(PORT, '127.0.0.1', () => {
   console.log(`Dua Video Studio v0.10 -> http://127.0.0.1:${PORT}`);
+  // Auto-sync: backfill dua_status.json from upload ledgers on startup
+  try {
+    const duaStatusStore = require('./routes/status_store');
+    const syncResult = duaStatusStore.syncFromLedgers();
+    if (syncResult.backfilled > 0) {
+      console.log('[SYNC] Backfilled ' + syncResult.backfilled +
+        ' uploads from ledgers: ' +
+        Object.entries(syncResult.channels).map(([k, v]) => k + '=' + v).join(', '));
+    } else {
+      console.log('[SYNC] Ledger sync: no new backfills needed');
+    }
+  } catch (e) {
+    console.log('[SYNC] Ledger sync failed: ' + (e && e.message || e));
+  }
 });
 
 // ── Auto disk cleanup ──

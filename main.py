@@ -12,6 +12,10 @@ import sys
 import time
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from queue import Queue
+from threading import Thread, Event, Lock
+
+import psutil
 
 from moviepy import AudioFileClip
 
@@ -144,6 +148,16 @@ class DuaVideoPipeline:
                                            thread_name_prefix="dua_audio")
         self._scene_renderer = SceneRenderer(fps=PROJECT.FPS)
 
+        # BATCH QUEUE: queue-based batch processing system
+        self._batch_queue: Queue = Queue()
+        self._batch_stop = Event()
+        self._batch_worker: Thread | None = None
+        self._batch_total = 0
+        self._batch_done = 0
+        self._batch_failed = 0
+        self._batch_results: list[dict] = []
+        self._batch_lock = Lock()
+
         # Verify temp directory is writable
         _test_file = os.path.join(self.temp_dir, '.write_test')
         try:
@@ -154,17 +168,183 @@ class DuaVideoPipeline:
             logger.error(f"Temp directory not writable: {self.temp_dir} - {e}")
             raise
     
+    # ── Memory Monitoring & Progress Reporting ──────────────────────
+
+    _MEMORY_WARN_MB = 1024  # warn when RSS exceeds 1 GB
+
+    def _check_memory(self, step_name: str):
+        """Log current process RSS; warn if above threshold."""
+        try:
+            mem_mb = psutil.Process().memory_info().rss / (1024 * 1024)
+        except Exception:
+            return
+        if mem_mb >= self._MEMORY_WARN_MB:
+            logger.warning("[MEM] %s — %.0f MB (threshold %d MB)",
+                           step_name, mem_mb, self._MEMORY_WARN_MB)
+        else:
+            logger.info("[MEM] %s — %.0f MB", step_name, mem_mb)
+
+    def _report_progress(self, step: int, total: int, label: str,
+                         dua_id: str = "", elapsed: float = 0.0):
+        """Emit a one-line progress snapshot."""
+        pct = int(step / total * 100) if total else 0
+        ts = f" ({elapsed:.0f}s elapsed)" if elapsed else ""
+        dua_tag = f" [{dua_id}]" if dua_id else ""
+        logger.info(">>> [%d/%d %2d%%%] %s%s%s", step, total, pct,
+                     label, dua_tag, ts)
+
     def __del__(self):
         """Cleanup thread pool on object destruction."""
         self.shutdown()
     
     def shutdown(self):
-        """Shutdown thread pool executor and clear caches."""
+        """Shutdown thread pool executor, batch worker, and clear caches."""
+        self.cancel_batch()
         if hasattr(self, '_executor') and self._executor:
             self._executor.shutdown(wait=False)
         if hasattr(self, '_scene_renderer') and self._scene_renderer:
             self._scene_renderer.clear_cache()
         logger.debug("DuaVideoPipeline resources cleaned up")
+
+    # ── Batch Queue System ──────────────────────────────────────────
+
+    _SENTINEL = None  # poison pill to stop the worker
+
+    def _batch_worker_loop(self):
+        """Worker thread: pull (dua_id, kwargs) from queue until sentinel."""
+        while True:
+            item = self._batch_queue.get()
+            if item is self._SENTINEL:
+                self._batch_queue.task_done()
+                break
+            dua_id, kwargs = item
+            try:
+                ok = self.generate_video(dua_id, **kwargs)
+                with self._batch_lock:
+                    self._batch_done += 1
+                    self._batch_results.append(
+                        {"dua_id": dua_id, "ok": ok})
+                    if not ok:
+                        self._batch_failed += 1
+            except Exception:
+                logger.exception("Batch worker exception for %s", dua_id)
+                with self._batch_lock:
+                    self._batch_done += 1
+                    self._batch_failed += 1
+                    self._batch_results.append(
+                        {"dua_id": dua_id, "ok": False})
+            finally:
+                self._batch_queue.task_done()
+
+    def add_to_batch(self, dua_id: str, *, theme: str = "dark",
+                     effect: str = "auto", dry_run: bool = False):
+        """
+        Enqueue a single dua for background batch processing.
+
+        The worker thread processes items sequentially (one video at a time)
+        so pipeline resources are never shared across concurrent renders.
+
+        Args:
+            dua_id: Dua identifier from the database.
+            theme: Video theme (default: dark).
+            effect: Visual effect (default: auto).
+            dry_run: If True, validate only without generating.
+
+        Raises:
+            RuntimeError: If the batch worker is not running.
+        """
+        if self._batch_worker is None or not self._batch_worker.is_alive():
+            raise RuntimeError(
+                "Batch worker not running. Call start_batch() first.")
+        self._batch_queue.put(
+            (dua_id, {"theme": theme, "effect": effect, "dry_run": dry_run}))
+
+    def start_batch(self, dua_ids: list[str] | None = None, *,
+                    theme: str = "dark", effect: str = "auto",
+                    dry_run: bool = False):
+        """
+        Start (or enqueue into an existing) batch run.
+
+        If *dua_ids* is None, all duas from the database are queued.
+        A daemon worker thread processes the queue sequentially.
+
+        Args:
+            dua_ids: Specific dua IDs to process, or None for all.
+            theme: Video theme for every dua.
+            effect: Visual effect for every dua.
+            dry_run: If True, validate only.
+        """
+        if self._batch_worker is not None and self._batch_worker.is_alive():
+            # Worker already running — just enqueue more items
+            pass
+        else:
+            # Fresh worker
+            self._batch_stop.clear()
+            with self._batch_lock:
+                self._batch_total = 0
+                self._batch_done = 0
+                self._batch_failed = 0
+                self._batch_results = []
+            self._batch_worker = Thread(
+                target=self._batch_worker_loop, daemon=True,
+                name="batch_worker")
+            self._batch_worker.start()
+
+        if dua_ids is None:
+            duas = DB.get_all_duas()
+            dua_ids = [d.get('id') for d in duas if d.get('id')]
+
+        with self._batch_lock:
+            self._batch_total += len(dua_ids)
+
+        for did in dua_ids:
+            self._batch_queue.put(
+                (did, {"theme": theme, "effect": effect, "dry_run": dry_run}))
+
+        logger.info("Batch started: %d dua(s) queued.", len(dua_ids))
+
+    def get_batch_status(self) -> dict:
+        """
+        Return current batch progress.
+
+        Returns:
+            dict with keys: total, done, failed, pending, running, results.
+        """
+        with self._batch_lock:
+            total = self._batch_total
+            done = self._batch_done
+            failed = self._batch_failed
+            results = list(self._batch_results)
+        running = (
+            self._batch_worker is not None and self._batch_worker.is_alive()
+        )
+        return {
+            "total": total,
+            "done": done,
+            "failed": failed,
+            "pending": total - done,
+            "running": running,
+            "results": results,
+        }
+
+    def cancel_batch(self):
+        """
+        Cancel the batch worker: drain remaining queue items and stop.
+        In-progress video will finish; no new videos start after drain.
+        """
+        self._batch_stop.set()
+        # Drain remaining items so the worker doesn't block on get()
+        while not self._batch_queue.empty():
+            try:
+                self._batch_queue.get_nowait()
+                self._batch_queue.task_done()
+            except Queue.Empty:
+                break
+        # Send sentinel so worker exits its loop
+        self._batch_queue.put(self._SENTINEL)
+        if self._batch_worker is not None and self._batch_worker.is_alive():
+            self._batch_worker.join(timeout=5)
+        self._batch_worker = None
 
     def _prepare_audio_track(self, ar_audio: str, ur_audio: str,
                              merged_audio: str, gap_seconds: float = 0.3):
@@ -190,8 +370,10 @@ class DuaVideoPipeline:
             return None
 
         speech_clip = AudioFileClip(merged_audio)
-        speech_duration = speech_clip.duration
-        speech_clip.close()
+        try:
+            speech_duration = speech_clip.duration
+        finally:
+            speech_clip.close()
 
         timeline = AudioMixer.compute_video_timeline(speech_duration)
         if not timeline["valid"]:
@@ -249,8 +431,10 @@ class DuaVideoPipeline:
         
         # Get speech duration
         speech_clip = AudioFileClip(merged_audio)
-        speech_duration = speech_clip.duration
-        speech_clip.close()
+        try:
+            speech_duration = speech_clip.duration
+        finally:
+            speech_clip.close()
         
         timeline = AudioMixer.compute_video_timeline(speech_duration)
         if not timeline["valid"]:
@@ -476,7 +660,8 @@ class DuaVideoPipeline:
         if not ur_ok:
             logger.error("Failed to generate Urdu TTS.")
             return False
-        logger.info("[1/5] TTS Generated (parallel).")
+        self._check_memory("TTS")
+        self._report_progress(1, 5, "TTS Generated", dua_id, time.time() - start_time)
         if self._cancel_requested:
             logger.info("Generation cancelled by user.")
             return False
@@ -489,7 +674,9 @@ class DuaVideoPipeline:
         if timeline is None:
             return False
         duration_seconds = timeline["final_duration"]
-        logger.info(f"[2/5] Video duration target: {duration_seconds:.2f}s")
+        self._check_memory("Audio Merge")
+        self._report_progress(2, 5, f"Audio merged ({duration_seconds:.1f}s)",
+                              dua_id, time.time() - start_time)
         if self._cancel_requested:
             logger.info("Generation cancelled by user.")
             return False
@@ -517,6 +704,8 @@ class DuaVideoPipeline:
             category=category,
             palette=premium_palette(dua_id),
             word_events={"arabic": ar_words, "urdu": ur_words},
+            highlight_style=dua_data.get("highlight_style", ""),
+            gradient_kind=dua_data.get("gradient_kind", ""),
         )
         if not plan["valid"]:
             logger.error(f"TimelineBuilder failed: {plan['reason']}")
@@ -527,12 +716,16 @@ class DuaVideoPipeline:
             frames = SceneRenderer(fps=PROJECT.FPS).render(
                 plan["timeline"], seed=dua_id, dua_id=dua_id,
                 category=dua_data.get('category'))
-            logger.info(f"[3/5] Frames generated: {len(frames)}")
+            self._check_memory("Scene Render")
+            self._report_progress(3, 5, f"Frames rendered ({len(frames)} frames)",
+                                  dua_id, time.time() - start_time)
         else:
             frames = SceneRenderer(fps=PROJECT.FPS).render_stream(
                 plan["timeline"], seed=dua_id, dua_id=dua_id,
                 category=dua_data.get('category'))
-            logger.info("[3/5] Frames generated (streaming mode)")
+            self._check_memory("Scene Render (stream)")
+            self._report_progress(3, 5, "Frames rendered (stream)",
+                                  dua_id, time.time() - start_time)
 
         # Optional visual effect post-processing (frame-level).
         # "auto" + the new AI effects use the EffectDirector brain; legacy
@@ -545,11 +738,15 @@ class DuaVideoPipeline:
                     {"arabic": ar_words, "urdu": ur_words},
                     effect_request=effect, dua_id=dua_id)
                 frames = self.effect_engine.apply_plan(frames, fxplan["frame_plan"])
-                logger.info(f"[3/5] Effect applied: {effect}")
-                logger.info(f"      {fxplan['summary']}")
+                self._check_memory(f"Effects ({effect})")
+                self._report_progress(4, 5, f"Effect: {effect}",
+                                      dua_id, time.time() - start_time)
+                logger.info("      %s", fxplan['summary'])
             else:
                 frames = self.effect_engine.apply_to_frames(frames, effect)
-                logger.info(f"[3/5] Effect applied: {effect}")
+                self._check_memory(f"Effects ({effect})")
+                self._report_progress(4, 5, f"Effect: {effect}",
+                                      dua_id, time.time() - start_time)
             if self._cancel_requested:
                 logger.info("Generation cancelled by user.")
                 return False
@@ -569,7 +766,8 @@ class DuaVideoPipeline:
         if not success:
             logger.error("Failed to build video.")
             return False
-        logger.info("[4/5] Video assembled.")
+        self._check_memory("Video Encoding")
+        self._report_progress(5, 5, "Video assembled", dua_id, time.time() - start_time)
         if self._cancel_requested:
             logger.info("Generation cancelled by user.")
             return False
@@ -647,7 +845,9 @@ class DuaVideoPipeline:
         if not ur_ok:
             logger.error("Failed to generate Urdu TTS.")
             return False
-        logger.info("[1/5] TTS Generated (parallel).")
+        self._check_memory("TTS")
+        self._report_progress(1, 5, "TTS Generated", "custom",
+                              time.time() - start_time)
 
         # Merge Audio + apply VIDEO-002 duration policy (15-25s, padded hold)
         logger.info("[2/5] Merging Audio (parallel)...")
@@ -657,7 +857,9 @@ class DuaVideoPipeline:
         if timeline is None:
             return False
         duration_seconds = timeline["final_duration"]
-        logger.info(f"[2/5] Video duration target: {duration_seconds:.2f}s")
+        self._check_memory("Audio Merge")
+        self._report_progress(2, 5, f"Audio merged ({duration_seconds:.1f}s)",
+                              "custom", time.time() - start_time)
 
         # Generate Frames (TimelineBuilder + SceneEngine, VISUAL Phase 3)
         #    Audio is immutable; the visual timeline adapts to measured TTS
@@ -682,6 +884,8 @@ class DuaVideoPipeline:
             category=category,
             palette=premium_palette("custom"),
             word_events={"arabic": ar_words, "urdu": ur_words},
+            highlight_style=dua_data.get("highlight_style", ""),
+            gradient_kind=dua_data.get("gradient_kind", ""),
         )
         if not plan["valid"]:
             logger.error(f"TimelineBuilder failed: {plan['reason']}")
@@ -692,12 +896,16 @@ class DuaVideoPipeline:
             frames = SceneRenderer(fps=PROJECT.FPS).render(
                 plan["timeline"], seed="custom", dua_id="custom",
                 category=category)
-            logger.info(f"[3/5] Frames generated: {len(frames)}")
+            self._check_memory("Scene Render")
+            self._report_progress(3, 5, f"Frames rendered ({len(frames)} frames)",
+                                  "custom", time.time() - start_time)
         else:
             frames = SceneRenderer(fps=PROJECT.FPS).render_stream(
                 plan["timeline"], seed="custom", dua_id="custom",
                 category=category)
-            logger.info("[3/5] Frames generated (streaming mode)")
+            self._check_memory("Scene Render (stream)")
+            self._report_progress(3, 5, "Frames rendered (stream)",
+                                  "custom", time.time() - start_time)
 
         # Optional visual effect post-processing (frame-level).
         if has_effect:
@@ -711,11 +919,15 @@ class DuaVideoPipeline:
                     {"arabic": ar_words, "urdu": ur_words},
                     effect_request=effect, dua_id="custom")
                 frames = self.effect_engine.apply_plan(frames, fxplan["frame_plan"])
-                logger.info(f"[3/5] Effect applied: {effect}")
-                logger.info(f"      {fxplan['summary']}")
+                self._check_memory(f"Effects ({effect})")
+                self._report_progress(4, 5, f"Effect: {effect}",
+                                      "custom", time.time() - start_time)
+                logger.info("      %s", fxplan['summary'])
             else:
                 frames = self.effect_engine.apply_to_frames(frames, effect)
-                logger.info(f"[3/5] Effect applied: {effect}")
+                self._check_memory(f"Effects ({effect})")
+                self._report_progress(4, 5, f"Effect: {effect}",
+                                      "custom", time.time() - start_time)
 
         # Build Video
         logger.info("[4/5] Assembling video...")
@@ -725,17 +937,19 @@ class DuaVideoPipeline:
         import datetime
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         output_path = os.path.join(custom_dir, f"custom_{timestamp}.mp4")
-
         success = self.video_builder.build_video(
             frames=frames,
             output_path=output_path,
             audio_path=merged_audio
+
         )
 
         if not success:
             logger.error("Failed to build video.")
             return False
-        logger.info("[4/5] Video assembled.")
+        self._check_memory("Video Encoding")
+        self._report_progress(5, 5, "Video assembled", "custom",
+                              time.time() - start_time)
 
         # Quality Check (VIDEO-002 hard gate: resolution + duration + FPS)
         logger.info("[5/5] Quality check...")

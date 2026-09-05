@@ -11,7 +11,7 @@
  */
 module.exports = function vfxRoutes(deps) {
   const {PROJECT, REMOTION, TEMP, OUT, CHROME,
-    fs, path, spawn, process, send, lookspec, themeMap, log} = deps;
+    fs, path, crypto, spawn, process, send, lookspec, themeMap, log} = deps;
   const F = fs.promises;
   const customVfx = require('../custom-vfx');
   const {err, parseJson, readBody, routeCatch, exists} = require('./utils');
