@@ -76,7 +76,6 @@ module.exports = function duaRoutes(deps) {
   }
   function dedupError(list, id, title, arabic, urdu) {
     const dup = [];
-    if (title) dup.push.apply(dup, findDuplicates(list, ['title'], title, id));
     if (arabic) dup.push.apply(dup, findDuplicates(list, ['arabic'], arabic, id));
     if (urdu) dup.push.apply(dup, findDuplicates(list, ['urdu'], urdu, id));
     if (!dup.length) return null;
