@@ -798,8 +798,9 @@ function writePackAtomic(f, obj) {
 }
 
 function importBatch(PROJECT, opts) {
-  const {items, dryRun} = opts || {};
+  const {items, dryRun, allowSimilar} = opts || {};
   const dry = !!dryRun;
+  const allowSim = !!allowSimilar;
   const arr = Array.isArray(items) ? items : null;
   if (!arr) throw makeErr(400, 'items array required');
   if (arr.length > 12) throw makeErr(400, 'max 12 items per batch');
@@ -873,6 +874,12 @@ function importBatch(PROJECT, opts) {
       const entry = Object.assign({id}, desc);
       if (label) entry.label = label;
       const rec = {id, label: label || id, fp, desc};
+      if (sim && !dry && !allowSim) {
+        results.push({index: i, type: 'pattern', id, label, status: 'blocked-similar',
+          fingerprint: fp, matchedId: sim.id, dist: sim.dist,
+          reason: 'similar to existing "' + sim.id + '" (dist ' + sim.dist + ') — use allowSimilar: true to override'});
+        continue;
+      }
       pendingPatterns.push(entry);
       usedPatternIds.add(id);
       idx.patternRecords.push(rec);
@@ -948,6 +955,12 @@ function importBatch(PROJECT, opts) {
       const id = uniqueId(slugId(label, 'plugin'), usedPluginIds);
       entry.id = id;
       const rec = {id, label: label || id, fp, pl: entry, mKey, fKey, ov: ov || {}};
+      if (sim && !dry && !allowSim) {
+        results.push({index: i, type: 'plugin', id, label, status: 'blocked-similar',
+          fingerprint: fp, matchedId: sim.id, dist: sim.dist,
+          reason: 'similar to existing "' + sim.id + '" (dist ' + sim.dist + ') — use allowSimilar: true to override'});
+        continue;
+      }
       pendingPlugins.push(entry);
       usedPluginIds.add(id);
       idx.pluginRecords.push(rec);
@@ -1050,6 +1063,12 @@ function importBatch(PROJECT, opts) {
       const id = uniqueId(slugId(label, 'style'), usedStyles);
       const entry = Object.assign({id}, s);
       if (label) entry.label = label;
+      if (sim && !dry && !allowSim) {
+        results.push({index: i, type: 'style', id, label, status: 'blocked-similar',
+          fingerprint: fp, matchedId: sim.id, dist: sim.dist,
+          reason: 'similar to existing "' + sim.id + '" (dist ' + sim.dist + ') — use allowSimilar: true to override'});
+        continue;
+      }
       pendingStyles.push(entry);
       usedStyles.add(id);
       results.push(sim
@@ -1086,6 +1105,7 @@ function importBatch(PROJECT, opts) {
     ok: true, dryRun: dry, changed,
     added: results.filter((r) => r.status === 'added').length,
     similar: results.filter((r) => r.status === 'similar').length,
+    blockedSimilar: results.filter((r) => r.status === 'blocked-similar').length,
     duplicates: results.filter((r) => r.status === 'duplicate').length,
     invalid: results.filter((r) => r.status === 'invalid').length,
     results, file: packPath(PROJECT),

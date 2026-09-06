@@ -160,10 +160,12 @@ module.exports = function vfxRoutes(deps) {
           const items = Array.isArray(f.items) ? f.items : null;
           if (!items) throw err(400, 'items array required');
           const dryRun = f.dryRun === true || f.dryRun === 1 || String(f.dryRun) === '1';
-          const r = customVfx.importBatch(PROJECT, {items, dryRun});
+          const allowSimilar = f.allowSimilar === true || f.allowSimilar === 1 || String(f.allowSimilar) === '1';
+          const r = customVfx.importBatch(PROJECT, {items, dryRun, allowSimilar});
           send(res, 200, JSON.stringify({ok: true, dryRun,
             changed: r.changed,
             added: r.added, similar: r.similar,
+            blockedSimilar: r.blockedSimilar,
             duplicates: r.duplicates, invalid: r.invalid,
             results: r.results}));
         });

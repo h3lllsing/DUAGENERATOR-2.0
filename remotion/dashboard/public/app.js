@@ -1645,7 +1645,7 @@ async function vfxDryRun(){
   finally{ btn.disabled=false; btn.innerHTML=old; }
 }
 function vfxBadge(status){
-  const m={added:['VALID','vfx-b vfx-ok'],duplicate:['EXACT DUPLICATE (Skipped)','vfx-b vfx-dup'],similar:['SIMILAR DESIGN WARNING','vfx-b vfx-sim'],invalid:['SCHEMA ERROR','vfx-b vfx-err']}[status];
+  const m={added:['VALID','vfx-b vfx-ok'],duplicate:['EXACT DUPLICATE (Skipped)','vfx-b vfx-dup'],similar:['SIMILAR DESIGN WARNING','vfx-b vfx-sim'],'blocked-similar':['BLOCKED (similar — use Force)','vfx-b vfx-err'],invalid:['SCHEMA ERROR','vfx-b vfx-err']}[status];
   const b=m||[status,'vfx-b'];
   return '<span class="'+b[1]+'">'+b[0]+'</span>';
 }
@@ -1653,7 +1653,7 @@ function vfxRenderResults(j){
   const sec=document.getElementById('vfx_sec_results');
   sec.style.display='block';
   document.getElementById('vfx_result_summary').textContent=
-    (j.added||0)+' new, '+(j.similar||0)+' similar, '+(j.duplicates||0)+' duplicate, '+(j.invalid||0)+' invalid — '+(j.dryRun?'DRY-RUN (kuch save nahi hua)':'SAVED');
+    (j.added||0)+' new, '+(j.similar||0)+' similar, '+(j.blockedSimilar||0)+' blocked, '+(j.duplicates||0)+' duplicate, '+(j.invalid||0)+' invalid — '+(j.dryRun?'DRY-RUN (kuch save nahi hua)':'SAVED');
   const rows=(j.results||[]).map(r=>{
     const label=r.label||(r.id||('item '+(r.index+1)));
     const chips=[];
@@ -1666,12 +1666,13 @@ function vfxRenderResults(j){
   }).join('');
   document.getElementById('vfx_results').innerHTML=rows||'<div class="vfx-empty">Koi result nahi</div>';
   const canAdd=(j.added||0)+(j.similar||0);
+  const blocked=(j.blockedSimilar||0);
   const sb=document.getElementById('vfx_savebtn');
   const skipBtn=document.getElementById('vfx_skipbtn');
   const forceBtn=document.getElementById('vfx_forcebtn');
   const dupeWarn=document.getElementById('vfx_dupewarn');
-  // detect similar items with dist < 0.15
-  const similarItems=(j.results||[]).filter(r=>r.status==='similar'&&r.dist!==undefined&&r.dist<0.15);
+  // detect similar/blocked-similar items with dist < 0.15
+  const similarItems=(j.results||[]).filter(r=>(r.status==='similar'||r.status==='blocked-similar')&&r.dist!==undefined&&r.dist<0.15);
   _vfxSimilarCount=similarItems.length;
   // hash current items for exact-duplicate re-paste detection
   const curHash=JSON.stringify(_vfxRawItems);
@@ -1749,7 +1750,7 @@ async function vfxConfirm(){
     if(!j.ok){ sb.disabled=false; sb.innerHTML=old; toast(j.error||'Save fail','err'); return; }
     vfxRenderResults(j);
     await vfxRefresh();
-    toast((j.added||0)+' new saved'+(j.similar>0?', '+j.similar+' similar flagged':'')+' — pack updated!','ok');
+    toast((j.added||0)+' new saved'+(j.similar>0?', '+j.similar+' similar flagged':'')+(j.blockedSimilar>0?', '+j.blockedSimilar+' blocked':'')+' — pack updated!','ok');
     if((j.invalid||0)>0) toast((j.invalid)+' invalid item skip hue','warn');
   }catch(e){ sb.disabled=false; sb.innerHTML=old; toast('Network error: '+e.message,'err'); }
 }
@@ -1764,7 +1765,18 @@ function vfxSkipSimilar(){
 }
 async function vfxForceSave(){
   if(!_vfxRawItems.length)return;
-  await vfxConfirm();
+  const sb=document.getElementById('vfx_savebtn');
+  const old=sb.innerHTML;
+  sb.disabled=true; sb.innerHTML='Saving (forced)...';
+  try{
+    const r=await fetch('/api/vfx/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:_vfxRawItems,dryRun:0,allowSimilar:true})});
+    const j=await r.json();
+    if(!j.ok){ sb.disabled=false; sb.innerHTML=old; toast(j.error||'Save fail','err'); return; }
+    vfxRenderResults(j);
+    await vfxRefresh();
+    toast((j.added||0)+' new saved (forced)'+(j.similar>0?', '+j.similar+' similar flagged':'')+' — pack updated!','ok');
+    if((j.invalid||0)>0) toast((j.invalid)+' invalid item skip hue','warn');
+  }catch(e){ sb.disabled=false; sb.innerHTML=old; toast('Network error: '+e.message,'err'); }
 }
 async function vfxRefresh(){
   const rc=document.getElementById('vfx_regcount');
