@@ -448,7 +448,7 @@ def main():
                     help="Custom topic/prompt for dua generation")
     args = ap.parse_args()
 
-    count = max(1, min(args.count, 10))
+    count = max(1, min(args.count, 15))
 
     topic_line = ""
     if args.topic:

@@ -2081,7 +2081,7 @@ async function aiFormatSave(){
   let data;
   try{data=JSON.parse(raw);if(!Array.isArray(data))data=[data];}catch(e){return setMsg2('aiimportmsg','JSON valid nahi hai','err');}
   if(!data.length)return setMsg2('aiimportmsg','JSON mein koi dua nahi hai','err');
-  if(data.length>10)return setMsg2('aiimportmsg','Ek baar mein max 10 duas. '+data.length+' hain.','err');
+  if(data.length>15)return setMsg2('aiimportmsg','Ek baar mein max 15 duas. '+data.length+' hain.','err');
   const titles=data.map(function(d){return d.title||d.id||'?';}).join(', ');
   if(!await styledConfirm('Add Duas',data.length+' dua(s) library mein add karein?\n\n'+titles))return;
   btn.disabled=true;btn.textContent='Saving...';
