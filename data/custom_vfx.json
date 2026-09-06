@@ -2867,6 +2867,71 @@
       "breathAmpl": 0.12,
       "seedSalt": 888,
       "label": "Obsidian Starburst Corners v59"
+    },
+    {
+      "id": "amethyst-star-lattice-band-v60",
+      "tileSize": 128,
+      "strokeWidth": 2.5,
+      "colorToken": "glowColor",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 742,
+      "kind": "girih-band",
+      "label": "amethyst-star-lattice-band-v60"
+    },
+    {
+      "id": "golden-radiance-shape-v60",
+      "tileSize": 180,
+      "strokeWidth": 1.5,
+      "colorToken": "accent",
+      "alpha": 0.5,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 0,
+      "shapeSpec": {
+        "primitives": [
+          {
+            "prim": "polygon",
+            "params": {
+              "points": [],
+              "close": true
+            }
+          },
+          {
+            "prim": "circle",
+            "params": {
+              "cx": 0,
+              "cy": 0,
+              "r": 5
+            }
+          }
+        ],
+        "composition": {
+          "repeat": {
+            "count": 6,
+            "spacing": 40,
+            "direction": "horizontal"
+          },
+          "rotate": {
+            "centerX": 0,
+            "centerY": 0,
+            "angle": 180,
+            "copies": 4
+          }
+        }
+      },
+      "label": "golden-radiance-shape-v60"
     }
   ],
   "plugins": [
@@ -4075,6 +4140,22 @@
         "shimmerStrength": 0.6
       },
       "id": "obsidian-twilight-radiance-v59"
+    },
+    {
+      "match": "*",
+      "label": "violet-twilight-aura-v60",
+      "frameCustomId": "amethyst-star-lattice-band-v60",
+      "styleOverrides": {
+        "cornerSize": 65,
+        "cornerOpacity": 0.9,
+        "frameEnabled": true,
+        "frameOpacity1": 0.8,
+        "raysOpacity": 0.35,
+        "orbsOpacity": 0.4,
+        "shimmerStrength": 0.6,
+        "raysAngleDeg": 45
+      },
+      "id": "violet-twilight-aura-v60"
     }
   ],
   "themes": [
@@ -5390,6 +5471,22 @@
         "sleep"
       ],
       "label": "Obsidian Night Harmony v59"
+    },
+    {
+      "id": "midnight-violet-noor-v60",
+      "payload": {
+        "decor": "qadr",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.15,
+          "saturate": 1.2
+        }
+      },
+      "affinity": [
+        "evening_protection",
+        "night_dua"
+      ],
+      "label": "midnight-violet-noor-v60"
     }
   ],
   "typography": [
@@ -5918,6 +6015,14 @@
       "lineHeight": 1.6,
       "match": "*",
       "label": "Scheherazade Elegant v59"
+    },
+    {
+      "id": "scheherazade-eloquent-v60",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 108,
+      "minSize": 42,
+      "lineHeight": 1.45,
+      "label": "scheherazade-eloquent-v60"
     }
   ],
   "motion": [
@@ -6588,6 +6693,19 @@
       "introFx": "patternwipe",
       "match": "*",
       "label": "Kenburns Celestial Motion v59"
+    },
+    {
+      "id": "dreamy-glide-motion-v60",
+      "frame": "arch",
+      "textFx": "glide",
+      "motif": "star8",
+      "gradeFx": "coolnight",
+      "camera": "kenburns",
+      "introFx": "patternwipe",
+      "ornament": "medallion",
+      "skyFx": "fireflies",
+      "artFx": "sitare",
+      "label": "dreamy-glide-motion-v60"
     }
   ],
   "audio": [
@@ -6622,6 +6740,13 @@
       "sfxSet": "default",
       "match": "*",
       "label": "Zariyah Morning Warmth"
+    },
+    {
+      "id": "serene-night-recitation-v60",
+      "voiceArabic": "ar-SA-ZariyahNeural",
+      "voiceUrdu": "ur-PK-AsadNeural",
+      "sfxSet": "default",
+      "label": "serene-night-recitation-v60"
     }
   ],
   "styles": [
@@ -6647,6 +6772,76 @@
         "borderFx": "none",
         "skyFx": "none",
         "artFx": "lanterns"
+      }
+    },
+    {
+      "id": "majestic-night-sanctuary-v61",
+      "type": "style",
+      "label": "majestic-night-sanctuary-v61",
+      "pattern": {
+        "tileSize": 140,
+        "strokeWidth": 2,
+        "colorToken": "accent",
+        "alpha": 0.9,
+        "zones": [
+          "corners"
+        ],
+        "opacity": 0.5,
+        "bandSize": 70,
+        "breathFrames": 0,
+        "breathAmpl": 0,
+        "seedSalt": 0,
+        "kind": "arabesque-corners"
+      },
+      "typography": {
+        "fontFamily": "amiri-quran",
+        "baseSize": 115,
+        "minSize": 45,
+        "lineHeight": 1.5
+      },
+      "motion": {
+        "textFx": "glide",
+        "camera": "zoomin",
+        "introFx": "crescentfade"
+      },
+      "audio": {
+        "voiceArabic": "ar-SA-HamedNeural",
+        "voiceUrdu": "ur-PK-UzmaNeural"
+      }
+    },
+    {
+      "id": "majestic-night-sanctuary-v60",
+      "type": "style",
+      "label": "majestic-night-sanctuary-v60",
+      "pattern": {
+        "tileSize": 140,
+        "strokeWidth": 2,
+        "colorToken": "accent",
+        "alpha": 0.9,
+        "zones": [
+          "corners"
+        ],
+        "opacity": 0.5,
+        "bandSize": 70,
+        "breathFrames": 0,
+        "breathAmpl": 0,
+        "seedSalt": 0,
+        "kind": "arabesque-corners"
+      },
+      "typography": {
+        "fontFamily": "amiri-quran",
+        "baseSize": 115,
+        "minSize": 45,
+        "lineHeight": 1.5
+      },
+      "motion": {
+        "textFx": "glide",
+        "camera": "zoomin",
+        "introFx": "crescentfade"
+      },
+      "audio": {
+        "voiceArabic": "ar-SA-HamedNeural",
+        "voiceUrdu": "ur-PK-UzmaNeural"
       }
     }
   ]
