@@ -23,7 +23,7 @@ export interface VfxOverrideCfg {
 
 export const MASTER_SCHEMA = {
   "schemaVersion": 2,
-  "description": "UNIFIED MASTER SCHEMA — single source of truth for every importable item type (pattern, plugin, theme, typography, motion, audio). The VFX pattern + overrides sections are byte-identical to the legacy data/vfx-schema.json (8 kinds, 20 override keys). Regenerate all twins with: npm run gen:master-schema (remotion/).",
+  "description": "UNIFIED MASTER SCHEMA — single source of truth for every importable item type (pattern, plugin, theme, typography, motion, audio, style). The VFX pattern + overrides sections are byte-identical to the legacy data/vfx-schema.json (8 kinds, 20 override keys). Regenerate all twins with: npm run gen:master-schema (remotion/).",
   "hexColorPattern": "^#[0-9A-Fa-f]{3,8}$",
   "pattern": {
     "zonesExclusive": [
@@ -104,6 +104,246 @@ export const MASTER_SCHEMA = {
         "corners"
       ]
     }
+  },
+  "shapeSpec": {
+    "description": "Open-ended safe drawing primitives. Pattern can use EITHER kind OR shapeSpec (never both). Expanded primitive count (raw × repeat.count × rotate.copies) must not exceed maxExpandedCount.",
+    "primitives": {
+      "prim": [
+        "line",
+        "circle",
+        "arc",
+        "polygon",
+        "path"
+      ],
+      "maxRawCount": 200,
+      "maxExpandedCount": 200,
+      "pathMaxChars": 512,
+      "pathAllowedCommands": [
+        "M",
+        "L",
+        "H",
+        "V",
+        "C",
+        "Q",
+        "A",
+        "Z",
+        "m",
+        "l",
+        "h",
+        "v",
+        "c",
+        "q",
+        "a",
+        "z"
+      ],
+      "pathBlockedPatterns": [
+        "<script",
+        "javascript:",
+        "on\\w+=",
+        "<svg",
+        "<foreignObject",
+        "<img",
+        "data:"
+      ],
+      "params": {
+        "line": {
+          "required": [
+            "x1",
+            "y1",
+            "x2",
+            "y2"
+          ],
+          "ranges": {
+            "x1": {
+              "min": -500,
+              "max": 1500,
+              "def": 0
+            },
+            "y1": {
+              "min": -500,
+              "max": 2500,
+              "def": 0
+            },
+            "x2": {
+              "min": -500,
+              "max": 1500,
+              "def": 100
+            },
+            "y2": {
+              "min": -500,
+              "max": 2500,
+              "def": 100
+            }
+          }
+        },
+        "circle": {
+          "required": [
+            "cx",
+            "cy",
+            "r"
+          ],
+          "ranges": {
+            "cx": {
+              "min": -500,
+              "max": 1500,
+              "def": 50
+            },
+            "cy": {
+              "min": -500,
+              "max": 2500,
+              "def": 50
+            },
+            "r": {
+              "min": 0,
+              "max": 500,
+              "def": 30
+            }
+          }
+        },
+        "arc": {
+          "required": [
+            "cx",
+            "cy",
+            "r",
+            "startAngle",
+            "endAngle"
+          ],
+          "ranges": {
+            "cx": {
+              "min": -500,
+              "max": 1500,
+              "def": 50
+            },
+            "cy": {
+              "min": -500,
+              "max": 2500,
+              "def": 50
+            },
+            "r": {
+              "min": 0,
+              "max": 500,
+              "def": 40
+            },
+            "startAngle": {
+              "min": 0,
+              "max": 360,
+              "def": 0
+            },
+            "endAngle": {
+              "min": 0,
+              "max": 360,
+              "def": 180
+            }
+          }
+        },
+        "polygon": {
+          "required": [
+            "points"
+          ],
+          "pointsMin": 2,
+          "pointsMax": 50,
+          "pointRanges": {
+            "x": {
+              "min": -500,
+              "max": 1500
+            },
+            "y": {
+              "min": -500,
+              "max": 2500
+            }
+          }
+        },
+        "path": {
+          "required": [
+            "d"
+          ],
+          "dMaxChars": 512,
+          "allowedCommands": [
+            "M",
+            "L",
+            "H",
+            "V",
+            "C",
+            "Q",
+            "A",
+            "Z",
+            "m",
+            "l",
+            "h",
+            "v",
+            "c",
+            "q",
+            "a",
+            "z"
+          ]
+        }
+      }
+    },
+    "composition": {
+      "repeat": {
+        "description": "Tile primitives in a linear grid pattern.",
+        "count": {
+          "type": "int",
+          "min": 1,
+          "max": 50,
+          "def": 1
+        },
+        "spacing": {
+          "type": "int",
+          "min": 0,
+          "max": 200,
+          "def": 20
+        },
+        "direction": [
+          "horizontal",
+          "vertical"
+        ]
+      },
+      "rotate": {
+        "description": "Radial replication around a center point. angle is total angular spread in degrees (NOT per-copy increment). Per-copy angle = angle / (copies - 1). Example: angle=360, copies=6 means 72 degrees apart.",
+        "centerX": {
+          "min": -500,
+          "max": 1500,
+          "def": 50
+        },
+        "centerY": {
+          "min": -500,
+          "max": 2500,
+          "def": 50
+        },
+        "angle": {
+          "min": 0,
+          "max": 360,
+          "def": 360
+        },
+        "copies": {
+          "type": "int",
+          "min": 2,
+          "max": 12,
+          "def": 6
+        }
+      },
+      "mirror": {
+        "description": "Symmetric reflection of primitives.",
+        "axis": [
+          "x",
+          "y",
+          "both"
+        ]
+      }
+    }
+  },
+  "style": {
+    "description": "Combined look bundle — one JSON object containing pattern + theme + typography + motion + audio. Each nested section is optional. All sections validated against their respective type rules. When multiple style bundles share the same match, last-added wins (deterministic override).",
+    "nestedSections": [
+      "pattern",
+      "theme",
+      "typography",
+      "motion",
+      "audio"
+    ],
+    "matchWildcard": "*",
+    "matchPattern": "^[a-z0-9_-]{1,80}$"
   },
   "overrides": [
     {
@@ -445,7 +685,7 @@ export const MASTER_SCHEMA = {
 
 export const VFX_SCHEMA = {
   "schemaVersion": 1,
-  "description": "UNIFIED MASTER SCHEMA — single source of truth for every importable item type (pattern, plugin, theme, typography, motion, audio). The VFX pattern + overrides sections are byte-identical to the legacy data/vfx-schema.json (8 kinds, 20 override keys). Regenerate all twins with: npm run gen:master-schema (remotion/).",
+  "description": "UNIFIED MASTER SCHEMA — single source of truth for every importable item type (pattern, plugin, theme, typography, motion, audio, style). The VFX pattern + overrides sections are byte-identical to the legacy data/vfx-schema.json (8 kinds, 20 override keys). Regenerate all twins with: npm run gen:master-schema (remotion/).",
   "hexColorPattern": "^#[0-9A-Fa-f]{3,8}$",
   "pattern": {
     "zonesExclusive": [

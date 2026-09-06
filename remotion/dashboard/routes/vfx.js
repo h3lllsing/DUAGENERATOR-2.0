@@ -136,9 +136,12 @@ module.exports = function vfxRoutes(deps) {
         const plugins = idx.pluginRecords.map((r) => ({
           id: r.id, label: r.label, fingerprint: r.fp, plugin: r.pl,
         }));
+        const styles = (pack && Array.isArray(pack.styles))
+          ? pack.styles.map((s) => ({id: s.id, label: s.label || '', fingerprint: customVfx.fingerprintItem(s)}))
+          : [];
         send(res, 200, JSON.stringify({
           ok: true,
-          patterns, plugins,
+          patterns, plugins, styles,
           master: customVfx.masterSummary(pack),
           indexes: {
             patterns: Object.fromEntries(idx.patternFps),
@@ -210,6 +213,11 @@ module.exports = function vfxRoutes(deps) {
             const audioSan = customVfx.sanitizeAudioItem(f.audioItem);
             if (!audioSan) throw err(400, 'audio item invalid');
             patternDesc = null;
+          } else if (f.styleItem && typeof f.styleItem === 'object') {
+            // Style bundle preview
+            const styleSan = customVfx.sanitizeStyleItem(f.styleItem);
+            if (!styleSan) throw err(400, 'style bundle invalid');
+            patternDesc = styleSan.pattern || null;
           } else {
             throw err(400, 'patternId, inline frame, ya master item (theme/typography/motion/audio) required');
           }
@@ -258,6 +266,31 @@ module.exports = function vfxRoutes(deps) {
             const audioSan = customVfx.sanitizeAudioItem(f.audioItem);
             if (audioSan) {
               look.audio = Object.assign(look.audio || {}, audioSan);
+            }
+          } else if (f.styleItem) {
+            // Apply style bundle (all nested sections)
+            const styleSan = customVfx.sanitizeStyleItem(f.styleItem);
+            if (styleSan) {
+              if (styleSan.pattern) {
+                const vfx = {frame: styleSan.pattern};
+                if (overrides) vfx.styleOverrides = overrides;
+                look.vfx = vfx;
+              }
+              if (styleSan.theme && styleSan.theme.payload) {
+                if (styleSan.theme.payload.decor) look.decor = styleSan.theme.payload.decor;
+                if (styleSan.theme.payload.grade) {
+                  look.grade = Object.assign(look.grade || {}, styleSan.theme.payload.grade);
+                }
+              }
+              if (styleSan.typography) {
+                look.typography = Object.assign(look.typography || {}, styleSan.typography);
+              }
+              if (styleSan.motion) {
+                look.motion = Object.assign(look.motion || {}, styleSan.motion);
+              }
+              if (styleSan.audio) {
+                look.audio = Object.assign(look.audio || {}, styleSan.audio);
+              }
             }
           }
 

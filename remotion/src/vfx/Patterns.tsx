@@ -10,7 +10,7 @@
 import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import type {Theme} from '../themes';
-import type {VfxColorToken, VfxPatternDescriptor} from './types';
+import type {VfxColorToken, VfxPatternDescriptor, VfxShapeSpec, VfxPrimitive, VfxComposition} from './types';
 
 const TAU = Math.PI * 2;
 
@@ -321,6 +321,196 @@ const MeanderTile: React.FC<{d: VfxPatternDescriptor; color: string}> = ({d, col
   );
 };
 
+// ── Universal Primitive Renderer (ShapeSpec) ──
+// Renders open-ended safe drawing primitives from a shapeSpec array.
+// Supports composition: repeat, rotate, mirror.
+// Expansion cap enforced at validation time (raw × repeat × rotate <= 200).
+
+const expandPrimitives = (
+  primitives: VfxPrimitive[],
+  composition?: VfxComposition,
+): VfxPrimitive[] => {
+  if (!composition) return primitives;
+
+  let result = [...primitives];
+
+  // Mirror
+  if (composition.mirror) {
+    const mirrored = result.map((p) => mirrorPrimitive(p, composition.mirror!.axis));
+    if (composition.mirror.axis === 'both') {
+      result = [...result, ...mirrored];
+    } else {
+      result = [...result, ...mirrored];
+    }
+  }
+
+  // Repeat
+  if (composition.repeat && composition.repeat.count > 1) {
+    const {count, spacing, direction} = composition.repeat;
+    const repeated: VfxPrimitive[] = [];
+    for (let i = 0; i < count; i++) {
+      const offset = i * spacing;
+      for (const p of result) {
+        repeated.push(translatePrimitive(p, direction === 'horizontal' ? offset : 0, direction === 'vertical' ? offset : 0));
+      }
+    }
+    result = repeated;
+  }
+
+  // Rotate (angle = total spread, NOT per-copy increment)
+  if (composition.rotate && composition.rotate.copies > 1) {
+    const {centerX, centerY, angle, copies} = composition.rotate;
+    const perCopy = copies > 1 ? angle / (copies - 1) : 0;
+    const rotated: VfxPrimitive[] = [];
+    for (let i = 0; i < copies; i++) {
+      const deg = i * perCopy - angle / 2;
+      for (const p of result) {
+        rotated.push(rotatePrimitive(p, centerX, centerY, deg));
+      }
+    }
+    result = rotated;
+  }
+
+  return result;
+};
+
+const translatePrimitive = (p: VfxPrimitive, dx: number, dy: number): VfxPrimitive => {
+  if (dx === 0 && dy === 0) return p;
+  switch (p.prim) {
+    case 'line':
+      return {prim: 'line', params: {x1: p.params.x1 + dx, y1: p.params.y1 + dy, x2: p.params.x2 + dx, y2: p.params.y2 + dy}};
+    case 'circle':
+      return {prim: 'circle', params: {cx: p.params.cx + dx, cy: p.params.cy + dy, r: p.params.r}};
+    case 'arc':
+      return {prim: 'arc', params: {...p.params, cx: p.params.cx + dx, cy: p.params.cy + dy}};
+    case 'polygon':
+      return {prim: 'polygon', params: {points: p.params.points.map(([x, y]) => [x + dx, y + dy] as [number, number]), close: p.params.close}};
+    case 'path':
+      return p; // path coordinates are relative, translation handled by SVG transform
+  }
+};
+
+const rotatePrimitive = (p: VfxPrimitive, cx: number, cy: number, deg: number): VfxPrimitive => {
+  if (deg === 0) return p;
+  const rad = (deg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const rotatePt = (x: number, y: number): [number, number] => {
+    const dx = x - cx;
+    const dy = y - cy;
+    return [cx + dx * cos - dy * sin, cy + dx * sin + dy * cos];
+  };
+  switch (p.prim) {
+    case 'line': {
+      const [x1, y1] = rotatePt(p.params.x1, p.params.y1);
+      const [x2, y2] = rotatePt(p.params.x2, p.params.y2);
+      return {prim: 'line', params: {x1, y1, x2, y2}};
+    }
+    case 'circle': {
+      const [ncx, ncy] = rotatePt(p.params.cx, p.params.cy);
+      return {prim: 'circle', params: {cx: ncx, cy: ncy, r: p.params.r}};
+    }
+    case 'arc': {
+      const [ncx, ncy] = rotatePt(p.params.cx, p.params.cy);
+      return {prim: 'arc', params: {...p.params, cx: ncx, cy: ncy, startAngle: p.params.startAngle + deg, endAngle: p.params.endAngle + deg}};
+    }
+    case 'polygon':
+      return {prim: 'polygon', params: {points: p.params.points.map(([x, y]) => rotatePt(x, y)), close: p.params.close}};
+    case 'path':
+      return p; // path: use SVG transform instead
+  }
+};
+
+const mirrorPrimitive = (p: VfxPrimitive, axis: 'x' | 'y' | 'both'): VfxPrimitive => {
+  switch (p.prim) {
+    case 'line': {
+      const {x1, y1, x2, y2} = p.params;
+      return {prim: 'line', params: {
+        x1: axis === 'y' || axis === 'both' ? -x1 : x1,
+        y1: axis === 'x' || axis === 'both' ? -y1 : y1,
+        x2: axis === 'y' || axis === 'both' ? -x2 : x2,
+        y2: axis === 'x' || axis === 'both' ? -y2 : y2,
+      }};
+    }
+    case 'circle': {
+      const {cx, cy, r} = p.params;
+      return {prim: 'circle', params: {
+        cx: axis === 'y' || axis === 'both' ? -cx : cx,
+        cy: axis === 'x' || axis === 'both' ? -cy : cy,
+        r,
+      }};
+    }
+    case 'arc': {
+      const {cx, cy, r, startAngle, endAngle} = p.params;
+      return {prim: 'arc', params: {
+        cx: axis === 'y' || axis === 'both' ? -cx : cx,
+        cy: axis === 'x' || axis === 'both' ? -cy : cy,
+        r,
+        startAngle: axis === 'x' || axis === 'both' ? 360 - endAngle : startAngle,
+        endAngle: axis === 'x' || axis === 'both' ? 360 - startAngle : endAngle,
+      }};
+    }
+    case 'polygon':
+      return {prim: 'polygon', params: {
+        points: p.params.points.map(([x, y]) => [
+          axis === 'y' || axis === 'both' ? -x : x,
+          axis === 'x' || axis === 'both' ? -y : y,
+        ] as [number, number]),
+        close: p.params.close,
+      }};
+    case 'path':
+      return p; // path: use SVG transform instead
+  }
+};
+
+const renderPrimitive = (p: VfxPrimitive, color: string, strokeWidth: number, alpha: number, idx: number): React.ReactNode => {
+  const key = `${p.prim}-${idx}`;
+  switch (p.prim) {
+    case 'line':
+      return <line key={key} x1={p.params.x1} y1={p.params.y1} x2={p.params.x2} y2={p.params.y2}
+        stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeOpacity={alpha} />;
+    case 'circle':
+      return <circle key={key} cx={p.params.cx} cy={p.params.cy} r={p.params.r}
+        stroke={color} strokeWidth={strokeWidth} fill="none" strokeOpacity={alpha} />;
+    case 'arc': {
+      const {cx, cy, r, startAngle, endAngle} = p.params;
+      const startRad = (startAngle * Math.PI) / 180;
+      const endRad = (endAngle * Math.PI) / 180;
+      const x1 = cx + r * Math.cos(startRad);
+      const y1 = cy + r * Math.sin(startRad);
+      const x2 = cx + r * Math.cos(endRad);
+      const y2 = cy + r * Math.sin(endRad);
+      const large = Math.abs(endAngle - startAngle) > 180 ? 1 : 0;
+      return <path key={key} d={`M${x1} ${y1} A${r} ${r} 0 ${large} 1 ${x2} ${y2}`}
+        stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeOpacity={alpha} />;
+    }
+    case 'polygon': {
+      const pts = p.params.points.map(([x, y]) => `${x},${y}`).join(' ');
+      const close = p.params.close !== false ? 'Z' : '';
+      return <polygon key={key} points={`${pts} ${close}`}
+        stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinejoin="round" strokeOpacity={alpha} />;
+    }
+    case 'path':
+      return <path key={key} d={p.params.d}
+        stroke={color} strokeWidth={strokeWidth} fill="none" strokeLinecap="round" strokeLinejoin="round" strokeOpacity={alpha} />;
+    default:
+      return null;
+  }
+};
+
+const PrimitiveTile: React.FC<{d: VfxPatternDescriptor; color: string}> = ({d, color}) => {
+  const expanded = React.useMemo(() => {
+    if (!d.shapeSpec) return [];
+    return expandPrimitives(d.shapeSpec.primitives, d.shapeSpec.composition);
+  }, [d.shapeSpec]);
+
+  return (
+    <g>
+      {expanded.map((p, i) => renderPrimitive(p, color, d.strokeWidth, d.alpha, i))}
+    </g>
+  );
+};
+
 interface BandRect {
   key: number;
   x: number;
@@ -379,6 +569,16 @@ export const FrameCustom: React.FC<{
     }
     return out;
   }, [hasFrame, hasTop, hasBottom, hasCorners, b, W, H]);
+
+  if (spec.kind === 'custom-shape') {
+    return (
+      <AbsoluteFill style={{pointerEvents: 'none', opacity}}>
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%">
+          <PrimitiveTile d={spec} color={color} />
+        </svg>
+      </AbsoluteFill>
+    );
+  }
 
   return (
     <AbsoluteFill style={{pointerEvents: 'none', opacity}}>

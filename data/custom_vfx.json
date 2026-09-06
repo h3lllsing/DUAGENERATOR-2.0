@@ -1,0 +1,6682 @@
+{
+  "version": 2,
+  "patterns": [
+    {
+      "id": "girih-sigil",
+      "kind": "girih-band",
+      "tileSize": 150,
+      "strokeWidth": 1.4,
+      "colorToken": "accent",
+      "alpha": 0.5,
+      "zones": [
+        "frame",
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 7
+    },
+    {
+      "id": "arabesque-veil",
+      "kind": "arabesque-corners",
+      "tileSize": 120,
+      "strokeWidth": 1.6,
+      "colorToken": "glowColor",
+      "alpha": 0.6,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.45,
+      "bandSize": 84,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 3
+    },
+    {
+      "id": "royal-girih-frame",
+      "kind": "girih-band",
+      "tileSize": 64,
+      "strokeWidth": 2,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 180,
+      "breathAmpl": 0.08,
+      "seedSalt": 112,
+      "label": "Royal Girih Frame"
+    },
+    {
+      "id": "celestial-starfield-overlay",
+      "kind": "starfield-dots",
+      "tileSize": 48,
+      "strokeWidth": 1.2,
+      "colorToken": "particleColor",
+      "alpha": 0.4,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 72,
+      "breathFrames": 320,
+      "breathAmpl": 0.15,
+      "seedSalt": 512,
+      "label": "Celestial Starfield Overlay"
+    },
+    {
+      "id": "emerald-meander-border",
+      "kind": "meander-band",
+      "tileSize": 64,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#0F5257",
+      "alpha": 0.8,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 40,
+      "breathFrames": 120,
+      "breathAmpl": 0.05,
+      "seedSalt": 234,
+      "label": "Emerald Meander Border"
+    },
+    {
+      "id": "luminous-rosette-header",
+      "kind": "geometric-rosette",
+      "tileSize": 112,
+      "strokeWidth": 1.8,
+      "colorToken": "glowColor",
+      "alpha": 0.65,
+      "zones": [
+        "top",
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 90,
+      "breathFrames": 200,
+      "breathAmpl": 0.1,
+      "seedSalt": 888,
+      "label": "Luminous Rosette Header"
+    },
+    {
+      "id": "golden-pearl-bead-border",
+      "kind": "bead-band",
+      "tileSize": 32,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#D4AF37",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 150,
+      "breathAmpl": 0.08,
+      "seedSalt": 142,
+      "label": "Golden Pearl Bead Border"
+    },
+    {
+      "id": "ruby-arabesque-strip-header",
+      "kind": "arabesque-strip",
+      "tileSize": 80,
+      "strokeWidth": 1.6,
+      "colorToken": "solid",
+      "solidColor": "#9B111E",
+      "alpha": 0.7,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 633,
+      "label": "Ruby Arabesque Strip Header"
+    },
+    {
+      "id": "glow-girih-corner-accents",
+      "kind": "girih-corners",
+      "tileSize": 96,
+      "strokeWidth": 2.5,
+      "colorToken": "glowColor",
+      "alpha": 0.6,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 180,
+      "breathAmpl": 0.06,
+      "seedSalt": 721,
+      "label": "Glow Girih Corner Accents"
+    },
+    {
+      "id": "copper-meander-corners",
+      "kind": "meander-band",
+      "tileSize": 56,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#B87333",
+      "alpha": 0.8,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 44,
+      "breathFrames": 160,
+      "breathAmpl": 0.07,
+      "seedSalt": 409,
+      "label": "Copper Meander Corners"
+    },
+    {
+      "id": "obsidian-starfield-border",
+      "kind": "starfield-dots",
+      "tileSize": 40,
+      "strokeWidth": 1.4,
+      "colorToken": "particleColor",
+      "alpha": 0.5,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 300,
+      "breathAmpl": 0.18,
+      "seedSalt": 912,
+      "label": "Obsidian Starfield Border"
+    },
+    {
+      "id": "lapis-rosette-strip",
+      "kind": "geometric-rosette",
+      "tileSize": 120,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#26619C",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 220,
+      "breathAmpl": 0.11,
+      "seedSalt": 655,
+      "label": "Lapis Rosette Strip"
+    },
+    {
+      "id": "amethyst-girih-top-border",
+      "kind": "girih-band",
+      "tileSize": 88,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#9966CC",
+      "alpha": 0.8,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 240,
+      "breathAmpl": 0.1,
+      "seedSalt": 582,
+      "label": "Amethyst Girih Top Border"
+    },
+    {
+      "id": "golden-arabesque-frame",
+      "kind": "arabesque-strip",
+      "tileSize": 104,
+      "strokeWidth": 1.75,
+      "colorToken": "solid",
+      "solidColor": "#FFD700",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 76,
+      "breathFrames": 180,
+      "breathAmpl": 0.05,
+      "seedSalt": 349,
+      "label": "Golden Arabesque Frame"
+    },
+    {
+      "id": "glow-bead-corners",
+      "kind": "bead-band",
+      "tileSize": 40,
+      "strokeWidth": 2.2,
+      "colorToken": "glowColor",
+      "alpha": 0.7,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 160,
+      "breathAmpl": 0.08,
+      "seedSalt": 815,
+      "label": "Glow Bead Corners"
+    },
+    {
+      "id": "jade-arabesque-bottom-accent",
+      "kind": "arabesque-corners",
+      "tileSize": 96,
+      "strokeWidth": 1.9,
+      "colorToken": "solid",
+      "solidColor": "#00A86B",
+      "alpha": 0.75,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 68,
+      "breathFrames": 200,
+      "breathAmpl": 0.08,
+      "seedSalt": 477,
+      "label": "Jade Arabesque Bottom Accent"
+    },
+    {
+      "id": "crimson-bead-frame",
+      "kind": "bead-band",
+      "tileSize": 48,
+      "strokeWidth": 2.1,
+      "colorToken": "solid",
+      "solidColor": "#DC143C",
+      "alpha": 0.8,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 52,
+      "breathFrames": 140,
+      "breathAmpl": 0.05,
+      "seedSalt": 289,
+      "label": "Crimson Bead Frame"
+    },
+    {
+      "id": "twilight-starfield-ambient",
+      "kind": "starfield-dots",
+      "tileSize": 64,
+      "strokeWidth": 1.5,
+      "colorToken": "glowColor",
+      "alpha": 0.45,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 360,
+      "breathAmpl": 0.16,
+      "seedSalt": 950,
+      "label": "Twilight Starfield Ambient"
+    },
+    {
+      "id": "azure-rosette-frame-v2",
+      "kind": "geometric-rosette",
+      "tileSize": 128,
+      "strokeWidth": 2.5,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 402,
+      "label": "azure-rosette-frame-v2"
+    },
+    {
+      "id": "saphire-starfield-corners",
+      "kind": "starfield-dots",
+      "tileSize": 64,
+      "strokeWidth": 1,
+      "colorToken": "glowColor",
+      "alpha": 0.6,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 120,
+      "breathAmpl": 0.18,
+      "seedSalt": 881,
+      "label": "saphire-starfield-corners"
+    },
+    {
+      "id": "crimson-arabesque-corner-vibe",
+      "kind": "arabesque-corners",
+      "tileSize": 96,
+      "strokeWidth": 3.5,
+      "colorToken": "solid",
+      "solidColor": "#8B0000",
+      "alpha": 0.75,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 180,
+      "breathAmpl": 0.08,
+      "seedSalt": 512,
+      "label": "crimson-arabesque-corner-vibe"
+    },
+    {
+      "id": "golden-meander-top-trim",
+      "kind": "meander-band",
+      "tileSize": 48,
+      "strokeWidth": 1.5,
+      "colorToken": "particleColor",
+      "alpha": 0.5,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 32,
+      "breathFrames": 300,
+      "breathAmpl": 0.15,
+      "seedSalt": 219,
+      "label": "golden-meander-top-trim"
+    },
+    {
+      "id": "emerald-girih-bottom-band",
+      "kind": "girih-band",
+      "tileSize": 112,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#004D40",
+      "alpha": 0.8,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 56,
+      "breathFrames": 160,
+      "breathAmpl": 0.05,
+      "seedSalt": 734,
+      "label": "emerald-girih-bottom-band"
+    },
+    {
+      "id": "celestial-bead-top-trim",
+      "kind": "bead-band",
+      "tileSize": 32,
+      "strokeWidth": 1.25,
+      "colorToken": "glowColor",
+      "alpha": 0.65,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 40,
+      "breathFrames": 220,
+      "breathAmpl": 0.1,
+      "seedSalt": 915,
+      "label": "celestial-bead-top-trim"
+    },
+    {
+      "id": "ruby-arabesque-bottom-strip",
+      "kind": "arabesque-strip",
+      "tileSize": 64,
+      "strokeWidth": 2.25,
+      "colorToken": "solid",
+      "solidColor": "#990000",
+      "alpha": 0.7,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 72,
+      "breathFrames": 200,
+      "breathAmpl": 0.09,
+      "seedSalt": 623,
+      "label": "ruby-arabesque-bottom-strip"
+    },
+    {
+      "id": "amethyst-girih-corner-accents",
+      "kind": "girih-corners",
+      "tileSize": 144,
+      "strokeWidth": 4,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 150,
+      "breathAmpl": 0.14,
+      "seedSalt": 308,
+      "label": "amethyst-girih-corner-accents"
+    },
+    {
+      "id": "golden-meander-bottom-accent",
+      "kind": "meander-band",
+      "tileSize": 80,
+      "strokeWidth": 2.8,
+      "colorToken": "solid",
+      "solidColor": "#D4AF37",
+      "alpha": 0.78,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 210,
+      "breathAmpl": 0.07,
+      "seedSalt": 441,
+      "label": "golden-meander-bottom-accent"
+    },
+    {
+      "id": "copper-bead-top-header",
+      "kind": "bead-band",
+      "tileSize": 40,
+      "strokeWidth": 1.75,
+      "colorToken": "particleColor",
+      "alpha": 0.6,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 36,
+      "breathFrames": 190,
+      "breathAmpl": 0.11,
+      "seedSalt": 852,
+      "label": "copper-bead-top-header"
+    },
+    {
+      "id": "obsidian-rosette-corner-accents",
+      "kind": "geometric-rosette",
+      "tileSize": 160,
+      "strokeWidth": 3,
+      "colorToken": "solid",
+      "solidColor": "#1A1A1A",
+      "alpha": 0.9,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 104,
+      "breathFrames": 250,
+      "breathAmpl": 0.06,
+      "seedSalt": 578,
+      "label": "obsidian-rosette-corner-accents"
+    },
+    {
+      "id": "silver-starfield-bottom-veil",
+      "kind": "starfield-dots",
+      "tileSize": 48,
+      "strokeWidth": 0.8,
+      "colorToken": "glowColor",
+      "alpha": 0.55,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 44,
+      "breathFrames": 140,
+      "breathAmpl": 0.16,
+      "seedSalt": 932,
+      "label": "silver-starfield-bottom-veil"
+    },
+    {
+      "id": "teal-girih-top-strip",
+      "kind": "girih-band",
+      "tileSize": 88,
+      "strokeWidth": 2.6,
+      "colorToken": "solid",
+      "solidColor": "#005F73",
+      "alpha": 0.82,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 52,
+      "breathFrames": 220,
+      "breathAmpl": 0.08,
+      "seedSalt": 664,
+      "label": "teal-girih-top-strip"
+    },
+    {
+      "id": "bronze-arabesque-corners-v2",
+      "kind": "arabesque-corners",
+      "tileSize": 120,
+      "strokeWidth": 3.2,
+      "colorToken": "particleColor",
+      "alpha": 0.72,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 170,
+      "breathAmpl": 0.13,
+      "seedSalt": 489,
+      "label": "bronze-arabesque-corners-v2"
+    },
+    {
+      "id": "lapis-bead-bottom-strip",
+      "kind": "bead-band",
+      "tileSize": 56,
+      "strokeWidth": 2.1,
+      "colorToken": "solid",
+      "solidColor": "#1E3A8A",
+      "alpha": 0.88,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 230,
+      "breathAmpl": 0.06,
+      "seedSalt": 712,
+      "label": "lapis-bead-bottom-strip"
+    },
+    {
+      "id": "golden-rosette-top-banner",
+      "kind": "geometric-rosette",
+      "tileSize": 136,
+      "strokeWidth": 3.4,
+      "colorToken": "glowColor",
+      "alpha": 0.76,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 88,
+      "breathFrames": 175,
+      "breathAmpl": 0.12,
+      "seedSalt": 294,
+      "label": "golden-rosette-top-banner"
+    },
+    {
+      "id": "midnight-starfield-bottom-band",
+      "kind": "starfield-dots",
+      "tileSize": 64,
+      "strokeWidth": 1.2,
+      "colorToken": "particleColor",
+      "alpha": 0.62,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 52,
+      "breathFrames": 280,
+      "breathAmpl": 0.14,
+      "seedSalt": 841,
+      "label": "midnight-starfield-bottom-band"
+    },
+    {
+      "id": "ivory-girih-corner-accents",
+      "kind": "girih-corners",
+      "tileSize": 128,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#F5F5DC",
+      "alpha": 0.78,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 76,
+      "breathFrames": 165,
+      "breathAmpl": 0.09,
+      "seedSalt": 367,
+      "label": "ivory-girih-corner-accents"
+    },
+    {
+      "id": "crimson-meander-corner-accents",
+      "kind": "meander-band",
+      "tileSize": 112,
+      "strokeWidth": 3.8,
+      "colorToken": "solid",
+      "solidColor": "#7A0016",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 88,
+      "breathFrames": 195,
+      "breathAmpl": 0.11,
+      "seedSalt": 498,
+      "label": "crimson-meander-corner-accents"
+    },
+    {
+      "id": "golden-arabesque-top-banner",
+      "kind": "arabesque-strip",
+      "tileSize": 72,
+      "strokeWidth": 2.1,
+      "colorToken": "glowColor",
+      "alpha": 0.68,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 44,
+      "breathFrames": 240,
+      "breathAmpl": 0.07,
+      "seedSalt": 823,
+      "label": "golden-arabesque-top-banner"
+    },
+    {
+      "id": "sapphire-girih-corner-v2",
+      "kind": "girih-corners",
+      "tileSize": 104,
+      "strokeWidth": 2.75,
+      "colorToken": "solid",
+      "solidColor": "#002366",
+      "alpha": 0.84,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 72,
+      "breathFrames": 210,
+      "breathAmpl": 0.09,
+      "seedSalt": 771,
+      "label": "sapphire-girih-corner-v2"
+    },
+    {
+      "id": "emerald-arabesque-top-banner",
+      "kind": "arabesque-strip",
+      "tileSize": 80,
+      "strokeWidth": 1.9,
+      "colorToken": "particleColor",
+      "alpha": 0.64,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 185,
+      "breathAmpl": 0.12,
+      "seedSalt": 349,
+      "label": "emerald-arabesque-top-banner"
+    },
+    {
+      "id": "copper-rosette-bottom-border",
+      "kind": "geometric-rosette",
+      "tileSize": 112,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#B87333",
+      "alpha": 0.76,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 68,
+      "breathFrames": 260,
+      "breathAmpl": 0.08,
+      "seedSalt": 541,
+      "label": "copper-rosette-bottom-border"
+    },
+    {
+      "id": "amethyst-bead-corner-accents",
+      "kind": "bead-band",
+      "tileSize": 48,
+      "strokeWidth": 1.6,
+      "colorToken": "glowColor",
+      "alpha": 0.68,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 56,
+      "breathFrames": 145,
+      "breathAmpl": 0.13,
+      "seedSalt": 907,
+      "label": "amethyst-bead-corner-accents"
+    },
+    {
+      "id": "onyx-meander-bottom-trim",
+      "kind": "meander-band",
+      "tileSize": 72,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#353839",
+      "alpha": 0.75,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 54,
+      "breathFrames": 200,
+      "breathAmpl": 0.08,
+      "seedSalt": 743,
+      "label": "Onyx Meander Bottom Trim"
+    },
+    {
+      "id": "indigo-arabesque-frame-border",
+      "kind": "arabesque-strip",
+      "tileSize": 88,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#4B0082",
+      "alpha": 0.8,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 220,
+      "breathAmpl": 0.07,
+      "seedSalt": 311,
+      "label": "Indigo Arabesque Frame Border"
+    },
+    {
+      "id": "pearl-bead-top-header",
+      "kind": "bead-band",
+      "tileSize": 64,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#F0E68C",
+      "alpha": 0.82,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 50,
+      "breathFrames": 210,
+      "breathAmpl": 0.08,
+      "seedSalt": 732,
+      "label": "pearl-bead-top-header"
+    },
+    {
+      "id": "turquoise-rosette-corner-trim",
+      "kind": "geometric-rosette",
+      "tileSize": 140,
+      "strokeWidth": 3.1,
+      "colorToken": "accent",
+      "alpha": 0.74,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 82,
+      "breathFrames": 180,
+      "breathAmpl": 0.11,
+      "seedSalt": 419,
+      "label": "turquoise-rosette-corner-trim"
+    },
+    {
+      "id": "sapphire-starfield-top-header",
+      "kind": "starfield-dots",
+      "tileSize": 64,
+      "strokeWidth": 1.2,
+      "colorToken": "glowColor",
+      "alpha": 0.45,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 742,
+      "label": "Sapphire Starfield Top Header"
+    },
+    {
+      "id": "ruby-girih-frame-accent",
+      "kind": "girih-corners",
+      "tileSize": 128,
+      "strokeWidth": 2.5,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 110,
+      "breathFrames": 180,
+      "breathAmpl": 0.08,
+      "seedSalt": 319,
+      "label": "Ruby Girih Frame Accent"
+    },
+    {
+      "id": "topaz-arabesque-corners-accent",
+      "kind": "arabesque-corners",
+      "tileSize": 96,
+      "strokeWidth": 1.8,
+      "colorToken": "accent",
+      "alpha": 0.7,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 300,
+      "breathAmpl": 0.05,
+      "seedSalt": 512,
+      "label": "Topaz Arabesque Corners Accent"
+    },
+    {
+      "id": "obsidian-meander-frame",
+      "kind": "meander-band",
+      "tileSize": 48,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#1A1A1A",
+      "alpha": 0.9,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 40,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 888,
+      "label": "Obsidian Meander Frame"
+    },
+    {
+      "id": "amber-rosette-strip-header",
+      "kind": "geometric-rosette",
+      "tileSize": 112,
+      "strokeWidth": 2.2,
+      "colorToken": "glowColor",
+      "alpha": 0.65,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 75,
+      "breathFrames": 200,
+      "breathAmpl": 0.09,
+      "seedSalt": 633,
+      "label": "Amber Rosette Strip Header"
+    },
+    {
+      "id": "garnet-girih-bottom-accent",
+      "kind": "girih-band",
+      "tileSize": 80,
+      "strokeWidth": 1.5,
+      "colorToken": "particleColor",
+      "alpha": 0.8,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 95,
+      "breathFrames": 150,
+      "breathAmpl": 0.14,
+      "seedSalt": 921,
+      "label": "Garnet Girih Bottom Accent"
+    },
+    {
+      "id": "emerald-meander-bottom-trim",
+      "kind": "meander-band",
+      "tileSize": 64,
+      "strokeWidth": 1.6,
+      "colorToken": "accent",
+      "alpha": 0.75,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 85,
+      "breathFrames": 220,
+      "breathAmpl": 0.07,
+      "seedSalt": 404,
+      "label": "Emerald Meander Bottom Trim"
+    },
+    {
+      "id": "bronze-girih-top-banner",
+      "kind": "girih-band",
+      "tileSize": 140,
+      "strokeWidth": 2.8,
+      "colorToken": "solid",
+      "solidColor": "#CD7F32",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 105,
+      "breathFrames": 160,
+      "breathAmpl": 0.11,
+      "seedSalt": 178,
+      "label": "Bronze Girih Top Banner"
+    },
+    {
+      "id": "silver-arabesque-top-trim",
+      "kind": "arabesque-strip",
+      "tileSize": 88,
+      "strokeWidth": 1.4,
+      "colorToken": "particleColor",
+      "alpha": 0.6,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 55,
+      "breathFrames": 250,
+      "breathAmpl": 0.06,
+      "seedSalt": 789,
+      "label": "Silver Arabesque Top Trim"
+    },
+    {
+      "id": "quartz-bead-bottom-accent",
+      "kind": "bead-band",
+      "tileSize": 52,
+      "strokeWidth": 2.1,
+      "colorToken": "solid",
+      "solidColor": "#E0E0E0",
+      "alpha": 0.8,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 70,
+      "breathFrames": 170,
+      "breathAmpl": 0.1,
+      "seedSalt": 345,
+      "label": "Quartz Bead Bottom Accent"
+    },
+    {
+      "id": "celestial-meander-header-v3",
+      "kind": "meander-band",
+      "tileSize": 96,
+      "strokeWidth": 2.5,
+      "colorToken": "glowColor",
+      "alpha": 0.65,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 742,
+      "label": "celestial-meander-header-v3"
+    },
+    {
+      "id": "sapphire-rosette-bottom-trim-v3",
+      "kind": "geometric-rosette",
+      "tileSize": 128,
+      "strokeWidth": 1.8,
+      "colorToken": "solid",
+      "solidColor": "#1E3A8A",
+      "alpha": 0.8,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 180,
+      "breathAmpl": 0.08,
+      "seedSalt": 519,
+      "label": "sapphire-rosette-bottom-trim-v3"
+    },
+    {
+      "id": "emerald-arabesque-corner-trim-v4",
+      "kind": "arabesque-corners",
+      "tileSize": 112,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#059669",
+      "alpha": 0.75,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 72,
+      "breathFrames": 200,
+      "breathAmpl": 0.1,
+      "seedSalt": 831,
+      "label": "emerald-arabesque-corner-trim-v4"
+    },
+    {
+      "id": "golden-girih-header-banner-v4",
+      "kind": "girih-band",
+      "tileSize": 144,
+      "strokeWidth": 3,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 300,
+      "breathAmpl": 0.15,
+      "seedSalt": 912,
+      "label": "golden-girih-header-banner-v4"
+    },
+    {
+      "id": "ruby-starfield-corner-dots-v5",
+      "kind": "starfield-dots",
+      "tileSize": 64,
+      "strokeWidth": 1.2,
+      "colorToken": "solid",
+      "solidColor": "#991B1B",
+      "alpha": 0.7,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 150,
+      "breathAmpl": 0.05,
+      "seedSalt": 341,
+      "label": "ruby-starfield-corner-dots-v5"
+    },
+    {
+      "id": "amber-bead-frame-border-v5",
+      "kind": "bead-band",
+      "tileSize": 80,
+      "strokeWidth": 2,
+      "colorToken": "particleColor",
+      "alpha": 0.9,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 56,
+      "breathFrames": 220,
+      "breathAmpl": 0.12,
+      "seedSalt": 607,
+      "label": "amber-bead-frame-border-v5"
+    },
+    {
+      "id": "royal-onyx-girih-band-v6",
+      "kind": "girih-band",
+      "tileSize": 160,
+      "strokeWidth": 3.5,
+      "colorToken": "solid",
+      "solidColor": "#D97706",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 112,
+      "breathFrames": 320,
+      "breathAmpl": 0.14,
+      "seedSalt": 888,
+      "label": "royal-onyx-girih-band-v6"
+    },
+    {
+      "id": "velvet-meander-frame-v6",
+      "kind": "meander-band",
+      "tileSize": 120,
+      "strokeWidth": 2.8,
+      "colorToken": "accent",
+      "alpha": 0.78,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 260,
+      "breathAmpl": 0.09,
+      "seedSalt": 454,
+      "label": "velvet-meander-frame-v6"
+    },
+    {
+      "id": "imperial-jade-girih-corners-v7",
+      "kind": "girih-corners",
+      "tileSize": 112,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#065F46",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 76,
+      "breathFrames": 280,
+      "breathAmpl": 0.11,
+      "seedSalt": 777,
+      "label": "imperial-jade-girih-corners-v7"
+    },
+    {
+      "id": "celestial-arabesque-top-strip-v7",
+      "kind": "arabesque-strip",
+      "tileSize": 136,
+      "strokeWidth": 3.2,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 104,
+      "breathFrames": 340,
+      "breathAmpl": 0.16,
+      "seedSalt": 951,
+      "label": "celestial-arabesque-top-strip-v7"
+    },
+    {
+      "id": "regal-emerald-girih-band-v8",
+      "kind": "girih-band",
+      "tileSize": 152,
+      "strokeWidth": 3.4,
+      "colorToken": "solid",
+      "solidColor": "#047857",
+      "alpha": 0.86,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 108,
+      "breathFrames": 310,
+      "breathAmpl": 0.13,
+      "seedSalt": 812,
+      "label": "regal-emerald-girih-band-v8"
+    },
+    {
+      "id": "golden-sultan-rosette-corners-v8",
+      "kind": "geometric-rosette",
+      "tileSize": 120,
+      "strokeWidth": 2.6,
+      "colorToken": "accent",
+      "alpha": 0.8,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 250,
+      "breathAmpl": 0.1,
+      "seedSalt": 634,
+      "label": "golden-sultan-rosette-corners-v8"
+    },
+    {
+      "id": "blazing-amber-fire-corners-v9",
+      "kind": "girih-corners",
+      "tileSize": 128,
+      "strokeWidth": 3.2,
+      "colorToken": "solid",
+      "solidColor": "#D97706",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 88,
+      "breathFrames": 180,
+      "breathAmpl": 0.18,
+      "seedSalt": 999,
+      "label": "blazing-amber-fire-corners-v9"
+    },
+    {
+      "id": "crimson-flame-strip-header-v9",
+      "kind": "arabesque-strip",
+      "tileSize": 144,
+      "strokeWidth": 3.6,
+      "colorToken": "glowColor",
+      "alpha": 0.9,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 112,
+      "breathFrames": 220,
+      "breathAmpl": 0.22,
+      "seedSalt": 888,
+      "label": "crimson-flame-strip-header-v9"
+    },
+    {
+      "id": "golden-ember-starfield-corners-v10",
+      "kind": "starfield-dots",
+      "tileSize": 80,
+      "strokeWidth": 1.5,
+      "colorToken": "solid",
+      "solidColor": "#F59E0B",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 52,
+      "breathFrames": 160,
+      "breathAmpl": 0.15,
+      "seedSalt": 743,
+      "label": "golden-ember-starfield-corners-v10"
+    },
+    {
+      "id": "ruby-blaze-rosette-bottom-v10",
+      "kind": "geometric-rosette",
+      "tileSize": 136,
+      "strokeWidth": 2.8,
+      "colorToken": "accent",
+      "alpha": 0.88,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 92,
+      "breathFrames": 210,
+      "breathAmpl": 0.2,
+      "seedSalt": 815,
+      "label": "ruby-blaze-rosette-bottom-v10"
+    },
+    {
+      "id": "golden-spark-meander-header-v11",
+      "kind": "meander-band",
+      "tileSize": 112,
+      "strokeWidth": 2.6,
+      "colorToken": "solid",
+      "solidColor": "#F59E0B",
+      "alpha": 0.86,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 190,
+      "breathAmpl": 0.16,
+      "seedSalt": 921,
+      "label": "golden-spark-meander-header-v11"
+    },
+    {
+      "id": "blazing-copper-bead-corners-v11",
+      "kind": "bead-band",
+      "tileSize": 96,
+      "strokeWidth": 2.2,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 68,
+      "breathFrames": 230,
+      "breathAmpl": 0.21,
+      "seedSalt": 612,
+      "label": "blazing-copper-bead-corners-v11"
+    },
+    {
+      "id": "secret-emerald-girih-band-v12",
+      "kind": "girih-band",
+      "tileSize": 176,
+      "strokeWidth": 2.9,
+      "colorToken": "solid",
+      "solidColor": "#064E3B",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 118,
+      "breathFrames": 360,
+      "breathAmpl": 0.14,
+      "seedSalt": 948,
+      "label": "secret-emerald-girih-band-v12"
+    },
+    {
+      "id": "mystic-lapis-arabesque-corners-v12",
+      "kind": "arabesque-corners",
+      "tileSize": 108,
+      "strokeWidth": 2.1,
+      "colorToken": "glowColor",
+      "alpha": 0.84,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 78,
+      "breathFrames": 270,
+      "breathAmpl": 0.17,
+      "seedSalt": 532,
+      "label": "mystic-lapis-arabesque-corners-v12"
+    },
+    {
+      "id": "bright-crystal-rosette-header-v13",
+      "kind": "geometric-rosette",
+      "tileSize": 140,
+      "strokeWidth": 3,
+      "colorToken": "solid",
+      "solidColor": "#FBBF24",
+      "alpha": 0.95,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 100,
+      "breathFrames": 200,
+      "breathAmpl": 0.22,
+      "seedSalt": 888,
+      "label": "bright-crystal-rosette-header-v13"
+    },
+    {
+      "id": "radiant-starfield-corners-v13",
+      "kind": "starfield-dots",
+      "tileSize": 72,
+      "strokeWidth": 1.8,
+      "colorToken": "glowColor",
+      "alpha": 0.9,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 56,
+      "breathFrames": 140,
+      "breathAmpl": 0.25,
+      "seedSalt": 777,
+      "label": "radiant-starfield-corners-v13"
+    },
+    {
+      "id": "frost-crystal-girih-corners-v14",
+      "kind": "girih-corners",
+      "tileSize": 120,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#38BDF8",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 404,
+      "label": "frost-crystal-girih-corners-v14"
+    },
+    {
+      "id": "arctic-starfield-dots-header-v14",
+      "kind": "starfield-dots",
+      "tileSize": 88,
+      "strokeWidth": 1.6,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 180,
+      "breathAmpl": 0.15,
+      "seedSalt": 512,
+      "label": "arctic-starfield-dots-header-v14"
+    },
+    {
+      "id": "icy-snowflake-girih-band-v15",
+      "kind": "girih-band",
+      "tileSize": 136,
+      "strokeWidth": 2.5,
+      "colorToken": "solid",
+      "solidColor": "#7DD3FC",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 92,
+      "breathFrames": 260,
+      "breathAmpl": 0.14,
+      "seedSalt": 618,
+      "label": "icy-snowflake-girih-band-v15"
+    },
+    {
+      "id": "frostbite-meander-corners-v15",
+      "kind": "meander-band",
+      "tileSize": 104,
+      "strokeWidth": 1.9,
+      "colorToken": "glowColor",
+      "alpha": 0.8,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 72,
+      "breathFrames": 200,
+      "breathAmpl": 0.1,
+      "seedSalt": 309,
+      "label": "frostbite-meander-corners-v15"
+    },
+    {
+      "id": "thunder-bolt-girih-band-v16",
+      "kind": "girih-band",
+      "tileSize": 144,
+      "strokeWidth": 3.2,
+      "colorToken": "solid",
+      "solidColor": "#0EA5E9",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 98,
+      "breathFrames": 160,
+      "breathAmpl": 0.22,
+      "seedSalt": 911,
+      "label": "thunder-bolt-girih-band-v16"
+    },
+    {
+      "id": "tempest-starfield-corners-v16",
+      "kind": "starfield-dots",
+      "tileSize": 80,
+      "strokeWidth": 1.8,
+      "colorToken": "glowColor",
+      "alpha": 0.84,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 58,
+      "breathFrames": 120,
+      "breathAmpl": 0.24,
+      "seedSalt": 703,
+      "label": "tempest-starfield-corners-v16"
+    },
+    {
+      "id": "raging-ocean-wave-strip-v17",
+      "kind": "arabesque-strip",
+      "tileSize": 140,
+      "strokeWidth": 3.4,
+      "colorToken": "solid",
+      "solidColor": "#0284C7",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 102,
+      "breathFrames": 170,
+      "breathAmpl": 0.22,
+      "seedSalt": 842,
+      "label": "raging-ocean-wave-strip-v17"
+    },
+    {
+      "id": "river-torrent-meander-corners-v17",
+      "kind": "meander-band",
+      "tileSize": 112,
+      "strokeWidth": 2.6,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 78,
+      "breathFrames": 140,
+      "breathAmpl": 0.19,
+      "seedSalt": 639,
+      "label": "river-torrent-meander-corners-v17"
+    },
+    {
+      "id": "sacred-meander-header-v18",
+      "kind": "meander-band",
+      "tileSize": 128,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#10B981",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 90,
+      "breathFrames": 280,
+      "breathAmpl": 0.12,
+      "seedSalt": 753,
+      "label": "sacred-meander-header-v18"
+    },
+    {
+      "id": "devotional-bead-corners-v18",
+      "kind": "bead-band",
+      "tileSize": 96,
+      "strokeWidth": 2,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 66,
+      "breathFrames": 210,
+      "breathAmpl": 0.14,
+      "seedSalt": 482,
+      "label": "devotional-bead-corners-v18"
+    },
+    {
+      "id": "forgiveness-meander-header-v19",
+      "kind": "meander-band",
+      "tileSize": 132,
+      "strokeWidth": 2.3,
+      "colorToken": "solid",
+      "solidColor": "#059669",
+      "alpha": 0.86,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 88,
+      "breathFrames": 290,
+      "breathAmpl": 0.11,
+      "seedSalt": 827,
+      "label": "forgiveness-meander-header-v19"
+    },
+    {
+      "id": "mercy-bead-corners-v19",
+      "kind": "bead-band",
+      "tileSize": 100,
+      "strokeWidth": 1.9,
+      "colorToken": "glowColor",
+      "alpha": 0.8,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 230,
+      "breathAmpl": 0.13,
+      "seedSalt": 391,
+      "label": "mercy-bead-corners-v19"
+    },
+    {
+      "id": "ramadan-lantern-girih-band-v20",
+      "kind": "girih-band",
+      "tileSize": 148,
+      "strokeWidth": 3.1,
+      "colorToken": "solid",
+      "solidColor": "#D97706",
+      "alpha": 0.89,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 102,
+      "breathFrames": 250,
+      "breathAmpl": 0.15,
+      "seedSalt": 852,
+      "label": "ramadan-lantern-girih-band-v20"
+    },
+    {
+      "id": "crescent-arabesque-corners-v20",
+      "kind": "arabesque-corners",
+      "tileSize": 116,
+      "strokeWidth": 2.3,
+      "colorToken": "glowColor",
+      "alpha": 0.84,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 82,
+      "breathFrames": 210,
+      "breathAmpl": 0.18,
+      "seedSalt": 624,
+      "label": "crescent-arabesque-corners-v20"
+    },
+    {
+      "id": "sacred-kaaba-girih-header-v21",
+      "kind": "girih-band",
+      "tileSize": 156,
+      "strokeWidth": 3.2,
+      "colorToken": "solid",
+      "solidColor": "#D97706",
+      "alpha": 0.9,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 110,
+      "breathFrames": 280,
+      "breathAmpl": 0.12,
+      "seedSalt": 933,
+      "label": "sacred-kaaba-girih-header-v21"
+    },
+    {
+      "id": "pilgrimage-rosette-corners-v21",
+      "kind": "geometric-rosette",
+      "tileSize": 124,
+      "strokeWidth": 2.5,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 220,
+      "breathAmpl": 0.15,
+      "seedSalt": 714,
+      "label": "pilgrimage-rosette-corners-v21"
+    },
+    {
+      "id": "sanctuary-girih-band-v22",
+      "kind": "girih-band",
+      "tileSize": 160,
+      "strokeWidth": 2.8,
+      "colorToken": "solid",
+      "solidColor": "#0D9488",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 104,
+      "breathFrames": 260,
+      "breathAmpl": 0.12,
+      "seedSalt": 844,
+      "label": "sanctuary-girih-band-v22"
+    },
+    {
+      "id": "minaret-arabesque-corners-v22",
+      "kind": "arabesque-corners",
+      "tileSize": 118,
+      "strokeWidth": 2.2,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 78,
+      "breathFrames": 200,
+      "breathAmpl": 0.14,
+      "seedSalt": 655,
+      "label": "minaret-arabesque-corners-v22"
+    },
+    {
+      "id": "submissive-devotion-girih-band-v23",
+      "kind": "girih-band",
+      "tileSize": 150,
+      "strokeWidth": 2.7,
+      "colorToken": "solid",
+      "solidColor": "#047857",
+      "alpha": 0.87,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 100,
+      "breathFrames": 270,
+      "breathAmpl": 0.11,
+      "seedSalt": 891,
+      "label": "submissive-devotion-girih-band-v23"
+    },
+    {
+      "id": "humble-servant-bead-corners-v23",
+      "kind": "bead-band",
+      "tileSize": 92,
+      "strokeWidth": 1.8,
+      "colorToken": "glowColor",
+      "alpha": 0.81,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 62,
+      "breathFrames": 210,
+      "breathAmpl": 0.13,
+      "seedSalt": 542,
+      "label": "humble-servant-bead-corners-v23"
+    },
+    {
+      "id": "tranquil-oasis-meander-top-v24",
+      "kind": "meander-band",
+      "tileSize": 138,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#065F46",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 94,
+      "breathFrames": 320,
+      "breathAmpl": 0.08,
+      "seedSalt": 771,
+      "label": "tranquil-oasis-meander-top-v24"
+    },
+    {
+      "id": "serene-calm-bead-corners-v24",
+      "kind": "bead-band",
+      "tileSize": 88,
+      "strokeWidth": 1.7,
+      "colorToken": "glowColor",
+      "alpha": 0.78,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 240,
+      "breathAmpl": 0.1,
+      "seedSalt": 439,
+      "label": "serene-calm-bead-corners-v24"
+    },
+    {
+      "id": "family-kinship-girih-band-v25",
+      "kind": "girih-band",
+      "tileSize": 152,
+      "strokeWidth": 2.6,
+      "colorToken": "solid",
+      "solidColor": "#059669",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 300,
+      "breathAmpl": 0.1,
+      "seedSalt": 918,
+      "label": "family-kinship-girih-band-v25"
+    },
+    {
+      "id": "parents-blessing-bead-corners-v25",
+      "kind": "bead-band",
+      "tileSize": 94,
+      "strokeWidth": 1.9,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 220,
+      "breathAmpl": 0.12,
+      "seedSalt": 517,
+      "label": "parents-blessing-bead-corners-v25"
+    },
+    {
+      "id": "lunar-crescent-girih-band-v26",
+      "kind": "girih-band",
+      "tileSize": 148,
+      "strokeWidth": 2.8,
+      "colorToken": "solid",
+      "solidColor": "#38BDF8",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 98,
+      "breathFrames": 280,
+      "breathAmpl": 0.12,
+      "seedSalt": 931,
+      "label": "lunar-crescent-girih-band-v26"
+    },
+    {
+      "id": "moonlight-starfield-corners-v26",
+      "kind": "starfield-dots",
+      "tileSize": 76,
+      "strokeWidth": 1.7,
+      "colorToken": "glowColor",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 54,
+      "breathFrames": 180,
+      "breathAmpl": 0.16,
+      "seedSalt": 642,
+      "label": "moonlight-starfield-corners-v26"
+    },
+    {
+      "id": "cosmic-galaxy-starfield-v27",
+      "kind": "starfield-dots",
+      "tileSize": 96,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#818CF8",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 108,
+      "breathFrames": 220,
+      "breathAmpl": 0.2,
+      "seedSalt": 881,
+      "label": "cosmic-galaxy-starfield-v27"
+    },
+    {
+      "id": "astral-crescent-rosette-corners-v27",
+      "kind": "geometric-rosette",
+      "tileSize": 130,
+      "strokeWidth": 2.6,
+      "colorToken": "glowColor",
+      "alpha": 0.86,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 86,
+      "breathFrames": 190,
+      "breathAmpl": 0.17,
+      "seedSalt": 552,
+      "label": "astral-crescent-rosette-corners-v27"
+    },
+    {
+      "id": "starlight-orbit-header-v28",
+      "kind": "starfield-dots",
+      "tileSize": 110,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#A855F7",
+      "alpha": 0.94,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 112,
+      "breathFrames": 240,
+      "breathAmpl": 0.22,
+      "seedSalt": 955,
+      "label": "starlight-orbit-header-v28"
+    },
+    {
+      "id": "celestial-sphere-rosette-corners-v28",
+      "kind": "geometric-rosette",
+      "tileSize": 138,
+      "strokeWidth": 2.8,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 90,
+      "breathFrames": 200,
+      "breathAmpl": 0.18,
+      "seedSalt": 633,
+      "label": "celestial-sphere-rosette-corners-v28"
+    },
+    {
+      "id": "starlight-constellation-header-v29",
+      "kind": "starfield-dots",
+      "tileSize": 116,
+      "strokeWidth": 2.5,
+      "colorToken": "solid",
+      "solidColor": "#38BDF8",
+      "alpha": 0.95,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 116,
+      "breathFrames": 230,
+      "breathAmpl": 0.2,
+      "seedSalt": 988,
+      "label": "starlight-constellation-header-v29"
+    },
+    {
+      "id": "astral-nebula-rosette-corners-v29",
+      "kind": "geometric-rosette",
+      "tileSize": 142,
+      "strokeWidth": 2.9,
+      "colorToken": "glowColor",
+      "alpha": 0.9,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 94,
+      "breathFrames": 195,
+      "breathAmpl": 0.19,
+      "seedSalt": 677,
+      "label": "astral-nebula-rosette-corners-v29"
+    },
+    {
+      "id": "dynamic-motion-girih-band-v30",
+      "kind": "girih-band",
+      "tileSize": 150,
+      "strokeWidth": 3,
+      "colorToken": "solid",
+      "solidColor": "#EC4899",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 110,
+      "breathFrames": 140,
+      "breathAmpl": 0.25,
+      "seedSalt": 999,
+      "label": "dynamic-motion-girih-band-v30"
+    },
+    {
+      "id": "kinetic-pulse-rosette-corners-v30",
+      "kind": "geometric-rosette",
+      "tileSize": 135,
+      "strokeWidth": 2.7,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 88,
+      "breathFrames": 110,
+      "breathAmpl": 0.22,
+      "seedSalt": 888,
+      "label": "kinetic-pulse-rosette-corners-v30"
+    },
+    {
+      "id": "antique-archival-meander-header-v31",
+      "kind": "meander-band",
+      "tileSize": 142,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#854D0E",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 310,
+      "breathAmpl": 0.09,
+      "seedSalt": 741,
+      "label": "antique-archival-meander-header-v31"
+    },
+    {
+      "id": "vintage-heritage-arabesque-corners-v31",
+      "kind": "arabesque-corners",
+      "tileSize": 110,
+      "strokeWidth": 2,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 74,
+      "breathFrames": 250,
+      "breathAmpl": 0.11,
+      "seedSalt": 532,
+      "label": "vintage-heritage-arabesque-corners-v31"
+    },
+    {
+      "id": "volcanic-magma-girih-band-v32",
+      "kind": "girih-band",
+      "tileSize": 154,
+      "strokeWidth": 3.2,
+      "colorToken": "solid",
+      "solidColor": "#DC2626",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 108,
+      "breathFrames": 160,
+      "breathAmpl": 0.22,
+      "seedSalt": 962,
+      "label": "volcanic-magma-girih-band-v32"
+    },
+    {
+      "id": "molten-lava-rosette-corners-v32",
+      "kind": "geometric-rosette",
+      "tileSize": 128,
+      "strokeWidth": 2.6,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 86,
+      "breathFrames": 130,
+      "breathAmpl": 0.2,
+      "seedSalt": 735,
+      "label": "molten-lava-rosette-corners-v32"
+    },
+    {
+      "id": "magmatic-flare-girih-band-v33",
+      "kind": "girih-band",
+      "tileSize": 158,
+      "strokeWidth": 3.4,
+      "colorToken": "solid",
+      "solidColor": "#EF4444",
+      "alpha": 0.94,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 112,
+      "breathFrames": 150,
+      "breathAmpl": 0.24,
+      "seedSalt": 977,
+      "label": "magmatic-flare-girih-band-v33"
+    },
+    {
+      "id": "searing-ash-starfield-corners-v33",
+      "kind": "starfield-dots",
+      "tileSize": 90,
+      "strokeWidth": 2.1,
+      "colorToken": "glowColor",
+      "alpha": 0.9,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 68,
+      "breathFrames": 120,
+      "breathAmpl": 0.22,
+      "seedSalt": 789,
+      "label": "searing-ash-starfield-corners-v33"
+    },
+    {
+      "id": "avian-flight-arabesque-strip-v34",
+      "kind": "arabesque-strip",
+      "tileSize": 140,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#0284C7",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 98,
+      "breathFrames": 280,
+      "breathAmpl": 0.14,
+      "seedSalt": 912,
+      "label": "avian-flight-arabesque-strip-v34"
+    },
+    {
+      "id": "feather-light-bead-corners-v34",
+      "kind": "bead-band",
+      "tileSize": 86,
+      "strokeWidth": 1.6,
+      "colorToken": "glowColor",
+      "alpha": 0.8,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 58,
+      "breathFrames": 210,
+      "breathAmpl": 0.12,
+      "seedSalt": 643,
+      "label": "feather-light-bead-corners-v34"
+    },
+    {
+      "id": "submerged-ocean-arabesque-strip-v35",
+      "kind": "arabesque-strip",
+      "tileSize": 144,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#0D9488",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 102,
+      "breathFrames": 290,
+      "breathAmpl": 0.15,
+      "seedSalt": 923,
+      "label": "submerged-ocean-arabesque-strip-v35"
+    },
+    {
+      "id": "coral-reef-rosette-corners-v35",
+      "kind": "geometric-rosette",
+      "tileSize": 120,
+      "strokeWidth": 2.1,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 76,
+      "breathFrames": 220,
+      "breathAmpl": 0.14,
+      "seedSalt": 671,
+      "label": "coral-reef-rosette-corners-v35"
+    },
+    {
+      "id": "aquamarine-marine-strip-v36",
+      "kind": "arabesque-strip",
+      "tileSize": 148,
+      "strokeWidth": 2.5,
+      "colorToken": "solid",
+      "solidColor": "#0EA5E9",
+      "alpha": 0.9,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 104,
+      "breathFrames": 270,
+      "breathAmpl": 0.16,
+      "seedSalt": 944,
+      "label": "aquamarine-marine-strip-v36"
+    },
+    {
+      "id": "emerald-lagoon-rosette-corners-v36",
+      "kind": "geometric-rosette",
+      "tileSize": 124,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#10B981",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 78,
+      "breathFrames": 210,
+      "breathAmpl": 0.15,
+      "seedSalt": 688,
+      "label": "emerald-lagoon-rosette-corners-v36"
+    },
+    {
+      "id": "cyan-emerald-wave-strip-v37",
+      "kind": "arabesque-strip",
+      "tileSize": 150,
+      "strokeWidth": 2.7,
+      "colorToken": "solid",
+      "solidColor": "#06B6D4",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 106,
+      "breathFrames": 260,
+      "breathAmpl": 0.17,
+      "seedSalt": 951,
+      "label": "cyan-emerald-wave-strip-v37"
+    },
+    {
+      "id": "teal-marine-rosette-corners-v37",
+      "kind": "geometric-rosette",
+      "tileSize": 126,
+      "strokeWidth": 2.3,
+      "colorToken": "glowColor",
+      "alpha": 0.86,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 205,
+      "breathAmpl": 0.16,
+      "seedSalt": 699,
+      "label": "teal-marine-rosette-corners-v37"
+    },
+    {
+      "id": "obsidian-shadow-girih-band-v38",
+      "kind": "girih-band",
+      "tileSize": 156,
+      "strokeWidth": 2.8,
+      "colorToken": "solid",
+      "solidColor": "#1E293B",
+      "alpha": 0.94,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 108,
+      "breathFrames": 280,
+      "breathAmpl": 0.12,
+      "seedSalt": 982,
+      "label": "obsidian-shadow-girih-band-v38"
+    },
+    {
+      "id": "midnight-gothic-rosette-corners-v38",
+      "kind": "geometric-rosette",
+      "tileSize": 132,
+      "strokeWidth": 2.4,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 82,
+      "breathFrames": 220,
+      "breathAmpl": 0.14,
+      "seedSalt": 714,
+      "label": "midnight-gothic-rosette-corners-v38"
+    },
+    {
+      "id": "calligraphic-manuscript-meander-v39",
+      "kind": "meander-band",
+      "tileSize": 136,
+      "strokeWidth": 2.1,
+      "colorToken": "solid",
+      "solidColor": "#78350F",
+      "alpha": 0.86,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 92,
+      "breathFrames": 320,
+      "breathAmpl": 0.08,
+      "seedSalt": 753,
+      "label": "calligraphic-manuscript-meander-v39"
+    },
+    {
+      "id": "handwritten-script-bead-corners-v39",
+      "kind": "bead-band",
+      "tileSize": 90,
+      "strokeWidth": 1.7,
+      "colorToken": "glowColor",
+      "alpha": 0.8,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 62,
+      "breathFrames": 240,
+      "breathAmpl": 0.1,
+      "seedSalt": 512,
+      "label": "handwritten-script-bead-corners-v39"
+    },
+    {
+      "id": "makkah-kaaba-girih-top-v40",
+      "kind": "girih-band",
+      "tileSize": 160,
+      "strokeWidth": 3,
+      "colorToken": "solid",
+      "solidColor": "#D97706",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 104,
+      "breathFrames": 280,
+      "breathAmpl": 0.12,
+      "seedSalt": 941,
+      "label": "makkah-kaaba-girih-top-v40"
+    },
+    {
+      "id": "sanctuary-golden-rosette-corners-v40",
+      "kind": "geometric-rosette",
+      "tileSize": 134,
+      "strokeWidth": 2.5,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 210,
+      "breathAmpl": 0.14,
+      "seedSalt": 625,
+      "label": "sanctuary-golden-rosette-corners-v40"
+    },
+    {
+      "id": "spring-blossom-arabesque-strip-v41",
+      "kind": "arabesque-strip",
+      "tileSize": 146,
+      "strokeWidth": 2.3,
+      "colorToken": "solid",
+      "solidColor": "#F472B6",
+      "alpha": 0.9,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 102,
+      "breathFrames": 260,
+      "breathAmpl": 0.18,
+      "seedSalt": 932,
+      "label": "spring-blossom-arabesque-strip-v41"
+    },
+    {
+      "id": "sakura-petal-rosette-corners-v41",
+      "kind": "geometric-rosette",
+      "tileSize": 122,
+      "strokeWidth": 2,
+      "colorToken": "glowColor",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 76,
+      "breathFrames": 210,
+      "breathAmpl": 0.16,
+      "seedSalt": 654,
+      "label": "sakura-petal-rosette-corners-v41"
+    },
+    {
+      "id": "butterfly-wing-girih-band-v42",
+      "kind": "girih-band",
+      "tileSize": 152,
+      "strokeWidth": 2.4,
+      "colorToken": "solid",
+      "solidColor": "#A855F7",
+      "alpha": 0.9,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 104,
+      "breathFrames": 240,
+      "breathAmpl": 0.18,
+      "seedSalt": 958,
+      "label": "butterfly-wing-girih-band-v42"
+    },
+    {
+      "id": "mariposa-rosette-corners-v42",
+      "kind": "geometric-rosette",
+      "tileSize": 126,
+      "strokeWidth": 2.1,
+      "colorToken": "glowColor",
+      "alpha": 0.86,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 78,
+      "breathFrames": 190,
+      "breathAmpl": 0.16,
+      "seedSalt": 682,
+      "label": "mariposa-rosette-corners-v42"
+    },
+    {
+      "id": "stained-glass-mosaic-girih-v43",
+      "kind": "girih-band",
+      "tileSize": 148,
+      "strokeWidth": 2.2,
+      "colorToken": "solid",
+      "solidColor": "#3B82F6",
+      "alpha": 0.65,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 102,
+      "breathFrames": 250,
+      "breathAmpl": 0.15,
+      "seedSalt": 964,
+      "label": "stained-glass-mosaic-girih-v43"
+    },
+    {
+      "id": "translucent-prism-rosette-corners-v43",
+      "kind": "geometric-rosette",
+      "tileSize": 130,
+      "strokeWidth": 1.9,
+      "colorToken": "glowColor",
+      "alpha": 0.6,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 200,
+      "breathAmpl": 0.14,
+      "seedSalt": 712,
+      "label": "translucent-prism-rosette-corners-v43"
+    },
+    {
+      "id": "swirling-cyclone-girih-band-v44",
+      "kind": "girih-band",
+      "tileSize": 156,
+      "strokeWidth": 2.6,
+      "colorToken": "solid",
+      "solidColor": "#64748B",
+      "alpha": 0.88,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 110,
+      "breathFrames": 180,
+      "breathAmpl": 0.22,
+      "seedSalt": 988,
+      "label": "swirling-cyclone-girih-band-v44"
+    },
+    {
+      "id": "tornado-vortex-rosette-corners-v44",
+      "kind": "geometric-rosette",
+      "tileSize": 134,
+      "strokeWidth": 2.2,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 84,
+      "breathFrames": 160,
+      "breathAmpl": 0.19,
+      "seedSalt": 742,
+      "label": "tornado-vortex-rosette-corners-v44"
+    },
+    {
+      "id": "sunrise-horizon-girih-band-v45",
+      "kind": "girih-band",
+      "tileSize": 150,
+      "strokeWidth": 2.8,
+      "colorToken": "solid",
+      "solidColor": "#F59E0B",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 106,
+      "breathFrames": 220,
+      "breathAmpl": 0.18,
+      "seedSalt": 973,
+      "label": "sunrise-horizon-girih-band-v45"
+    },
+    {
+      "id": "solar-dawn-rosette-corners-v45",
+      "kind": "geometric-rosette",
+      "tileSize": 128,
+      "strokeWidth": 2.3,
+      "colorToken": "glowColor",
+      "alpha": 0.86,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 180,
+      "breathAmpl": 0.16,
+      "seedSalt": 719,
+      "label": "solar-dawn-rosette-corners-v45"
+    },
+    {
+      "id": "emerald-gem-girih-band-v46",
+      "kind": "girih-band",
+      "tileSize": 152,
+      "strokeWidth": 2.6,
+      "colorToken": "solid",
+      "solidColor": "#059669",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 108,
+      "breathFrames": 240,
+      "breathAmpl": 0.16,
+      "seedSalt": 981,
+      "label": "emerald-gem-girih-band-v46"
+    },
+    {
+      "id": "imperial-emerald-rosette-corners-v46",
+      "kind": "geometric-rosette",
+      "tileSize": 130,
+      "strokeWidth": 2.2,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 82,
+      "breathFrames": 190,
+      "breathAmpl": 0.15,
+      "seedSalt": 724,
+      "label": "imperial-emerald-rosette-corners-v46"
+    },
+    {
+      "id": "oil-lamp-diya-flame-band-v47",
+      "kind": "girih-band",
+      "tileSize": 148,
+      "strokeWidth": 2.7,
+      "colorToken": "solid",
+      "solidColor": "#F59E0B",
+      "alpha": 0.94,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 106,
+      "breathFrames": 170,
+      "breathAmpl": 0.22,
+      "seedSalt": 989,
+      "label": "oil-lamp-diya-flame-band-v47"
+    },
+    {
+      "id": "sacred-fire-lantern-corners-v47",
+      "kind": "geometric-rosette",
+      "tileSize": 128,
+      "strokeWidth": 2.4,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 82,
+      "breathFrames": 140,
+      "breathAmpl": 0.19,
+      "seedSalt": 731,
+      "label": "sacred-fire-lantern-corners-v47"
+    },
+    {
+      "id": "maternal-warmth-girih-band-v48",
+      "kind": "girih-band",
+      "tileSize": 154,
+      "strokeWidth": 2.5,
+      "colorToken": "solid",
+      "solidColor": "#E11D48",
+      "alpha": 0.9,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 106,
+      "breathFrames": 280,
+      "breathAmpl": 0.14,
+      "seedSalt": 994,
+      "label": "maternal-warmth-girih-band-v48"
+    },
+    {
+      "id": "motherly-affection-bead-corners-v48",
+      "kind": "bead-band",
+      "tileSize": 94,
+      "strokeWidth": 1.8,
+      "colorToken": "glowColor",
+      "alpha": 0.84,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 230,
+      "breathAmpl": 0.12,
+      "seedSalt": 748,
+      "label": "motherly-affection-bead-corners-v48"
+    },
+    {
+      "id": "elderly-reverence-girih-band-v49",
+      "kind": "girih-band",
+      "tileSize": 150,
+      "strokeWidth": 2.6,
+      "colorToken": "solid",
+      "solidColor": "#9333EA",
+      "alpha": 0.9,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 104,
+      "breathFrames": 290,
+      "breathAmpl": 0.12,
+      "seedSalt": 998,
+      "label": "elderly-reverence-girih-band-v49"
+    },
+    {
+      "id": "elder-blessing-bead-corners-v49",
+      "kind": "bead-band",
+      "tileSize": 92,
+      "strokeWidth": 1.7,
+      "colorToken": "glowColor",
+      "alpha": 0.82,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 62,
+      "breathFrames": 240,
+      "breathAmpl": 0.1,
+      "seedSalt": 752,
+      "label": "elder-blessing-bead-corners-v49"
+    },
+    {
+      "id": "tearful-plea-meander-band-v51",
+      "kind": "meander-band",
+      "tileSize": 140,
+      "strokeWidth": 2.1,
+      "colorToken": "solid",
+      "solidColor": "#3B82F6",
+      "alpha": 0.85,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 94,
+      "breathFrames": 300,
+      "breathAmpl": 0.1,
+      "seedSalt": 991,
+      "label": "tearful-plea-meander-band-v51"
+    },
+    {
+      "id": "cry-for-mercy-starfield-corners-v51",
+      "kind": "starfield-dots",
+      "tileSize": 92,
+      "strokeWidth": 1.4,
+      "colorToken": "glowColor",
+      "alpha": 0.78,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 58,
+      "breathFrames": 250,
+      "breathAmpl": 0.11,
+      "seedSalt": 765,
+      "label": "cry-for-mercy-starfield-corners-v51"
+    },
+    {
+      "id": "memento-mori-grave-girih-v52",
+      "kind": "girih-band",
+      "tileSize": 158,
+      "strokeWidth": 2.8,
+      "colorToken": "solid",
+      "solidColor": "#1E1E24",
+      "alpha": 0.95,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 110,
+      "breathFrames": 360,
+      "breathAmpl": 0.05,
+      "seedSalt": 997,
+      "label": "memento-mori-grave-girih-v52"
+    },
+    {
+      "id": "finality-dust-starfield-corners-v52",
+      "kind": "starfield-dots",
+      "tileSize": 100,
+      "strokeWidth": 1.2,
+      "colorToken": "glowColor",
+      "alpha": 0.7,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 280,
+      "breathAmpl": 0.06,
+      "seedSalt": 777,
+      "label": "finality-dust-starfield-corners-v52"
+    },
+    {
+      "id": "divine-guidance-girih-band-v53",
+      "kind": "girih-band",
+      "tileSize": 152,
+      "strokeWidth": 2.7,
+      "colorToken": "solid",
+      "solidColor": "#0284C7",
+      "alpha": 0.92,
+      "zones": [
+        "top"
+      ],
+      "opacity": 0.5,
+      "bandSize": 106,
+      "breathFrames": 240,
+      "breathAmpl": 0.15,
+      "seedSalt": 975,
+      "label": "divine-guidance-girih-band-v53"
+    },
+    {
+      "id": "beacon-light-rosette-corners-v53",
+      "kind": "geometric-rosette",
+      "tileSize": 130,
+      "strokeWidth": 2.3,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 82,
+      "breathFrames": 200,
+      "breathAmpl": 0.14,
+      "seedSalt": 738,
+      "label": "beacon-light-rosette-corners-v53"
+    },
+    {
+      "id": "celestial-dawn-rosette-v54",
+      "kind": "geometric-rosette",
+      "tileSize": 128,
+      "strokeWidth": 1.5,
+      "colorToken": "glowColor",
+      "alpha": 0.85,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 120,
+      "breathAmpl": 0.12,
+      "seedSalt": 420,
+      "label": "celestial-dawn-rosette-v54"
+    },
+    {
+      "id": "royal-amber-arabesque-band-v54",
+      "kind": "arabesque-strip",
+      "tileSize": 96,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#D4AF37",
+      "alpha": 0.9,
+      "zones": [
+        "bottom"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 200,
+      "breathAmpl": 0.05,
+      "seedSalt": 789,
+      "label": "royal-amber-arabesque-band-v54"
+    },
+    {
+      "id": "sapphire-sky-bead-frame-v55",
+      "kind": "bead-band",
+      "tileSize": 64,
+      "strokeWidth": 2.5,
+      "colorToken": "accent",
+      "alpha": 0.88,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 72,
+      "breathFrames": 90,
+      "breathAmpl": 0.08,
+      "seedSalt": 321,
+      "label": "sapphire-sky-bead-frame-v55"
+    },
+    {
+      "id": "amethyst-dune-girih-corners-v55",
+      "kind": "girih-corners",
+      "tileSize": 144,
+      "strokeWidth": 1.75,
+      "colorToken": "particleColor",
+      "alpha": 0.92,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 110,
+      "breathFrames": 150,
+      "breathAmpl": 0.15,
+      "seedSalt": 654,
+      "label": "amethyst-dune-girih-corners-v55"
+    },
+    {
+      "id": "obsidian-starfield-corners-v56",
+      "kind": "starfield-dots",
+      "tileSize": 64,
+      "strokeWidth": 1.2,
+      "colorToken": "glowColor",
+      "alpha": 0.65,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 60,
+      "breathFrames": 240,
+      "breathAmpl": 0.12,
+      "seedSalt": 789,
+      "label": "Obsidian Starfield Corners v56"
+    },
+    {
+      "id": "garnet-rosette-frame-v57",
+      "kind": "geometric-rosette",
+      "tileSize": 128,
+      "strokeWidth": 2.5,
+      "colorToken": "solid",
+      "solidColor": "#800020",
+      "alpha": 0.75,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 85,
+      "breathFrames": 180,
+      "breathAmpl": 0.08,
+      "seedSalt": 432,
+      "label": "Garnet Rosette Frame v57"
+    },
+    {
+      "id": "turquoise-star-lattice-border",
+      "kind": "girih-band",
+      "tileSize": 128,
+      "strokeWidth": 1.5,
+      "colorToken": "glowColor",
+      "alpha": 0.45,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 80,
+      "breathFrames": 240,
+      "breathAmpl": 0.08,
+      "seedSalt": 512,
+      "label": "Turquoise Star Lattice Border"
+    },
+    {
+      "id": "obsidian-starburst-corners-v59",
+      "kind": "starfield-dots",
+      "tileSize": 192,
+      "strokeWidth": 2,
+      "colorToken": "accent",
+      "alpha": 0.6,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 96,
+      "breathFrames": 300,
+      "breathAmpl": 0.12,
+      "seedSalt": 888,
+      "label": "Obsidian Starburst Corners v59"
+    },
+    {
+      "id": "test-rotating-circle-line",
+      "tileSize": 100,
+      "strokeWidth": 2,
+      "colorToken": "solid",
+      "solidColor": "#FFD700",
+      "alpha": 0.8,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.6,
+      "bandSize": 50,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 42,
+      "shapeSpec": {
+        "primitives": [
+          {
+            "prim": "circle",
+            "params": {
+              "cx": 960,
+              "cy": 960,
+              "r": 40
+            }
+          },
+          {
+            "prim": "line",
+            "params": {
+              "x1": 960,
+              "y1": 920,
+              "x2": 960,
+              "y2": 1000
+            }
+          }
+        ],
+        "composition": {
+          "rotate": {
+            "centerX": 960,
+            "centerY": 960,
+            "angle": 360,
+            "copies": 6
+          }
+        }
+      },
+      "label": "Test: Rotating Circle+Line"
+    }
+  ],
+  "plugins": [
+    {
+      "match": "*",
+      "frameCustomId": "girih-sigil",
+      "styleOverrides": {
+        "cornerSize": 70,
+        "cornerOpacity": 1.1,
+        "frameOpacity1": 0.2,
+        "frameOpacity2": 0.08,
+        "ornamentScale": 1.05
+      }
+    },
+    {
+      "match": "*",
+      "frameCustom": {
+        "kind": "arabesque-corners",
+        "tileSize": 120,
+        "strokeWidth": 1.6,
+        "colorToken": "particleColor",
+        "alpha": 0.5,
+        "zones": [
+          "frame",
+          "corners"
+        ],
+        "opacity": 0.4,
+        "bandSize": 72,
+        "breathFrames": 0,
+        "breathAmpl": 0,
+        "seedSalt": 11
+      },
+      "styleOverrides": {
+        "cornerOpacity": 1.15
+      }
+    },
+    {
+      "match": "*",
+      "label": "Morning Prayer Aura",
+      "frameCustomId": "arabesque-veil",
+      "id": "morning-prayer-aura"
+    },
+    {
+      "match": "*",
+      "label": "Evening Protection Preset",
+      "frameCustomId": "arabesque-veil",
+      "styleOverrides": {
+        "cornerSize": 85,
+        "cornerOpacity": 0.75,
+        "shimmerStrength": 0.4,
+        "particlesScale": 1.2
+      },
+      "id": "evening-protection-preset"
+    },
+    {
+      "match": "*",
+      "label": "Night Travel Dua Accent",
+      "frameCustomId": "royal-girih-frame",
+      "styleOverrides": {
+        "frameOpacity1": 0.9,
+        "frameOpacity2": 0.4,
+        "raysOpacity": 0.3,
+        "vignetteScale": 0.8
+      },
+      "id": "night-travel-dua-accent"
+    },
+    {
+      "match": "*",
+      "label": "Healing Dua Shimmer Preset",
+      "frameCustomId": "luminous-rosette-header",
+      "styleOverrides": {
+        "frameOpacity1": 0.88,
+        "shimmerStrength": 0.6,
+        "orbsOpacity": 0.35,
+        "grainOpacityPaper": 0.15
+      },
+      "id": "healing-dua-shimmer-preset"
+    },
+    {
+      "match": "*",
+      "label": "Rizq Dua Ambient Glow",
+      "frameCustomId": "golden-pearl-bead-border",
+      "styleOverrides": {
+        "frameOpacity1": 0.9,
+        "shimmerStrength": 0.45,
+        "raysOpacity": 0.3,
+        "orbsOpacity": 0.25
+      },
+      "id": "rizq-dua-ambient-glow"
+    },
+    {
+      "match": "*",
+      "label": "Gratitude Dua Warm Shimmer",
+      "frameCustomId": "golden-arabesque-frame",
+      "styleOverrides": {
+        "frameOpacity1": 0.85,
+        "frameOpacity2": 0.5,
+        "shimmerStrength": 0.55,
+        "chromaticAberration": 0.2
+      },
+      "id": "gratitude-dua-warm-shimmer"
+    },
+    {
+      "match": "*",
+      "label": "Sapphire Night Shimmer",
+      "frameCustomId": "girih-sigil",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 65,
+        "cornerOpacity": 0.9,
+        "raysOpacity": 0.35,
+        "orbsOpacity": 0.5,
+        "particlesScale": 1.2,
+        "vignetteScale": 0.8,
+        "shimmerStrength": 0.6
+      },
+      "id": "sapphire-night-shimmer"
+    },
+    {
+      "match": "*",
+      "label": "Topaz Protection Glow",
+      "frameCustomId": "topaz-arabesque-corners-accent",
+      "styleOverrides": {
+        "cornerInset": 16,
+        "cornerSize": 80,
+        "cornerOpacity": 0.85,
+        "raysOpacity": 0.2,
+        "orbsOpacity": 0.4,
+        "particlesScale": 0.9,
+        "vignetteScale": 0.6,
+        "shimmerStrength": 0.4
+      },
+      "id": "topaz-protection-glow"
+    },
+    {
+      "match": "*",
+      "label": "Garnet Night Protection",
+      "frameCustomId": "garnet-girih-bottom-accent",
+      "styleOverrides": {
+        "cornerInset": 20,
+        "cornerSize": 72,
+        "cornerOpacity": 0.8,
+        "raysOpacity": 0.4,
+        "orbsOpacity": 0.6,
+        "particlesScale": 1.1,
+        "vignetteScale": 0.75,
+        "shimmerStrength": 0.55
+      },
+      "id": "garnet-night-protection"
+    },
+    {
+      "match": "*",
+      "label": "Emerald Tranquility Glow",
+      "frameCustomId": "emerald-meander-bottom-trim",
+      "styleOverrides": {
+        "cornerInset": 18,
+        "cornerSize": 75,
+        "cornerOpacity": 0.8,
+        "raysOpacity": 0.25,
+        "orbsOpacity": 0.45,
+        "particlesScale": 0.95,
+        "vignetteScale": 0.7,
+        "shimmerStrength": 0.5
+      },
+      "id": "emerald-tranquility-glow"
+    },
+    {
+      "match": "*",
+      "label": "Quartz Ambient Shimmer",
+      "frameCustomId": "quartz-bead-bottom-accent",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 68,
+        "cornerOpacity": 0.75,
+        "raysOpacity": 0.3,
+        "orbsOpacity": 0.5,
+        "particlesScale": 1.05,
+        "vignetteScale": 0.65,
+        "shimmerStrength": 0.45
+      },
+      "id": "quartz-ambient-shimmer"
+    },
+    {
+      "match": "*",
+      "label": "celestial-tranquility-aura-v3",
+      "frameCustomId": "celestial-meander-header-v3",
+      "styleOverrides": {
+        "cornerInset": 18,
+        "cornerSize": 64,
+        "cornerOpacity": 0.75,
+        "frameEnabled": true,
+        "frameOpacity1": 0.85,
+        "frameOpacity2": 0.45,
+        "ornamentScale": 1.1,
+        "raysOpacity": 0.3,
+        "bokehCount": 24,
+        "bokehOpacity": 0.4,
+        "shimmerStrength": 0.6
+      },
+      "id": "celestial-tranquility-aura-v3"
+    },
+    {
+      "match": "*",
+      "label": "emerald-divine-light-v4",
+      "frameCustomId": "emerald-arabesque-corner-trim-v4",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 80,
+        "cornerOpacity": 0.8,
+        "frameEnabled": false,
+        "ornamentScale": 1.2,
+        "raysOpacity": 0.4,
+        "particlesScale": 1.5,
+        "bokehCount": 18,
+        "bokehOpacity": 0.5,
+        "shimmerStrength": 0.75
+      },
+      "id": "emerald-divine-light-v4"
+    },
+    {
+      "match": "*",
+      "label": "amber-warmth-glow-v5",
+      "frameCustomId": "amber-bead-frame-border-v5",
+      "styleOverrides": {
+        "cornerInset": 20,
+        "cornerSize": 72,
+        "cornerOpacity": 0.85,
+        "frameEnabled": true,
+        "frameOpacity1": 0.9,
+        "frameOpacity2": 0.5,
+        "ornamentScale": 1.05,
+        "raysOpacity": 0.35,
+        "particlesScale": 1.2,
+        "bokehCount": 30,
+        "bokehOpacity": 0.6,
+        "shimmerStrength": 0.55
+      },
+      "id": "amber-warmth-glow-v5"
+    },
+    {
+      "match": "*",
+      "label": "royal-majesty-aura-v6",
+      "frameCustomId": "velvet-meander-frame-v6",
+      "styleOverrides": {
+        "cornerInset": 28,
+        "cornerSize": 88,
+        "cornerOpacity": 0.9,
+        "frameEnabled": true,
+        "frameOpacity1": 0.95,
+        "frameOpacity2": 0.6,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.45,
+        "particlesScale": 1.4,
+        "bokehCount": 36,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.8
+      },
+      "id": "royal-majesty-aura-v6"
+    },
+    {
+      "match": "*",
+      "label": "imperial-jade-radiance-v7",
+      "frameCustomId": "imperial-jade-girih-corners-v7",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 84,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.2,
+        "raysOpacity": 0.4,
+        "particlesScale": 1.35,
+        "bokehCount": 32,
+        "bokehOpacity": 0.58,
+        "shimmerStrength": 0.72
+      },
+      "id": "imperial-jade-radiance-v7"
+    },
+    {
+      "match": "*",
+      "label": "regal-emerald-sovereign-v8",
+      "frameCustomId": "regal-emerald-girih-band-v8",
+      "styleOverrides": {
+        "cornerInset": 26,
+        "cornerSize": 86,
+        "cornerOpacity": 0.87,
+        "frameEnabled": false,
+        "ornamentScale": 1.22,
+        "raysOpacity": 0.42,
+        "particlesScale": 1.3,
+        "bokehCount": 34,
+        "bokehOpacity": 0.62,
+        "shimmerStrength": 0.78
+      },
+      "id": "regal-emerald-sovereign-v8"
+    },
+    {
+      "match": "*",
+      "label": "inferno-ember-aura-v9",
+      "frameCustomId": "blazing-amber-fire-corners-v9",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 92,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.3,
+        "raysOpacity": 0.5,
+        "particlesScale": 1.8,
+        "bokehCount": 40,
+        "bokehOpacity": 0.7,
+        "shimmerStrength": 0.85
+      },
+      "id": "inferno-ember-aura-v9"
+    },
+    {
+      "match": "*",
+      "label": "fiery-phoenix-radiance-v10",
+      "frameCustomId": "ruby-blaze-rosette-bottom-v10",
+      "styleOverrides": {
+        "cornerInset": 26,
+        "cornerSize": 88,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.48,
+        "particlesScale": 1.6,
+        "bokehCount": 38,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.82
+      },
+      "id": "fiery-phoenix-radiance-v10"
+    },
+    {
+      "match": "*",
+      "label": "volcano-ember-shimmer-v11",
+      "frameCustomId": "golden-spark-meander-header-v11",
+      "styleOverrides": {
+        "cornerInset": 25,
+        "cornerSize": 85,
+        "cornerOpacity": 0.89,
+        "frameEnabled": false,
+        "ornamentScale": 1.28,
+        "raysOpacity": 0.46,
+        "particlesScale": 1.7,
+        "bokehCount": 36,
+        "bokehOpacity": 0.68,
+        "shimmerStrength": 0.84
+      },
+      "id": "volcano-ember-shimmer-v11"
+    },
+    {
+      "match": "*",
+      "label": "hidden-sanctuary-veil-v12",
+      "frameCustomId": "secret-emerald-girih-band-v12",
+      "styleOverrides": {
+        "cornerInset": 27,
+        "cornerSize": 89,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.27,
+        "raysOpacity": 0.44,
+        "particlesScale": 1.45,
+        "bokehCount": 35,
+        "bokehOpacity": 0.64,
+        "shimmerStrength": 0.79
+      },
+      "id": "hidden-sanctuary-veil-v12"
+    },
+    {
+      "match": "*",
+      "label": "luminous-brilliance-aura-v13",
+      "frameCustomId": "bright-crystal-rosette-header-v13",
+      "styleOverrides": {
+        "cornerInset": 20,
+        "cornerSize": 80,
+        "cornerOpacity": 0.95,
+        "frameEnabled": false,
+        "ornamentScale": 1.3,
+        "raysOpacity": 0.5,
+        "particlesScale": 1.8,
+        "bokehCount": 40,
+        "bokehOpacity": 0.75,
+        "shimmerStrength": 0.9
+      },
+      "id": "luminous-brilliance-aura-v13"
+    },
+    {
+      "match": "*",
+      "label": "glacier-frost-aura-v14",
+      "frameCustomId": "frost-crystal-girih-corners-v14",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 82,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.15,
+        "raysOpacity": 0.35,
+        "particlesScale": 1.4,
+        "bokehCount": 35,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.85
+      },
+      "id": "glacier-frost-aura-v14"
+    },
+    {
+      "match": "*",
+      "label": "frostfire-crystal-shimmer-v15",
+      "frameCustomId": "icy-snowflake-girih-band-v15",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 84,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.18,
+        "raysOpacity": 0.38,
+        "particlesScale": 1.45,
+        "bokehCount": 38,
+        "bokehOpacity": 0.68,
+        "shimmerStrength": 0.88
+      },
+      "id": "frostfire-crystal-shimmer-v15"
+    },
+    {
+      "match": "*",
+      "label": "storm-lightning-radiance-v16",
+      "frameCustomId": "thunder-bolt-girih-band-v16",
+      "styleOverrides": {
+        "cornerInset": 26,
+        "cornerSize": 86,
+        "cornerOpacity": 0.94,
+        "frameEnabled": false,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.5,
+        "particlesScale": 1.6,
+        "bokehCount": 40,
+        "bokehOpacity": 0.72,
+        "shimmerStrength": 0.9
+      },
+      "id": "storm-lightning-radiance-v16"
+    },
+    {
+      "match": "*",
+      "label": "raging-torrent-surge-v17",
+      "frameCustomId": "raging-ocean-wave-strip-v17",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 84,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.28,
+        "raysOpacity": 0.48,
+        "particlesScale": 1.65,
+        "bokehCount": 38,
+        "bokehOpacity": 0.7,
+        "shimmerStrength": 0.88
+      },
+      "id": "raging-torrent-surge-v17"
+    },
+    {
+      "match": "*",
+      "label": "sacred-prayer-light-v18",
+      "frameCustomId": "sacred-meander-header-v18",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 80,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.2,
+        "raysOpacity": 0.42,
+        "particlesScale": 1.35,
+        "bokehCount": 32,
+        "bokehOpacity": 0.6,
+        "shimmerStrength": 0.75
+      },
+      "id": "sacred-prayer-light-v18"
+    },
+    {
+      "match": "*",
+      "label": "divine-pardon-light-v19",
+      "frameCustomId": "forgiveness-meander-header-v19",
+      "styleOverrides": {
+        "cornerInset": 21,
+        "cornerSize": 78,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.18,
+        "raysOpacity": 0.4,
+        "particlesScale": 1.3,
+        "bokehCount": 30,
+        "bokehOpacity": 0.58,
+        "shimmerStrength": 0.72
+      },
+      "id": "divine-pardon-light-v19"
+    },
+    {
+      "match": "*",
+      "label": "ramadan-kareem-radiance-v20",
+      "frameCustomId": "ramadan-lantern-girih-band-v20",
+      "styleOverrides": {
+        "cornerInset": 23,
+        "cornerSize": 82,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.24,
+        "raysOpacity": 0.45,
+        "particlesScale": 1.5,
+        "bokehCount": 36,
+        "bokehOpacity": 0.66,
+        "shimmerStrength": 0.82
+      },
+      "id": "ramadan-kareem-radiance-v20"
+    },
+    {
+      "match": "*",
+      "label": "hajj-makkah-radiance-v21",
+      "frameCustomId": "sacred-kaaba-girih-header-v21",
+      "styleOverrides": {
+        "cornerInset": 25,
+        "cornerSize": 86,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.46,
+        "particlesScale": 1.4,
+        "bokehCount": 35,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.8
+      },
+      "id": "hajj-makkah-radiance-v21"
+    },
+    {
+      "match": "*",
+      "label": "masjid-dome-illumination-v22",
+      "frameCustomId": "sanctuary-girih-band-v22",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 84,
+        "cornerOpacity": 0.89,
+        "frameEnabled": false,
+        "ornamentScale": 1.22,
+        "raysOpacity": 0.44,
+        "particlesScale": 1.35,
+        "bokehCount": 34,
+        "bokehOpacity": 0.62,
+        "shimmerStrength": 0.78
+      },
+      "id": "masjid-dome-illumination-v22"
+    },
+    {
+      "match": "*",
+      "label": "total-submission-radiance-v23",
+      "frameCustomId": "submissive-devotion-girih-band-v23",
+      "styleOverrides": {
+        "cornerInset": 23,
+        "cornerSize": 82,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.2,
+        "raysOpacity": 0.41,
+        "particlesScale": 1.32,
+        "bokehCount": 32,
+        "bokehOpacity": 0.6,
+        "shimmerStrength": 0.76
+      },
+      "id": "total-submission-radiance-v23"
+    },
+    {
+      "match": "*",
+      "label": "peaceful-softness-aura-v24",
+      "frameCustomId": "tranquil-oasis-meander-top-v24",
+      "styleOverrides": {
+        "cornerInset": 20,
+        "cornerSize": 76,
+        "cornerOpacity": 0.85,
+        "frameEnabled": false,
+        "ornamentScale": 1.15,
+        "raysOpacity": 0.35,
+        "particlesScale": 1.25,
+        "bokehCount": 28,
+        "bokehOpacity": 0.55,
+        "shimmerStrength": 0.7
+      },
+      "id": "peaceful-softness-aura-v24"
+    },
+    {
+      "match": "*",
+      "label": "parental-mercy-aura-v25",
+      "frameCustomId": "family-kinship-girih-band-v25",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 78,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.18,
+        "raysOpacity": 0.38,
+        "particlesScale": 1.3,
+        "bokehCount": 30,
+        "bokehOpacity": 0.58,
+        "shimmerStrength": 0.74
+      },
+      "id": "parental-mercy-aura-v25"
+    },
+    {
+      "match": "*",
+      "label": "silver-moon-aura-v26",
+      "frameCustomId": "lunar-crescent-girih-band-v26",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 80,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.22,
+        "raysOpacity": 0.42,
+        "particlesScale": 1.38,
+        "bokehCount": 36,
+        "bokehOpacity": 0.64,
+        "shimmerStrength": 0.8
+      },
+      "id": "silver-moon-aura-v26"
+    },
+    {
+      "match": "*",
+      "label": "deep-space-nebula-glow-v27",
+      "frameCustomId": "cosmic-galaxy-starfield-v27",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 84,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.28,
+        "raysOpacity": 0.52,
+        "particlesScale": 1.7,
+        "bokehCount": 42,
+        "bokehOpacity": 0.72,
+        "shimmerStrength": 0.88
+      },
+      "id": "deep-space-nebula-glow-v27"
+    },
+    {
+      "match": "*",
+      "label": "cosmic-infinity-radiance-v28",
+      "frameCustomId": "starlight-orbit-header-v28",
+      "styleOverrides": {
+        "cornerInset": 26,
+        "cornerSize": 88,
+        "cornerOpacity": 0.94,
+        "frameEnabled": false,
+        "ornamentScale": 1.32,
+        "raysOpacity": 0.55,
+        "particlesScale": 1.8,
+        "bokehCount": 45,
+        "bokehOpacity": 0.75,
+        "shimmerStrength": 0.92
+      },
+      "id": "cosmic-infinity-radiance-v28"
+    },
+    {
+      "match": "*",
+      "label": "celestial-firmament-glow-v29",
+      "frameCustomId": "starlight-constellation-header-v29",
+      "styleOverrides": {
+        "cornerInset": 28,
+        "cornerSize": 90,
+        "cornerOpacity": 0.95,
+        "frameEnabled": false,
+        "ornamentScale": 1.35,
+        "raysOpacity": 0.58,
+        "particlesScale": 1.85,
+        "bokehCount": 48,
+        "bokehOpacity": 0.78,
+        "shimmerStrength": 0.95
+      },
+      "id": "celestial-firmament-glow-v29"
+    },
+    {
+      "match": "*",
+      "label": "animated-pulse-radiance-v30",
+      "frameCustomId": "dynamic-motion-girih-band-v30",
+      "styleOverrides": {
+        "cornerInset": 25,
+        "cornerSize": 85,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.3,
+        "raysOpacity": 0.52,
+        "particlesScale": 1.75,
+        "bokehCount": 44,
+        "bokehOpacity": 0.75,
+        "shimmerStrength": 0.92
+      },
+      "id": "animated-pulse-radiance-v30"
+    },
+    {
+      "match": "*",
+      "label": "nostalgic-heirloom-veil-v31",
+      "frameCustomId": "antique-archival-meander-header-v31",
+      "styleOverrides": {
+        "cornerInset": 20,
+        "cornerSize": 76,
+        "cornerOpacity": 0.86,
+        "frameEnabled": false,
+        "ornamentScale": 1.15,
+        "raysOpacity": 0.32,
+        "particlesScale": 1.2,
+        "grainOpacityPaper": 0.15,
+        "bokehCount": 26,
+        "bokehOpacity": 0.52,
+        "shimmerStrength": 0.68
+      },
+      "id": "nostalgic-heirloom-veil-v31"
+    },
+    {
+      "match": "*",
+      "label": "volcanic-eruption-radiance-v32",
+      "frameCustomId": "volcanic-magma-girih-band-v32",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 84,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.28,
+        "raysOpacity": 0.54,
+        "particlesScale": 1.7,
+        "bokehCount": 40,
+        "bokehOpacity": 0.72,
+        "shimmerStrength": 0.9
+      },
+      "id": "volcanic-eruption-radiance-v32"
+    },
+    {
+      "match": "*",
+      "label": "blaze-eruption-radiance-v33",
+      "frameCustomId": "magmatic-flare-girih-band-v33",
+      "styleOverrides": {
+        "cornerInset": 26,
+        "cornerSize": 88,
+        "cornerOpacity": 0.94,
+        "frameEnabled": false,
+        "ornamentScale": 1.32,
+        "raysOpacity": 0.58,
+        "particlesScale": 1.8,
+        "bokehCount": 45,
+        "bokehOpacity": 0.76,
+        "shimmerStrength": 0.94
+      },
+      "id": "blaze-eruption-radiance-v33"
+    },
+    {
+      "match": "*",
+      "label": "soaring-birds-breeze-aura-v34",
+      "frameCustomId": "avian-flight-arabesque-strip-v34",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 78,
+        "cornerOpacity": 0.86,
+        "frameEnabled": false,
+        "ornamentScale": 1.18,
+        "raysOpacity": 0.38,
+        "particlesScale": 1.3,
+        "bokehCount": 32,
+        "bokehOpacity": 0.58,
+        "shimmerStrength": 0.72
+      },
+      "id": "soaring-birds-breeze-aura-v34"
+    },
+    {
+      "match": "*",
+      "label": "deep-sea-abyss-aura-v35",
+      "frameCustomId": "submerged-ocean-arabesque-strip-v35",
+      "styleOverrides": {
+        "cornerInset": 23,
+        "cornerSize": 80,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.2,
+        "raysOpacity": 0.4,
+        "particlesScale": 1.4,
+        "bokehCount": 35,
+        "bokehOpacity": 0.62,
+        "shimmerStrength": 0.75
+      },
+      "id": "deep-sea-abyss-aura-v35"
+    },
+    {
+      "match": "*",
+      "label": "turquoise-lagoon-ocean-shimmer-v36",
+      "frameCustomId": "aquamarine-marine-strip-v36",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 82,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.22,
+        "raysOpacity": 0.42,
+        "particlesScale": 1.45,
+        "bokehCount": 38,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.78
+      },
+      "id": "turquoise-lagoon-ocean-shimmer-v36"
+    },
+    {
+      "match": "*",
+      "label": "emerald-sea-ornament-radiance-v37",
+      "frameCustomId": "cyan-emerald-wave-strip-v37",
+      "styleOverrides": {
+        "cornerInset": 25,
+        "cornerSize": 85,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.3,
+        "ornamentSwayDeg": 4,
+        "raysOpacity": 0.45,
+        "particlesScale": 1.5,
+        "bokehCount": 40,
+        "bokehOpacity": 0.68,
+        "shimmerStrength": 0.82
+      },
+      "id": "emerald-sea-ornament-radiance-v37"
+    },
+    {
+      "match": "*",
+      "label": "dark-abyss-goth-radiance-v38",
+      "frameCustomId": "obsidian-shadow-girih-band-v38",
+      "styleOverrides": {
+        "cornerInset": 26,
+        "cornerSize": 86,
+        "cornerOpacity": 0.94,
+        "frameEnabled": false,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.25,
+        "particlesScale": 1.35,
+        "grainOpacityDark": 0.22,
+        "vignetteScale": 0.85,
+        "bokehCount": 24,
+        "bokehOpacity": 0.45,
+        "shimmerStrength": 0.65
+      },
+      "id": "dark-abyss-goth-radiance-v38"
+    },
+    {
+      "match": "*",
+      "label": "handwritten-ink-veil-v39",
+      "frameCustomId": "calligraphic-manuscript-meander-v39",
+      "styleOverrides": {
+        "cornerInset": 20,
+        "cornerSize": 74,
+        "cornerOpacity": 0.84,
+        "frameEnabled": false,
+        "ornamentScale": 1.12,
+        "raysOpacity": 0.3,
+        "particlesScale": 1.18,
+        "grainOpacityPaper": 0.2,
+        "bokehCount": 22,
+        "bokehOpacity": 0.48,
+        "shimmerStrength": 0.62
+      },
+      "id": "handwritten-ink-veil-v39"
+    },
+    {
+      "match": "*",
+      "label": "holy-makkah-sanctuary-radiance-v40",
+      "frameCustomId": "makkah-kaaba-girih-top-v40",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 84,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.45,
+        "particlesScale": 1.4,
+        "bokehCount": 36,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.8
+      },
+      "id": "holy-makkah-sanctuary-radiance-v40"
+    },
+    {
+      "match": "*",
+      "label": "floral-blossom-spring-radiance-v41",
+      "frameCustomId": "spring-blossom-arabesque-strip-v41",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 78,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.2,
+        "raysOpacity": 0.4,
+        "particlesScale": 1.4,
+        "bokehCount": 38,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.78
+      },
+      "id": "floral-blossom-spring-radiance-v41"
+    },
+    {
+      "match": "*",
+      "label": "butterfly-flutter-aura-v42",
+      "frameCustomId": "butterfly-wing-girih-band-v42",
+      "styleOverrides": {
+        "cornerInset": 23,
+        "cornerSize": 80,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.24,
+        "raysOpacity": 0.42,
+        "particlesScale": 1.45,
+        "bokehCount": 42,
+        "bokehOpacity": 0.68,
+        "shimmerStrength": 0.8
+      },
+      "id": "butterfly-flutter-aura-v42"
+    },
+    {
+      "match": "*",
+      "label": "tinted-glass-translucency-aura-v43",
+      "frameCustomId": "stained-glass-mosaic-girih-v43",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 82,
+        "cornerOpacity": 0.7,
+        "frameEnabled": false,
+        "ornamentScale": 1.22,
+        "raysOpacity": 0.45,
+        "particlesScale": 1.35,
+        "chromaticAberration": 0.18,
+        "bokehCount": 36,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.85
+      },
+      "id": "tinted-glass-translucency-aura-v43"
+    },
+    {
+      "match": "*",
+      "label": "whirlwind-tempest-vfx-v44",
+      "frameCustomId": "swirling-cyclone-girih-band-v44",
+      "styleOverrides": {
+        "cornerInset": 20,
+        "cornerSize": 84,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.28,
+        "ornamentSwayDeg": 6,
+        "raysOpacity": 0.5,
+        "particlesScale": 1.6,
+        "bokehCount": 45,
+        "bokehOpacity": 0.7,
+        "shimmerStrength": 0.85
+      },
+      "id": "whirlwind-tempest-vfx-v44"
+    },
+    {
+      "match": "*",
+      "label": "morning-aurora-sunrise-vfx-v45",
+      "frameCustomId": "sunrise-horizon-girih-band-v45",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 82,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.6,
+        "raysAngleDeg": 15,
+        "particlesScale": 1.5,
+        "bokehCount": 38,
+        "bokehOpacity": 0.7,
+        "shimmerStrength": 0.85
+      },
+      "id": "morning-aurora-sunrise-vfx-v45"
+    },
+    {
+      "match": "*",
+      "label": "emerald-jewel-brilliance-vfx-v46",
+      "frameCustomId": "emerald-gem-girih-band-v46",
+      "styleOverrides": {
+        "cornerInset": 25,
+        "cornerSize": 84,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.26,
+        "raysOpacity": 0.52,
+        "particlesScale": 1.45,
+        "bokehCount": 40,
+        "bokehOpacity": 0.72,
+        "shimmerStrength": 0.88
+      },
+      "id": "emerald-jewel-brilliance-vfx-v46"
+    },
+    {
+      "match": "*",
+      "label": "golden-lamp-fire-illumination-v47",
+      "frameCustomId": "oil-lamp-diya-flame-band-v47",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 84,
+        "cornerOpacity": 0.92,
+        "frameEnabled": false,
+        "ornamentScale": 1.28,
+        "raysOpacity": 0.58,
+        "raysAngleDeg": 20,
+        "particlesScale": 1.6,
+        "bokehCount": 42,
+        "bokehOpacity": 0.74,
+        "shimmerStrength": 0.9
+      },
+      "id": "golden-lamp-fire-illumination-v47"
+    },
+    {
+      "match": "*",
+      "label": "maternal-love-radiance-aura-v48",
+      "frameCustomId": "maternal-warmth-girih-band-v48",
+      "styleOverrides": {
+        "cornerInset": 22,
+        "cornerSize": 78,
+        "cornerOpacity": 0.88,
+        "frameEnabled": false,
+        "ornamentScale": 1.22,
+        "raysOpacity": 0.42,
+        "particlesScale": 1.35,
+        "bokehCount": 36,
+        "bokehOpacity": 0.65,
+        "shimmerStrength": 0.78
+      },
+      "id": "maternal-love-radiance-aura-v48"
+    },
+    {
+      "match": "*",
+      "label": "elder-care-wisdom-aura-v49",
+      "frameCustomId": "elderly-reverence-girih-band-v49",
+      "styleOverrides": {
+        "cornerInset": 23,
+        "cornerSize": 76,
+        "cornerOpacity": 0.86,
+        "frameEnabled": false,
+        "ornamentScale": 1.2,
+        "raysOpacity": 0.38,
+        "particlesScale": 1.3,
+        "bokehCount": 34,
+        "bokehOpacity": 0.62,
+        "shimmerStrength": 0.75
+      },
+      "id": "elder-care-wisdom-aura-v49"
+    },
+    {
+      "match": "*",
+      "label": "crying-supplication-mercy-v51",
+      "frameCustomId": "tearful-plea-meander-band-v51",
+      "styleOverrides": {
+        "cornerInset": 21,
+        "cornerSize": 72,
+        "cornerOpacity": 0.82,
+        "frameEnabled": false,
+        "ornamentScale": 1.14,
+        "raysOpacity": 0.25,
+        "particlesScale": 1.15,
+        "grainOpacityDark": 0.2,
+        "vignetteScale": 0.88,
+        "bokehCount": 20,
+        "bokehOpacity": 0.45,
+        "shimmerStrength": 0.55
+      },
+      "id": "crying-supplication-mercy-v51"
+    },
+    {
+      "match": "*",
+      "label": "mortality-solemn-dust-vfx-v52",
+      "frameCustomId": "memento-mori-grave-girih-v52",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 76,
+        "cornerOpacity": 0.82,
+        "frameEnabled": false,
+        "ornamentScale": 1.1,
+        "raysOpacity": 0.15,
+        "particlesScale": 1.05,
+        "grainOpacityDark": 0.25,
+        "vignetteScale": 0.95,
+        "bokehCount": 14,
+        "bokehOpacity": 0.3,
+        "shimmerStrength": 0.4
+      },
+      "id": "mortality-solemn-dust-vfx-v52"
+    },
+    {
+      "match": "*",
+      "label": "path-of-light-guidance-aura-v53",
+      "frameCustomId": "divine-guidance-girih-band-v53",
+      "styleOverrides": {
+        "cornerInset": 24,
+        "cornerSize": 82,
+        "cornerOpacity": 0.9,
+        "frameEnabled": false,
+        "ornamentScale": 1.25,
+        "raysOpacity": 0.55,
+        "particlesScale": 1.45,
+        "bokehCount": 38,
+        "bokehOpacity": 0.68,
+        "shimmerStrength": 0.82
+      },
+      "id": "path-of-light-guidance-aura-v53"
+    },
+    {
+      "match": "*",
+      "label": "celestial-dawn-radiance-v54",
+      "frameCustomId": "girih-sigil",
+      "styleOverrides": {
+        "cornerInset": 12,
+        "cornerSize": 65,
+        "cornerOpacity": 0.8,
+        "frameEnabled": true,
+        "frameOpacity1": 0.9,
+        "frameOpacity2": 0.4,
+        "shimmerStrength": 0.7,
+        "raysOpacity": 0.3,
+        "raysAngleDeg": 45
+      },
+      "id": "celestial-dawn-radiance-v54"
+    },
+    {
+      "match": "*",
+      "label": "sapphire-sky-radiance-v55",
+      "frameCustomId": "sapphire-sky-bead-frame-v55",
+      "styleOverrides": {
+        "cornerInset": 16,
+        "cornerSize": 70,
+        "cornerOpacity": 0.85,
+        "frameEnabled": true,
+        "frameOpacity1": 0.95,
+        "frameOpacity2": 0.5,
+        "shimmerStrength": 0.8,
+        "raysOpacity": 0.4,
+        "bokehCount": 12,
+        "bokehOpacity": 0.3
+      },
+      "id": "sapphire-sky-radiance-v55"
+    },
+    {
+      "match": "*",
+      "label": "Obsidian Twilight Radiance v56",
+      "frameCustomId": "obsidian-starfield-border",
+      "styleOverrides": {
+        "cornerInset": 12,
+        "cornerSize": 65,
+        "cornerOpacity": 0.8,
+        "raysOpacity": 0.35,
+        "orbsOpacity": 0.5,
+        "vignetteScale": 0.9,
+        "bokehCount": 18,
+        "bokehOpacity": 0.4
+      },
+      "id": "obsidian-twilight-radiance-v56"
+    },
+    {
+      "match": "*",
+      "label": "Garnet Elegance Radiance v57",
+      "frameCustomId": "garnet-rosette-frame-v57",
+      "styleOverrides": {
+        "cornerInset": 16,
+        "cornerSize": 70,
+        "cornerOpacity": 0.85,
+        "raysOpacity": 0.4,
+        "orbsOpacity": 0.6,
+        "vignetteScale": 0.85,
+        "bokehCount": 24,
+        "bokehOpacity": 0.5
+      },
+      "id": "garnet-elegance-radiance-v57"
+    },
+    {
+      "match": "*",
+      "label": "Turquoise Celestial Radiance v58",
+      "frameCustomId": "girih-sigil",
+      "styleOverrides": {
+        "cornerInset": 12,
+        "cornerSize": 85,
+        "cornerOpacity": 0.8,
+        "frameEnabled": true,
+        "frameOpacity1": 0.6,
+        "frameOpacity2": 0.3,
+        "ornamentScale": 1.1,
+        "raysOpacity": 0.25,
+        "orbsOpacity": 0.4,
+        "particlesScale": 1.2,
+        "bokehCount": 18,
+        "bokehOpacity": 0.3,
+        "shimmerStrength": 0.5
+      },
+      "id": "turquoise-celestial-radiance-v58"
+    },
+    {
+      "match": "*",
+      "label": "Obsidian Twilight Radiance v59",
+      "frameCustomId": "obsidian-starburst-corners-v59",
+      "styleOverrides": {
+        "cornerInset": 16,
+        "cornerSize": 90,
+        "cornerOpacity": 0.85,
+        "frameEnabled": false,
+        "frameOpacity1": 0.5,
+        "frameOpacity2": 0.25,
+        "ornamentScale": 1.15,
+        "raysOpacity": 0.3,
+        "orbsOpacity": 0.5,
+        "particlesScale": 1.4,
+        "bokehCount": 24,
+        "bokehOpacity": 0.4,
+        "shimmerStrength": 0.6
+      },
+      "id": "obsidian-twilight-radiance-v59"
+    },
+    {
+      "match": [
+        "sachai_aur_imandari_ki_dua"
+      ],
+      "label": "Test: ShapeSpec Targeted Plugin",
+      "frameCustomId": "test-rotating-circle-line",
+      "id": "test-shapespec-targeted-plugin"
+    }
+  ],
+  "themes": [
+    {
+      "id": "emerald-qadr-glow",
+      "payload": {
+        "decor": "qadr",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.2,
+          "saturate": 1.15
+        }
+      },
+      "affinity": [
+        "qadr",
+        "evening",
+        "protection"
+      ],
+      "label": "Emerald Qadr Glow"
+    },
+    {
+      "id": "golden-dunes-horizon",
+      "payload": {
+        "decor": "dunes",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.05,
+          "saturate": 1.3
+        }
+      },
+      "affinity": [
+        "travel",
+        "guidance"
+      ],
+      "label": "Golden Dunes Horizon"
+    },
+    {
+      "id": "royal-lantern-festivity",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1.15,
+          "contrast": 1.1,
+          "saturate": 1.25
+        }
+      },
+      "affinity": [
+        "occasions",
+        "gratitude",
+        "food"
+      ],
+      "label": "Royal Lantern Festivity"
+    },
+    {
+      "id": "oasis-waves-sanctuary",
+      "payload": {
+        "decor": "waves",
+        "grade": {
+          "brightness": 0.95,
+          "contrast": 1.15,
+          "saturate": 0.9
+        }
+      },
+      "affinity": [
+        "anxiety_relief",
+        "health",
+        "sleep"
+      ],
+      "label": "Oasis Waves Sanctuary"
+    },
+    {
+      "id": "festive-sun-rays",
+      "payload": {
+        "decor": "sun",
+        "grade": {
+          "brightness": 1.2,
+          "contrast": 1.1,
+          "saturate": 1.35
+        }
+      },
+      "affinity": [
+        "morning",
+        "gratitude",
+        "occasions"
+      ],
+      "label": "Festive Sun Rays"
+    },
+    {
+      "id": "paper-manuscript-nostalgia",
+      "payload": {
+        "decor": "paper",
+        "grade": {
+          "brightness": 0.9,
+          "contrast": 1.25,
+          "saturate": 0.8
+        }
+      },
+      "affinity": [
+        "forgiveness",
+        "guidance",
+        "general"
+      ],
+      "label": "Paper Manuscript Nostalgia"
+    },
+    {
+      "id": "mosque-arch-elegance",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.02,
+          "contrast": 1.18,
+          "saturate": 1.08
+        }
+      },
+      "affinity": [
+        "prayer",
+        "health",
+        "guidance"
+      ],
+      "label": "Mosque Arch Elegance"
+    },
+    {
+      "id": "royal-pattern-elegance",
+      "payload": {
+        "decor": "royal",
+        "grade": {
+          "brightness": 1.08,
+          "contrast": 1.22,
+          "saturate": 1.2
+        }
+      },
+      "affinity": [
+        "family",
+        "gratitude",
+        "general"
+      ],
+      "label": "Royal Pattern Elegance"
+    },
+    {
+      "id": "celestial-night-stars",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.88,
+          "contrast": 1.3,
+          "saturate": 0.95
+        }
+      },
+      "affinity": [
+        "sleep",
+        "protection",
+        "evening"
+      ],
+      "label": "Celestial Night Stars"
+    },
+    {
+      "id": "warm-golden-lanterns",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1.12,
+          "contrast": 1.15,
+          "saturate": 1.28
+        }
+      },
+      "affinity": [
+        "rizq",
+        "gratitude",
+        "food"
+      ],
+      "label": "Warm Golden Lanterns"
+    },
+    {
+      "id": "mystic-qadr-reverence",
+      "payload": {
+        "decor": "qadr",
+        "grade": {
+          "brightness": 0.92,
+          "contrast": 1.28,
+          "saturate": 1.05
+        }
+      },
+      "affinity": [
+        "forgiveness",
+        "prayer",
+        "morning_evening"
+      ],
+      "label": "Mystic Qadr Reverence"
+    },
+    {
+      "id": "twilight-dunes-mystique",
+      "payload": {
+        "decor": "dunes",
+        "grade": {
+          "brightness": 0.94,
+          "contrast": 1.22,
+          "saturate": 1.1
+        }
+      },
+      "affinity": [
+        "protection",
+        "evening",
+        "travel"
+      ],
+      "label": "Twilight Dunes Mystique"
+    },
+    {
+      "id": "midnight-emerald-mood",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.9,
+          "contrast": 1.2,
+          "saturate": 1.1
+        }
+      },
+      "affinity": [
+        "protection",
+        "evening"
+      ],
+      "label": "Midnight Emerald Mood"
+    },
+    {
+      "id": "royal-gold-dunes-mood",
+      "payload": {
+        "decor": "dunes",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.05,
+          "saturate": 1.2
+        }
+      },
+      "affinity": [
+        "praise",
+        "morning"
+      ],
+      "label": "Royal Gold Dunes Mood"
+    },
+    {
+      "id": "festive-lantern-twilight",
+      "payload": {
+        "decor": "festive",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.18,
+          "saturate": 1.22
+        }
+      },
+      "affinity": [
+        "occasions",
+        "evening",
+        "gratitude"
+      ],
+      "label": "Festive Lantern Twilight"
+    },
+    {
+      "id": "celestial-qadr-gold",
+      "payload": {
+        "decor": "qadr",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.15,
+          "saturate": 1.2
+        }
+      },
+      "affinity": [
+        "anxiety_relief",
+        "protection"
+      ],
+      "label": "Celestial Qadr Gold"
+    },
+    {
+      "id": "emerald-sanctuary-mood",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 0.95,
+          "contrast": 1.25,
+          "saturate": 1.1
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "protection",
+        "health"
+      ],
+      "label": "Emerald Sanctuary Mood"
+    },
+    {
+      "id": "golden-dunes-horizon-1",
+      "payload": {
+        "decor": "dunes",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.05,
+          "saturate": 1.3
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "travel",
+        "morning"
+      ],
+      "label": "Golden Dunes Horizon"
+    },
+    {
+      "id": "royal-lantern-glow",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1,
+          "contrast": 1.2,
+          "saturate": 1.15
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "occasions",
+        "gratitude"
+      ],
+      "label": "Royal Lantern Glow"
+    },
+    {
+      "id": "festive-velvet-red",
+      "payload": {
+        "decor": "festive",
+        "grade": {
+          "brightness": 1.02,
+          "contrast": 1.18,
+          "saturate": 1.25
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "occasions",
+        "family"
+      ],
+      "label": "Festive Velvet Red"
+    },
+    {
+      "id": "celestial-qadr-mood-v3",
+      "payload": {
+        "decor": "qadr",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.15,
+          "saturate": 1.2
+        }
+      },
+      "affinity": [
+        "qadr",
+        "night",
+        "guidance"
+      ],
+      "label": "celestial-qadr-mood-v3"
+    },
+    {
+      "id": "emerald-radiance-mood-v4",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.25,
+          "saturate": 1.35
+        }
+      },
+      "affinity": [
+        "protection",
+        "health",
+        "guidance"
+      ],
+      "label": "emerald-radiance-mood-v4"
+    },
+    {
+      "id": "amber-dunes-mood-v5",
+      "payload": {
+        "decor": "dunes",
+        "grade": {
+          "brightness": 1.15,
+          "contrast": 1.1,
+          "saturate": 1.25
+        }
+      },
+      "affinity": [
+        "rizq",
+        "gratitude",
+        "family"
+      ],
+      "label": "amber-dunes-mood-v5"
+    },
+    {
+      "id": "royal-festive-palace-v6",
+      "payload": {
+        "decor": "royal",
+        "grade": {
+          "brightness": 1.08,
+          "contrast": 1.3,
+          "saturate": 1.4
+        }
+      },
+      "affinity": [
+        "royal",
+        "festive",
+        "occasions"
+      ],
+      "label": "royal-festive-palace-v6"
+    },
+    {
+      "id": "imperial-lantern-grace-v7",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1.06,
+          "contrast": 1.22,
+          "saturate": 1.32
+        }
+      },
+      "affinity": [
+        "guidance",
+        "protection",
+        "occasions"
+      ],
+      "label": "imperial-lantern-grace-v7"
+    },
+    {
+      "id": "regal-palace-dunes-v8",
+      "payload": {
+        "decor": "dunes",
+        "grade": {
+          "brightness": 1.07,
+          "contrast": 1.28,
+          "saturate": 1.36
+        }
+      },
+      "affinity": [
+        "royal",
+        "occasions",
+        "guidance"
+      ],
+      "label": "regal-palace-dunes-v8"
+    },
+    {
+      "id": "blazing-festive-fire-mood-v9",
+      "payload": {
+        "decor": "festive",
+        "grade": {
+          "brightness": 1.12,
+          "contrast": 1.35,
+          "saturate": 1.45
+        }
+      },
+      "affinity": [
+        "protection",
+        "guidance",
+        "occasions"
+      ],
+      "label": "blazing-festive-fire-mood-v9"
+    },
+    {
+      "id": "fiery-lantern-night-v10",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.3,
+          "saturate": 1.4
+        }
+      },
+      "affinity": [
+        "occasions",
+        "protection",
+        "guidance"
+      ],
+      "label": "fiery-lantern-night-v10"
+    },
+    {
+      "id": "blazing-sun-fire-v11",
+      "payload": {
+        "decor": "sun",
+        "grade": {
+          "brightness": 1.14,
+          "contrast": 1.32,
+          "saturate": 1.42
+        }
+      },
+      "affinity": [
+        "protection",
+        "guidance",
+        "occasions"
+      ],
+      "label": "blazing-sun-fire-v11"
+    },
+    {
+      "id": "mystic-night-paper-v12",
+      "payload": {
+        "decor": "paper",
+        "grade": {
+          "brightness": 0.98,
+          "contrast": 1.34,
+          "saturate": 1.15
+        }
+      },
+      "affinity": [
+        "qadr",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "mystic-night-paper-v12"
+    },
+    {
+      "id": "radiant-sunburst-gold-v13",
+      "payload": {
+        "decor": "sun",
+        "grade": {
+          "brightness": 1.25,
+          "contrast": 1.35,
+          "saturate": 1.45
+        }
+      },
+      "affinity": [
+        "guidance",
+        "gratitude",
+        "occasions"
+      ],
+      "label": "radiant-sunburst-gold-v13"
+    },
+    {
+      "id": "blizzard-coolnight-mood-v14",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.95,
+          "contrast": 1.25,
+          "saturate": 0.85
+        }
+      },
+      "affinity": [
+        "protection",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "blizzard-coolnight-mood-v14"
+    },
+    {
+      "id": "frozen-twilight-mood-v15",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.92,
+          "contrast": 1.28,
+          "saturate": 0.8
+        }
+      },
+      "affinity": [
+        "protection",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "frozen-twilight-mood-v15"
+    },
+    {
+      "id": "stormy-tempest-night-v16",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.88,
+          "contrast": 1.45,
+          "saturate": 0.95
+        }
+      },
+      "affinity": [
+        "protection",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "stormy-tempest-night-v16"
+    },
+    {
+      "id": "oceanic-tempest-waves-v17",
+      "payload": {
+        "decor": "waves",
+        "grade": {
+          "brightness": 0.9,
+          "contrast": 1.4,
+          "saturate": 1.25
+        }
+      },
+      "affinity": [
+        "protection",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "oceanic-tempest-waves-v17"
+    },
+    {
+      "id": "sacred-mosque-serenity-v18",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.2,
+          "saturate": 1.15
+        }
+      },
+      "affinity": [
+        "prayer",
+        "guidance",
+        "forgiveness"
+      ],
+      "label": "sacred-mosque-serenity-v18"
+    },
+    {
+      "id": "tawba-mercy-serenity-v19",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.02,
+          "contrast": 1.18,
+          "saturate": 1.1
+        }
+      },
+      "affinity": [
+        "forgiveness",
+        "guidance",
+        "prayer"
+      ],
+      "label": "tawba-mercy-serenity-v19"
+    },
+    {
+      "id": "ramadan-festive-lanterns-v20",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1.08,
+          "contrast": 1.26,
+          "saturate": 1.3
+        }
+      },
+      "affinity": [
+        "festive",
+        "occasions",
+        "prayer"
+      ],
+      "label": "ramadan-festive-lanterns-v20"
+    },
+    {
+      "id": "hajj-sacred-sanctuary-v21",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.06,
+          "contrast": 1.28,
+          "saturate": 1.32
+        }
+      },
+      "affinity": [
+        "occasions",
+        "prayer",
+        "guidance"
+      ],
+      "label": "hajj-sacred-sanctuary-v21"
+    },
+    {
+      "id": "masjid-grand-sanctuary-v22",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.04,
+          "contrast": 1.24,
+          "saturate": 1.2
+        }
+      },
+      "affinity": [
+        "prayer",
+        "guidance",
+        "occasions"
+      ],
+      "label": "masjid-grand-sanctuary-v22"
+    },
+    {
+      "id": "humble-surrender-serenity-v23",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.02,
+          "contrast": 1.21,
+          "saturate": 1.12
+        }
+      },
+      "affinity": [
+        "prayer",
+        "guidance",
+        "forgiveness"
+      ],
+      "label": "humble-surrender-serenity-v23"
+    },
+    {
+      "id": "gentle-tranquility-paper-v24",
+      "payload": {
+        "decor": "paper",
+        "grade": {
+          "brightness": 1,
+          "contrast": 1.15,
+          "saturate": 1.05
+        }
+      },
+      "affinity": [
+        "anxiety_relief",
+        "guidance",
+        "prayer"
+      ],
+      "label": "gentle-tranquility-paper-v24"
+    },
+    {
+      "id": "family-warmth-paper-v25",
+      "payload": {
+        "decor": "paper",
+        "grade": {
+          "brightness": 1.03,
+          "contrast": 1.18,
+          "saturate": 1.12
+        }
+      },
+      "affinity": [
+        "family",
+        "guidance",
+        "gratitude"
+      ],
+      "label": "family-warmth-paper-v25"
+    },
+    {
+      "id": "midnight-moonlight-twilight-v26",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.96,
+          "contrast": 1.32,
+          "saturate": 1.1
+        }
+      },
+      "affinity": [
+        "qadr",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "midnight-moonlight-twilight-v26"
+    },
+    {
+      "id": "deep-space-cosmos-v27",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.92,
+          "contrast": 1.38,
+          "saturate": 1.15
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "qadr",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "deep-space-cosmos-v27"
+    },
+    {
+      "id": "astral-void-night-v28",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.9,
+          "contrast": 1.42,
+          "saturate": 1.2
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "qadr",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "astral-void-night-v28"
+    },
+    {
+      "id": "starlight-firmament-sky-v29",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.94,
+          "contrast": 1.45,
+          "saturate": 1.25
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "qadr",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "starlight-firmament-sky-v29"
+    },
+    {
+      "id": "vibrant-energy-motion-v30",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.15,
+          "contrast": 1.35,
+          "saturate": 1.4
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "occasions",
+        "festive",
+        "general"
+      ],
+      "label": "vibrant-energy-motion-v30"
+    },
+    {
+      "id": "aged-parchment-heritage-v31",
+      "payload": {
+        "decor": "paper",
+        "grade": {
+          "brightness": 0.98,
+          "contrast": 1.12,
+          "saturate": 0.9
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "family",
+        "guidance",
+        "gratitude"
+      ],
+      "label": "aged-parchment-heritage-v31"
+    },
+    {
+      "id": "molten-obsidian-inferno-v32",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.08,
+          "contrast": 1.38,
+          "saturate": 1.45
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "protection",
+        "guidance",
+        "occasions"
+      ],
+      "label": "molten-obsidian-inferno-v32"
+    },
+    {
+      "id": "lava-chasm-inferno-v33",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.42,
+          "saturate": 1.5
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "protection",
+        "guidance",
+        "occasions"
+      ],
+      "label": "lava-chasm-inferno-v33"
+    },
+    {
+      "id": "open-sky-freedom-v34",
+      "payload": {
+        "decor": "waves",
+        "grade": {
+          "brightness": 1.06,
+          "contrast": 1.15,
+          "saturate": 1.12
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "anxiety_relief",
+        "gratitude"
+      ],
+      "label": "open-sky-freedom-v34"
+    },
+    {
+      "id": "underwater-abyss-v35",
+      "payload": {
+        "decor": "waves",
+        "grade": {
+          "brightness": 0.95,
+          "contrast": 1.25,
+          "saturate": 1.18
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "anxiety_relief",
+        "protection"
+      ],
+      "label": "underwater-abyss-v35"
+    },
+    {
+      "id": "teal-ocean-lagoon-v36",
+      "payload": {
+        "decor": "waves",
+        "grade": {
+          "brightness": 1.02,
+          "contrast": 1.22,
+          "saturate": 1.25
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "anxiety_relief",
+        "guidance",
+        "gratitude"
+      ],
+      "label": "teal-ocean-lagoon-v36"
+    },
+    {
+      "id": "cyan-deep-waters-v37",
+      "payload": {
+        "decor": "waves",
+        "grade": {
+          "brightness": 1.04,
+          "contrast": 1.25,
+          "saturate": 1.28
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "anxiety_relief",
+        "guidance",
+        "gratitude"
+      ],
+      "label": "cyan-deep-waters-v37"
+    },
+    {
+      "id": "nocturnal-obsidian-void-v38",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.82,
+          "contrast": 1.48,
+          "saturate": 0.85
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "protection",
+        "guidance",
+        "anxiety_relief"
+      ],
+      "label": "nocturnal-obsidian-void-v38"
+    },
+    {
+      "id": "calligraphy-ink-papyrus-v39",
+      "payload": {
+        "decor": "paper",
+        "grade": {
+          "brightness": 0.97,
+          "contrast": 1.16,
+          "saturate": 0.95
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "forgiveness",
+        "family"
+      ],
+      "label": "calligraphy-ink-papyrus-v39"
+    },
+    {
+      "id": "makkah-golden-kaaba-v40",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.28,
+          "saturate": 1.2
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "prayer",
+        "gratitude"
+      ],
+      "label": "makkah-golden-kaaba-v40"
+    },
+    {
+      "id": "blooming-spring-flora-v41",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.08,
+          "contrast": 1.18,
+          "saturate": 1.22
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "gratitude",
+        "anxiety_relief",
+        "guidance"
+      ],
+      "label": "blooming-spring-flora-v41"
+    },
+    {
+      "id": "enchanted-nectar-garden-v42",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.06,
+          "contrast": 1.22,
+          "saturate": 1.26
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "gratitude",
+        "anxiety_relief",
+        "guidance"
+      ],
+      "label": "enchanted-nectar-garden-v42"
+    },
+    {
+      "id": "prismatic-stained-glass-v43",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.25,
+          "saturate": 1.35
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "gratitude",
+        "anxiety_relief"
+      ],
+      "label": "prismatic-stained-glass-v43"
+    },
+    {
+      "id": "stormy-twister-sky-v44",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 0.95,
+          "contrast": 1.35,
+          "saturate": 0.85
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "protection",
+        "anxiety_relief",
+        "guidance"
+      ],
+      "label": "stormy-twister-sky-v44"
+    },
+    {
+      "id": "golden-dawn-sunrise-v45",
+      "payload": {
+        "decor": "sun",
+        "grade": {
+          "brightness": 1.12,
+          "contrast": 1.28,
+          "saturate": 1.35
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "morning",
+        "guidance",
+        "gratitude"
+      ],
+      "label": "golden-dawn-sunrise-v45"
+    },
+    {
+      "id": "royal-emerald-crystal-v46",
+      "payload": {
+        "decor": "royal",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.32,
+          "saturate": 1.3
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "gratitude",
+        "protection"
+      ],
+      "label": "royal-emerald-crystal-v46"
+    },
+    {
+      "id": "diya-flame-warmth-v47",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1.12,
+          "contrast": 1.35,
+          "saturate": 1.4
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "protection",
+        "occasions"
+      ],
+      "label": "diya-flame-warmth-v47"
+    },
+    {
+      "id": "mother-blessing-warmth-v48",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.06,
+          "contrast": 1.18,
+          "saturate": 1.25
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "family",
+        "gratitude",
+        "guidance"
+      ],
+      "label": "mother-blessing-warmth-v48"
+    },
+    {
+      "id": "elders-wisdom-respect-v49",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 1.04,
+          "contrast": 1.16,
+          "saturate": 1.2
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "family",
+        "gratitude",
+        "guidance"
+      ],
+      "label": "elders-wisdom-respect-v49"
+    },
+    {
+      "id": "pleading-tearful-repentance-v51",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 0.85,
+          "contrast": 1.3,
+          "saturate": 0.8
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "forgiveness",
+        "anxiety_relief",
+        "guidance"
+      ],
+      "label": "pleading-tearful-repentance-v51"
+    },
+    {
+      "id": "afterlife-reflection-stark-v52",
+      "payload": {
+        "decor": "pattern",
+        "grade": {
+          "brightness": 0.75,
+          "contrast": 1.5,
+          "saturate": 0.6
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "forgiveness",
+        "guidance",
+        "protection"
+      ],
+      "label": "afterlife-reflection-stark-v52"
+    },
+    {
+      "id": "guiding-light-sky-v53",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 1.08,
+          "contrast": 1.24,
+          "saturate": 1.25
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "guidance",
+        "gratitude",
+        "protection"
+      ],
+      "label": "guiding-light-sky-v53"
+    },
+    {
+      "id": "golden-twilight-v54",
+      "payload": {
+        "decor": "qadr",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.2,
+          "saturate": 1.3
+        }
+      },
+      "affinity": [
+        "morning",
+        "evening",
+        "protection"
+      ],
+      "label": "Golden Twilight V54"
+    },
+    {
+      "id": "sapphire-horizon-v55",
+      "payload": {
+        "decor": "dunes",
+        "grade": {
+          "brightness": 0.95,
+          "contrast": 1.35,
+          "saturate": 1.2
+        }
+      },
+      "affinity": [
+        "protection",
+        "evening",
+        "anxiety_relief"
+      ],
+      "label": "Sapphire Horizon V55"
+    },
+    {
+      "id": "twilight-obsidian-mood",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.85,
+          "contrast": 1.2,
+          "saturate": 0.9
+        }
+      },
+      "affinity": [
+        "evening",
+        "protection"
+      ],
+      "label": "Twilight Obsidian Mood"
+    },
+    {
+      "id": "imperial-garnet-atmosphere",
+      "payload": {
+        "decor": "royal",
+        "grade": {
+          "brightness": 1.1,
+          "contrast": 1.3,
+          "saturate": 1.2
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "occasions",
+        "gratitude"
+      ],
+      "label": "Imperial Garnet Atmosphere"
+    },
+    {
+      "id": "turquoise-serenity",
+      "payload": {
+        "decor": "lanterns",
+        "grade": {
+          "brightness": 1.05,
+          "contrast": 1.1,
+          "saturate": 1.25
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "protection",
+        "morning"
+      ],
+      "label": "Turquoise Serenity"
+    },
+    {
+      "id": "obsidian-night-harmony-v59",
+      "payload": {
+        "decor": "stars",
+        "grade": {
+          "brightness": 0.9,
+          "contrast": 1.3,
+          "saturate": 1.1
+        }
+      },
+      "match": "*",
+      "affinity": [
+        "evening",
+        "sleep"
+      ],
+      "label": "Obsidian Night Harmony v59"
+    }
+  ],
+  "typography": [
+    {
+      "id": "scheherazade-standard-dual",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 96,
+      "minSize": 40,
+      "lineHeight": 1.6,
+      "label": "Scheherazade Standard Dual"
+    },
+    {
+      "id": "amiri-quran-classic-bold",
+      "fontFamily": "amiri-quran",
+      "baseSize": 120,
+      "minSize": 50,
+      "lineHeight": 1.4,
+      "label": "Amiri Quran Classic Bold"
+    },
+    {
+      "id": "nastaliq-urdu-flowing",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 104,
+      "minSize": 44,
+      "lineHeight": 1.8,
+      "label": "Nastaliq Urdu Flowing"
+    },
+    {
+      "id": "scheherazade-large-display",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 140,
+      "minSize": 60,
+      "lineHeight": 1.3,
+      "label": "Scheherazade Large Display"
+    },
+    {
+      "id": "amiri-quran-compact",
+      "fontFamily": "amiri-quran",
+      "baseSize": 88,
+      "minSize": 36,
+      "lineHeight": 1.5,
+      "label": "Amiri Quran Compact"
+    },
+    {
+      "id": "nastaliq-medium-standard",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 92,
+      "minSize": 38,
+      "lineHeight": 1.7,
+      "label": "Nastaliq Medium Standard"
+    },
+    {
+      "id": "scheherazade-fine-accent",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 110,
+      "minSize": 48,
+      "lineHeight": 1.45,
+      "label": "Scheherazade Fine Accent"
+    },
+    {
+      "id": "amiri-quran-majestic-large",
+      "fontFamily": "amiri-quran",
+      "baseSize": 132,
+      "minSize": 54,
+      "lineHeight": 1.35,
+      "label": "Amiri Quran Majestic Large"
+    },
+    {
+      "id": "nastaliq-elegant-header",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 116,
+      "minSize": 46,
+      "lineHeight": 1.65,
+      "label": "Nastaliq Elegant Header"
+    },
+    {
+      "id": "scheherazade-subtitle-medium",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 84,
+      "minSize": 32,
+      "lineHeight": 1.55,
+      "label": "Scheherazade Subtitle Medium"
+    },
+    {
+      "id": "amiri-quran-headline-large",
+      "fontFamily": "amiri-quran",
+      "baseSize": 148,
+      "minSize": 64,
+      "lineHeight": 1.25,
+      "label": "Amiri Quran Headline Large"
+    },
+    {
+      "id": "nastaliq-classic-large",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 128,
+      "minSize": 52,
+      "lineHeight": 1.75,
+      "label": "Nastaliq Classic Large"
+    },
+    {
+      "id": "classic-naskh-layout",
+      "fontFamily": "amiri-quran",
+      "baseSize": 90,
+      "minSize": 36,
+      "lineHeight": 1.6,
+      "label": "Classic Naskh Layout"
+    },
+    {
+      "id": "urdu-nastaliq-primary-layout",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 84,
+      "minSize": 32,
+      "lineHeight": 1.8,
+      "label": "Urdu Nastaliq Primary Layout"
+    },
+    {
+      "id": "amiri-quran-delicate-medium",
+      "fontFamily": "amiri-quran",
+      "baseSize": 100,
+      "minSize": 42,
+      "lineHeight": 1.42,
+      "label": "Amiri Quran Delicate Medium"
+    },
+    {
+      "id": "amiri-quran-elegant",
+      "fontFamily": "amiri-quran",
+      "baseSize": 108,
+      "minSize": 42,
+      "lineHeight": 1.8,
+      "label": "Amiri Quran Elegant"
+    },
+    {
+      "id": "scheherazade-graceful",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 96,
+      "minSize": 36,
+      "lineHeight": 1.6,
+      "match": "*",
+      "label": "Scheherazade Graceful"
+    },
+    {
+      "id": "noto-nastaliq-premium",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 88,
+      "minSize": 32,
+      "lineHeight": 1.75,
+      "match": "*",
+      "label": "Noto Nastaliq Premium"
+    },
+    {
+      "id": "amiri-quran-compact-1",
+      "fontFamily": "amiri-quran",
+      "baseSize": 82,
+      "minSize": 30,
+      "lineHeight": 1.5,
+      "match": "*",
+      "label": "Amiri Quran Compact"
+    },
+    {
+      "id": "scheherazade-grand",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 115,
+      "minSize": 45,
+      "lineHeight": 1.65,
+      "match": "*",
+      "label": "Scheherazade Grand"
+    },
+    {
+      "id": "scheherazade-master-quran-v3",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 108,
+      "minSize": 48,
+      "lineHeight": 1.6,
+      "label": "scheherazade-master-quran-v3"
+    },
+    {
+      "id": "amiri-bold-display-v4",
+      "fontFamily": "amiri-quran",
+      "baseSize": 120,
+      "minSize": 52,
+      "lineHeight": 1.5,
+      "label": "amiri-bold-display-v4"
+    },
+    {
+      "id": "noto-urdu-display-v5",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 96,
+      "minSize": 42,
+      "lineHeight": 1.8,
+      "label": "noto-urdu-display-v5"
+    },
+    {
+      "id": "scheherazade-royal-headline-v6",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 128,
+      "minSize": 56,
+      "lineHeight": 1.55,
+      "label": "scheherazade-royal-headline-v6"
+    },
+    {
+      "id": "noto-nastaliq-premium-v7",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 112,
+      "minSize": 50,
+      "lineHeight": 1.7,
+      "label": "noto-nastaliq-premium-v7"
+    },
+    {
+      "id": "amiri-regal-master-v8",
+      "fontFamily": "amiri-quran",
+      "baseSize": 124,
+      "minSize": 54,
+      "lineHeight": 1.52,
+      "label": "amiri-regal-master-v8"
+    },
+    {
+      "id": "amiri-bold-fire-display-v9",
+      "fontFamily": "amiri-quran",
+      "baseSize": 126,
+      "minSize": 56,
+      "lineHeight": 1.5,
+      "label": "amiri-bold-fire-display-v9"
+    },
+    {
+      "id": "scheherazade-blaze-master-v10",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 122,
+      "minSize": 52,
+      "lineHeight": 1.55,
+      "label": "scheherazade-blaze-master-v10"
+    },
+    {
+      "id": "noto-urdu-fire-headline-v11",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 116,
+      "minSize": 50,
+      "lineHeight": 1.65,
+      "label": "noto-urdu-fire-headline-v11"
+    },
+    {
+      "id": "scheherazade-mystic-script-v12",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 122,
+      "minSize": 52,
+      "lineHeight": 1.58,
+      "label": "scheherazade-mystic-script-v12"
+    },
+    {
+      "id": "amiri-shining-display-v13",
+      "fontFamily": "amiri-quran",
+      "baseSize": 128,
+      "minSize": 56,
+      "lineHeight": 1.48,
+      "label": "amiri-shining-display-v13"
+    },
+    {
+      "id": "scheherazade-frost-master-v14",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 120,
+      "minSize": 50,
+      "lineHeight": 1.55,
+      "label": "scheherazade-frost-master-v14"
+    },
+    {
+      "id": "amiri-frosty-master-v15",
+      "fontFamily": "amiri-quran",
+      "baseSize": 122,
+      "minSize": 52,
+      "lineHeight": 1.5,
+      "label": "amiri-frosty-master-v15"
+    },
+    {
+      "id": "scheherazade-storm-master-v16",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 124,
+      "minSize": 52,
+      "lineHeight": 1.52,
+      "label": "scheherazade-storm-master-v16"
+    },
+    {
+      "id": "scheherazade-torrent-master-v17",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 126,
+      "minSize": 54,
+      "lineHeight": 1.5,
+      "label": "scheherazade-torrent-master-v17"
+    },
+    {
+      "id": "amiri-devotional-master-v18",
+      "fontFamily": "amiri-quran",
+      "baseSize": 122,
+      "minSize": 52,
+      "lineHeight": 1.55,
+      "label": "amiri-devotional-master-v18"
+    },
+    {
+      "id": "scheherazade-ramadan-master-v20",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 126,
+      "minSize": 54,
+      "lineHeight": 1.54,
+      "label": "scheherazade-ramadan-master-v20"
+    },
+    {
+      "id": "scheherazade-hajj-master-v21",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 128,
+      "minSize": 56,
+      "lineHeight": 1.5,
+      "label": "scheherazade-hajj-master-v21"
+    },
+    {
+      "id": "amiri-masjid-headline-v22",
+      "fontFamily": "amiri-quran",
+      "baseSize": 126,
+      "minSize": 54,
+      "lineHeight": 1.52,
+      "label": "amiri-masjid-headline-v22"
+    },
+    {
+      "id": "scheherazade-submission-master-v23",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 124,
+      "minSize": 52,
+      "lineHeight": 1.54,
+      "label": "scheherazade-submission-master-v23"
+    },
+    {
+      "id": "scheherazade-gentle-script-v24",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 120,
+      "minSize": 50,
+      "lineHeight": 1.56,
+      "label": "scheherazade-gentle-script-v24"
+    },
+    {
+      "id": "scheherazade-kinship-script-v25",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 122,
+      "minSize": 52,
+      "lineHeight": 1.54,
+      "label": "scheherazade-kinship-script-v25"
+    },
+    {
+      "id": "scheherazade-cosmic-master-v27",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 126,
+      "minSize": 54,
+      "lineHeight": 1.5,
+      "match": "*",
+      "label": "scheherazade-cosmic-master-v27"
+    },
+    {
+      "id": "amiri-cosmic-galaxy-v28",
+      "fontFamily": "amiri-quran",
+      "baseSize": 128,
+      "minSize": 56,
+      "lineHeight": 1.48,
+      "match": "*",
+      "label": "amiri-cosmic-galaxy-v28"
+    },
+    {
+      "id": "amiri-kinetic-display-v30",
+      "fontFamily": "amiri-quran",
+      "baseSize": 128,
+      "minSize": 56,
+      "lineHeight": 1.46,
+      "match": "*",
+      "label": "amiri-kinetic-display-v30"
+    },
+    {
+      "id": "scheherazade-vintage-script-v31",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 122,
+      "minSize": 52,
+      "lineHeight": 1.54,
+      "match": "*",
+      "label": "scheherazade-vintage-script-v31"
+    },
+    {
+      "id": "amiri-volcanic-master-v32",
+      "fontFamily": "amiri-quran",
+      "baseSize": 126,
+      "minSize": 54,
+      "lineHeight": 1.48,
+      "match": "*",
+      "label": "amiri-volcanic-master-v32"
+    },
+    {
+      "id": "scheherazade-volcanic-blaze-v33",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 128,
+      "minSize": 56,
+      "lineHeight": 1.46,
+      "match": "*",
+      "label": "scheherazade-volcanic-blaze-v33"
+    },
+    {
+      "id": "scheherazade-flight-breeze-v34",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 124,
+      "minSize": 52,
+      "lineHeight": 1.52,
+      "match": "*",
+      "label": "scheherazade-flight-breeze-v34"
+    },
+    {
+      "id": "amiri-emerald-marine-v37",
+      "fontFamily": "amiri-quran",
+      "baseSize": 122,
+      "minSize": 50,
+      "lineHeight": 1.54,
+      "match": "*",
+      "label": "amiri-emerald-marine-v37"
+    },
+    {
+      "id": "nastaliq-handwritten-master-v39",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 118,
+      "minSize": 48,
+      "lineHeight": 1.6,
+      "match": "*",
+      "label": "nastaliq-handwritten-master-v39"
+    },
+    {
+      "id": "amiri-makkah-regal-v40",
+      "fontFamily": "amiri-quran",
+      "baseSize": 126,
+      "minSize": 54,
+      "lineHeight": 1.5,
+      "match": "*",
+      "label": "amiri-makkah-regal-v40"
+    },
+    {
+      "id": "amiri-butterfly-script-v42",
+      "fontFamily": "amiri-quran",
+      "baseSize": 124,
+      "minSize": 52,
+      "lineHeight": 1.5,
+      "match": "*",
+      "label": "amiri-butterfly-script-v42"
+    },
+    {
+      "id": "amiri-tempest-script-v44",
+      "fontFamily": "amiri-quran",
+      "baseSize": 120,
+      "minSize": 50,
+      "lineHeight": 1.48,
+      "match": "*",
+      "label": "amiri-tempest-script-v44"
+    },
+    {
+      "id": "amiri-maternal-love-v48",
+      "fontFamily": "amiri-quran",
+      "baseSize": 122,
+      "minSize": 50,
+      "lineHeight": 1.52,
+      "match": "*",
+      "label": "amiri-maternal-love-v48"
+    },
+    {
+      "id": "scheherazade-cry-mercy-v51",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 122,
+      "minSize": 50,
+      "lineHeight": 1.54,
+      "match": "*",
+      "label": "scheherazade-cry-mercy-v51"
+    },
+    {
+      "id": "amiri-solemn-mortality-v52",
+      "fontFamily": "amiri-quran",
+      "baseSize": 122,
+      "minSize": 50,
+      "lineHeight": 1.5,
+      "match": "*",
+      "label": "amiri-solemn-mortality-v52"
+    },
+    {
+      "id": "amiri-quran-master-v54",
+      "fontFamily": "amiri-quran",
+      "baseSize": 72,
+      "minSize": 36,
+      "lineHeight": 1.6,
+      "label": "Amiri Quran Master V54"
+    },
+    {
+      "id": "scheherazade-new-elegant-v55",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 68,
+      "minSize": 32,
+      "lineHeight": 1.55,
+      "label": "Scheherazade New Elegant V55"
+    },
+    {
+      "id": "serene-naskh-script",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 96,
+      "minSize": 36,
+      "lineHeight": 1.8,
+      "label": "Serene Naskh Script"
+    },
+    {
+      "id": "majestic-amiri-banner",
+      "fontFamily": "amiri-quran",
+      "baseSize": 110,
+      "minSize": 42,
+      "lineHeight": 1.6,
+      "match": "*",
+      "label": "Majestic Amiri Banner"
+    },
+    {
+      "id": "turquoise-amiri-harmony",
+      "fontFamily": "amiri-quran",
+      "baseSize": 96,
+      "minSize": 36,
+      "lineHeight": 1.8,
+      "match": "*",
+      "label": "Turquoise Amiri Harmony"
+    },
+    {
+      "id": "scheherazade-elegant-v59",
+      "fontFamily": "scheherazade-new",
+      "baseSize": 88,
+      "minSize": 32,
+      "lineHeight": 1.6,
+      "match": "*",
+      "label": "Scheherazade Elegant v59"
+    }
+  ],
+  "motion": [
+    {
+      "id": "sacred-drift-motion",
+      "frame": "arch",
+      "textFx": "fade",
+      "motif": "tasbih",
+      "gradeFx": "coolnight",
+      "camera": "static",
+      "introFx": "patternwipe",
+      "ornament": "medallion",
+      "borderFx": "wind",
+      "skyFx": "fireflies",
+      "artFx": "sitare",
+      "label": "Sacred Drift Motion"
+    },
+    {
+      "id": "desert-caravan-motion",
+      "frame": "deco",
+      "textFx": "glide",
+      "motif": "rehal",
+      "gradeFx": "warmgold",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "lanternjhumka",
+      "borderFx": "clouds",
+      "skyFx": "petals",
+      "artFx": "caravan",
+      "label": "Desert Caravan Motion"
+    },
+    {
+      "id": "celestial-rosette-serenade",
+      "frame": "rosette",
+      "textFx": "popwave",
+      "motif": "star8",
+      "gradeFx": "dreamy",
+      "camera": "panx",
+      "introFx": "patternwipe",
+      "ornament": "geostar",
+      "borderFx": "birds",
+      "skyFx": "fog",
+      "artFx": "palms",
+      "label": "Celestial Rosette Serenade"
+    },
+    {
+      "id": "tranquil-oasis-drift",
+      "frame": "classic",
+      "textFx": "typewriter",
+      "motif": "kaaba",
+      "gradeFx": "sepia",
+      "camera": "zoomin",
+      "introFx": "classic",
+      "ornament": "starcrescent",
+      "borderFx": "flags",
+      "skyFx": "rain",
+      "artFx": "vines",
+      "label": "Tranquil Oasis Drift"
+    },
+    {
+      "id": "sunrise-meditation-move",
+      "frame": "arch",
+      "textFx": "glide",
+      "motif": "tasbih",
+      "gradeFx": "warmgold",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "lanternjhumka",
+      "borderFx": "birds",
+      "skyFx": "fireflies",
+      "artFx": "rosette",
+      "label": "Sunrise Meditation Move"
+    },
+    {
+      "id": "night-reflection-drift",
+      "frame": "deco",
+      "textFx": "blurin",
+      "motif": "kaaba",
+      "gradeFx": "coolnight",
+      "camera": "panx",
+      "introFx": "patternwipe",
+      "ornament": "medallion",
+      "borderFx": "none",
+      "skyFx": "snow",
+      "artFx": "vines",
+      "label": "Night Reflection Drift"
+    },
+    {
+      "id": "sanctuary-arch-motion",
+      "frame": "arch",
+      "textFx": "glide",
+      "motif": "rehal",
+      "gradeFx": "auto",
+      "camera": "static",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "borderFx": "wind",
+      "skyFx": "smoke",
+      "artFx": "sitare",
+      "label": "Sanctuary Arch Motion"
+    },
+    {
+      "id": "majestic-harmony-glide",
+      "frame": "rosette",
+      "textFx": "popwave",
+      "motif": "kaaba",
+      "gradeFx": "warmgold",
+      "camera": "driftbreathe",
+      "introFx": "patternwipe",
+      "ornament": "medallion",
+      "borderFx": "clouds",
+      "skyFx": "petals",
+      "artFx": "rosette",
+      "label": "Majestic Harmony Glide"
+    },
+    {
+      "id": "silent-night-drift",
+      "frame": "classic",
+      "textFx": "blurin",
+      "motif": "tasbih",
+      "gradeFx": "coolnight",
+      "camera": "driftbreathe",
+      "introFx": "crescentfade",
+      "ornament": "lanternjhumka",
+      "borderFx": "wind",
+      "skyFx": "fireflies",
+      "artFx": "sitare",
+      "label": "Silent Night Drift"
+    },
+    {
+      "id": "abundance-golden-pan",
+      "frame": "deco",
+      "textFx": "glide",
+      "motif": "kaaba",
+      "gradeFx": "warmgold",
+      "camera": "panx",
+      "introFx": "crescentfade",
+      "ornament": "geostar",
+      "borderFx": "clouds",
+      "skyFx": "petals",
+      "artFx": "sitare",
+      "label": "Abundance Golden Pan"
+    },
+    {
+      "id": "devotional-shrine-focus",
+      "frame": "arch",
+      "textFx": "blurin",
+      "motif": "kaaba",
+      "gradeFx": "coolnight",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "ornament": "starcrescent",
+      "borderFx": "wind",
+      "skyFx": "fog",
+      "artFx": "vines",
+      "label": "Devotional Shrine Focus"
+    },
+    {
+      "id": "desert-sanctuary-glide",
+      "frame": "deco",
+      "textFx": "glide",
+      "motif": "tasbih",
+      "gradeFx": "warmgold",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "lanternjhumka",
+      "borderFx": "wind",
+      "skyFx": "fireflies",
+      "artFx": "caravan",
+      "label": "Desert Sanctuary Glide"
+    },
+    {
+      "id": "serene-kenburns-flow",
+      "textFx": "glide",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "label": "Serene Kenburns Flow"
+    },
+    {
+      "id": "gentle-pan-typewriter-flow",
+      "frame": "arch",
+      "textFx": "typewriter",
+      "motif": "tasbih",
+      "gradeFx": "warmgold",
+      "camera": "panx",
+      "introFx": "patternwipe",
+      "ornament": "lanternjhumka",
+      "borderFx": "clouds",
+      "skyFx": "fireflies",
+      "artFx": "vines",
+      "label": "Gentle Pan & Typewriter Flow"
+    },
+    {
+      "id": "serene-festival-drift",
+      "frame": "classic",
+      "textFx": "glide",
+      "motif": "star8",
+      "gradeFx": "warmgold",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "geostar",
+      "borderFx": "clouds",
+      "skyFx": "petals",
+      "artFx": "lanterns",
+      "label": "Serene Festival Drift"
+    },
+    {
+      "id": "kenburns-smooth-glide",
+      "frame": "arch",
+      "textFx": "glide",
+      "motif": "star8",
+      "gradeFx": "warmgold",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "skyFx": "fireflies",
+      "artFx": "sitare",
+      "label": "Kenburns Smooth Glide"
+    },
+    {
+      "id": "ambient-pan-reveal",
+      "frame": "deco",
+      "textFx": "popwave",
+      "motif": "tasbih",
+      "gradeFx": "coolnight",
+      "camera": "panx",
+      "introFx": "patternwipe",
+      "ornament": "lanternjhumka",
+      "skyFx": "petals",
+      "artFx": "vines",
+      "match": "*",
+      "label": "Ambient Pan Reveal"
+    },
+    {
+      "id": "classic-rosette-drift",
+      "frame": "rosette",
+      "textFx": "fade",
+      "motif": "kaaba",
+      "gradeFx": "dreamy",
+      "camera": "zoomin",
+      "introFx": "classic",
+      "ornament": "geostar",
+      "skyFx": "smoke",
+      "artFx": "caravan",
+      "match": "*",
+      "label": "Classic Rosette Drift"
+    },
+    {
+      "id": "arch-popwave-reveal",
+      "frame": "arch",
+      "textFx": "popwave",
+      "motif": "rehal",
+      "gradeFx": "warmgold",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "ornament": "medallion",
+      "skyFx": "fireflies",
+      "artFx": "rosette",
+      "match": "*",
+      "label": "Arch Popwave Reveal"
+    },
+    {
+      "id": "deco-typewriter-pan",
+      "frame": "deco",
+      "textFx": "typewriter",
+      "motif": "kaaba",
+      "gradeFx": "sepia",
+      "camera": "panx",
+      "introFx": "crescentfade",
+      "ornament": "geostar",
+      "skyFx": "rain",
+      "artFx": "palms",
+      "match": "*",
+      "label": "Deco Typewriter Pan"
+    },
+    {
+      "id": "panx-typewriter-arch-v4",
+      "textFx": "typewriter",
+      "camera": "panx",
+      "introFx": "patternwipe",
+      "label": "panx-typewriter-arch-v4"
+    },
+    {
+      "id": "zoomin-popwave-deco-v5",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "classic",
+      "label": "zoomin-popwave-deco-v5"
+    },
+    {
+      "id": "kenburns-glide-classic-v6",
+      "textFx": "glide",
+      "camera": "kenburns",
+      "introFx": "patternwipe",
+      "label": "kenburns-glide-classic-v6"
+    },
+    {
+      "id": "panx-typewriter-rosette-v7",
+      "textFx": "typewriter",
+      "camera": "panx",
+      "introFx": "crescentfade",
+      "label": "panx-typewriter-rosette-v7"
+    },
+    {
+      "id": "zoomin-glide-deco-v8",
+      "textFx": "glide",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "label": "zoomin-glide-deco-v8"
+    },
+    {
+      "id": "fireflies-zoomin-popwave-v9",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "skyFx": "fireflies",
+      "label": "fireflies-zoomin-popwave-v9"
+    },
+    {
+      "id": "fireflies-kenburns-glide-v10",
+      "textFx": "glide",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "skyFx": "fireflies",
+      "label": "fireflies-kenburns-glide-v10"
+    },
+    {
+      "id": "fireflies-panx-typewriter-v11",
+      "textFx": "typewriter",
+      "camera": "panx",
+      "introFx": "patternwipe",
+      "skyFx": "fireflies",
+      "label": "fireflies-panx-typewriter-v11"
+    },
+    {
+      "id": "kenburns-typewriter-rosette-v12",
+      "textFx": "typewriter",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "label": "kenburns-typewriter-rosette-v12"
+    },
+    {
+      "id": "sitare-zoomin-popwave-v13",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "artFx": "sitare",
+      "label": "sitare-zoomin-popwave-v13"
+    },
+    {
+      "id": "snow-kenburns-glide-v14",
+      "textFx": "glide",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "skyFx": "snow",
+      "label": "snow-kenburns-glide-v14"
+    },
+    {
+      "id": "snow-panx-glide-v15",
+      "textFx": "glide",
+      "camera": "panx",
+      "introFx": "crescentfade",
+      "skyFx": "snow",
+      "label": "snow-panx-glide-v15"
+    },
+    {
+      "id": "storm-kenburns-popwave-v16",
+      "textFx": "popwave",
+      "camera": "kenburns",
+      "introFx": "patternwipe",
+      "skyFx": "storm",
+      "label": "storm-kenburns-popwave-v16"
+    },
+    {
+      "id": "rain-panx-popwave-v17",
+      "textFx": "popwave",
+      "camera": "panx",
+      "introFx": "patternwipe",
+      "skyFx": "rain",
+      "label": "rain-panx-popwave-v17"
+    },
+    {
+      "id": "tasbih-panx-glide-v19",
+      "textFx": "glide",
+      "camera": "panx",
+      "introFx": "crescentfade",
+      "label": "tasbih-panx-glide-v19"
+    },
+    {
+      "id": "soft-glide-crescent-v24",
+      "textFx": "glide",
+      "camera": "static",
+      "introFx": "crescentfade",
+      "label": "soft-glide-crescent-v24"
+    },
+    {
+      "id": "starcrescent-kenburns-glide-v26",
+      "textFx": "glide",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "label": "starcrescent-kenburns-glide-v26"
+    },
+    {
+      "id": "galaxy-zoomin-glide-v27",
+      "textFx": "glide",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "match": "*",
+      "label": "galaxy-zoomin-glide-v27"
+    },
+    {
+      "id": "orbit-zoomin-popwave-v28",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "ornament": "starcrescent",
+      "match": "*",
+      "label": "orbit-zoomin-popwave-v28"
+    },
+    {
+      "id": "high-octane-popwave-v30",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "ornament": "geostar",
+      "artFx": "sitare",
+      "match": "*",
+      "label": "high-octane-popwave-v30"
+    },
+    {
+      "id": "sepia-heritage-glide-v31",
+      "textFx": "glide",
+      "gradeFx": "sepia",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "match": "*",
+      "label": "sepia-heritage-glide-v31"
+    },
+    {
+      "id": "inferno-popwave-zoomin-v32",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "ornament": "geostar",
+      "skyFx": "fireflies",
+      "match": "*",
+      "label": "inferno-popwave-zoomin-v32"
+    },
+    {
+      "id": "pyro-popwave-zoomin-v33",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "ornament": "geostar",
+      "skyFx": "fireflies",
+      "artFx": "sitare",
+      "match": "*",
+      "label": "pyro-popwave-zoomin-v33"
+    },
+    {
+      "id": "skyward-flight-panx-v34",
+      "textFx": "glide",
+      "camera": "panx",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "borderFx": "birds",
+      "match": "*",
+      "label": "skyward-flight-panx-v34"
+    },
+    {
+      "id": "aquatic-current-kenburns-v35",
+      "textFx": "glide",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "borderFx": "wind",
+      "artFx": "vines",
+      "match": "*",
+      "label": "aquatic-current-kenburns-v35"
+    },
+    {
+      "id": "medallion-glide-aquatic-v37",
+      "textFx": "glide",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "medallion",
+      "borderFx": "wind",
+      "artFx": "vines",
+      "match": "*",
+      "label": "medallion-glide-aquatic-v37"
+    },
+    {
+      "id": "dark-night-glide-v38",
+      "textFx": "glide",
+      "gradeFx": "coolnight",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "match": "*",
+      "label": "dark-night-glide-v38"
+    },
+    {
+      "id": "ink-script-typewriter-glide-v39",
+      "textFx": "typewriter",
+      "gradeFx": "sepia",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "match": "*",
+      "label": "ink-script-typewriter-glide-v39"
+    },
+    {
+      "id": "kaaba-reverence-glide-v40",
+      "textFx": "glide",
+      "motif": "kaaba",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "match": "*",
+      "label": "kaaba-reverence-glide-v40"
+    },
+    {
+      "id": "falling-petals-glide-v41",
+      "textFx": "glide",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "skyFx": "petals",
+      "artFx": "vines",
+      "match": "*",
+      "label": "falling-petals-glide-v41"
+    },
+    {
+      "id": "translucent-crystal-glide-v43",
+      "textFx": "glide",
+      "gradeFx": "dreamy",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "medallion",
+      "match": "*",
+      "label": "translucent-crystal-glide-v43"
+    },
+    {
+      "id": "vortex-whirl-glide-v44",
+      "textFx": "glide",
+      "camera": "kenburns",
+      "introFx": "patternwipe",
+      "ornament": "geostar",
+      "borderFx": "wind",
+      "skyFx": "storm",
+      "match": "*",
+      "label": "vortex-whirl-glide-v44"
+    },
+    {
+      "id": "dawn-ascent-glide-v45",
+      "textFx": "glide",
+      "gradeFx": "warmgold",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "match": "*",
+      "label": "dawn-ascent-glide-v45"
+    },
+    {
+      "id": "emerald-shine-glide-v46",
+      "textFx": "glide",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "geostar",
+      "artFx": "vines",
+      "match": "*",
+      "label": "emerald-shine-glide-v46"
+    },
+    {
+      "id": "warm-flame-glide-v47",
+      "textFx": "glide",
+      "gradeFx": "warmgold",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "lanternjhumka",
+      "skyFx": "fireflies",
+      "artFx": "lanterns",
+      "match": "*",
+      "label": "warm-flame-glide-v47"
+    },
+    {
+      "id": "gentle-maternal-embrace-glide-v48",
+      "textFx": "glide",
+      "gradeFx": "warmgold",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "medallion",
+      "artFx": "vines",
+      "match": "*",
+      "label": "gentle-maternal-embrace-glide-v48"
+    },
+    {
+      "id": "tears-of-supplication-glide-v51",
+      "textFx": "glide",
+      "gradeFx": "coolnight",
+      "camera": "kenburns",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "skyFx": "rain",
+      "match": "*",
+      "label": "tears-of-supplication-glide-v51"
+    },
+    {
+      "id": "eternal-return-glide-v52",
+      "textFx": "fade",
+      "gradeFx": "coolnight",
+      "camera": "static",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "match": "*",
+      "label": "eternal-return-glide-v52"
+    },
+    {
+      "id": "serene-glide-v54",
+      "frame": "rosette",
+      "textFx": "glide",
+      "motif": "tasbih",
+      "gradeFx": "warmgold",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "ornament": "starcrescent",
+      "borderFx": "clouds",
+      "skyFx": "fireflies",
+      "artFx": "sitare",
+      "label": "Serene Glide V54"
+    },
+    {
+      "id": "kenburns-crescent-drift-v55",
+      "frame": "arch",
+      "textFx": "popwave",
+      "motif": "rehal",
+      "gradeFx": "coolnight",
+      "camera": "kenburns",
+      "introFx": "patternwipe",
+      "ornament": "medallion",
+      "borderFx": "wind",
+      "skyFx": "petals",
+      "artFx": "vines",
+      "label": "Kenburns Crescent Drift V55"
+    },
+    {
+      "id": "royal-zoom-reveal",
+      "textFx": "popwave",
+      "camera": "zoomin",
+      "introFx": "patternwipe",
+      "match": "*",
+      "label": "Royal Zoom Reveal"
+    },
+    {
+      "id": "gentle-glide-motion-v58",
+      "textFx": "glide",
+      "camera": "zoomin",
+      "introFx": "crescentfade",
+      "match": "*",
+      "label": "Gentle Glide Motion v58"
+    },
+    {
+      "id": "kenburns-celestial-motion-v59",
+      "textFx": "popwave",
+      "camera": "kenburns",
+      "introFx": "patternwipe",
+      "match": "*",
+      "label": "Kenburns Celestial Motion v59"
+    }
+  ],
+  "audio": [
+    {
+      "id": "uzma-quranic-recitation-audio",
+      "voiceArabic": "ar-SA-ZariyahNeural",
+      "voiceUrdu": "ur-PK-UzmaNeural",
+      "sfxSet": "default",
+      "match": "*",
+      "label": "Uzma Quranic Recitation Audio"
+    },
+    {
+      "id": "hamed-classic-recitation",
+      "voiceArabic": "ar-SA-HamedNeural",
+      "voiceUrdu": "ur-PK-AsadNeural",
+      "sfxSet": "default",
+      "match": "*",
+      "label": "Hamed Classic Recitation"
+    },
+    {
+      "id": "hamed-soft-resonance",
+      "voiceArabic": "ar-SA-HamedNeural",
+      "voiceUrdu": "ur-PK-UzmaNeural",
+      "sfxSet": "default",
+      "match": "*",
+      "label": "Hamed Soft Resonance"
+    },
+    {
+      "id": "zariyah-morning-warmth",
+      "voiceArabic": "ar-SA-ZariyahNeural",
+      "voiceUrdu": "ur-PK-AsadNeural",
+      "sfxSet": "default",
+      "match": "*",
+      "label": "Zariyah Morning Warmth"
+    }
+  ],
+  "styles": []
+}

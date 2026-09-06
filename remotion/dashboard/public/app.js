@@ -1547,10 +1547,13 @@ function vfxPromptText(){
   const fld=function(k){return (_VS&&_VS.fields&&_VS.fields.find(function(x){return x.key===k;}))||{min:0,max:999};};
   const lo=function(k){return fld(k).min;};
   const hi=function(k){return fld(k).max;};
-  L.push('You design visual presets (UNIFIED MASTER pool) for a Remotion dua-video app. Output: ONLY a JSON array. Har element EK item type follow kare — SIRF ye 6 types allow hain:');
+  L.push('You design visual presets (UNIFIED MASTER pool) for a Remotion dua-video app. Output: ONLY a JSON array. Har element EK item type follow kare — SIRF ye 7 types allow hain:');
   L.push('');
-  L.push('1) PATTERN (geometric SVG VFX): {"type":"pattern","label":"human readable name","kind":"'+VFX_KINDS+'","tileSize":'+lo('tileSize')+'-'+hi('tileSize')+',"strokeWidth":'+lo('strokeWidth')+'-'+hi('strokeWidth')+',"colorToken":"'+VFX_TOKENS+'","alpha":'+lo('alpha')+'-'+hi('alpha')+',"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB","breathFrames":0-'+hi('breathFrames')+',"breathAmpl":0-'+hi('breathAmpl')+',"seedSalt":0-'+hi('seedSalt')+',"bandSize":'+lo('bandSize')+'-'+hi('bandSize')+'} — solidColor sirf tab jab colorToken="solid"; warna omit.');
-  L.push('  id mat bhejo — server label se unique id khud banayega.');
+  L.push('1) PATTERN (geometric SVG VFX — TWO OPTIONS: kind-based OR shapeSpec-based):');
+  L.push('   OPTION A — kind-based: {"type":"pattern","label":"name","kind":"'+VFX_KINDS+'","tileSize":'+lo('tileSize')+'-'+hi('tileSize')+',"strokeWidth":'+lo('strokeWidth')+'-'+hi('strokeWidth')+',"colorToken":"'+VFX_TOKENS+'","alpha":'+lo('alpha')+'-'+hi('alpha')+',"zones":["'+VFX_ZONES+'"],"solidColor":"#RRGGBB","breathFrames":0-'+hi('breathFrames')+',"breathAmpl":0-'+hi('breathAmpl')+',"seedSalt":0-'+hi('seedSalt')+',"bandSize":'+lo('bandSize')+'-'+hi('bandSize')+'}');
+  L.push('   OPTION B — shapeSpec-based (open-ended safe primitives): {"type":"pattern","label":"name","shapeSpec":{"primitives":[{"prim":"line"|"circle"|"arc"|"polygon"|"path","params":{...}}],"composition":{"repeat":{"count":1-50,"spacing":0-200,"direction":"horizontal"|"vertical"},"rotate":{"centerX":0,"centerY":0,"angle":0-360,"copies":2-12},"mirror":{"axis":"x"|"y"|"both"}}},"tileSize":...,"colorToken":"accent","zones":["frame"],"bandSize":64,...}');
+  L.push('   shapeSpec rules: max 200 raw primitives; expanded count (raw x repeat.count x rotate.copies) MUST NOT exceed 200; path "d" max 512 chars; NO script/html/data URIs; rotate.angle = TOTAL spread (NOT per-copy increment).');
+  L.push('   EITHER kind OR shapeSpec — NEVER both in same pattern. id mat bhejo — server label se unique id khud banayega.');
   L.push('');
   L.push('2) PLUGIN (VFX pool attachment — "match" STRICTLY MANDATORY): {"type":"plugin","label":"name","match":"*","frameCustomId":"existing_pattern_id","styleOverrides":{...}} — "match" ki VALUE sirf "*" (sab duas, global — koi dua-id hardcode nahi) ya ["dua_id_1","dua_id_2"] (sirf targeted legacy) ho sakti hai. frameCustomId = existing pattern ki exact id (ya inline "frameCustom": {poora Pattern object}). styleOverrides ki COMPLETE whitelist yehi hai: '+VFX_OVR+'. Iske bahar koi key (jaise alpha/strokeWidth/tileSize — ye pattern-fields hain, overrides nahi) silently drop ho jayegi.');
   L.push('');
@@ -1564,6 +1567,9 @@ function vfxPromptText(){
   }
   L.push('');
   L.push('6) AUDIO (voice/sfx selection — recitation track kabhi override nahi): {"type":"audio","label":"name","match":"*","voiceArabic":'+_mq(MS_AUDIO&&MS_AUDIO.voiceArabic)+',"voiceUrdu":'+_mq(MS_AUDIO&&MS_AUDIO.voiceUrdu)+',"sfxSet":'+_mq(MS_AUDIO&&MS_AUDIO.sfxSet)+'}');
+  L.push('');
+  L.push('7) STYLE (COMBINED LOOK — one JSON for pattern+theme+typography+motion+audio): {"type":"style","label":"name","match":"*","pattern":{...optional pattern fields (kind OR shapeSpec)...},"theme":{...optional theme payload...},"typography":{...optional font settings...},"motion":{...optional motion enums...},"audio":{...optional voice/sfx...}}');
+  L.push('   Each nested section is optional. All validated against their type rules. When multiple style bundles share same match, last-added wins.');
   L.push('');
   L.push('HARD RULES:');
   L.push('CRITICAL: The \'match\' property MUST BE EXACTLY "*" (e.g. "match": "*"). NEVER output an empty string like "match": "" under any circumstances.');
@@ -1580,10 +1586,15 @@ function vfxPromptText(){
       const m=p.plugin&&p.plugin.match;
       L.push('     - "'+p.id+'" match='+(Array.isArray(m)?m.join(','):(m||'any')));
     }
+    if(r.styles&&r.styles.length){
+      L.push('   REGISTERED styles ('+r.styles.length+'):');
+      for(const s of r.styles) L.push('     - "'+s.id+'" '+(s.label||''));
+    }
   }
   L.push('6. Every PLUGIN item MUST include "match": "*" (or an array of dua IDs). NEVER omit the match field or set it to an empty string.');
+  L.push('7. PATTERN shapeSpec safety: max 200 raw primitives, expanded count (raw x repeat x rotate) MUST NOT exceed 200; path "d" max 512 chars; rotate.angle = TOTAL angular spread (NOT per-copy).');
   L.push('');
-  L.push('Output: [ {pehla design}, {doosra design}, ... ] (sirf 6 types — unknown type reject hoga)');
+  L.push('Output: [ {pehla design}, {doosra design}, ... ] (sirf 7 types — unknown type reject hoga)');
   return L.join('\n');
 }
 function vfxCopyPrompt(){
@@ -1718,17 +1729,19 @@ async function vfxRefresh(){
     const j=await r.json();
     if(!j.ok) throw new Error(j.error||'list fail');
     _vfxRegistry=j;
-    if(rc) rc.textContent='('+(j.patterns.length)+' patterns / '+(j.plugins.length)+' plugins'+(j.master&&(j.master.themes||0)+(j.master.typography||0)+(j.master.motion||0)+(j.master.audio||0)>0?' + '+(j.master.themes||0)+' theme / '+(j.master.typography||0)+' type / '+(j.master.motion||0)+' motion / '+(j.master.audio||0)+' audio':'')+' registered)';
+    if(rc) rc.textContent='('+(j.patterns.length)+' patterns / '+(j.plugins.length)+' plugins / '+(j.styles?j.styles.length:0)+' styles'+(j.master&&(j.master.themes||0)+(j.master.typography||0)+(j.master.motion||0)+(j.master.audio||0)>0?' + '+(j.master.themes||0)+' theme / '+(j.master.typography||0)+' type / '+(j.master.motion||0)+' motion / '+(j.master.audio||0)+' audio':'')+' registered)';
     const box=document.getElementById('vfx_registry');
     box.innerHTML='';
     const both=[];
     for(const p of (j.patterns||[])) both.push({kind:'pattern',id:p.id,label:p.label,fp:p.fingerprint});
     for(const p of (j.plugins||[])) both.push({kind:'plugin',id:p.id,label:p.label||p.plugin.label,fp:p.fingerprint});
+    for(const s of (j.styles||[])) both.push({kind:'style',id:s.id,label:s.label,fp:s.fingerprint});
     if(!both.length){ box.innerHTML='<div class="vfx-empty">Abhi koi custom VFX registered nahi</div>'; }
     for(const e of both){
       const div=document.createElement('div');
       div.className='vfx-regrow';
-      div.innerHTML='<span class="vfx-b '+(e.kind==='pattern'?'vfx-ok':'vfx-sim')+'">'+e.kind+'</span><span class="vfx-id">'+vfxEsc(e.id)+'</span><span class="vfx-fp">'+vfxEsc(e.fp||'')+'</span><span class="vfx-reglabel">'+vfxEsc(e.label||'')+'</span>';
+      const cls=e.kind==='pattern'?'vfx-ok':e.kind==='style'?'vfx-sim':'vfx-sim';
+      div.innerHTML='<span class="vfx-b '+cls+'">'+e.kind+'</span><span class="vfx-id">'+vfxEsc(e.id)+'</span><span class="vfx-fp">'+vfxEsc(e.fp||'')+'</span><span class="vfx-reglabel">'+vfxEsc(e.label||'')+'</span>';
       box.appendChild(div);
     }
     const pbox=document.getElementById('vfx_promptbox');

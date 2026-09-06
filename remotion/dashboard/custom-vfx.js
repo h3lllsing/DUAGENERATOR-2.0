@@ -65,13 +65,25 @@ const shape = (v, k) => (FIELD[k].type === 'int' ? Math.round(v) : v);
 
 function sanitizePattern(p) {
   if (!p || typeof p !== 'object') return null;
-  if (typeof p.kind !== 'string' || !KIND_RE.test(p.kind)) return null;
+
+  // EITHER kind OR shapeSpec — never both
+  const hasKind = typeof p.kind === 'string' && KIND_RE.test(p.kind);
+  const hasShapeSpec = p.shapeSpec !== null && p.shapeSpec !== undefined;
+  if (hasKind && hasShapeSpec) return null;
+  if (!hasKind && !hasShapeSpec) return null;
+
+  let shapeSpec = undefined;
+  if (hasShapeSpec) {
+    shapeSpec = sanitizeShapeSpec(p.shapeSpec);
+    if (!shapeSpec) return null;
+  }
+  // kind OR shapeSpec — mutually exclusive per validate.ts L2
+  let kind = hasKind ? p.kind : (shapeSpec ? undefined : 'custom-shape');
+
   let zones = Array.isArray(p.zones)
     ? p.zones.map((z) => String(z)).filter((z) => ZONE_RE.test(z))
     : ['frame', 'corners'];
   zones = Array.from(new Set(zones));
-  // validate.ts L2 rule feast-loud: 'top' band aur 'frame' band exclusive
-  // hain — dono ek sath kabhi nahi; frame (poora border) prefer karo.
   if (zones.includes('top') && zones.includes('frame')) {
     zones = zones.filter((z) => z !== 'top');
   }
@@ -87,8 +99,7 @@ function sanitizePattern(p) {
       : null;
     if (!solidColor) return null;
   }
-  return {
-    kind: p.kind,
+  const entry = {
     tileSize: shape(num(p.tileSize, FIELD.tileSize), 'tileSize'),
     strokeWidth: shape(num(p.strokeWidth, FIELD.strokeWidth), 'strokeWidth'),
     colorToken,
@@ -101,6 +112,9 @@ function sanitizePattern(p) {
     breathAmpl: shape(num(p.breathAmpl, FIELD.breathAmpl), 'breathAmpl'),
     seedSalt: Math.max(0, shape(num(p.seedSalt, FIELD.seedSalt), 'seedSalt')),
   };
+  if (kind) entry.kind = kind;
+  if (shapeSpec) entry.shapeSpec = shapeSpec;
+  return entry;
 }
 
 function sanitizeOverrides(o) {
@@ -160,6 +174,10 @@ function load(PROJECT) {
       typography: loadRealm(raw.typography, sanitizeTypographyItem),
       motion: loadRealm(raw.motion, sanitizeMotionItem),
       audio: loadRealm(raw.audio, sanitizeAudioItem),
+      styles: Array.isArray(raw.styles)
+        ? raw.styles.filter((it) => it && typeof it.id === 'string' && ID_RE.test(it.id) &&
+            !BLOCKED_IDS.has(it.id) && sanitizeStyleItem(it))
+        : [],
     };
     _vfxCache = result;
     _vfxCacheMtime = st.mtimeMs;
@@ -255,6 +273,236 @@ function fingerprintItem(entry) {
   return sha256(JSON.stringify(canonicalize(entry))).slice(0, 12);
 }
 
+// ── ShapeSpec sanitizer (open-ended safe primitives) ──
+const PRIM_TYPES = new Set(['line', 'circle', 'arc', 'polygon', 'path']);
+const SHAPE_MAX_RAW = 200;
+const SHAPE_MAX_EXPANDED = 200;
+const SHAPE_PATH_MAX_CHARS = 512;
+const SHAPE_PATH_ALLOWED = new Set('MLHVQCZmlhvqcaz'.split(''));
+const SHAPE_PATH_BLOCKED_RE = /<script|javascript:|on\w+=|<svg|<foreignObject|<img|data:/i;
+
+function clampPrimNum(v, min, max, def) {
+  return typeof v === 'number' && Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : def;
+}
+
+function sanitizePrimitive(raw, idx) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (!PRIM_TYPES.has(raw.prim)) return null;
+  if (!raw.params || typeof raw.params !== 'object') return null;
+  const p = raw.params;
+
+  switch (raw.prim) {
+    case 'line':
+      return {prim: 'line', params: {
+        x1: clampPrimNum(p.x1, -500, 1500, 0),
+        y1: clampPrimNum(p.y1, -500, 2500, 0),
+        x2: clampPrimNum(p.x2, -500, 1500, 100),
+        y2: clampPrimNum(p.y2, -500, 2500, 100),
+      }};
+    case 'circle':
+      return {prim: 'circle', params: {
+        cx: clampPrimNum(p.cx, -500, 1500, 50),
+        cy: clampPrimNum(p.cy, -500, 2500, 50),
+        r: clampPrimNum(p.r, 0, 500, 30),
+      }};
+    case 'arc':
+      return {prim: 'arc', params: {
+        cx: clampPrimNum(p.cx, -500, 1500, 50),
+        cy: clampPrimNum(p.cy, -500, 2500, 50),
+        r: clampPrimNum(p.r, 0, 500, 40),
+        startAngle: clampPrimNum(p.startAngle, 0, 360, 0),
+        endAngle: clampPrimNum(p.endAngle, 0, 360, 180),
+      }};
+    case 'polygon': {
+      const pts = Array.isArray(p.points) ? p.points : [];
+      const clamped = pts.slice(0, 50).map((pt) => {
+        if (!Array.isArray(pt) || pt.length < 2) return [0, 0];
+        return [clampPrimNum(pt[0], -500, 1500, 0), clampPrimNum(pt[1], -500, 2500, 0)];
+      });
+      return {prim: 'polygon', params: {points: clamped, close: p.close !== false}};
+    }
+    case 'path': {
+      const d = typeof p.d === 'string' ? p.d : '';
+      if (d.length > SHAPE_PATH_MAX_CHARS) return null;
+      if (SHAPE_PATH_BLOCKED_RE.test(d)) return null;
+      for (const ch of d) {
+        if (!SHAPE_PATH_ALLOWED.has(ch) && !/[0-9.,\- ]/.test(ch)) return null;
+      }
+      return {prim: 'path', params: {d}};
+    }
+    default:
+      return null;
+  }
+}
+
+function sanitizeComposition(raw) {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const out = {};
+
+  if (raw.repeat && typeof raw.repeat === 'object') {
+    const r = raw.repeat;
+    out.repeat = {
+      count: Math.max(1, Math.min(50, Math.round(clampPrimNum(r.count, 1, 50, 1)))),
+      spacing: Math.max(0, Math.min(200, Math.round(clampPrimNum(r.spacing, 0, 200, 20)))),
+      direction: r.direction === 'vertical' ? 'vertical' : 'horizontal',
+    };
+  }
+
+  if (raw.rotate && typeof raw.rotate === 'object') {
+    const r = raw.rotate;
+    // angle = total angular spread (NOT per-copy increment)
+    out.rotate = {
+      centerX: clampPrimNum(r.centerX, -500, 1500, 50),
+      centerY: clampPrimNum(r.centerY, -500, 2500, 50),
+      angle: clampPrimNum(r.angle, 0, 360, 360),
+      copies: Math.max(2, Math.min(12, Math.round(clampPrimNum(r.copies, 2, 12, 6)))),
+    };
+  }
+
+  if (raw.mirror && typeof raw.mirror === 'object') {
+    const axis = raw.mirror.axis;
+    if (axis === 'x' || axis === 'y' || axis === 'both') {
+      out.mirror = {axis};
+    }
+  }
+
+  return Object.keys(out).length ? out : undefined;
+}
+
+function calcExpandedCount(rawLen, comp) {
+  let expanded = rawLen;
+  if (comp && comp.repeat && typeof comp.repeat.count === 'number') {
+    expanded *= Math.max(1, Math.min(50, Math.round(comp.repeat.count)));
+  }
+  if (comp && comp.rotate && typeof comp.rotate.copies === 'number') {
+    expanded *= Math.max(2, Math.min(12, Math.round(comp.rotate.copies)));
+  }
+  return expanded;
+}
+
+function sanitizeShapeSpec(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  if (!Array.isArray(raw.primitives)) return null;
+  if (raw.primitives.length === 0) return null;
+  if (raw.primitives.length > SHAPE_MAX_RAW) return null;
+
+  const primitives = raw.primitives.map((p, i) => sanitizePrimitive(p, i)).filter(Boolean);
+  if (primitives.length === 0) return null;
+
+  const composition = sanitizeComposition(raw.composition);
+
+  // Expansion cap: raw × repeat.count × rotate.copies <= 200
+  const expanded = calcExpandedCount(primitives.length, composition);
+  if (expanded > SHAPE_MAX_EXPANDED) return null;
+
+  return {primitives, composition};
+}
+
+// ── Style Bundle sanitizer (7th type: combined look) ──
+function sanitizeStyleItem(it) {
+  if (!it || typeof it !== 'object') return null;
+  if (it.type !== 'style') return null;
+
+  const out = {type: 'style'};
+  if (typeof it.label === 'string') out.label = it.label.slice(0, 64);
+
+  // match validation
+  const m = sanitizeMatchField(it);
+  if (m !== undefined) out.match = m;
+
+  // Validate nested sections (each optional)
+  if (it.pattern !== undefined && it.pattern !== null) {
+    // For style bundles, pattern section doesn't need kind (can be shapeSpec)
+    // but must have zones at minimum
+    if (typeof it.pattern === 'object' && Array.isArray(it.pattern.zones) && it.pattern.zones.length > 0) {
+      const p = sanitizePattern(it.pattern);
+      if (p) out.pattern = p;
+    }
+  }
+
+  if (it.theme !== undefined && it.theme !== null) {
+    const theme = sanitizeStyleThemeSection(it.theme);
+    if (theme) out.theme = theme;
+  }
+
+  if (it.typography !== undefined && it.typography !== null) {
+    const typo = sanitizeStyleTypographySection(it.typography);
+    if (typo) out.typography = typo;
+  }
+
+  if (it.motion !== undefined && it.motion !== null) {
+    const motion = sanitizeStyleMotionSection(it.motion);
+    if (motion) out.motion = motion;
+  }
+
+  if (it.audio !== undefined && it.audio !== null) {
+    const audio = sanitizeStyleAudioSection(it.audio);
+    if (audio) out.audio = audio;
+  }
+
+  return out;
+}
+
+function sanitizeStyleThemeSection(raw) {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const out = {};
+
+  if (raw.payload && typeof raw.payload === 'object') {
+    const payload = {};
+    if (typeof raw.payload.decor === 'string' && THEME_DECOR.has(raw.payload.decor)) {
+      payload.decor = raw.payload.decor;
+    }
+    const grade = {};
+    if (raw.payload.grade && typeof raw.payload.grade === 'object') {
+      for (const k of ['brightness', 'contrast', 'saturate']) {
+        const v = clampNum(raw.payload.grade[k], GRADE[k]);
+        if (v !== undefined) grade[k] = v;
+      }
+    }
+    if (Object.keys(grade).length) payload.grade = grade;
+    if (Object.keys(payload).length) out.payload = payload;
+  }
+
+  if (Array.isArray(raw.affinity)) {
+    out.affinity = raw.affinity
+      .filter((a) => typeof a === 'string' && /^[a-z0-9_\-]{1,40}$/.test(a))
+      .slice(0, 8);
+  }
+
+  return Object.keys(out).length ? out : undefined;
+}
+
+function sanitizeStyleTypographySection(raw) {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const out = {};
+  if (typeof raw.fontFamily === 'string' && FAMILY.has(raw.fontFamily)) out.fontFamily = raw.fontFamily;
+  const base = clampNum(raw.baseSize, TYPO_BASE);
+  if (base !== undefined) out.baseSize = Math.round(base);
+  const mini = clampNum(raw.minSize, TYPO_MIN);
+  if (mini !== undefined) out.minSize = Math.round(mini);
+  const lh = clampNum(raw.lineHeight, TYPO_LH);
+  if (lh !== undefined) out.lineHeight = lh;
+  return Object.keys(out).length ? out : undefined;
+}
+
+function sanitizeStyleMotionSection(raw) {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const out = {};
+  for (const k of Object.keys(MOTION_ENUMS)) {
+    if (typeof raw[k] === 'string' && MOTION_ENUMS[k].includes(raw[k])) out[k] = raw[k];
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
+function sanitizeStyleAudioSection(raw) {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const out = {};
+  if (typeof raw.voiceArabic === 'string' && VOICE_AR.has(raw.voiceArabic)) out.voiceArabic = raw.voiceArabic;
+  if (typeof raw.voiceUrdu === 'string' && VOICE_UR.has(raw.voiceUrdu)) out.voiceUrdu = raw.voiceUrdu;
+  if (typeof raw.sfxSet === 'string' && SFX_SET.has(raw.sfxSet)) out.sfxSet = raw.sfxSet;
+  return Object.keys(out).length ? out : undefined;
+}
+
 function matches(rule, duaId) {
   if (rule == null) return false;
   if (Array.isArray(rule)) return rule.includes(duaId);
@@ -312,31 +560,60 @@ function attachVfx(pack, duaId, spec) {
 
   if (targeted.length) {
     const e = resolvePluginSpec(pickOne(targeted), pack);
-    if (e) return applyVfx(spec, e);
+    if (e) spec = applyVfx(spec, e);
   } else if (strMatch.length) {
     const e = resolvePluginSpec(pickOne(strMatch), pack);
-    if (e) return applyVfx(spec, e);
-  }
-  // OPTION B combined rotation pool: wildcard "*" plugins AUR bare patterns
-  // (jinhe koi plugin frameCustomId se reference nahi karta) ek sath — doosri
-  // choti dopahar min ek pattern/plugin har dua render hota hai. Deterministic
-  // (seed), pool change = cache-bump (render.js cacheKey → poolSignature).
-  const pool = [];
-  for (const pl of plugins) {
-    if (pl.match === '*') {
-      const e = resolvePluginSpec(pl, pack);
-      if (e) pool.push(e);
+    if (e) spec = applyVfx(spec, e);
+  } else {
+    // OPTION B combined rotation pool: wildcard "*" plugins AUR bare patterns
+    const pool = [];
+    for (const pl of plugins) {
+      if (pl.match === '*') {
+        const e = resolvePluginSpec(pl, pack);
+        if (e) pool.push(e);
+      }
+    }
+    const referenced = new Set();
+    for (const pl of plugins) {
+      if (typeof pl.frameCustomId === 'string') referenced.add(pl.frameCustomId);
+    }
+    for (const id of Object.keys(pack.patterns)) {
+      if (referenced.has(id)) continue;
+      pool.push({kind: 'bare', frame: pack.patterns[id]});
+    }
+    if (pool.length) {
+      const picked = pickOne(pool);
+      if (picked) spec = applyVfx(spec, picked);
     }
   }
-  const referenced = new Set();
-  for (const pl of plugins) {
-    if (typeof pl.frameCustomId === 'string') referenced.add(pl.frameCustomId);
+
+  // ── STYLE BUNDLE consumption (always, regardless of plugin match) ──
+  const styles = Array.isArray(pack.styles) ? pack.styles : [];
+  for (const sty of styles) {
+    if (!sty || typeof sty !== 'object') continue;
+    if (!matches(sty.match, duaId)) continue;
+    if (sty.pattern && typeof sty.pattern === 'object') {
+      const vfx = spec.vfx || {};
+      if (!vfx.frame) vfx.frame = sty.pattern;
+      spec.vfx = vfx;
+    }
+    if (sty.theme && typeof sty.theme === 'object') {
+      if (typeof spec.theme === 'string') {
+        spec.themeOverrides = sty.theme;
+      } else {
+        spec.theme = Object.assign({}, spec.theme || {}, sty.theme);
+      }
+    }
+    if (sty.typography && typeof sty.typography === 'object') {
+      spec.typography = Object.assign({}, spec.typography || {}, sty.typography);
+    }
+    if (sty.motion && typeof sty.motion === 'object') {
+      spec.motion = Object.assign({}, spec.motion || {}, sty.motion);
+    }
+    if (sty.audio && typeof sty.audio === 'object') {
+      spec.audio = Object.assign({}, spec.audio || {}, sty.audio);
+    }
   }
-  for (const id of Object.keys(pack.patterns)) {
-    if (referenced.has(id)) continue;
-    pool.push({kind: 'bare', frame: pack.patterns[id]});
-  }
-  if (pool.length) return applyVfx(spec, pickOne(pool));
   return spec;
 }
 
@@ -533,6 +810,7 @@ function importBatch(PROJECT, opts) {
   const usedPluginIds = new Set(idx.pluginRecords.map((r) => r.id));
   const pendingPatterns = [];
   const pendingPlugins = [];
+  const pendingStyles = [];
 
   // ── UNIFIED MASTER realms (theme/typography/motion/audio) ──
   const TYPE_TO_REALM = {theme: 'themes', typography: 'typography', motion: 'motion', audio: 'audio'};
@@ -730,13 +1008,63 @@ function importBatch(PROJECT, opts) {
       continue;
     }
 
+    // ── STYLE bundle (7th type: combined look) ──
+    if (item.type === 'style') {
+      const s = sanitizeStyleItem(item);
+      if (!s) {
+        results.push({index: i, type: 'style', status: 'invalid',
+          reason: 'invalid style bundle (check nested sections: pattern/theme/typography/motion/audio)'});
+        continue;
+      }
+      const fp = fingerprintItem(s);
+      // Check for exact duplicate
+      const usedStyles = new Set(((pack && pack.styles) || []).map((it) => it && it.id).filter(Boolean));
+      const existingStyleFps = new Map();
+      for (const it of ((pack && pack.styles) || [])) {
+        const sf = fingerprintItem(it);
+        if (sf) existingStyleFps.set(sf, it.id);
+      }
+      const dupId = existingStyleFps.get(fp);
+      if (dupId) {
+        results.push({index: i, type: 'style', id: dupId, label, status: 'duplicate',
+          fingerprint: fp, matchedId: dupId});
+        continue;
+      }
+      // Similarity check
+      let sim = null;
+      const existingStyles = (pack && pack.styles) || [];
+      for (const existing of existingStyles) {
+        const existingFp = fingerprintItem(existing);
+        if (existingFp === fp) continue;
+        const newJson = JSON.stringify(canonicalize(s));
+        const existJson = JSON.stringify(canonicalize(existing));
+        if (newJson === existJson) {
+          sim = {id: existing.id, dist: 0};
+          break;
+        }
+        if (label && labelSim(label, existing.label || '') >= SIM_LABEL) {
+          sim = {id: existing.id, dist: 0.1};
+          break;
+        }
+      }
+      const id = uniqueId(slugId(label, 'style'), usedStyles);
+      const entry = Object.assign({id}, s);
+      if (label) entry.label = label;
+      pendingStyles.push(entry);
+      usedStyles.add(id);
+      results.push(sim
+        ? {index: i, type: 'style', id, label, status: 'similar', fingerprint: fp, matchedId: sim.id, dist: sim.dist}
+        : {index: i, type: 'style', id, label, status: 'added', fingerprint: fp});
+      continue;
+    }
+
     results.push({index: i, type: item.type || '?', status: 'invalid',
-      reason: 'unknown type (pattern|plugin|theme|typography|motion|audio only)'});
+      reason: 'unknown type (pattern|plugin|theme|typography|motion|audio|style only)'});
   }
 
   let changed = false;
   const hasMaster = MASTER_REALMS.some((r) => pendingMaster[r].length);
-  if (!dry && (pendingPatterns.length || pendingPlugins.length || hasMaster)) {
+  if (!dry && (pendingPatterns.length || pendingPlugins.length || hasMaster || pendingStyles.length)) {
     let raw = null;
     try { raw = JSON.parse(fs.readFileSync(packPath(PROJECT), 'utf8')); } catch (_) {}
     const base = (raw && typeof raw === 'object') ? raw : {};
@@ -744,6 +1072,7 @@ function importBatch(PROJECT, opts) {
       version: 2,
       patterns: (Array.isArray(base.patterns) ? base.patterns : []).concat(pendingPatterns),
       plugins: (Array.isArray(base.plugins) ? base.plugins : []).concat(pendingPlugins),
+      styles: (Array.isArray(base.styles) ? base.styles : []).concat(pendingStyles),
     });
     for (const realm of MASTER_REALMS) {
       if (!pendingMaster[realm].length) continue;
@@ -766,4 +1095,5 @@ function importBatch(PROJECT, opts) {
 module.exports = {packPath, load, sanitizePattern, sanitizeOverrides, attachVfx,
   fingerprintPattern, fingerprintPlugin, fingerprintItem, buildIndex, importBatch,
   slugId, poolSignature, masterSummary,
-  sanitizeThemeItem, sanitizeTypographyItem, sanitizeMotionItem, sanitizeAudioItem};
+  sanitizeThemeItem, sanitizeTypographyItem, sanitizeMotionItem, sanitizeAudioItem,
+  sanitizeShapeSpec, sanitizeStyleItem};
