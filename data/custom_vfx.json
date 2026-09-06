@@ -2932,6 +2932,73 @@
         }
       },
       "label": "golden-radiance-shape-v60"
+    },
+    {
+      "id": "sapphire-ethereal-lattice-v62",
+      "tileSize": 112,
+      "strokeWidth": 1.8,
+      "colorToken": "glowColor",
+      "alpha": 0.88,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 88,
+      "breathFrames": 180,
+      "breathAmpl": 0.15,
+      "seedSalt": 820,
+      "kind": "girih-corners",
+      "label": "sapphire-ethereal-lattice-v62"
+    },
+    {
+      "id": "emerald-geometric-rosette-v62",
+      "tileSize": 200,
+      "strokeWidth": 1.5,
+      "colorToken": "accent",
+      "alpha": 0.5,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 90,
+      "breathFrames": 0,
+      "breathAmpl": 0,
+      "seedSalt": 0,
+      "shapeSpec": {
+        "primitives": [
+          {
+            "prim": "circle",
+            "params": {
+              "cx": 0,
+              "cy": 0,
+              "r": 12
+            }
+          },
+          {
+            "prim": "line",
+            "params": {
+              "x1": 0,
+              "y1": -25,
+              "x2": 0,
+              "y2": 25
+            }
+          }
+        ],
+        "composition": {
+          "repeat": {
+            "count": 4,
+            "spacing": 50,
+            "direction": "horizontal"
+          },
+          "rotate": {
+            "centerX": 0,
+            "centerY": 0,
+            "angle": 360,
+            "copies": 6
+          }
+        }
+      },
+      "label": "emerald-geometric-rosette-v62"
     }
   ],
   "plugins": [
@@ -4156,6 +4223,24 @@
         "raysAngleDeg": 45
       },
       "id": "violet-twilight-aura-v60"
+    },
+    {
+      "match": "*",
+      "label": "sapphire-heavenly-shimmer-v62",
+      "frameCustomId": "sapphire-ethereal-lattice-v62",
+      "styleOverrides": {
+        "cornerInset": 12,
+        "cornerSize": 75,
+        "cornerOpacity": 0.95,
+        "frameEnabled": true,
+        "frameOpacity1": 0.85,
+        "raysOpacity": 0.4,
+        "orbsOpacity": 0.5,
+        "shimmerStrength": 0.75,
+        "bokehCount": 18,
+        "bokehOpacity": 0.3
+      },
+      "id": "sapphire-heavenly-shimmer-v62"
     }
   ],
   "themes": [
@@ -5487,6 +5572,22 @@
         "night_dua"
       ],
       "label": "midnight-violet-noor-v60"
+    },
+    {
+      "id": "emerald-tranquil-dawn-v62",
+      "payload": {
+        "decor": "mosque",
+        "grade": {
+          "brightness": 1.08,
+          "contrast": 1.1,
+          "saturate": 1.25
+        }
+      },
+      "affinity": [
+        "morning_evening",
+        "protection"
+      ],
+      "label": "emerald-tranquil-dawn-v62"
     }
   ],
   "typography": [
@@ -6023,6 +6124,14 @@
       "minSize": 42,
       "lineHeight": 1.45,
       "label": "scheherazade-eloquent-v60"
+    },
+    {
+      "id": "noto-nastaliq-classic-v62",
+      "fontFamily": "noto-nastaliq-urdu",
+      "baseSize": 110,
+      "minSize": 40,
+      "lineHeight": 1.6,
+      "label": "noto-nastaliq-classic-v62"
     }
   ],
   "motion": [
@@ -6706,6 +6815,19 @@
       "skyFx": "fireflies",
       "artFx": "sitare",
       "label": "dreamy-glide-motion-v60"
+    },
+    {
+      "id": "serene-floating-motion-v62",
+      "frame": "deco",
+      "textFx": "typewriter",
+      "motif": "tasbih",
+      "gradeFx": "warmgold",
+      "camera": "panx",
+      "introFx": "classic",
+      "ornament": "lanternjhumka",
+      "skyFx": "petals",
+      "artFx": "vines",
+      "label": "serene-floating-motion-v62"
     }
   ],
   "audio": [
@@ -6747,6 +6869,13 @@
       "voiceUrdu": "ur-PK-AsadNeural",
       "sfxSet": "default",
       "label": "serene-night-recitation-v60"
+    },
+    {
+      "id": "devotional-pure-recitation-v62",
+      "voiceArabic": "ar-SA-HamedNeural",
+      "voiceUrdu": "ur-PK-UzmaNeural",
+      "sfxSet": "default",
+      "label": "devotional-pure-recitation-v62"
     }
   ],
   "styles": [
@@ -6842,6 +6971,41 @@
       "audio": {
         "voiceArabic": "ar-SA-HamedNeural",
         "voiceUrdu": "ur-PK-UzmaNeural"
+      }
+    },
+    {
+      "id": "luminous-emerald-sanctuary-v62",
+      "type": "style",
+      "label": "luminous-emerald-sanctuary-v62",
+      "pattern": {
+        "tileSize": 96,
+        "strokeWidth": 2.2,
+        "colorToken": "glowColor",
+        "alpha": 0.8,
+        "zones": [
+          "top"
+        ],
+        "opacity": 0.5,
+        "bandSize": 64,
+        "breathFrames": 0,
+        "breathAmpl": 0,
+        "seedSalt": 0,
+        "kind": "bead-band"
+      },
+      "typography": {
+        "fontFamily": "scheherazade-new",
+        "baseSize": 105,
+        "minSize": 38,
+        "lineHeight": 1.4
+      },
+      "motion": {
+        "textFx": "fade",
+        "camera": "static",
+        "introFx": "patternwipe"
+      },
+      "audio": {
+        "voiceArabic": "ar-SA-ZariyahNeural",
+        "voiceUrdu": "ur-PK-AsadNeural"
       }
     }
   ]
