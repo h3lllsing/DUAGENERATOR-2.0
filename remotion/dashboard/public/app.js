@@ -1526,7 +1526,7 @@ const MS_MOTION=(_MS&&_MS.motion&&_MS.motion.enums)||null;
 const MS_AUDIO=(_MS&&_MS.audio&&_MS.audio.enums)||null;
 const _mq=function(a){return (a&&a.length)?('"'+a.join('"|"')+'"'):'?';};
 const _mw=function(a){return (a&&a.length)?('"'+a.join('","')+'"'):'?';};
-let _vfxRegistry=null, _vfxRawItems=[];
+let _vfxRegistry=null, _vfxRawItems=[], _vfxLastHash='', _vfxSimilarCount=0;
 function openVfxStudio(){
   document.getElementById('vfxbg').classList.add('show');
   _pushModal('vfx');
@@ -1667,8 +1667,40 @@ function vfxRenderResults(j){
   document.getElementById('vfx_results').innerHTML=rows||'<div class="vfx-empty">Koi result nahi</div>';
   const canAdd=(j.added||0)+(j.similar||0);
   const sb=document.getElementById('vfx_savebtn');
-  sb.disabled=!(canAdd>0);
-  sb.innerHTML=canAdd>0?'CONFIRM IMPORT ('+canAdd+')':'CONFIRM IMPORT';
+  const skipBtn=document.getElementById('vfx_skipbtn');
+  const forceBtn=document.getElementById('vfx_forcebtn');
+  const dupeWarn=document.getElementById('vfx_dupewarn');
+  // detect similar items with dist < 0.15
+  const similarItems=(j.results||[]).filter(r=>r.status==='similar'&&r.dist!==undefined&&r.dist<0.15);
+  _vfxSimilarCount=similarItems.length;
+  // hash current items for exact-duplicate re-paste detection
+  const curHash=JSON.stringify(_vfxRawItems);
+  const isExactRePaste=(_vfxLastHash===curHash)&&_vfxSimilarCount>0;
+  if(_vfxSimilarCount>0){
+    // disable CONFIRM, show Skip + Force
+    sb.disabled=true;
+    sb.innerHTML='CONFIRM IMPORT (blocked — similar items)';
+    sb.style.opacity='0.4';
+    skipBtn.style.display='inline-block';
+    forceBtn.style.display='inline-block';
+    // exact-duplicate re-paste warning
+    if(isExactRePaste&&dupeWarn){
+      const ex=similarItems[0];
+      const matchId=ex.matchedId||ex.id||'existing';
+      dupeWarn.style.display='block';
+      dupeWarn.innerHTML='&#9888; Ye already <b>'+Math.round((1-ex.dist)*100)+'% match</b> karta hai <b>'+vfxEsc(matchId)+'</b> se — pakka is naye variant ko save karna hai?';
+    }else if(dupeWarn){ dupeWarn.style.display='none'; }
+    _vfxLastHash=curHash;
+  }else{
+    // no similar items — normal flow
+    sb.disabled=!(canAdd>0);
+    sb.innerHTML=canAdd>0?'CONFIRM IMPORT ('+canAdd+')':'CONFIRM IMPORT';
+    sb.style.opacity='1';
+    skipBtn.style.display='none';
+    forceBtn.style.display='none';
+    if(dupeWarn) dupeWarn.style.display='none';
+    _vfxLastHash=curHash;
+  }
   setVfxPvMsg('','');
 }
 function setVfxPvMsg(t,c){ const el=document.getElementById('vfx_pvmsg'); el.textContent=t; el.className='formmsg '+c; }
@@ -1720,6 +1752,19 @@ async function vfxConfirm(){
     toast((j.added||0)+' new saved'+(j.similar>0?', '+j.similar+' similar flagged':'')+' — pack updated!','ok');
     if((j.invalid||0)>0) toast((j.invalid)+' invalid item skip hue','warn');
   }catch(e){ sb.disabled=false; sb.innerHTML=old; toast('Network error: '+e.message,'err'); }
+}
+function vfxSkipSimilar(){
+  _vfxRawItems=[];
+  _vfxLastHash='';
+  _vfxSimilarCount=0;
+  const sec=document.getElementById('vfx_sec_results');
+  sec.style.display='none';
+  document.getElementById('vfx_dupewarn').style.display='none';
+  toast('Skipped — kuch save nahi hua','ok');
+}
+async function vfxForceSave(){
+  if(!_vfxRawItems.length)return;
+  await vfxConfirm();
 }
 async function vfxRefresh(){
   const rc=document.getElementById('vfx_regcount');

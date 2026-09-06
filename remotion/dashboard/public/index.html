@@ -4,7 +4,7 @@
 <title>Dua Video Studio</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%95%8C%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=0.19.0">
+<link rel="stylesheet" href="style.css?v=0.20.0">
 </head>
 <body>
 <noscript><div style="padding:20px;text-align:center;color:#d4af37;font-size:16px">JavaScript disable hai. Dashboard use karne ke liye JavaScript enable karein.</div></noscript>
@@ -528,7 +528,10 @@
           <select id="vfx_dua"></select>
         </label>
         <button class="btn-save" id="vfx_savebtn" onclick="vfxConfirm()" disabled>&#128190; CONFIRM IMPORT</button>
+        <button class="btn-save" id="vfx_skipbtn" onclick="vfxSkipSimilar()" style="display:none;background:#3a3a3a;color:#8b949e;border:1px solid #555">&#10060; Skip (already exists)</button>
+        <button class="btn-save" id="vfx_forcebtn" onclick="vfxForceSave()" style="display:none;background:#b8860b;color:#fff;border:1px solid #d4a017">&#9888; Force Save Anyway (create variant)</button>
       </div>
+      <div id="vfx_dupewarn" style="display:none;margin-top:6px;padding:8px 12px;background:#3d2b00;border:1px solid #b8860b;border-radius:8px;font-size:12px;color:#ffd700"></div>
     </div>
 
     <div class="vfx-sec">
@@ -615,4 +618,4 @@
 <script src="vendor/wavesurfer.min.js"></script>
 <script src="vfx-schema-ui.js"></script>
 <script src="master-schema-ui.js"></script>
-<script src="app.js?v=0.19.0"></script></body></html>
+<script src="app.js?v=0.20.0"></script></body></html>
