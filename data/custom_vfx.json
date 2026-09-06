@@ -2867,52 +2867,6 @@
       "breathAmpl": 0.12,
       "seedSalt": 888,
       "label": "Obsidian Starburst Corners v59"
-    },
-    {
-      "id": "test-rotating-circle-line",
-      "tileSize": 100,
-      "strokeWidth": 2,
-      "colorToken": "solid",
-      "solidColor": "#FFD700",
-      "alpha": 0.8,
-      "zones": [
-        "frame"
-      ],
-      "opacity": 0.6,
-      "bandSize": 50,
-      "breathFrames": 0,
-      "breathAmpl": 0,
-      "seedSalt": 42,
-      "shapeSpec": {
-        "primitives": [
-          {
-            "prim": "circle",
-            "params": {
-              "cx": 960,
-              "cy": 960,
-              "r": 40
-            }
-          },
-          {
-            "prim": "line",
-            "params": {
-              "x1": 960,
-              "y1": 920,
-              "x2": 960,
-              "y2": 1000
-            }
-          }
-        ],
-        "composition": {
-          "rotate": {
-            "centerX": 960,
-            "centerY": 960,
-            "angle": 360,
-            "copies": 6
-          }
-        }
-      },
-      "label": "Test: Rotating Circle+Line"
     }
   ],
   "plugins": [
@@ -4121,14 +4075,6 @@
         "shimmerStrength": 0.6
       },
       "id": "obsidian-twilight-radiance-v59"
-    },
-    {
-      "match": [
-        "sachai_aur_imandari_ki_dua"
-      ],
-      "label": "Test: ShapeSpec Targeted Plugin",
-      "frameCustomId": "test-rotating-circle-line",
-      "id": "test-shapespec-targeted-plugin"
     }
   ],
   "themes": [
