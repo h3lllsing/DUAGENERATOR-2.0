@@ -32,6 +32,7 @@ build/
 
 # --- pytest ---
 .pytest_cache/
+tests/_migration_tmp/
 
 # --- IDE ---
 .vscode/
