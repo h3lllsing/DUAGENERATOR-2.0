@@ -6624,5 +6624,30 @@
       "label": "Zariyah Morning Warmth"
     }
   ],
-  "styles": []
+  "styles": [
+    {
+      "id": "peaceful-ramadan-night",
+      "type": "style",
+      "label": "Peaceful Ramadan Night",
+      "match": "*",
+      "typography": {
+        "fontFamily": "amiri-quran",
+        "baseSize": 84,
+        "minSize": 40,
+        "lineHeight": 1.8
+      },
+      "motion": {
+        "frame": "arch",
+        "textFx": "fade",
+        "motif": "none",
+        "gradeFx": "coolnight",
+        "camera": "zoomin",
+        "introFx": "crescentfade",
+        "ornament": "starcrescent",
+        "borderFx": "none",
+        "skyFx": "none",
+        "artFx": "lanterns"
+      }
+    }
+  ]
 }
