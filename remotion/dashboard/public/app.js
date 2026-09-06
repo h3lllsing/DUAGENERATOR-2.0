@@ -1645,7 +1645,7 @@ async function vfxDryRun(){
   finally{ btn.disabled=false; btn.innerHTML=old; }
 }
 function vfxBadge(status){
-  const m={added:['VALID','vfx-b vfx-ok'],duplicate:['EXACT DUPLICATE (Skipped)','vfx-b vfx-dup'],similar:['SIMILAR DESIGN WARNING','vfx-b vfx-sim'],'blocked-similar':['BLOCKED (similar — use Force)','vfx-b vfx-err'],invalid:['SCHEMA ERROR','vfx-b vfx-err']}[status];
+  const m={added:['VALID','vfx-b vfx-ok'],duplicate:['EXACT DUPLICATE (Skipped)','vfx-b vfx-dup'],similar:['SIMILAR DESIGN WARNING','vfx-b vfx-sim'],'blocked-similar':['BLOCKED (similar — use Force)','vfx-b vfx-err'],'variant-exists':['VARIANT EXISTS (delete old first)','vfx-b vfx-err'],invalid:['SCHEMA ERROR','vfx-b vfx-err']}[status];
   const b=m||[status,'vfx-b'];
   return '<span class="'+b[1]+'">'+b[0]+'</span>';
 }
@@ -1653,7 +1653,7 @@ function vfxRenderResults(j){
   const sec=document.getElementById('vfx_sec_results');
   sec.style.display='block';
   document.getElementById('vfx_result_summary').textContent=
-    (j.added||0)+' new, '+(j.similar||0)+' similar, '+(j.blockedSimilar||0)+' blocked, '+(j.duplicates||0)+' duplicate, '+(j.invalid||0)+' invalid — '+(j.dryRun?'DRY-RUN (kuch save nahi hua)':'SAVED');
+    (j.added||0)+' new, '+(j.similar||0)+' similar, '+(j.blockedSimilar||0)+' blocked, '+(j.variantExists||0)+' variant-exists, '+(j.duplicates||0)+' duplicate, '+(j.invalid||0)+' invalid — '+(j.dryRun?'DRY-RUN (kuch save nahi hua)':'SAVED');
   const rows=(j.results||[]).map(r=>{
     const label=r.label||(r.id||('item '+(r.index+1)));
     const chips=[];

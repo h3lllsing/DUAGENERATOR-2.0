@@ -166,6 +166,7 @@ module.exports = function vfxRoutes(deps) {
             changed: r.changed,
             added: r.added, similar: r.similar,
             blockedSimilar: r.blockedSimilar,
+            variantExists: r.variantExists,
             duplicates: r.duplicates, invalid: r.invalid,
             results: r.results}));
         });

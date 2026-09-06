@@ -813,6 +813,19 @@ function importBatch(PROJECT, opts) {
   const pendingPlugins = [];
   const pendingStyles = [];
 
+  // variant limit: max 1 variant per matchedId (even with allowSimilar)
+  const existingVariantOf = (matchedId, allIds) => {
+    if (!matchedId) return null;
+    for (const id of allIds) {
+      if (id === matchedId) continue;
+      if (id.startsWith(matchedId + '-') && /-\d+$/.test(id)) return id;
+    }
+    return null;
+  };
+  const patternAllIds = new Set([...usedPatternIds, ...pendingPatterns.map(p => p.id)]);
+  const pluginAllIds = new Set([...usedPluginIds, ...pendingPlugins.map(p => p.id)]);
+  const styleAllIds = new Set([...((pack && pack.styles) || []).map(s => s.id), ...pendingStyles.map(s => s.id)]);
+
   // ── UNIFIED MASTER realms (theme/typography/motion/audio) ──
   const TYPE_TO_REALM = {theme: 'themes', typography: 'typography', motion: 'motion', audio: 'audio'};
   const SANITIZE_FN = {
@@ -879,6 +892,15 @@ function importBatch(PROJECT, opts) {
           fingerprint: fp, matchedId: sim.id, dist: sim.dist,
           reason: 'similar to existing "' + sim.id + '" (dist ' + sim.dist + ') — use allowSimilar: true to override'});
         continue;
+      }
+      if (sim && !dry && allowSim) {
+        const existingVar = existingVariantOf(sim.id, patternAllIds);
+        if (existingVar) {
+          results.push({index: i, type: 'pattern', id, label, status: 'variant-exists',
+            fingerprint: fp, matchedId: sim.id, dist: sim.dist,
+            reason: 'variant already exists (' + existingVar + '). Delete it first or change label'});
+          continue;
+        }
       }
       pendingPatterns.push(entry);
       usedPatternIds.add(id);
@@ -960,6 +982,15 @@ function importBatch(PROJECT, opts) {
           fingerprint: fp, matchedId: sim.id, dist: sim.dist,
           reason: 'similar to existing "' + sim.id + '" (dist ' + sim.dist + ') — use allowSimilar: true to override'});
         continue;
+      }
+      if (sim && !dry && allowSim) {
+        const existingVar = existingVariantOf(sim.id, pluginAllIds);
+        if (existingVar) {
+          results.push({index: i, type: 'plugin', id, label, status: 'variant-exists',
+            fingerprint: fp, matchedId: sim.id, dist: sim.dist,
+            reason: 'variant already exists (' + existingVar + '). Delete it first or change label'});
+          continue;
+        }
       }
       pendingPlugins.push(entry);
       usedPluginIds.add(id);
@@ -1069,6 +1100,15 @@ function importBatch(PROJECT, opts) {
           reason: 'similar to existing "' + sim.id + '" (dist ' + sim.dist + ') — use allowSimilar: true to override'});
         continue;
       }
+      if (sim && !dry && allowSim) {
+        const existingVar = existingVariantOf(sim.id, styleAllIds);
+        if (existingVar) {
+          results.push({index: i, type: 'style', id, label, status: 'variant-exists',
+            fingerprint: fp, matchedId: sim.id, dist: sim.dist,
+            reason: 'variant already exists (' + existingVar + '). Delete it first or change label'});
+          continue;
+        }
+      }
       pendingStyles.push(entry);
       usedStyles.add(id);
       results.push(sim
@@ -1106,6 +1146,7 @@ function importBatch(PROJECT, opts) {
     added: results.filter((r) => r.status === 'added').length,
     similar: results.filter((r) => r.status === 'similar').length,
     blockedSimilar: results.filter((r) => r.status === 'blocked-similar').length,
+    variantExists: results.filter((r) => r.status === 'variant-exists').length,
     duplicates: results.filter((r) => r.status === 'duplicate').length,
     invalid: results.filter((r) => r.status === 'invalid').length,
     results, file: packPath(PROJECT),
