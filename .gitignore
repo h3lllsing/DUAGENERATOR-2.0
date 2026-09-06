@@ -91,3 +91,10 @@ tools/
 
 # --- Opencode config (local paths) ---
 opencode.json
+
+# --- Dashboard runtime (changes every run, never commit) ---
+.coverage
+remotion/dashboard/cache.json
+remotion/dashboard/crash.log
+remotion/dashboard/history.json
+remotion/dashboard/qc.json
