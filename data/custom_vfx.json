@@ -2999,6 +2999,142 @@
         }
       },
       "label": "emerald-geometric-rosette-v62"
+    },
+    {
+      "id": "hilal-o-najoom-ka-jashn",
+      "tileSize": 160,
+      "strokeWidth": 1.5,
+      "colorToken": "accent",
+      "alpha": 0.85,
+      "zones": [
+        "frame"
+      ],
+      "opacity": 0.5,
+      "bandSize": 64,
+      "breathFrames": 200,
+      "breathAmpl": 0.1,
+      "seedSalt": 411,
+      "shapeSpec": {
+        "primitives": [
+          {
+            "prim": "polygon",
+            "params": {
+              "points": [
+                [
+                  0,
+                  -20
+                ],
+                [
+                  6,
+                  -6
+                ],
+                [
+                  20,
+                  -4
+                ],
+                [
+                  9,
+                  5
+                ],
+                [
+                  12,
+                  20
+                ],
+                [
+                  0,
+                  11
+                ],
+                [
+                  -12,
+                  20
+                ],
+                [
+                  -9,
+                  5
+                ],
+                [
+                  -20,
+                  -4
+                ],
+                [
+                  -6,
+                  -6
+                ]
+              ],
+              "close": true
+            }
+          },
+          {
+            "prim": "circle",
+            "params": {
+              "cx": 0,
+              "cy": 0,
+              "r": 3
+            }
+          }
+        ],
+        "composition": {
+          "repeat": {
+            "count": 5,
+            "spacing": 60,
+            "direction": "horizontal"
+          },
+          "rotate": {
+            "centerX": 0,
+            "centerY": 0,
+            "angle": 360,
+            "copies": 8
+          }
+        }
+      },
+      "label": "Hilal O Najoom Ka Jashn"
+    },
+    {
+      "id": "roshni-ke-qatre",
+      "tileSize": 110,
+      "strokeWidth": 1.2,
+      "colorToken": "particleColor",
+      "alpha": 0.75,
+      "zones": [
+        "corners"
+      ],
+      "opacity": 0.5,
+      "bandSize": 48,
+      "breathFrames": 180,
+      "breathAmpl": 0.15,
+      "seedSalt": 852,
+      "shapeSpec": {
+        "primitives": [
+          {
+            "prim": "circle",
+            "params": {
+              "cx": 0,
+              "cy": 0,
+              "r": 4
+            }
+          },
+          {
+            "prim": "line",
+            "params": {
+              "x1": 0,
+              "y1": -14,
+              "x2": 0,
+              "y2": -22
+            }
+          }
+        ],
+        "composition": {
+          "repeat": {
+            "count": 7,
+            "spacing": 32,
+            "direction": "vertical"
+          },
+          "mirror": {
+            "axis": "y"
+          }
+        }
+      },
+      "label": "Roshni Ke Qatre"
     }
   ],
   "plugins": [
@@ -7006,6 +7142,95 @@
       "audio": {
         "voiceArabic": "ar-SA-ZariyahNeural",
         "voiceUrdu": "ur-PK-AsadNeural"
+      }
+    },
+    {
+      "id": "jannat-ke-baagh-ka-manzar",
+      "type": "style",
+      "label": "Jannat Ke Baagh Ka Manzar",
+      "match": "*",
+      "pattern": {
+        "tileSize": 140,
+        "strokeWidth": 2,
+        "colorToken": "glowColor",
+        "alpha": 0.8,
+        "zones": [
+          "bottom"
+        ],
+        "opacity": 0.5,
+        "bandSize": 90,
+        "breathFrames": 240,
+        "breathAmpl": 0.12,
+        "seedSalt": 733,
+        "kind": "girih-corners"
+      },
+      "typography": {
+        "fontFamily": "scheherazade-new",
+        "baseSize": 100,
+        "minSize": 46,
+        "lineHeight": 1.6
+      },
+      "motion": {
+        "frame": "rosette",
+        "textFx": "popwave",
+        "motif": "star8",
+        "gradeFx": "warmgold",
+        "camera": "kenburns",
+        "introFx": "classic",
+        "ornament": "lanternjhumka",
+        "borderFx": "flags",
+        "skyFx": "petals",
+        "artFx": "lanterns"
+      },
+      "audio": {
+        "voiceArabic": "ar-SA-HamedNeural",
+        "voiceUrdu": "ur-PK-UzmaNeural",
+        "sfxSet": "default"
+      }
+    },
+    {
+      "id": "sukoon-bhari-chandni-raat",
+      "type": "style",
+      "label": "Sukoon Bhari Chandni Raat",
+      "match": "*",
+      "pattern": {
+        "tileSize": 96,
+        "strokeWidth": 1,
+        "colorToken": "solid",
+        "solidColor": "#C9D6FF",
+        "alpha": 0.6,
+        "zones": [
+          "top"
+        ],
+        "opacity": 0.5,
+        "bandSize": 56,
+        "breathFrames": 260,
+        "breathAmpl": 0.08,
+        "seedSalt": 219,
+        "kind": "starfield-dots"
+      },
+      "typography": {
+        "fontFamily": "noto-nastaliq-urdu",
+        "baseSize": 88,
+        "minSize": 42,
+        "lineHeight": 1.75
+      },
+      "motion": {
+        "frame": "classic",
+        "textFx": "fade",
+        "motif": "tasbih",
+        "gradeFx": "sepia",
+        "camera": "panx",
+        "introFx": "classic",
+        "ornament": "medallion",
+        "borderFx": "clouds",
+        "skyFx": "fog",
+        "artFx": "vines"
+      },
+      "audio": {
+        "voiceArabic": "ar-SA-ZariyahNeural",
+        "voiceUrdu": "ur-PK-AsadNeural",
+        "sfxSet": "default"
       }
     }
   ]
