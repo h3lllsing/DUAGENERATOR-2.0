@@ -12,6 +12,7 @@ module.exports = function ytRoutes(deps) {
   const YT_CANCEL_FLAG = path.join(PROJECT, 'data', '.yt_cancel');
   const SECRET_PATH    = path.join(PROJECT, 'client_secret.json');
   const DATA_SECRET_PATH = path.join(PROJECT, 'data', 'client_secret.json');
+  const AUTH_TIMEOUT_MS = 5 * 60 * 1000; // login 5 min me complete na ho to auto-kill
 
   // ── Upload job state ──
   let ytJob = {running: false, logs: [], channel: null, mode: null,
@@ -22,7 +23,7 @@ module.exports = function ytRoutes(deps) {
 
   // ── Auth job state ──
   let ytauth = {running: false, logs: [], channel: null, code: null,
-    startedAt: null, finishedAt: null, child: null};
+    startedAt: null, finishedAt: null, child: null, watchdog: null};
 
   // ── Auth status cache (30s TTL) — avoid re-running youtube_auth.py on every poll ──
   const AUTH_CACHE_TTL = 30000;
@@ -330,10 +331,39 @@ module.exports = function ytRoutes(deps) {
     return {ok: true};
   }
 
+  function ytClearAuthTimer() {
+    if (ytauth.watchdog) { clearTimeout(ytauth.watchdog); ytauth.watchdog = null; }
+  }
+
+  function ytAuthReset(upto) {
+    ytClearAuthTimer();
+    ytauth.running = false;
+    ytauth.child = null;
+    ytauth.finishedAt = Date.now();
+    ytAuthLog(upto);
+  }
+
+  function ytCancelAuth() {
+    if (!ytauth.running) {
+      return {ok: false, error: 'Abhi koi auth chal raha nahi hai'};
+    }
+    const child = ytauth.child;
+    if (child && child.pid) {
+      try { child.kill('SIGKILL'); } catch (_) {}
+      const k = spawn('taskkill', ['/PID', String(child.pid), '/T', '/F']);
+      k.on('error', () => {}); k.unref();
+    }
+    ytauth.code = null;
+    ytAuthReset(ytauth.channel
+      ? 'CANCELLED channel=' + ytauth.channel + ' - turant reset (dashboard khud nikla)'
+      : 'CANCELLED by user - turant reset');
+    return {ok: true};
+  }
+
   function ytStartAuthJob(ch) {
     if (ytauth.running) {
       return {ok: false, error: 'Auth pehle se chal raha hai (' +
-        ytauth.channel + ')'};
+        ytauth.channel + ') - pehle Cancel dabao ya timeout ka wait karo'};
     }
     if (!ytClientSecretExists()) {
       return {ok: false, error: 'Pehle client_secret.json save karo'};
@@ -341,11 +371,23 @@ module.exports = function ytRoutes(deps) {
     const args = [path.join('scripts', 'youtube_auth.py'), 'login',
       '--token', path.relative(REMOTION, ytTokenPath(ch))];
     ytauth = {running: true, logs: [], channel: ch, code: null,
-      startedAt: Date.now(), finishedAt: null, child: null};
+      startedAt: Date.now(), finishedAt: null, child: null, watchdog: null};
     ytAuthLog('LOGIN START channel=' + ch +
       ' - Google consent window browser me khul rahi hai...');
     const p = spawn(PY, args, {cwd: REMOTION, windowsHide: true});
     ytauth.child = p;
+    ytauth.watchdog = setTimeout(() => {
+      ytAuthLog('AUTH TIMEOUT - 5 min ho gaye, login complete nahi hua. '
+        + 'Process khud kill kiye (server restart ki zaroorat nahi)');
+      const child = ytauth.child;
+      try { if (child && child.pid) child.kill('SIGKILL'); } catch (_) {}
+      if (child && child.pid) {
+        const k = spawn('taskkill', ['/PID', String(child.pid), '/T', '/F']);
+        k.on('error', () => {}); k.unref();
+      }
+      ytauth.code = null;
+      ytAuthReset('AUTH TIMEOUT - auto-cancelled, dobara try karo');
+    }, AUTH_TIMEOUT_MS);
     let buf = '';
     const pump = (d) => {
       buf += d.toString();
@@ -356,6 +398,7 @@ module.exports = function ytRoutes(deps) {
     p.stdout.on('data', pump);
     p.stderr.on('data', pump);
     p.on('close', (code) => {
+      ytClearAuthTimer();
       ytauth.running = false;
       ytauth.code = code;
       ytauth.finishedAt = Date.now();
@@ -364,6 +407,7 @@ module.exports = function ytRoutes(deps) {
         : 'AUTH FAILED exit=' + code);
     });
     p.on('error', (e) => {
+      ytClearAuthTimer();
       ytauth.running = false;
       ytAuthLog('SPAWN ERROR: ' + e.message);
     });
@@ -516,6 +560,15 @@ module.exports = function ytRoutes(deps) {
           send(res, 400, JSON.stringify({ok: false, error: 'bad request'}));
         }
       });
+      return true;
+    }
+
+    // ── POST /api/youtube/auth-cancel ──
+    if (method === 'POST' && p === '/api/youtube/auth-cancel') {
+      const r = ytCancelAuth();
+      if (!r.ok) return send(res, 409, JSON.stringify(r));
+      console.log('[YT] AUTH CANCELLED (dashboard)');
+      send(res, 200, JSON.stringify({ok: true}));
       return true;
     }
 
@@ -800,6 +853,7 @@ module.exports = function ytRoutes(deps) {
     const targets = [];
     if (ytJob.child && ytJob.child.pid) targets.push(ytJob.child.pid);
     if (ytauth.child && ytauth.child.pid) targets.push(ytauth.child.pid);
+    if (ytauth.watchdog) { clearTimeout(ytauth.watchdog); ytauth.watchdog = null; }
     if (!targets.length) return;
     for (const pid of targets) {
       ytLog('SHUTDOWN: killing pid ' + pid);

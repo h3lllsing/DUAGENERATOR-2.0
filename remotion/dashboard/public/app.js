@@ -214,6 +214,8 @@ function ytApplyJob(job,auth){
   document.getElementById('yt_auth_channel2').disabled=!!auth.running;
   document.getElementById('yt_save_secret').disabled=ytBusy;
   document.getElementById('yt_savecred').disabled=ytBusy;
+  const cbtn=document.getElementById('yt_auth_cancel');
+  if(cbtn){ cbtn.style.display=!!auth.running?'inline-block':'none'; }
   ytUpdateCount();
   if(ytWasRunning&&!job.running){
     const n=(job.videos||[]).length;
@@ -304,6 +306,17 @@ async function ytAuth(ch){
     toast('Consent window browser me khul gayi - allow karo','ok');
     ytWasAuth=true;
     ytEnsurePoll();
+    ytRefresh();
+  }catch(e){toast('Network error','err');}
+}
+async function ytCancelAuth(){
+  if(!await styledConfirm('Cancel Auth','Chalta hua auth process cancel karo? Lagaya hua browser window band karke ye stuck state turant reset karega.'))return;
+  try{
+    const r=await fetch('/api/youtube/auth-cancel',{method:'POST'});
+    const j=await r.json();
+    if(!j.ok){toast(j.error||'Cancel fail','err');return;}
+    toast('Auth cancel ho gaya - ab dobara try kar sakte ho','ok');
+    ytWasAuth=false;
     ytRefresh();
   }catch(e){toast('Network error','err');}
 }
