@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { api } from '../api/client';
 
 export default function DuaDetailPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [dua, setDua] = useState<any>(null);
   const [video, setVideo] = useState<any>(null);
   const [error, setError] = useState('');

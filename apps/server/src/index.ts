@@ -14,7 +14,13 @@ import thumbnailsRoutes from './routes/thumbnails.js';
 import captionsRoutes from './routes/captions.js';
 import seoRoutes from './routes/seo.js';
 import reviewRoutes from './routes/review.js';
+import schedulesRoutes from './routes/schedules.js';
+import analyticsRoutes from './routes/analytics.js';
+import playlistsRoutes from './routes/playlists.js';
+import topicsRoutes from './routes/topics.js';
+import sharekitRoutes from './routes/sharekit.js';
 import { startRenderWorker } from './workers/render-worker.js';
+import { startPublishWorker } from './workers/publish-worker.js';
 
 const PORT = parseInt(process.env.PORT || '7870');
 const HOST = process.env.HOST || '127.0.0.1';
@@ -47,6 +53,11 @@ await app.register(duasRoutes);
   await app.register(captionsRoutes);
   await app.register(seoRoutes);
   await app.register(reviewRoutes);
+  await app.register(schedulesRoutes);
+  await app.register(analyticsRoutes);
+  await app.register(playlistsRoutes);
+  await app.register(topicsRoutes);
+  await app.register(sharekitRoutes);
 
   app.get('/api/v1/health', async () => ({ ok: true, version: '2.0.0' }));
 
@@ -69,6 +80,7 @@ await app.register(duasRoutes);
   }
 
   startRenderWorker();
+  startPublishWorker();
 
   await app.listen({ port: PORT, host: HOST });
   console.log('[Server] V2 running on http://' + HOST + ':' + PORT);

@@ -118,11 +118,27 @@ export default async function videosRoutes(fastify: FastifyInstance) {
     return { ok: true, message: 'Job cancelled' };
   });
 
-  // GET /api/v1/status
+// GET /api/v1/status
   fastify.get('/api/v1/status', async () => {
     const totalDuas = selectOne('SELECT COUNT(*) as count FROM duas');
     const totalVideos = selectOne('SELECT COUNT(*) as count FROM videos');
     const activeJobs = selectOne("SELECT COUNT(*) as count FROM jobs WHERE state IN ('queued','prep','render','qc','retry')");
-    return { ok: true, data: { version: '2.0.0', uptime: process.uptime(), stats: { duas: totalDuas?.count || 0, videos: totalVideos?.count || 0, activeJobs: activeJobs?.count || 0 } } };
+    const growth = {
+      schedules: selectOne("SELECT COUNT(*) as count FROM schedules WHERE status IN ('pending','scheduled')"),
+      playlists: selectOne('SELECT COUNT(*) as count FROM playlists'),
+      topics: selectOne("SELECT COUNT(*) as count FROM topics WHERE status = 'pending'"),
+      capacityLeft: selectOne('SELECT (daily_caps - quota_used) as left FROM channels WHERE name = ?', ['channel1']),
+    };
+    return {
+      ok: true,
+      data: {
+        version: '2.0.0', uptime: process.uptime(),
+        stats: {
+          duas: totalDuas?.count || 0, videos: totalVideos?.count || 0, activeJobs: activeJobs?.count || 0,
+          schedules: growth.schedules?.count || 0, playlists: growth.playlists?.count || 0,
+          topics: growth.topics?.count || 0, capacityLeft: growth.capacityLeft?.left ?? 10,
+        },
+      }
+    };
   });
 }

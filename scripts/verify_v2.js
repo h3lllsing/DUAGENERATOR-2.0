@@ -27,6 +27,27 @@ function httpGet(urlPath, headers) {
   });
 }
 
+function httpPost(urlPath, headers, body) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlPath, BASE);
+    const payload = body ? JSON.stringify(body) : '';
+    const req = http.request(url, {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(payload) }, headers || {}),
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, body: JSON.parse(data) }); }
+        catch { resolve({ status: res.statusCode, body: data }); }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(5000, () => { req.destroy(); reject(new Error('timeout')); });
+    req.end(payload);
+  });
+}
+
 async function main() {
   console.log('=== V2 Phase 1 Smoke Test ===\n');
 
@@ -102,6 +123,36 @@ async function main() {
       const r = await httpGet('/api/v1/seo/pillars/distribution', { Authorization: 'Bearer ' + TOKEN });
       test('GET /seo/pillars/distribution = 200', r.status === 200);
     } catch (e) { test('SEO distribution endpoint', false); }
+
+    // Phase 3 Growth endpoints
+    console.log('\n4c. Phase 3 Growth Engine:');
+    const growEndpoints = [
+      ['GET', '/schedules'], ['GET', '/schedules/calendar'], ['GET', '/schedules/capacity'],
+      ['GET', '/analytics/overview'], ['GET', '/analytics/underperformers'],
+      ['GET', '/playlists'], ['GET', '/topics'], ['GET', '/status'],
+    ];
+    for (const [method, p] of growEndpoints) {
+      try {
+        const r = await httpGet('/api/v1' + p, { Authorization: 'Bearer ' + TOKEN });
+        test(method + ' ' + p + ' = 200', r.status === 200);
+      } catch (e) { test(method + ' ' + p, false); }
+    }
+    try {
+      const r = await httpPost('/api/v1/schedules/run-check', { Authorization: 'Bearer ' + TOKEN }, {});
+      test('POST /schedules/run-check works', r.status === 200 && r.body.ok === true);
+      if (r.body && r.body.ok) {
+        let checks = 0;
+        if (typeof r.body.data.dispatched === 'number') checks++;
+        if (typeof r.body.data.skipped === 'number') checks++;
+        if (typeof r.body.data.nextDueAt === 'string' || r.body.data.nextDueAt === null) checks++;
+        test('run-check returns dispatched/skipped/nextDueAt', checks === 3);
+      }
+    } catch (e) { test('POST /schedules/run-check', false); }
+    try {
+      const r = await httpGet('/api/v1/status', { Authorization: 'Bearer ' + TOKEN });
+      const stats = r.body && r.body.data && r.body.data.stats;
+      test('Status includes growth counters', stats && typeof stats.schedules === 'number' && typeof stats.capacityLeft === 'number');
+    } catch (e) { test('Status growth counters', false); }
 
     // 5. Invalid token
     console.log('\n5. Security:');

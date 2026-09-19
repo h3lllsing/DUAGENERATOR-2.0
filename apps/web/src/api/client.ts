@@ -73,6 +73,38 @@ export const api = {
 
   // Status
   getStatus: () => request<any>('GET', '/status'),
+
+  // Scheduler
+  getSchedules: (status?: string) => request<any>('GET', '/schedules' + (status ? '?status=' + status : '')),
+  getCalendar: (month?: string) => request<any>('GET', '/schedules/calendar' + (month ? '?month=' + month : '')),
+  createSchedule: (data: any) => request<any>('POST', '/schedules', data),
+  updateSchedule: (id: number, data: any) => request<any>('PATCH', '/schedules/' + id, data),
+  deleteSchedule: (id: number) => request<any>('DELETE', '/schedules/' + id),
+  runPublishCheck: () => request<any>('POST', '/schedules/run-check'),
+  getCapacity: () => request<any>('GET', '/schedules/capacity'),
+
+  // Analytics
+  getAnalyticsOverview: () => request<any>('GET', '/analytics/overview'),
+  getUnderperformers: () => request<any>('GET', '/analytics/underperformers'),
+  importAnalytics: (path?: string) => request<any>('POST', '/analytics/import', { path }),
+  sampleAnalytics: () => request<any>('POST', '/analytics/sample'),
+
+  // Playlists
+  getPlaylists: () => request<any>('GET', '/playlists'),
+  getPlaylist: (id: number) => request<any>('GET', '/playlists/' + id),
+  syncPlaylists: (path?: string) => request<any>('POST', '/playlists/sync', { path }),
+  setMemberStatus: (id: number, status: string) => request<any>('PATCH', '/playlists/members/' + id, { status }),
+  getPlaylistManifest: (id: number) => request<any>('GET', '/playlists/' + id + '/manifest'),
+
+  // Topics
+  getTopics: (status?: string) => request<any>('GET', '/topics' + (status ? '?status=' + status : '')),
+  addTopic: (keyword: string, source?: string) => request<any>('POST', '/topics', { keyword, source }),
+  suggestTopics: (limit?: number) => request<any>('POST', '/topics/suggest', { limit }),
+  updateTopic: (id: number, status: string) => request<any>('PATCH', '/topics/' + id, { status }),
+  deleteTopic: (id: number) => request<any>('DELETE', '/topics/' + id),
+
+  // Share kit
+  getShareKit: (yid: string) => request<any>('GET', '/share/' + yid),
 };
 
 function toQuery(params?: Record<string, string>): string {

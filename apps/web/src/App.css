@@ -65,6 +65,16 @@ tr:hover td { background: var(--surface-hover); }
 .badge-not_started { background: #374151; color: #9ca3af; }
 .badge-rendered { background: #1e3a5f; color: #60a5fa; }
 .badge-uploaded { background: #14532d; color: #4ade80; }
+.badge-pending { background: #713f12; color: #fbbf24; }
+.badge-scheduled { background: #1e3a5f; color: #60a5fa; }
+.badge-published { background: #064e3b; color: #34d399; }
+.badge-failed { background: #7f1d1d; color: #fca5a5; }
+.badge-progress { background: #1e3a5f; color: #60a5fa; }
+.badge-done { background: #14532d; color: #4ade80; }
+.badge-ignored { background: #374151; color: #9ca3af; }
+.badge-active { background: #064e3b; color: #34d399; }
+.badge-added { background: #14532d; color: #4ade80; }
+.badge-skipped { background: #374151; color: #9ca3af; }
 
 /* Buttons */
 button { cursor: pointer; padding: 6px 14px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 13px; }

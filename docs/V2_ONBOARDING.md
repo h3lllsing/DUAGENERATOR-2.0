@@ -60,6 +60,19 @@ npm --prefix apps/server run dev    # serves UI + /api on http://127.0.0.1:7870
 ```
 Dev UI with HMR: run the server with `PORT=7871`, then `npm --prefix apps/web run dev` (Vite@7870 proxies `/api` → `127.0.0.1:7871`). Never bind both at 7870 at once.
 
+## Phase 3 Growth Engine (migration 003)
+
+Schema tables: `schedules` (+`note`/`job_id`/`created_at`/`updated_at`), `playlists`, `playlist_members`, `topics`; settings `analytics_threshold_views` (100), `publish_interval_sec` (15).
+
+- **Scheduler**: `apps/web/growth/scheduler` — create schedule per video; publish worker (`src/workers/publish-worker.ts`) runs `runPublishCheck()` every `publish_interval_sec`, honoring the channel daily cap (10) with PT-day rollover (midnight PT = noon PKT). Uploads become `jobs state=queued` type `upload` (render worker handles queue; no live YouTube mutation here).
+- **Quota**: `src/growth/quota.ts` — `consumeQuota`/`uploadsRemaining`; reset handled lazily on `quota_date` mismatch.
+- **Analytics**: manual/dev-safe only (no YouTube API reads). Feed `data/analytics_manual.json`, then `node scripts/import_analytics.js` or POST `/api/v1/analytics/import` — or POST `/api/v1/analytics/sample` for dev-only fabricated rows. Dashboard flags underperformers below `analytics_threshold_views` with 1-click action hints.
+- **Playlists**: `node scripts/import_playlists.js` ports `H:\DuaVideoGenerator\data\playlist_plan_channel1.json` (9 playlists / 87 members; 2 slugs not in V2 duas: `dua-khiyanat-se-bachne-ki-dua`, `dua-ilm-aur-pakiza-rizq-ki-dua`). Mark members added/skipped in UI; get a copy-paste URL manifest per playlist.
+- **Topics**: trend radar suggestions from duo source/category/keywords via POST `/api/v1/topics/suggest`, then triage to progress/done/ignored.
+- **Share kit**: GET `/api/v1/share/:youtubeId` or `/api/v1/videos/:id/share` → formatted WhatsApp/post text with hashtags (empty watch URL if video has no youtube yid yet).
+
+Launch order after Phase 3 changes: kill :7870, `npm --prefix apps/web run build`, relaunch server from repo root (so `process.cwd()/data` = `H:\DUAGENERATOR 2.0\data`, `apps/web/dist` found). Migration 003 applies automatically on boot.
+
 ## Definitions (same names as prod)
 
 - `duas.json` → dua library (Arabic+Urdu; EN now required for every dua)
