@@ -209,8 +209,10 @@ function importEnReview(db) {
             const normalizedSlug = 'dua-' + duaSlug.replace(/_/g, '-');
             const duaRow = db.prepare('SELECT id FROM duas WHERE slug = ?').get(normalizedSlug);
             if (!duaRow) continue;
-            const duaIdNum = duaRow.id;
-            stmt.run(duaIdNum, 'en', entry.status, entry.note || null, null);
+            // Find the video for this dua (if it exists)
+            const videoRow = db.prepare('SELECT id FROM videos WHERE dua_id = ?').get(duaRow.id);
+            if (!videoRow) continue; // skip — no video yet for this dua
+            stmt.run(videoRow.id, 'en', entry.status, entry.note || null, null);
             imported++;
         } catch (e) { /* skip */ }
     }

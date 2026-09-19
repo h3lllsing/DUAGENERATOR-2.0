@@ -51,7 +51,7 @@ export default async function captionsRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/v1/videos/:id/captions/preview — generate preview HTML
-  fastify.post('/api/v1/videos/:id/captions/preview', async (request, reply) => {
+  fastify.post('/api/v1/videos/:id/captions/preview', { body: false }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const video = selectOne('SELECT id, caption_en FROM videos WHERE id = ?', [id]);
     if (!video) { reply.code(404); return { ok: false, error: 'Video not found' }; }

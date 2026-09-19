@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { selectOne, selectAll, run } from '../db.js';
 
 // Approval workflow states (ordered)
-const WORKFLOW_STATES = ['draft', 'qc_passed', 'en_review', 'approved', 'published'];
+const WORKFLOW_STATES = ['not_started', 'draft', 'qc_passed', 'en_review', 'approved', 'published'];
 
 export default async function reviewRoutes(fastify: FastifyInstance) {
 
