@@ -6,6 +6,17 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2.0.0] - 2026-09-20 (workspace setup)
+
+### Added
+- **V2.0 rebuild workspace** created at `H:\DUAGENERATOR 2.0` (clean clone of prod @ `f1fb7fc`, secrets/data excluded).
+- **Owner-approved stack**: React + TypeScript + Vite + Tailwind (mobile-first PWA) · Fastify + better-sqlite3 · WebSockets · single Remotion render path · dev port 7870.
+- Dotfiles for V2: `AGENTS.md` (workspace record), `V2_AUDIT_AND_PLAN.md` (audit + roadmap), `docs/V2_ARCHITECTURE.md`, `docs/V2_ONBOARDING.md`, `docs/V2_PHASE1_BRIEF.md`.
+- `git origin` removed in this folder to prevent accidental pushes to the production repo.
+
+### Notes
+- Production portal untouched: still pinned to `H:\DuaVideoGenerator`, pm2 `dua-studio`, port 7860, commit `f1fb7fc`.
+
 ## [0.13.0] - 2026-09-20
 
 ### Added

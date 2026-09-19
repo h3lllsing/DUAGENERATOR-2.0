@@ -1,4 +1,8 @@
-# Dua Video Generator
+# Dua Video Generator — V2.0 Workspace
+
+> **V2 development copy.** Production portal runs at `H:\DuaVideoGenerator` (port 7860, pm2 `dua-studio`). This folder is the clean rebuild workspace (port 7870). See `AGENTS.md`, `V2_AUDIT_AND_PLAN.md`, `docs/V2_ARCHITECTURE.md`, `docs/V2_ONBOARDING.md`.
+
+---
 
 Automatic Islamic **Dua video generator** for YouTube Shorts. Arabic + Urdu dua with professional visuals, TTS voiceover, background media, and a full web dashboard for rendering, uploading to YouTube, and tracking channel analytics.
 

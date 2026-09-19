@@ -1,42 +1,53 @@
-# AGENTS.md — Project Record
+# AGENTS.md — DuaVideoGenerator V2.0 Workspace
 
-Master record for AI sessions on the DuaVideoGenerator project. Update this file after any significant change. Reporter (user) communicates in **Roman Urdu**; reply in Roman Urdu.
+Master record for AI sessions working in this folder (`H:\DUAGENERATOR 2.0`). Update after any significant change. Owner communicates in **Roman Urdu** — reply in Roman Urdu.
 
-## Current State (updated 2026-09-20)
+## Critical facts first
 
-- **LOCKED**: User locked the portal on 2026-09-20 — **NO code changes, NO new features** unless explicitly asked. Working tree clean at commit `eee3bc1`.
-- Pipeline for growth (share-kit, thumbnails, SEO, playlists, captions) is **built and ready**, only waiting on YouTube daily quota.
-- 136 live videos (115 old + 21 shorts) on channel1. 20 of 21 shorts are **PRIVATE deliberately** (user's choice, avoids flooding); only `istikhara` (`uqe9lAC9o3Y`) is public. Do NOT change privacy unless user asks.
+- This is the **V2.0 rebuild workspace**. The **production portal is NOT here** — it runs untouched at `H:\DuaVideoGenerator` (pm2 app `dua-studio`, port `7860`, status ONLINE). **Do NOT modify or restart it.** You may read its files for reference.
+- This folder is a clean git clone of production at commit `f1fb7fc`, secrets/data excluded. `git origin` was REMOVED to prevent accidental pushes to the production repo (`https://github.com/h3lllsing/DuaVideoGenerator.git`). To push later: `git remote add origin <new-repo-url>` (owner picks repo).
+- Owner confirmed stack (2026-09-20): **React + TypeScript + Vite + Tailwind** (mobile-first PWA), **Fastify** + **better-sqlite3**, WebSockets for realtime. Dev port **7870** (production uses 7860 — never collide).
+- Portal is LOCKED for changes (owner directive). New code/features ONLY go in this folder.
 
-## Quota & Timing
+## V2 Decisions (owner-approved)
 
-- YouTube daily quota (10,000 units for writes) resets at **midnight Pacific (PT)** = **12:00 noon PKT**. Reading still works when quota exhausted; writes/token-api return `quotaExceeded` 403.
-- Pending post-reset (approval first): 2 EN captions retry (100u) → 87 thumbnail uploads (4350u) → 87 SEO batch updates (4350u) ≈ 8800/10000. Playlists (~4500u) run on the **following day**.
-- Channel1 OAuth token: `data/yt_token_channel1.json` (secret — NEVER commit; `data/` is gitignored).
+| Area | Choice |
+|---|---|
+| Frontend | React + TypeScript + Vite + Tailwind CSS, mobile-first PWA |
+| Backend | Node + Fastify + `better-sqlite3` |
+| Realtime | WebSockets (SSE retired) |
+| Data store | SQLite (single file `v2.db`); JSON only for import/export/backup |
+| Render path | ONE path: Remotion `.tsx` components; Python reused for TTS/audio/metadata/QC via subprocess |
+| Ports | Dev 7870; production 7860 (untouched) |
+| Tests | vitest (frontend/API), keep pytest for Python CLI tools |
 
-## Key Facts
+## Roadmap & specs
 
-- Channel id: `UC76kpCCao-WKwgZ5tiUMl4Q` (cached in `data/channel_info.json`), subscribers ~36, no channel2 configured.
-- Dashboard: pm2 app `dua-studio`, port `7860`, bearer token in `data/dashboard/auth.json` (secret). `POST /api/youtube/sync` syncs `dua_status.json` from ledgers.
-- Ledgers: `data/upload_state_channel1.json` (87 entries: 68 longs + 19 shorts-tagged), `data/shorts_state_channel1.json` (21 shorts). Private/public privacy field in ledgers is NOT reliable — verify with live API.
-- Shorts EN captions: 15/21 attached live; 2 quota-blocked (`sakht_musibat_mein_sabr_ki_dua`, `samundari_sarkash_hawaon_se_panah`); 4 no approved EN review (`barish_ki_dua`, `sachai_aur_imandari_ki_dua`, `ilm_aur_pakiza_rizq_ki_dua`, `khiyanat_se_bachne_ki_dua`) — decision: approve or skip, user to confirm.
-- Thumbnails: 87 rendered (`remotion/out/thumbs/<dua_id>.png`), state in `data/thumbs_state_channel1.json` (video_id + thumb map). `upload_thumbs.py` + `seo_batch.py` have `--dry-run` / `--only`.
-- Share kit: `share_kit/` (87 WhatsApp texts + `INDEX.md`) — done, committed.
-- Playlist plan: `data/playlist_plan_channel1.json` — 9 playlists (nafs/khof/rizq/ilm/sabr/family/raat/mausam/other) via `plan_playlists.py`.
+- Full audit + roadmap: `V2_AUDIT_AND_PLAN.md` (root).
+- Architecture + DB schema + API design: `docs/V2_ARCHITECTURE.md`.
+- New-agent onboarding (read order + gotchas): `docs/V2_ONBOARDING.md`.
+- First implementation milestone (Foundation): `docs/V2_PHASE1_BRIEF.md`.
 
-## Commands / Scripts (all from repo root or as noted)
+## What to reuse from the production codebase (read from `H:\DuaVideoGenerator`)
 
-- Thumbs render: `python remotion/scripts/make_thumbs.py` (remotion CLI must run with cwd=REMOTION; props must be wrapped `{"data": {...}}`)
-- Upload thumbs: `python remotion/scripts/upload_thumbs.py [--dry-run|--only id1,id2]`
-- SEO batch: `python remotion/scripts/seo_batch.py [--dry-run|--only ...]`
-- EN captions: `python remotion/scripts/attach_captions.py --only sakht_musibat_mein_sabr_ki_dua,samundari_sarkash_hawaon_se_panah`
-- Privacy rollout: `python remotion/scripts/fix_short_privacy.py --limit N`
-- Share kit: `python remotion/scripts/generate_share_kit.py`
-- Playlist plan: `python remotion/scripts/plan_playlists.py`
+- `remotion/src/*` components (`Root.tsx`, `DuaVideo.tsx`, `ThumbCard.tsx`, `themes.ts`, VFX) — render engine.
+- `remotion/scripts/*` CLI tools → retarget as worker commands: `make_shorts.py`, `make_thumbs.py`, `upload_thumbs.py`, `upload_shorts.py`, `seo_batch.py`, `attach_captions.py`, `plan_playlists.py`, `generate_share_kit.py`, `metadata.py`, `qc.py`, `youtube_auth.py`.
+- `core/` Python: `tts_engine.py`, `audio_mixer.py`, `metadata_generator.py`, `quality_checker.py`, `word_highlight.py`, `master_config.py`.
+- SEO data: `metadata.py` `CATEGORY_SEO` + `HASHTAG_POOL` + `build_tags`/`hashtag_line`/`build_description` (see `remotion/scripts/metadata.py:65-302`).
+- Ledgers/data model prototypes: `data/upload_state_channel1.json`, `data/shorts_state_channel1.json`, `data/quota_state_ch1.json`.
 
-## Working Conventions
+## Known bugs from audit (do NOT reproduce)
 
-- H shell via PowerShell `bash` (OS win32). Write temp probe scripts to `C:\Users\MASOOD~1\AppData\Local\Temp\opencode\`; prefer reading files with the Read tool; use grep tool instead of `rg` (not installed). Handle non-ASCII output with `python -X utf8` or `io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')`.
-- **Rule: ask before any write/upload to YouTube** — never assume. Get explicit go before running quota-costing operations.
-- Never commit secrets: `data/`, tokens, `ai_api_config.json`, dashboard auth, `client_secret*` are gitignored.
-- Repo remote: `https://github.com/h3lllsing/DuaVideoGenerator.git` (branch `main`). Commit only when user asks; match conventional-commit style in CHANGELOG/history.
+- Render queue: no auto-resume after restart; `render-selected` strat-single-job stall; non-atomic queue file.
+- Two parallel render systems (native queue vs python batch) collide — V2 = single worker.
+- Unauthenticated media/static endpoints + no CSP + server keeps secrets plaintext.
+- 3-way upload-truth divergence (status ↔ ledgers ↔ YouTube).
+- Python: global `random` helper + `hash()` cache keys break determinism; `config.py` vs `master_config.py` sprawl.
+
+## Conventions
+
+- H shell via PowerShell (OS win32). Temp probes → `C:\Users\MASOOD~1\AppData\Local\Temp\opencode\`. Use Read tool; grep tool instead of `rg` (not installed). Non-ASCII output: `python -X utf8` or wrap stdout with `io.TextIOWrapper(..., encoding='utf-8', errors='replace')`.
+- **Ask before any live YouTube write/read that costs quota** (uploads, caption inserts, thumbnails.set, videos.update, playlist writes). Reads are cheap but still confirm bulk ops.
+- Never commit secrets: `data/` (token files), `.env`, `client_secret*`, `v2.db` if it ever holds tokens, `auth.json`. Keep `*.gitignore` patterns local.
+- Conventional commits (matches repo history style). Update `CHANGELOG.md` and `AGENTS.md` with each milestone.
+- Owner language: Roman Urdu. Docs stay in English (repo convention).
