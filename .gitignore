@@ -47,10 +47,12 @@ Desktop.ini
 .DS_Store
 
 # --- Node ---
+node_modules/
 remotion/node_modules/
 remotion/.cache/
 remotion/out/
 out/
+prebuild.tar.gz
 
 # --- Output / logs ---
 output/

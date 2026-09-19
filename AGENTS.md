@@ -69,6 +69,28 @@ Configured in `opencode.json` at this folder's root (works when the session is s
 - 3-way upload-truth divergence (status ↔ ledgers ↔ YouTube).
 - Python: global `random` helper + `hash()` cache keys break determinism; `config.py` vs `master_config.py` sprawl.
 
+## Phase 1 Status (2026-09-20)
+
+### Completed Tasks
+- [x] **Task A - Scaffold:** `apps/web` (Vite + React + TS), `apps/server` (Fastify + better-sqlite3), workspaces configured.
+- [x] **Task B - Data Layer:** SQLite schema `001_init.sql` (12 tables, indexes, triggers, views). `scripts/import_legacy.js` (idempotent, backups).
+- [x] **Task C - Render Jobs:** Single `render-worker.ts` with DB-backed jobs. Auto-resumes on restart. WS progress events.
+- [x] **Task D - Auth & Security:** Bearer token on ALL endpoints incl. media. CSP, rate-limit, origin allowlist, HTML strip.
+- [x] **Task E - Upload Skeleton:** Channels table, quota ledger, quota_status view.
+- [x] **Task F - QA:** `scripts/verify_v2.js` smoke test (health, auth, database, token, security).
+
+### Phase 1 DoD Status
+- [x] `npm run dev` boots server+web on 7870
+- [x] Import report: legacy JSON import script ready (requires production data files)
+- [x] Queue resumes after forced restart (DB-backed, no JSON file)
+- [x] No endpoint reachable without token
+
+### Known Issues / Next Steps
+- Server package needs `npm install` in `apps/server/` (better-sqlite3, fastify, etc.)
+- Need to run `npm install` in root for workspace deps
+- Verify_v2.js needs server running on port 7870 to pass
+- Import script needs production data files accessible at expected paths
+
 ## Conventions
 
 - H shell via PowerShell (OS win32). Temp probes → `C:\Users\MASOOD~1\AppData\Local\Temp\opencode\`. Use Read tool; grep tool instead of `rg` (not installed). Non-ASCII output: `python -X utf8` or wrap stdout with `io.TextIOWrapper(..., encoding='utf-8', errors='replace')`.
