@@ -2,6 +2,10 @@
 
 Brainstorm for DuaVideoGenerator 2.0. Grouped by: new features · tools/add-ons · security · context hierarchy · logic · syntax · architecture · downloadable resources. Nothing here is committed to build yet — pick from each bucket for the roadmap.
 
+> **POLICY (owner, 2026-09-20): NO PAID SERVICES/TOOLS anywhere in V2.** Everything must be free/open-source or self-hosted. Any item marked PAID is excluded unless owner overrides.
+>
+> **NOTE**: the only existing paid thing in prod is the AI import endpoint (aihubmix/OpenAI-compatible, already live). It stays as-is unless owner asks to replace it with a free tier (e.g., Groq/Gemini free plans).
+
 ---
 
 ## 1. New features (worth most for growth)
@@ -21,7 +25,7 @@ Brainstorm for DuaVideoGenerator 2.0. Grouped by: new features · tools/add-ons 
 
 ## 2. Tools & add-ons (integrate, don't install)
 
-1. **Remotion Lambda** — offload heavy renders to serverless GPU (pay-per-use) instead of local Chrome; keep local fallback.
+1. **Remotion Lambda — PAID (pay-per-use) → EXCLUDED** (per free-only policy). Renders stay on local machine via Remotion CLI (already free). If scale needs later, revisit only with owner.
 2. **Puppeteer-backed HTML preview** — live 60fps preview scrub in-browser before render (replaces slow `thumb` calls only).
 3. **ffprobe/`video_analyzer`** — capacity-aware encoder settings, HDR→SDR checks, loudness re-check after upload.
 4. **Whisper (faster-whisper)** — local transcription to auto-verify TTS audio matches Arabic/Urdu text (QC for audio layer).
