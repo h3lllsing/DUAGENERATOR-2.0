@@ -2,6 +2,8 @@
 
 Audit date: 2026-09-20. Covers the full Dua Video Studio dashboard (Node server + vanilla JS frontend), the Python/Remotion pipeline, data model, security and operations. Final section = V2.0 architecture + phased roadmap.
 
+> **STATUS 2026-09-20: ALL §7 OPEN DECISIONS RESOLVED by the owner** — React+TS+Vite+Tailwind, Fastify+better-sqlite3, SQLite single-file, localhost/LAN (mobile-first PWA), single user (solo), all 4 phases. **`docs/V2_DECISIONS.md` is authoritative.** Where this proposal still says "password/2FA" (§3.7, §4 auth line, §5 Phase-1) that is **superseded** — owner decided NO password/2FA (local-only, token auth). Sections §3–§5 below are the ORIGINAL proposal; follow `docs/V2_ARCHITECTURE.md`, `docs/V2_GOALS.md`, `docs/V2_PHASE1_BRIEF.md` for the current plan.
+
 ---
 
 ## 1. Executive Summary

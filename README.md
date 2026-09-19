@@ -1,6 +1,8 @@
 # Dua Video Generator — V2.0 Workspace
 
 > **V2 development copy.** Production portal runs at `H:\DuaVideoGenerator` (port 7860, pm2 `dua-studio`). This folder is the clean rebuild workspace (port 7870). See `AGENTS.md`, `V2_AUDIT_AND_PLAN.md`, `docs/V2_ARCHITECTURE.md`, `docs/V2_ONBOARDING.md`.
+>
+> **NOTE** — everything below this line describes the CURRENT PRODUCTION product (read-only, for understanding). The V2 rebuild target layout/stack is in `docs/V2_ARCHITECTURE.md`; full prod internals in `docs/PORTAL_REFERENCE.md`. V2 docs win if they conflict.
 
 ---
 

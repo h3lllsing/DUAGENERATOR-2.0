@@ -13,6 +13,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Owner-approved stack**: React + TypeScript + Vite + Tailwind (mobile-first PWA) · Fastify + better-sqlite3 · WebSockets · single Remotion render path · dev port 7870.
 - Dotfiles for V2: `AGENTS.md` (workspace record), `V2_AUDIT_AND_PLAN.md` (audit + roadmap), `docs/V2_ARCHITECTURE.md`, `docs/V2_ONBOARDING.md`, `docs/V2_PHASE1_BRIEF.md`.
 - `git origin` removed in this folder to prevent accidental pushes to the production repo.
+- **Planning/readiness docs (agent handoff bundle)**: `docs/PORTAL_REFERENCE.md` (full prod reference: schemas/API/29 scripts/Remotion contract/SEO/bugs/porting checklist), `docs/V2_GOALS.md` (objectives, KPIs, phase outcomes + definition-of-done), `docs/V2_DECISIONS.md` (owner decisions log), `docs/V2_ENHANCEMENT_CATALOG.md` (idea catalog + free-only policy).
+- **Consistency audit fixed conflicts**: removed outdated password/2FA and Remotion-Lambda references (owner: no password, free-only); trimmed `opencode.json` auto-instructions to AGENTS + ONBOARDING to reduce token bloat; added legacy-docs disclaimer so stale prod docs are never treated as current plan.
 
 ### Notes
 - Production portal untouched: still pinned to `H:\DuaVideoGenerator`, pm2 `dua-studio`, port 7860, commit `f1fb7fc`.

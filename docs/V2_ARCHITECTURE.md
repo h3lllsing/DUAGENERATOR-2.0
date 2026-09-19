@@ -41,7 +41,7 @@ Truth moves into DB; JSON kept for export/backup only.
 
 ## 3. API surface (Fastify, typed)
 
-All under `/api/v1`, bearer token + optional password. WS namespace `/ws` emits jobs/queue/upload/schedule events.
+All under `/api/v1`, bearer token **only** (NO password/2FA — owner decision, local-only single-user; see `docs/V2_DECISIONS.md`). WS namespace `/ws` emits jobs/queue/upload/schedule events.
 
 - Duas: `GET/POST /duas`, `PATCH /duas/:id`, `DELETE /duas/:id` (soft), `GET /duas/:id`
 - Videos: `GET/POST /videos`, `PATCH /videos/:id`, `GET /videos/:id/render-files`

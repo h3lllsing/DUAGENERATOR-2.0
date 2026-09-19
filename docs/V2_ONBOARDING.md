@@ -24,18 +24,31 @@ This folder = the V2.0 rebuild of the Dua Video Studio portal. Production still 
 - Non-ASCII (Urdu/Arabic): set `PYTHONUTF8=1` or wrap stdout; use Read tool for files, grep tool for searches (`rg` not installed).
 - Keep docs/AGENTS/CHANGELOG updated each milestone. Commits = conventional style.
 
+## Legacy / historical docs (cloned from prod — DO NOT follow as current plan)
+
+These shipped in the git clone and are STALE or historical. Current truth = V2 docs above + `docs/PORTAL_REFERENCE.md`. Read them ONLY for background, never for task requirements:
+
+- `MASTER_PLAN.md`, `OPTIMIZATION_PLAN.md`, `PENDING_EXECUTION_PLAN.md`, `PROJECT_CHECKLIST.md`, `FIXES_PLAN.md` — pre-V2 prod roadmaps (some marked ALL PHASES COMPLETE, some obsolete).
+- `AUDIT_*`, `FULL_AUDIT.md`, `DETAILED_AUDIT_REPORT.md`, `MASTER_AUDIT_PLAN.md`, `BEFORE_AFTER_EFFECTS.md`, `docs/SYSTEM_AUDIT.md` — historical prod audits (superseded by `V2_AUDIT_AND_PLAN.md`).
+- `docs/API.md`, `docs/EFFECTS_RESEARCH.md`, `docs/FREE_RESOURCES.md`, `LIST.md`, `MD/`, `remotion/NOTES.md` (dev log), `share_kit/INDEX.md` (generated data), `remotion/dashboard/README.md` — reference/dev notes; may describe the OLD pipeline.
+- `CONTRIBUTING.md`, `SECURITY.md`, `.github/` templates — keep (still valid project conventions).
+
+If a legacy doc contradicts a V2 doc, **the V2 doc wins**.
+
 ## Environment setup (one-time)
+
+Required: Node ≥ 18 (npm workspaces), Python 3.11+ (edge-tts), ffmpeg on PATH.
 
 ```powershell
 cd "H:\DUAGENERATOR 2.0"
 py -m venv .venv ; .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 cd remotion ; npm install ; cd ..
-# V2 apps:
+# V2 apps (folders created by Phase-1 task A — scaffold first, then install):
 cd apps/web   ; npm install ; cd ../..
 cd apps/server; npm install ; cd ../..
 ```
-(npm installs not yet run — do at first code scaffold.)
+(Scaffold/installs not yet run — do at first code scaffold, then run `verify_v2.js`.)
 
 ## Definitions (same names as prod)
 

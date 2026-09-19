@@ -17,10 +17,10 @@ Target: a running V2 skeleton that supersedes the prod dashboard's worst bugs an
 ### C. Render jobs (fixes prod queue bugs by design)
 - [ ] `jobs` table = source of truth; single `render-worker` loop; boot auto-resume of `pending/running` jobs.
 - [ ] `POST /api/v1/videos/{id}/render` + additive queue; WS events `job`/`queue`.
-- [ ] Worker shells `remotion/scripts/make_manifest.py` → Remotion CLI (cwd=`remotion/`, wrapped `{"data":...}` props) → BT.709 → `qc.py` (one retry) → thumb + srt + metadata (reuse prod scripts). No parallel renders.
+- [ ] Worker shells `remotion/scripts/prepare_dua.py` (TTS + merge) → `make_manifest.py` → Remotion CLI (cwd=`remotion/`, wrapped `{"data":...}` props) → BT.709 → `qc.py` (one retry) → thumb + srt + metadata (reuse prod scripts). No parallel renders.
 
 ### D. Auth & security (V2 baseline)
-- [ ] Bearer token + optional owner password; auth on **all** endpoints incl `/media/*`; CSP; HTML stripping; CSRF/origin allowlist; rate-limit `/api`.
+- [ ] Bearer token **only** (NO password/2FA — owner decision, local-only; see `docs/V2_DECISIONS.md`); auth on **all** endpoints incl `/media/*`; CSP; HTML stripping; CSRF/origin allowlist; rate-limit `/api`.
 - [ ] Secrets only via env/`data/` (gitignored); `timingSafeEqual`.
 
 ### E. Upload skeleton

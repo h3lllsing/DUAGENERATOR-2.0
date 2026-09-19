@@ -63,7 +63,7 @@ Rebuild the Dua Video Studio as **V2.0**: a faster, more reliable, mobile-first 
 ## 5. Priorities / order of operations for the new agent session
 
 1. Read: `AGENTS.md` → `docs/PORTAL_REFERENCE.md` → `docs/V2_GOALS.md` → `docs/V2_ARCHITECTURE.md` → `docs/V2_ENHANCEMENT_CATALOG.md` → `docs/V2_PHASE1_BRIEF.md` → `docs/V2_DECISIONS.md`.
-2. Confirm env: npm available, python venv, Remotion deps ready (see `DOCS/V2_ONBOARDING.md` §setup).
+2. Confirm env: npm available, python venv, Remotion deps ready (see `docs/V2_ONBOARDING.md` §Environment setup).
 3. Execute **Phase 1 tasks** from `docs/V2_PHASE1_BRIEF.md`, in order A→F.
 4. After each task: run its tests; update `CHANGELOG.md` + `docs/V2_GOALS.md` checkboxes + `AGENTS.md`.
 5. When Phase 1 DoD met: stop and report — do NOT continue to Phase 2 without owner.

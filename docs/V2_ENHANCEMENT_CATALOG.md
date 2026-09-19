@@ -86,7 +86,7 @@ Brainstorm for DuaVideoGenerator 2.0. Grouped by: new features · tools/add-ons 
 - **Single render path** (Remotion), Python as sidecar CLI via structured JSON argv/stdout (`make_manifest`, TTS, QC, srt).
 - **Event bus in-process** (small emitter) → WS fan-out; long jobs never hold requests.
 - **Data flow**: ducks design → `videos` row → worker artifacts stored by slug hash → `analytics_cache` updated by nightly worker.
-- **Deployment**: pm2 for prod; V2 dev local; optional Remotion-Lambda in Phase 4.
+- **Deployment**: pm2 for prod; V2 dev local; **NO Remotion-Lambda** (paid — excluded by free-only policy). Local renders only.
 
 ## 8. Downloadable resources (installable/free — explicitly useful)
 
@@ -94,7 +94,7 @@ Brainstorm for DuaVideoGenerator 2.0. Grouped by: new features · tools/add-ons 
 **Media** — CC0 background packs: Pexels/Pixabay videos (existing `download_backgrounds.py`), Coverr, Mixkit; mosque/nature/travel per category.
 **Audio** — Freesound CC0 ambience; 8D audio libs; no copyrighted nasheed.
 **Tools to apt/install** — FFmpeg (have), ImageMagick (optional), Tesseract (OCR QA), `faster-whisper` (local STT), `sentence-transformers` (embeddings dedupe), `mkcert` (HTTPS).
-**npm** — `@fastify/websocket`, `better-sqlite3`, `zod`, `vitest`, `esbuild/vite`, `tanstack-query`, `zustand`, `recharts`, `lucide-react`, `speakeasy` (2FA), `googleapis` (have), `keytar`/`keyring`.
+**npm** — `@fastify/websocket`, `better-sqlite3`, `zod`, `vitest`, `esbuild/vite`, `tanstack-query`, `zustand`, `recharts`, `lucide-react`, `googleapis` (have). (`speakeasy`/`keytar` = 2FA/keyring — NOT needed per decisions, list only if policy ever changes.)
 **pip** — `edge-tts` (have), `fastapi`-free path (keep scripts), `cryptography` (have), `pydantic`, `opencv` (have).
 **CI templates** — gitleaks job, npm+pip audit jobs (GitHub Actions, easy once V2 repo exists).
 **Docs** — keep `YOUTUBE_COMPLIANCE.md`, `CONTENT_POLICY.md`; add `SECURITY_PLAYBOOK.md` + `BACKUP_RUNBOOK.md`.
@@ -106,6 +106,6 @@ Brainstorm for DuaVideoGenerator 2.0. Grouped by: new features · tools/add-ons 
 - **Phase 1**: foundation (SQLite, single render/publish FSM, auth-all, determinism) — from `V2_PHASE1_BRIEF.md`.
 - **Phase 2 (Studio)**: thumbnail/caption/SEO editors + review-edit (feature 11, tools 10) + expiry of review gate.
 - **Phase 3 (Growth)**: scheduler/calendar, trend radar, underperformer triage, playlist automation, analytics dashboard (features 2,3,5,6).
-- **Phase 4 (Scale)**: Remotion Lambda, 2FA/keyring, HTTPS/LAN, PWA polish, semantic dedupe (security 2,5,6; feature 1; logic 4).
+- **Phase 4 (Scale)**: PWA polish + HTTPS/LAN (mkcert), backups/restore runbook, monitoring panels, determinism pass, semantic dedupe (security 5,9; feature 12; logic 4). (Remotion Lambda, 2FA, keyring = excluded per free-only + no-password decisions.)
 
 Owner picks which buckets go in each phase; defaults follow the suggested slice.

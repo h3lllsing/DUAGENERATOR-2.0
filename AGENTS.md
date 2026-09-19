@@ -57,7 +57,7 @@ Configured in `opencode.json` at this folder's root (works when the session is s
 - `remotion/scripts/*` CLI tools → retarget as worker commands: `make_shorts.py`, `make_thumbs.py`, `upload_thumbs.py`, `upload_shorts.py`, `seo_batch.py`, `attach_captions.py`, `plan_playlists.py`, `generate_share_kit.py`, `metadata.py`, `qc.py`, `youtube_auth.py`.
 - `core/` Python: `tts_engine.py`, `audio_mixer.py`, `metadata_generator.py`, `quality_checker.py`, `word_highlight.py`, `master_config.py`.
 - SEO data: `metadata.py` `CATEGORY_SEO` + `HASHTAG_POOL` + `build_tags`/`hashtag_line`/`build_description` (see `remotion/scripts/metadata.py:65-302`).
-- Ledgers/data model prototypes: `data/upload_state_channel1.json`, `data/shorts_state_channel1.json`, `data/quota_state_ch1.json`.
+- Ledgers/data model prototypes: `data/upload_state_channel1.json`, `data/shorts_state_channel1.json`, `data/quota_state_channel1.json`.
 
 ## Known bugs from audit (do NOT reproduce)
 
