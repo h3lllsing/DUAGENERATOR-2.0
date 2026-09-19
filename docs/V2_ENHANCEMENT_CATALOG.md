@@ -34,10 +34,10 @@ Brainstorm for DuaVideoGenerator 2.0. Grouped by: new features · tools/add-ons 
 
 ## 3. Security (V2 baseline + upgrades)
 
-1. Password gate + optional **TOTP 2FA** (otpauth via `speakeasy`); owner-scoped API keys.
-2. **OS keyring** (Windows Credential Manager / `keytar`-style) for tokens & AI keys; `.env` for dev only.
-3. **Encrypted DB** — SQLCipher for `v2.db`, or at minimum encrypt secret rows (AES-GCM via existing `core/security.py`).
-4. **Signed media URLs** — HMAC short-lived tokens for `/media/*`; auth on every endpoint.
+1. ~~Password gate + optional TOTP 2FA~~ — **DECIDED: NOT NEEDED** (owner: portal chalta hai locally — single system, single user; login/2FA skip). Local token auth stays as-is.
+2. **OS keyring** (Windows Credential Manager / `keytar`-style) for tokens & AI keys — *optional*, local-only so `.env` is acceptable.
+3. **Encrypted DB** — SQLCipher for `v2.db`, *or* encrypt only secret rows (AES-GCM via existing `core/security.py`) — *optional* when local-only.
+4. **Signed media URLs** — HMAC short-lived tokens for `/media/*`; auth on every endpoint — *optional* (loopback bind is main guard); low cost so keep if easy.
 5. **HTTPS on LAN** — auto self-signed via `mkcert`; instruct browser trust (PWA needs HTTPS/localhost anyway).
 6. **Hardened headers** — CSP (React makes this easy), HSTS, COOP/COEP on media; strip HTML server-side.
 7. **Secret scanner in CI** — gitleaks on push; fail on leaked key patterns.
