@@ -49,7 +49,7 @@ export default async function thumbnailsRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/v1/videos/:id/thumbs/swap — swap A/B thumbnails
-  fastify.post('/api/v1/videos/:id/thumbs/swap', { body: false }, async (request, reply) => {
+  fastify.post('/api/v1/videos/:id/thumbs/swap', async (request, reply) => {
     const { id } = request.params as { id: string };
     const video = selectOne('SELECT id, thumbs FROM videos WHERE id = ?', [id]);
     if (!video) { reply.code(404); return { ok: false, error: 'Video not found' }; }

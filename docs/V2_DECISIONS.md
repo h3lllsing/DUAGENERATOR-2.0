@@ -15,5 +15,6 @@ New agents: read this so you never re-ask. Format: `DATE | Decision | Detail`.
 | 2026-09-20 | Quality bar | V2 must be better than current portal in every way (speed/reliability/UX/security/maintainability) — "Better than prod har hal me". |
 | 2026-09-20 | Agent readiness | Complete docs required so a fresh chat has full planning + goals + prod reference (this repo). Build happens in a NEW chat, not the planning chat. |
 | 2026-09-20 | GitHub remote | V2 folder has NO remote (removed for safety). New repo + push only on owner request. |
+| 2026-09-20 | No backups | Owner: "back up nahi chahiye". Drop the Phase 4 Daily-Backups item (SQLite snapshot, retention, restore runbook). Data safety still = nothing lost in migration + verify-by-recount. |
 
 *append future decisions here (date | what | why)*

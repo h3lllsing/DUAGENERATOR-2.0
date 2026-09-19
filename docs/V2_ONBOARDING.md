@@ -66,12 +66,41 @@ Schema tables: `schedules` (+`note`/`job_id`/`created_at`/`updated_at`), `playli
 
 - **Scheduler**: `apps/web/growth/scheduler` — create schedule per video; publish worker (`src/workers/publish-worker.ts`) runs `runPublishCheck()` every `publish_interval_sec`, honoring the channel daily cap (10) with PT-day rollover (midnight PT = noon PKT). Uploads become `jobs state=queued` type `upload` (render worker handles queue; no live YouTube mutation here).
 - **Quota**: `src/growth/quota.ts` — `consumeQuota`/`uploadsRemaining`; reset handled lazily on `quota_date` mismatch.
-- **Analytics**: manual/dev-safe only (no YouTube API reads). Feed `data/analytics_manual.json`, then `node scripts/import_analytics.js` or POST `/api/v1/analytics/import` — or POST `/api/v1/analytics/sample` for dev-only fabricated rows. Dashboard flags underperformers below `analytics_threshold_views` with 1-click action hints.
+- **Analytics**: manual/dev-safe only (no YouTube API reads). Feed `data/analytics_manual.json`, then `node scripts/import_analytics.js` or POST `/api/v1/analytics/import`. Dashboard flags underperformers below `analytics_threshold_views` with 1-click action hints.
 - **Playlists**: `node scripts/import_playlists.js` ports `H:\DuaVideoGenerator\data\playlist_plan_channel1.json` (9 playlists / 87 members; 2 slugs not in V2 duas: `dua-khiyanat-se-bachne-ki-dua`, `dua-ilm-aur-pakiza-rizq-ki-dua`). Mark members added/skipped in UI; get a copy-paste URL manifest per playlist.
 - **Topics**: trend radar suggestions from duo source/category/keywords via POST `/api/v1/topics/suggest`, then triage to progress/done/ignored.
 - **Share kit**: GET `/api/v1/share/:youtubeId` or `/api/v1/videos/:id/share` → formatted WhatsApp/post text with hashtags (empty watch URL if video has no youtube yid yet).
 
 Launch order after Phase 3 changes: kill :7870, `npm --prefix apps/web run build`, relaunch server from repo root (so `process.cwd()/data` = `H:\DUAGENERATOR 2.0\data`, `apps/web/dist` found). Migration 003 applies automatically on boot.
+
+## Audit fixes (migration 004)
+
+Bugs found in full code audit and fixed (commit 71a38fa onwards, working tree):
+
+- `auth.ts` — cookie branch used non-existent `request.cookies` (dead); now parses `Cookie` header; `loadToken` TS return-type fixed. `npm run build` (tsc) now passes for server.
+- `routes/captions.ts`, `routes/thumbnails.ts` — invalid Fastify 4 route option `{ body: false }` removed.
+- `routes/videos.ts` — GET /videos now JOINs `duas` for `dua_title`/`dua_slug` (SchedulerPage dropdown labels); re-render/queue upsert the existing `render` job back to `queued` instead of hitting `UNIQUE(video_id, type)` (was 500). Pagination `total` now respects filters (also `/jobs`, `/duas`).
+- `workers/render-worker.ts` — `compId = dua.id.replace(...)` crashed (integer id); now `'dua-' + dua.id`.
+- Trash semantics — `DELETE /duas/:id` soft-delete reused `status='draft'` so trash = all drafts and restore was a no-op. Migration 004 adds `duas.deleted INTEGER DEFAULT 0`; delete sets it, `/api/v1/trash` lists it, `/restore` clears it.
+- Removed dev-only testing scaffold from app code: `/api/v1/analytics/sample` route, `buildSampleRows`, web `sampleAnalytics` client method, and the "Fill sample data (dev)" button. Unit/smoke tests kept (user instruction: "Kuch nahi hatana").
+
+Known design limitations (documented; typically FIXED in Phase 4 where noted):
+- ~~Render worker in-process (`index.ts` → `startRenderWorker`) with synchronous `execSync` Python/Remotion/ffmpeg steps — a long render blocks the whole :7870 API~~ **FIXED (Phase 4):** workers moved to separate `src/worker.ts` process; API only queues jobs (`data` no longer blocks on renders). PM2 runs both (`ecosystem.config.js`).
+- `jobs` state `retry` is never emitted and `getNext` re-picks `failed` jobs → with a persistent env failure a job auto-retries forever (no cap). Harmless in dev.
+- Duas have no `deleted` history: 001–003 rows soft-deleted as `draft` are indistinguishable from real drafts; only deletions from migration 004 on land in trash.
+
+## Verification-of-claim fixes (migration 005 + worker recovery + legacy seeding)
+
+Owner challenged "phases complete" claims — audit proved 3 were incomplete. Fixed:
+
+- **Render worker auto-resume** — `recoverInterruptedJobs()` (render-worker.ts) resets `prep/render/qc/retry` jobs back to `queued` on boot; the Phase 1 DoD claim is now true (was false: `getNext()` only picked `queued/failed`).
+- **Pillars (43 general)** — migration `005_phase2_pillars.sql` remaps all 43 `general` duas into theme buckets (occasions/guidance/family/anxiety_relief/gratitude/health/protection/forgiveness); `general` = 0; Phase 2 DoD item now true.
+- **Legacy migration honesty** — `scripts/verify_migration.js` writes `data/migration_report.json` (truthful counts): duas 114/114; ledger 104 rows/85 distinct duas with an explicit unmatched list (`khiyanat_se_bachne_ki_dua`, `ilm_aur_pakiza_rizq_ki_dua` — no parent dua exists in the library, not representable); en_review (27 approved) copied to `data/legacy_en_review.json` and auto-attached via `seedReviewFromLegacy()` (src/growth/legacy.ts) whenever a video is created for that dua (POST /api/v1/videos), reviewer=`legacy-migration`. E2E verified: POST video → review row `kind=en status=approved`
+- Phase 1 "migrated 100%" claim is now stated precisely with the 2-orphan caveat instead of an over-claim.
+
+## Phase 4 — Scale & Hardening (2026-09-20)
+
+Detached workers (`src/worker.ts`), monitoring (`/api/v1/monitoring` + dashboard panel + `data/alerts.log`), PM2 (`ecosystem.config.js`), PWA (manifest + `sw.js` offline shell), determinism verified (no `Math.random`; seed = `dua.id`), LAN/HTTPS guide (`V2_LAN_HTTPS.md`). Backups = not delivered (owner opt-out). Details in `V2_PHASE4_BRIEF.md`.
 
 ## Definitions (same names as prod)
 

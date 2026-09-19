@@ -1,5 +1,6 @@
 import { getDb, selectOne } from '../db.js';
 import { runPublishCheck } from '../growth/scheduler.js';
+import { appendAlert } from '../alerts.js';
 
 const WORKER_ID = 'publish-' + process.pid;
 const DEFAULT_INTERVAL_MS = 15000;
@@ -33,6 +34,7 @@ function runOnce(): void {
     }
   } catch (err: any) {
     console.error('[' + WORKER_ID + '] Publish check failed:', err.message);
+    appendAlert('publish check failed: ' + (err.message || err));
   } finally {
     schedule();
   }

@@ -23,22 +23,12 @@ export default function AnalyticsPage() {
     } catch (e: any) { setErr(String(e)); }
   }
 
-  async function sample() {
-    setMsg(''); setErr('');
-    try {
-      const r = await api.sampleAnalytics();
-      setMsg(`Loaded ${r.data.imported} sample rows (dev only)`);
-      refresh();
-    } catch (e: any) { setErr(String(e)); }
-  }
-
   return (
     <div className="page">
       <h1>Analytics</h1>
 
       <div className="studio-toolbar">
         <button onClick={importManual}>Import manual file</button>
-        <button onClick={sample}>Fill sample data (dev)</button>
       </div>
 
       {overview && (
@@ -53,7 +43,7 @@ export default function AnalyticsPage() {
 
       <h2>Underperformers (below 100 views)</h2>
       {under.length === 0 ? (
-        <div className="empty-state">Either no metrics yet (run import/sample) or nothing underperforming</div>
+        <div className="empty-state">No metrics yet — run import manual file</div>
       ) : (
         <div className="table-wrap">
           <table>
@@ -73,7 +63,7 @@ export default function AnalyticsPage() {
                   <td>{u.score}</td>
                   <td>
                     <div className="actions-cell">
-                      {u.dua_slug && <a href={`/duas/${u.dua_slug}`}>open</a>}
+                      {u.dua_id && <a href={`/duas/${u.dua_id}`}>open</a>}
                       {u.actions.swapThumb && <span className="tag">swap thumb</span>}
                       <span className="tag">re-title</span>
                       <span className="tag">re-SEO</span>

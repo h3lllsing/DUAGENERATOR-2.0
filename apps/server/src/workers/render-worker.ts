@@ -1,4 +1,5 @@
 ﻿import { getDb, selectAll, selectOne, run } from '../db.js';
+import { appendAlert } from '../alerts.js';
 import { execSync } from 'child_process';
 import path from 'path';
 
@@ -10,7 +11,15 @@ export function startRenderWorker(): void {
   console.log('[' + WORKER_ID + '] Starting render worker');
   process.on('SIGINT', () => { running = false; });
   process.on('SIGTERM', () => { running = false; });
+  recoverInterruptedJobs();
   loop();
+}
+
+function recoverInterruptedJobs(): void {
+  const stuck = selectAll("SELECT id FROM jobs WHERE state IN ('prep','render','qc','retry')");
+  if (!stuck.length) return;
+  run("UPDATE jobs SET state = 'queued', progress = 0, finished_at = NULL, error = NULL WHERE state IN ('prep','render','qc','retry')");
+  console.log('[' + WORKER_ID + '] Recovered ' + stuck.length + ' interrupted job(s) back to queued');
 }
 
 async function loop(): Promise<void> {
@@ -51,8 +60,8 @@ async function processJob(job: any): Promise<void> {
     updateState(job.id, 'render', 30);
     execSync('python -X utf8 "' + path.join(scriptsDir, 'make_manifest.py') + '" --dua-id ' + dua.id, { cwd: remotionDir, timeout: 60000 });
 
-    updateState(job.id, 'render', 50);
-    const compId = dua.id.replace(/_/g, '-');
+updateState(job.id, 'render', 50);
+    const compId = 'dua-' + dua.id;
     execSync('npx remotion render ' + compId + ' out/' + dua.id + '.mp4', { cwd: remotionDir, timeout: 600000 });
 
     updateState(job.id, 'render', 65);
@@ -72,9 +81,9 @@ async function processJob(job: any): Promise<void> {
     updateState(job.id, 'done', 100);
     run("UPDATE videos SET state='rendered' WHERE id=?", [video.id]);
     console.log('[' + WORKER_ID + '] Job ' + job.id + ' completed');
-  } catch (err: any) {
+} catch (err: any) {
     console.error('[' + WORKER_ID + '] Job ' + job.id + ' failed:', err.message);
-    const failCount = selectOne("SELECT COUNT(*) as c FROM jobs WHERE video_id=? AND state='failed'", [job.video_id]);
     updateState(job.id, 'failed', 0, err.message);
+    appendAlert('render job ' + job.id + ' (video ' + job.video_id + ') failed: ' + (err.message || err));
   }
 }

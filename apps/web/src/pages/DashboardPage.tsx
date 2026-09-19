@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
+import MonitoringPanel from '../components/MonitoringPanel';
 
 export default function DashboardPage() {
   const [status, setStatus] = useState<any>(null);
@@ -34,6 +35,8 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      <MonitoringPanel />
 
       <h2>Review Queue</h2>
       {reviewQueue.length === 0 ? (

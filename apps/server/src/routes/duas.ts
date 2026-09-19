@@ -20,10 +20,10 @@ const DuaUpdateSchema = DuaSchema.partial();
 
 export default async function duasRoutes(fastify: FastifyInstance) {
 
-  // GET /api/v1/duas
+// GET /api/v1/duas
   fastify.get('/api/v1/duas', async (request) => {
     const { category, status, page = '1', limit = '50' } = request.query as any;
-    let sql = 'SELECT * FROM duas WHERE 1=1';
+    let sql = 'SELECT * FROM duas WHERE deleted = 0';
     const params: any[] = [];
     if (category) { sql += ' AND category = ?'; params.push(category); }
     if (status) { sql += ' AND status = ?'; params.push(status); }
@@ -32,7 +32,11 @@ export default async function duasRoutes(fastify: FastifyInstance) {
     sql += ' LIMIT ? OFFSET ?';
     params.push(parseInt(limit), offset);
     const duas = selectAll(sql, params);
-    const totalRow = selectOne('SELECT COUNT(*) as count FROM duas');
+    let tsql = 'SELECT COUNT(*) as count FROM duas WHERE deleted = 0';
+    const tparams: any[] = [];
+    if (category) { tsql += ' AND category = ?'; tparams.push(category); }
+    if (status) { tsql += ' AND status = ?'; tparams.push(status); }
+    const totalRow = selectOne(tsql, tparams);
     return { ok: true, data: duas, pagination: { page: parseInt(page), limit: parseInt(limit), total: totalRow?.count || 0 } };
   });
 
@@ -79,12 +83,12 @@ export default async function duasRoutes(fastify: FastifyInstance) {
     return { ok: true, data: selectOne('SELECT * FROM duas WHERE id = ?', [id]) };
   });
 
-  // DELETE /api/v1/duas/:id (soft delete)
+// DELETE /api/v1/duas/:id (soft delete)
   fastify.delete('/api/v1/duas/:id', async (request, reply) => {
     const { id } = request.params as { id: string };
     const dua = selectOne('SELECT * FROM duas WHERE id = ?', [id]);
     if (!dua) { reply.code(404); return { ok: false, error: 'Dua not found' }; }
-    run('UPDATE duas SET status = ? WHERE id = ?', ['draft', id]);
+    run("UPDATE duas SET status = 'draft', deleted = 1, updated_at = datetime('now') WHERE id = ?", [id]);
     return { ok: true, message: 'Dua deleted (soft)' };
   });
 
@@ -96,7 +100,7 @@ export default async function duasRoutes(fastify: FastifyInstance) {
 
   // GET /api/v1/trash
   fastify.get('/api/v1/trash', async () => {
-    return { ok: true, data: selectAll('SELECT * FROM duas WHERE status = ? ORDER BY updated_at DESC', ['draft']) };
+    return { ok: true, data: selectAll('SELECT * FROM duas WHERE deleted = 1 ORDER BY updated_at DESC') };
   });
 
   // POST /api/v1/trash/restore/:id
@@ -104,7 +108,7 @@ export default async function duasRoutes(fastify: FastifyInstance) {
     const { id } = request.params as { id: string };
     const dua = selectOne('SELECT * FROM duas WHERE id = ?', [id]);
     if (!dua) { reply.code(404); return { ok: false, error: 'Dua not found' }; }
-    run('UPDATE duas SET status = ? WHERE id = ?', ['draft', id]);
+    run('UPDATE duas SET deleted = 0, updated_at = datetime(\'now\') WHERE id = ?', [id]);
     return { ok: true, message: 'Dua restored' };
   });
 }

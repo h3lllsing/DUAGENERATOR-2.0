@@ -1,21 +1,24 @@
 ﻿import type { FastifyInstance } from 'fastify';
-import { selectAll, selectOne, run } from '../db.js';
+import { getDb, selectAll, selectOne, run } from '../db.js';
+import { seedReviewFromLegacy } from '../growth/legacy.js';
 
 export default async function videosRoutes(fastify: FastifyInstance) {
 
-  // GET /api/v1/videos
+// GET /api/v1/videos
   fastify.get('/api/v1/videos', async (request) => {
     const { dua_id, state, page = '1', limit = '50' } = request.query as any;
-    let sql = 'SELECT * FROM videos WHERE 1=1';
+    let sql = 'SELECT v.*, d.title as dua_title, d.slug as dua_slug FROM videos v JOIN duas d ON d.id = v.dua_id WHERE 1=1';
     const params: any[] = [];
-    if (dua_id) { sql += ' AND dua_id = ?'; params.push(dua_id); }
-    if (state) { sql += ' AND state = ?'; params.push(state); }
-    sql += ' ORDER BY id DESC';
+    let tsql = 'SELECT COUNT(*) as count FROM videos WHERE 1=1';
+    const tparams: any[] = [];
+    if (dua_id) { sql += ' AND v.dua_id = ?'; params.push(dua_id); tsql += ' AND dua_id = ?'; tparams.push(dua_id); }
+    if (state) { sql += ' AND v.state = ?'; params.push(state); tsql += ' AND state = ?'; tparams.push(state); }
+    sql += ' ORDER BY v.id DESC';
     const offset = (parseInt(page) - 1) * parseInt(limit);
     sql += ' LIMIT ? OFFSET ?';
     params.push(parseInt(limit), offset);
     const videos = selectAll(sql, params);
-    const totalRow = selectOne('SELECT COUNT(*) as count FROM videos');
+    const totalRow = selectOne(tsql, tparams);
     return { ok: true, data: videos, pagination: { page: parseInt(page), limit: parseInt(limit), total: totalRow?.count || 0 } };
   });
 
@@ -36,9 +39,11 @@ export default async function videosRoutes(fastify: FastifyInstance) {
     if (!dua) { reply.code(404); return { ok: false, error: 'Dua not found' }; }
     const existing = selectOne('SELECT * FROM videos WHERE dua_id = ? AND kind = ?', [dua_id, kind]);
     if (existing) { reply.code(409); return { ok: false, error: 'Video already exists for this dua' }; }
-    const result = run('INSERT INTO videos (dua_id, kind, state) VALUES (?, ?, ?)', [dua_id, kind, 'not_started']);
+const result = run('INSERT INTO videos (dua_id, kind, state) VALUES (?, ?, ?)', [dua_id, kind, 'not_started']);
+    const created = selectOne('SELECT * FROM videos WHERE id = ?', [result.lastInsertRowid]);
+    seedReviewFromLegacy(getDb(), dua_id, created.id);
     reply.code(201);
-    return { ok: true, data: selectOne('SELECT * FROM videos WHERE id = ?', [result.lastInsertRowid]) };
+    return { ok: true, data: created };
   });
 
   // PATCH /api/v1/videos/:id
@@ -56,47 +61,60 @@ export default async function videosRoutes(fastify: FastifyInstance) {
     return { ok: true, data: selectOne('SELECT * FROM videos WHERE id = ?', [id]) };
   });
 
-  // POST /api/v1/videos/:id/render
+// POST /api/v1/videos/:id/render
   fastify.post('/api/v1/videos/:id/render', async (request, reply) => {
     const { id } = request.params as { id: string };
     const video = selectOne('SELECT * FROM videos WHERE id = ?', [id]);
     if (!video) { reply.code(404); return { ok: false, error: 'Video not found' }; }
     const active = selectOne("SELECT * FROM jobs WHERE video_id = ? AND state IN ('queued','prep','render','qc','retry')", [id]);
     if (active) { reply.code(409); return { ok: false, error: 'Active job exists', data: active }; }
+    const prev = selectOne("SELECT id FROM jobs WHERE video_id = ? AND type = 'render'", [id]);
+    if (prev) {
+      run("UPDATE jobs SET state = 'queued', progress = 0, error = NULL, payload = ? WHERE id = ?", [JSON.stringify({ dua_id: video.dua_id }), prev.id]);
+      reply.code(201);
+      return { ok: true, data: selectOne('SELECT * FROM jobs WHERE id = ?', [prev.id]) };
+    }
     const result = run('INSERT INTO jobs (video_id, type, state, payload) VALUES (?, ?, ?, ?)', [id, 'render', 'queued', JSON.stringify({ dua_id: video.dua_id })]);
     const job = selectOne('SELECT * FROM jobs WHERE id = ?', [result.lastInsertRowid]);
     reply.code(201);
     return { ok: true, data: job };
   });
 
-  // POST /api/v1/videos/queue
-  fastify.post('/api/v1/videos/queue', async (request) => {
+// POST /api/v1/videos/queue
+  fastify.post('/api/v1/videos/queue', async (request, reply) => {
     const { video_ids } = request.body as { video_ids: number[] };
-    if (!Array.isArray(video_ids) || !video_ids.length) return { ok: false, error: 'video_ids required' };
+    if (!Array.isArray(video_ids) || !video_ids.length) { reply.code(400); return { ok: false, error: 'video_ids required' }; }
     let queued = 0; let skipped = 0;
-    for (const vid of video_ids) {
+for (const vid of video_ids) {
       const video = selectOne('SELECT * FROM videos WHERE id = ?', [vid]);
       if (!video) { skipped++; continue; }
       const active = selectOne("SELECT * FROM jobs WHERE video_id = ? AND state IN ('queued','prep','render','qc','retry')", [vid]);
       if (active) { skipped++; continue; }
-      run('INSERT INTO jobs (video_id, type, state, payload) VALUES (?, ?, ?, ?)', [vid, 'render', 'queued', JSON.stringify({ dua_id: video.dua_id })]);
+      const prev = selectOne("SELECT id FROM jobs WHERE video_id = ? AND type = 'render'", [vid]);
+      if (prev) {
+        run("UPDATE jobs SET state = 'queued', progress = 0, error = NULL, payload = ? WHERE id = ?", [JSON.stringify({ dua_id: video.dua_id }), prev.id]);
+      } else {
+        run('INSERT INTO jobs (video_id, type, state, payload) VALUES (?, ?, ?, ?)', [vid, 'render', 'queued', JSON.stringify({ dua_id: video.dua_id })]);
+      }
       queued++;
     }
     return { ok: true, data: { queued, skipped } };
   });
 
-  // GET /api/v1/jobs
+// GET /api/v1/jobs
   fastify.get('/api/v1/jobs', async (request) => {
     const { state, page = '1', limit = '50' } = request.query as any;
     let sql = 'SELECT * FROM jobs WHERE 1=1';
     const params: any[] = [];
-    if (state) { sql += ' AND state = ?'; params.push(state); }
+    let tsql = 'SELECT COUNT(*) as count FROM jobs WHERE 1=1';
+    const tparams: any[] = [];
+    if (state) { sql += ' AND state = ?'; params.push(state); tsql += ' AND state = ?'; tparams.push(state); }
     sql += ' ORDER BY created_at DESC';
     const offset = (parseInt(page) - 1) * parseInt(limit);
     sql += ' LIMIT ? OFFSET ?';
     params.push(parseInt(limit), offset);
     const jobs = selectAll(sql, params);
-    const totalRow = selectOne('SELECT COUNT(*) as count FROM jobs');
+    const totalRow = selectOne(tsql, tparams);
     return { ok: true, data: jobs, pagination: { page: parseInt(page), limit: parseInt(limit), total: totalRow?.count || 0 } };
   });
 

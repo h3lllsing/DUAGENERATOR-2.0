@@ -19,8 +19,7 @@ import analyticsRoutes from './routes/analytics.js';
 import playlistsRoutes from './routes/playlists.js';
 import topicsRoutes from './routes/topics.js';
 import sharekitRoutes from './routes/sharekit.js';
-import { startRenderWorker } from './workers/render-worker.js';
-import { startPublishWorker } from './workers/publish-worker.js';
+import monitoringRoutes from './routes/monitoring.js';
 
 const PORT = parseInt(process.env.PORT || '7870');
 const HOST = process.env.HOST || '127.0.0.1';
@@ -58,6 +57,7 @@ await app.register(duasRoutes);
   await app.register(playlistsRoutes);
   await app.register(topicsRoutes);
   await app.register(sharekitRoutes);
+  await app.register(monitoringRoutes);
 
   app.get('/api/v1/health', async () => ({ ok: true, version: '2.0.0' }));
 
@@ -79,11 +79,8 @@ await app.register(duasRoutes);
     console.log('[Server] Web dist not found at ' + distDir + ' — API only');
   }
 
-  startRenderWorker();
-  startPublishWorker();
-
-  await app.listen({ port: PORT, host: HOST });
-  console.log('[Server] V2 running on http://' + HOST + ':' + PORT);
+await app.listen({ port: PORT, host: HOST });
+  console.log('[Server] V2 API running on http://' + HOST + ':' + PORT + ' (workers run as separate process)');
 
   const shutdown = async () => { await app.close(); closeDb(); process.exit(0); };
   process.on('SIGINT', shutdown);

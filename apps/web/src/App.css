@@ -48,6 +48,15 @@ body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--t
 .stat-value { font-size: 28px; font-weight: 700; color: var(--primary); }
 .stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 
+/* Monitoring */
+.monitor-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 24px; }
+.monitor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.monitor-item { display: flex; flex-direction: column; gap: 4px; }
+.monitor-label { font-size: 12px; color: var(--text-dim); }
+.monitor-value { font-size: 18px; font-weight: 600; color: var(--text); }
+.monitor-value em { font-size: 12px; font-weight: 400; color: var(--text-dim); margin-left: 4px; }
+.monitor-footer { font-size: 12px; color: var(--text-dim); margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+
 /* Table */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }

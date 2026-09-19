@@ -154,6 +154,27 @@ async function main() {
       test('Status includes growth counters', stats && typeof stats.schedules === 'number' && typeof stats.capacityLeft === 'number');
     } catch (e) { test('Status growth counters', false); }
 
+// Phase 4 monitoring
+    console.log('\n4d. Phase 4 Monitoring:');
+    try {
+      const r = await httpGet('/api/v1/monitoring', { Authorization: 'Bearer ' + TOKEN });
+      test('GET /monitoring = 200', r.status === 200);
+      const m = r.body && r.body.data;
+      test('Monitoring has jobs.byState', m && m.jobs && typeof m.jobs.byState === 'object');
+      test('Monitoring has queueDepth number', m && typeof m.queueDepth === 'number');
+      test('Monitoring has disk info', m && (m.disk === null || (typeof m.disk.freeBytes === 'number' && typeof m.disk.totalBytes === 'number')));
+      test('Monitoring has dbSizeBytes number', m && typeof m.dbSizeBytes === 'number');
+      test('Monitoring has quota or null', m && (m.quota === null || (m.quota && typeof m.quota.remaining === 'number')));
+    } catch (e) { test('Monitoring endpoint', false); }
+    try {
+      const r = await httpGet('/manifest.webmanifest', {});
+      test('PWA manifest served (200)', r.status === 200);
+    } catch (e) { test('PWA manifest', false); }
+    try {
+      const r = await httpGet('/sw.js', {});
+      test('Service worker served (200)', r.status === 200);
+    } catch (e) { test('Service worker', false); }
+
     // 5. Invalid token
     console.log('\n5. Security:');
     try {

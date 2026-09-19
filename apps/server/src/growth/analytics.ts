@@ -71,33 +71,6 @@ export function underperformers(db: Database.Database): any[] {
   return scored;
 }
 
-export function buildSampleRows(db: Database.Database, days = 7): any[] {
-  const yids = db.prepare('SELECT DISTINCT video_id FROM videos WHERE video_id IS NOT NULL').all() as any[];
-  if (!yids.length) {
-    const fromLedger = db.prepare("SELECT DISTINCT json_extract(meta, '$.video_id') as yid FROM ledger_entries WHERE json_extract(meta, '$.video_id') IS NOT NULL").all() as any[];
-    yids.push(...fromLedger);
-  }
-  const rows: any[] = [];
-  const base = new Date('2026-09-13T00:00:00.000Z');
-  yids.forEach((y, i) => {
-    for (let d = 0; d < days; d++) {
-      const day = new Date(base.getTime() + d * 86400000);
-      const dayKey = day.toISOString().slice(0, 10);
-      const growth = 1 + (i % 3) * 0.4;
-      rows.push({
-        video_yid: y.yid || y.video_id,
-        day: dayKey,
-        views: Math.round((30 + ((i * 7 + d * 5) % 120)) * growth),
-        likes: Math.round((2 + ((i * 3 + d) % 9)) * growth),
-        comments: Math.round((0 + ((i + d) % 5)) * growth),
-        ctr: Number((1 + ((i * 5 + d * 5) % 60) / 10).toFixed(2)),
-        retention: Number((20 + ((i * 11 + d * 7) % 50)).toFixed(2)),
-      });
-    }
-  });
-  return rows;
-}
-
 function getThreshold(db: Database.Database): number {
   const row = db.prepare('SELECT value FROM settings WHERE key = ?').get('analytics_threshold_views') as any;
   const n = parseInt(row?.value || '100', 10);

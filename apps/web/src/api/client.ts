@@ -74,6 +74,9 @@ export const api = {
   // Status
   getStatus: () => request<any>('GET', '/status'),
 
+  // Monitoring
+  getMonitoring: () => request<any>('GET', '/monitoring'),
+
   // Scheduler
   getSchedules: (status?: string) => request<any>('GET', '/schedules' + (status ? '?status=' + status : '')),
   getCalendar: (month?: string) => request<any>('GET', '/schedules/calendar' + (month ? '?month=' + month : '')),
@@ -87,7 +90,6 @@ export const api = {
   getAnalyticsOverview: () => request<any>('GET', '/analytics/overview'),
   getUnderperformers: () => request<any>('GET', '/analytics/underperformers'),
   importAnalytics: (path?: string) => request<any>('POST', '/analytics/import', { path }),
-  sampleAnalytics: () => request<any>('POST', '/analytics/sample'),
 
   // Playlists
   getPlaylists: () => request<any>('GET', '/playlists'),

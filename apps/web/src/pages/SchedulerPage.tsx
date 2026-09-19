@@ -95,7 +95,7 @@ export default function SchedulerPage() {
 
       <div className="studio-toolbar">
         <button className="btn-primary" onClick={runCheck}>Run publish check now</button>
-        <span className="hint">Publish worker runs every {capacity ? '15' : '15'}s configured — uploads only proceed under quota.</span>
+        <span className="hint">Publish worker runs every 15s (configured) — uploads only proceed under quota.</span>
       </div>
 
       <h2>Next 30 days</h2>

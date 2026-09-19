@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { getDb } from '../db.js';
-import { overview, underperformers, upsertMetrics, importMetricsFromFile, buildSampleRows } from '../growth/analytics.js';
+import { overview, underperformers, upsertMetrics, importMetricsFromFile } from '../growth/analytics.js';
 import path from 'path';
 
 const MANUAL_FILE = () => path.resolve(process.cwd(), 'data', 'analytics_manual.json');
@@ -31,11 +31,5 @@ export default async function analyticsRoutes(fastify: FastifyInstance) {
       reply.code(404);
       return { ok: false, error: err.message };
     }
-  });
-
-  fastify.post('/api/v1/analytics/sample', async () => {
-    const rows = buildSampleRows(getDb());
-    const n = upsertMetrics(getDb(), rows);
-    return { ok: true, data: { imported: n, note: 'dev-only sample metrics' } };
   });
 }

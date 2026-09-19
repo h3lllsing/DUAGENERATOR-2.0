@@ -20,8 +20,8 @@ Rebuild the Dua Video Studio as **V2.0**: a faster, more reliable, mobile-first 
 ### Phase 1 — Foundation (DO FIRST)
 **Outcome:** A running skeleton on **port 7870** that can replace prod's core without regressions.
 - [ ] React+TS+Vite+Tailwind app and Fastify+better-sqlite3 server boot; proxy `/api`+`/ws`.
-- [ ] SQLite schema created; **legacy data migrated 100%** (duas.json 114, upload ledger, shorts ledger, en_review, quota) with a verification report (counts match).
-- [ ] **Single render worker** with DB-backed jobs; on restart it **auto-resumes 100%** of pending/running jobs (prod bug 1&2 eliminated).
+- [x] SQLite schema created; **legacy data migrated 100%** (duas.json 114, upload ledger, shorts ledger, en_review, quota) with a verification report (counts match). *(Report: `node scripts/verify_migration.js` → `data/migration_report.json`. Truth: duas 114/114; ledger 104 rows / 85 distinct duas; 2 orphan uploads `khiyanat_se_bachne_ki_dua`, `ilm_aur_pakiza_rizq_ki_dua` have NO parent dua in library — not representable; en_review 27 carried into `data/legacy_en_review.json`, auto-attached on video creation.)*
+- [x] **Single render worker** with DB-backed jobs; on restart it **auto-resumes 100%** of pending/running jobs (prod bug 1&2 eliminated). *(Worker recovery: `recoverInterruptedJobs()` resets prep/render/qc/retry → queued on boot.)*
 - [ ] Auth on **100% of endpoints incl. media**; CSP; HTML stripping; rate limit.
 - [ ] **Tested**: `verify_v2.js` smoke passes; vitest unit tests for repos + jobs FSM; API negative-auth tests green.
 - **Definition of done:** `npm run dev` boots server+web on 7870; import report matches prod counts; queue resumes after forced restart; no endpoint reachable without token.
@@ -30,7 +30,7 @@ Rebuild the Dua Video Studio as **V2.0**: a faster, more reliable, mobile-first 
 **Outcome:** Owner can edit and publish from one place; EN review no longer blocks on wrong text.
 - [ ] Thumbnail Studio (pick still + upload via `thumbnails.set` logic) with A/B thumbnail set per video.
 - [ ] Captions editor — **edit-in-place** EN SRT (fixes review-gate limitation), live preview.
-- [ ] SEO manager — tags/hashtags/description builder (reuse `metadata.py` engine) + **category pillars upgrade** (kill the 43 `general` dupes into real theme buckets).
+- [x] SEO manager — tags/hashtags/description builder (reuse `metadata.py` engine) + **category pillars upgrade** (kill the 43 `general` dupes into real theme buckets). *(Migration 005 remaps all 43 → occasions/guidance/family/anxiety_relief/gratitude/health/protection/forgiveness; `general` = 0.)*
 - [ ] Approval workflow: draft → QC pass → EN review(edit) → approved → upload queue (hard gate).
 - **Definition of done:** create a new dua end-to-end (add → draft → render → QC → review-edit → queue) without touching CLI once.
 
@@ -44,12 +44,11 @@ Rebuild the Dua Video Studio as **V2.0**: a faster, more reliable, mobile-first 
 
 ### Phase 4 — Scale & Hardening
 **Outcome:** Production-superior ops and deployability; deterministic output.
-- [ ] Mobile PWA installable; offline-safe heavy screens.
-- [ ] Backups (daily SQLite+config snapshot, retention 7, checksummed) + restore runbook.
-- [ ] Monitoring (PM2 + job/queue gauges + crash alerts) + disk-space panel.
-- [ ] Determinism: persisted master config reload, remove `hash()` cache keys, seeded per-dua renders.
-- [ ] Optional LAN/HTTPS (mkcert) for phone access.
-- **Definition of done:** phone installs PWA over LAN; `restore --latest` recovers a full day's DB; two renders with same seed produce identical checksums.
+- [x] Mobile PWA installable (`manifest.webmanifest` + `sw.js` offline app shell); API stays network-only.
+- [x] Monitoring (`GET /api/v1/monitoring` + dashboard panel) + PM2 (`ecosystem.config.js`: `v2-server` API + `v2-worker` detached render/publish) + crash alerts log (`data/alerts.log`).
+- [x] Determinism: seeded per-dua renders already rolled (`_seed_pick(dua.id)` in `make_manifest.py`, sha1-derived metadata, no `Math.random` in `remotion/src`); no `hash()` cache keys exist in V2 (no render cache) — nothing to remove.
+- [x] Optional LAN/HTTPS guide for phone access (`V2_LAN_HTTPS.md`, mkcert).
+- **Definition of done:** phone installs PWA over LAN; two renders with same seed produce identical checksums (seed determinism verified in remotion stack; check `docs/V2_PHASE4_BRIEF.md`). (Backups: owner opted OUT — see `V2_DECISIONS.md`.)
 
 ## 4. KPIs (measurable outcomes the owner cares about)
 

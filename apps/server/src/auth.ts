@@ -12,9 +12,11 @@ function loadToken(): string {
   try {
     const tokenPath = path.resolve(process.cwd(), TOKEN_FILE);
     if (fs.existsSync(tokenPath)) {
-      const data = JSON.parse(fs.readFileSync(tokenPath, 'utf-8'));
-      cachedToken = data.token;
-      return cachedToken;
+      const data = JSON.parse(fs.readFileSync(tokenPath, 'utf-8')) as { token?: string };
+      if (typeof data.token === 'string' && data.token.length > 0) {
+        cachedToken = data.token;
+        return data.token;
+      }
     }
   } catch {}
   const newToken = crypto.randomBytes(32).toString('hex');
@@ -28,16 +30,31 @@ function loadToken(): string {
   return newToken;
 }
 
+function timingSafe(tokenA: string, tokenB: string): boolean {
+  if (tokenA.length !== tokenB.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(tokenA), Buffer.from(tokenB));
+}
+
+function cookieToken(request: FastifyRequest): string | null {
+  const header = request.headers.cookie;
+  if (!header) return null;
+  for (const part of header.split(';')) {
+    const pair = part.trim();
+    if (pair.startsWith('duav2_token=')) return pair.slice('duav2_token='.length);
+  }
+  return null;
+}
+
 export async function authGuard(request: FastifyRequest, reply: FastifyReply): Promise<void> {
   const token = loadToken();
   const authHeader = request.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const provided = authHeader.slice(7);
-    if (provided.length === token.length && crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(token))) return;
+    if (timingSafe(provided, token)) return;
   }
-  const cookies = request.cookies;
-  if (cookies && cookies.duav2_token) {
-    if (cookies.duav2_token.length === token.length && crypto.timingSafeEqual(Buffer.from(cookies.duav2_token), Buffer.from(token))) return;
+  const cookie = cookieToken(request);
+  if (cookie) {
+    if (timingSafe(cookie, token)) return;
   }
   reply.code(401).send({ ok: false, error: 'Unauthorized: invalid or missing bearer token' });
 }
