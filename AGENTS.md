@@ -4,7 +4,7 @@ Master record for AI sessions working in this folder (`H:\DUAGENERATOR 2.0`). Up
 
 ## Critical facts first
 
-- This is the **V2.0 rebuild workspace**. The **production portal is NOT here** — it runs untouched at `H:\DuaVideoGenerator` (pm2 app `dua-studio`, port `7860`, status ONLINE). **Do NOT modify or restart it.** You may read its files for reference.
+- This is the **V2.0 rebuild workspace** and the product is an **ISLAMIC DUA VIDEO GENERATOR — Sunni** (authentic duas from Bukhari/Muslim/Tirmidhi/Abu Dawud/Nasa'i/Ibn Majah + classical corpus; reference attached per dua; no sect drift, no fabricated content — see `CONTENT_POLICY.md`, `YOUTUBE_COMPLIANCE.md`). The **production portal is NOT here** — it runs untouched at `H:\DuaVideoGenerator` (pm2 app `dua-studio`, port `7860`, status ONLINE). **Do NOT modify or restart it.** You may read its files for reference.
 - This folder is a clean git clone of production at commit `f1fb7fc`, secrets/data excluded. `git origin` was REMOVED to prevent accidental pushes to the production repo (`https://github.com/h3lllsing/DuaVideoGenerator.git`). To push later: `git remote add origin <new-repo-url>` (owner picks repo).
 - Owner confirmed stack (2026-09-20): **React + TypeScript + Vite + Tailwind** (mobile-first PWA), **Fastify** + **better-sqlite3**, WebSockets for realtime. Dev port **7870** (production uses 7860 — never collide).
 - Portal is LOCKED for changes (owner directive). New code/features ONLY go in this folder.
@@ -44,12 +44,14 @@ Configured in `opencode.json` at this folder's root (works when the session is s
 ## Roadmap & specs (read order for any agent)
 
 - Objectives, KPIs, phase targets + definition-of-done: `docs/V2_GOALS.md`.
+- **Improvement areas (owner lists AREAS only — the AI decides what/how, after reading old code) + IMPROVEMENT-MANDATE (analysis-first roadmap): `docs/V2_GOALS.md` §7-§9.**
 - Owner decisions (never re-ask): `docs/V2_DECISIONS.md`.
 - Full audit + roadmap: `V2_AUDIT_AND_PLAN.md` (root).
 - **Full current production reference (schemas/API/scripts/render contract/bugs)**: `docs/PORTAL_REFERENCE.md`.
 - Architecture + DB schema + API design: `docs/V2_ARCHITECTURE.md`.
 - Enhancement catalog + free-only policy: `docs/V2_ENHANCEMENT_CATALOG.md`.
 - First implementation milestone (Foundation): `docs/V2_PHASE1_BRIEF.md`.
+- Content authenticity + compliance rules (SUNNI dua generator): `CONTENT_POLICY.md`, `YOUTUBE_COMPLIANCE.md`.
 
 ## What to reuse from the production codebase (read from `H:\DuaVideoGenerator`)
 
