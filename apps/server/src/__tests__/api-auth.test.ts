@@ -4,9 +4,18 @@ import path from 'path';
 
 const BASE = 'http://localhost:7870';
 
+function findTokenFile(start: string): string | null {
+  for (let d = path.resolve(start); ; d = path.dirname(d)) {
+    const candidate = path.join(d, 'data', 'duav2_token.json');
+    if (fs.existsSync(candidate)) return candidate;
+    const parent = path.dirname(d);
+    if (parent === d) return null;
+  }
+}
+
 function getToken(): string {
-  const tokenPath = path.resolve(process.cwd(), 'data/duav2_token.json');
-  if (fs.existsSync(tokenPath)) {
+  const tokenPath = findTokenFile(process.cwd());
+  if (tokenPath) {
     return JSON.parse(fs.readFileSync(tokenPath, 'utf-8')).token;
   }
   return 'dua-v2-dev-token-change-me-in-prod';

@@ -1,7 +1,11 @@
 ﻿import Fastify from 'fastify';
+import staticPlugin from '@fastify/static';
 import websocket from '@fastify/websocket';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { initDb, closeDb } from './db.js';
 import { authGuard } from './auth.js';
 import duasRoutes from './routes/duas.js';
@@ -37,7 +41,7 @@ async function main() {
     reply.header('X-XSS-Protection', '1; mode=block');
   });
 
-  await app.register(duasRoutes);
+await app.register(duasRoutes);
   await app.register(videosRoutes);
   await app.register(thumbnailsRoutes);
   await app.register(captionsRoutes);
@@ -45,6 +49,24 @@ async function main() {
   await app.register(reviewRoutes);
 
   app.get('/api/v1/health', async () => ({ ok: true, version: '2.0.0' }));
+
+  const distDir = path.resolve(process.cwd(), 'apps', 'web', 'dist');
+  if (fs.existsSync(path.join(distDir, 'index.html'))) {
+    await app.register(staticPlugin, { root: distDir, wildcard: false });
+    app.setNotFoundHandler(async (_request, reply) => {
+      const url = _request.url;
+      if (url.startsWith('/api/') || url.startsWith('/ws')) {
+        return reply.code(404).send({ message: 'Route ' + url + ' not found', error: 'Not Found', statusCode: 404 });
+      }
+      if (url !== '/' && !/(\.(js|css|svg|png|ico|woff2?|json|map))$/.test(url)) {
+        return reply.type('text/html').send(fs.readFileSync(path.join(distDir, 'index.html')));
+      }
+      return reply.code(404).send({ message: 'Route ' + url + ' not found', error: 'Not Found', statusCode: 404 });
+    });
+    console.log('[Server] Serving web UI from ' + distDir);
+  } else {
+    console.log('[Server] Web dist not found at ' + distDir + ' — API only');
+  }
 
   startRenderWorker();
 

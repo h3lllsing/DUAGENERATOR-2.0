@@ -39,16 +39,26 @@ If a legacy doc contradicts a V2 doc, **the V2 doc wins**.
 
 Required: Node ≥ 18 (npm workspaces), Python 3.11+ (edge-tts), ffmpeg on PATH.
 
+Verified working on this machine: system Node **v24.16.0** (`C:\Program Files\nodejs`) with **better-sqlite3 ^13.0.0** (prebuilt binary for Node 24 — no Visual Studio/node-gyp needed). Run installs from the repo root (npm workspaces).
+
 ```powershell
 cd "H:\DUAGENERATOR 2.0"
+npm install
 py -m venv .venv ; .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 cd remotion ; npm install ; cd ..
-# V2 apps (folders created by Phase-1 task A — scaffold first, then install):
-cd apps/web   ; npm install ; cd ../..
-cd apps/server; npm install ; cd ../..
+node scripts/verify_v2.js   # requires server running (see below)
 ```
-(Scaffold/installs not yet run — do at first code scaffold, then run `verify_v2.js`.)
+
+Native module trap: `better-sqlite3` is ABI-bound to the Node version that built it. A Node 22 build (ABI 127) fails on Node 24 (ABI 137) with `NODE_MODULE_VERSION` errors and `npm rebuild` needs VS Build Tools C++ (not installed). The repo is pinned to Node 24 + better-sqlite3 ^13 — do NOT downgrade better-sqlite3 to ^11 or switch to a portable Node 22; reinstall instead.
+
+Portal launch (canonical, matches prod 7860): Fastify serves the built SPA on **7870**.
+```powershell
+cd "H:\DUAGENERATOR 2.0"
+npm --prefix apps/web run build     # builds apps/web/dist once
+npm --prefix apps/server run dev    # serves UI + /api on http://127.0.0.1:7870
+```
+Dev UI with HMR: run the server with `PORT=7871`, then `npm --prefix apps/web run dev` (Vite@7870 proxies `/api` → `127.0.0.1:7871`). Never bind both at 7870 at once.
 
 ## Definitions (same names as prod)
 
