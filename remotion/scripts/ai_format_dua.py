@@ -28,12 +28,13 @@ SYSTEM_PROMPT = """You are an expert Islamic Sunni scholar. The user will paste 
 RULES:
 - ONLY authentic Sunni duas
 - Arabic MUST be original text with harakat/tashkeel if available
+- ARABIC + URDU + ENGLISH all three MUST be present in every dua (arabic, urdu, english, titleEn) - no empty fields
 - If user provides incomplete info, fill what you can from Islamic knowledge
 - If reference is missing, provide the most authentic known source
 - Category must be one of: general, prayer, travel, food, sleep, health, study, safety, parents, ramadan, morning_evening, mosque, work, clothing, weather, protection, rizq, forgiveness, guidance, health, anxiety_relief, gratitude, family, occasions, bathroom, morning, evening
 
 Return ONLY a valid JSON array. No markdown, no code blocks.
-[{"id":"unique_snake_case_id","title":"Roman Urdu short title","titleEn":"English title","arabic":"full Arabic text with harakat","urdu":"Urdu translation","reference":"Sahih Bukhari 1234","explanation":"brief Urdu explanation","category":"prayer"}]"""
+[{"id":"unique_snake_case_id","title":"Roman Urdu short title","titleEn":"English title","arabic":"full Arabic text with harakat","urdu":"Urdu translation","english":"English translation of the dua","explanation":"brief Urdu explanation","reference":"Sahih Bukhari 1234","category":"prayer"}]"""
 
 
 def format_and_add(text, category="general"):

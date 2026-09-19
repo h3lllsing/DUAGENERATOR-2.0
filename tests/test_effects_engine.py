@@ -26,9 +26,9 @@ class TestEffectsEngineInit:
         assert engine.width == 640
         assert engine.height == 480
 
-    def test_effects_registry_has_6(self):
+    def test_effects_registry_has_11(self):
         engine = EffectsEngine()
-        assert len(engine.effects) == 6
+        assert len(engine.effects) == 11
 
 
 class TestApplyEffect:

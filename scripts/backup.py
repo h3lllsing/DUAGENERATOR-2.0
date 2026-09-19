@@ -24,8 +24,8 @@ BACKUP_FILES = [
     ("remotion/dashboard/auth.json", "Dashboard auth token", True),
     ("remotion/dashboard/config.json", "Dashboard config", False),
     # YouTube tokens (if exist)
-    ("data/yt_token_main.json", "YouTube main token", True),
-    ("data/yt_token_secondary.json", "YouTube secondary token", True),
+    ("data/yt_token_channel1.json", "YouTube channel1 token", True),
+    ("data/yt_token_channel2.json", "YouTube channel2 token", True),
     # Data
     ("data/duas.json", "Duas database", False),
     ("data/categories.json", "Categories database", False),
@@ -146,12 +146,22 @@ def list_backups():
             else:
                 print(f"  {backup.name}")
 
+def _backup_dirs_sorted():
+    """All backup directories ordered oldest first (by mtime, not name)."""
+    if not BACKUP_DIR.exists():
+        return []
+    return sorted(
+        (d for d in BACKUP_DIR.iterdir() if d.is_dir()),
+        key=lambda d: d.stat().st_mtime,
+    )
+
+
 def rotate_backups(max_backups=10):
     """Keep only the most recent backups."""
     if not BACKUP_DIR.exists():
         return
 
-    backups = sorted([d for d in BACKUP_DIR.iterdir() if d.is_dir()])
+    backups = _backup_dirs_sorted()
     if len(backups) <= max_backups:
         return
 
@@ -162,6 +172,11 @@ def rotate_backups(max_backups=10):
 
 if __name__ == "__main__":
     import sys
+
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
 
     if len(sys.argv) > 1 and sys.argv[1] == "list":
         list_backups()

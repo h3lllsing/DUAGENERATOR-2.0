@@ -534,6 +534,9 @@ function render(){
         +'<div class="card-title" title="'+escHtml(d.title)+'">'+escHtml(d.title)+'</div>'
         +'<div class="card-meta">'
           +statusBadge
+          +(d.enSrt
+            ?'<span class="b en" title="EN subtitle: '+(d.enSource?escHtml(d.enSource):'local')+(d.enStatus?(' \u2014 '+escHtml(d.enStatus)):' \u2014 unreviewed')+'" style="background:'+((d.enStatus==='approved')?'#123a20':'#332912')+';border-color:'+((d.enStatus==='approved')?'#22c55e':'#eab308')+';color:'+((d.enStatus==='approved')?'#22c55e':'#eab308')+'">EN '+(d.enStatus==='approved'?'\u2713':(d.enStatus==='pending'?'\u2311':'\u00b7'))+'</span>'
+            :'')
           +(d.videoMB?'<span class="b mb">'+d.videoMB+'</span>':'')
           +(d.category?'<span class="b cat">'+escHtml(d.category)+'</span>':'')
           +ytLink
@@ -1133,24 +1136,10 @@ async function openUploadedList(){
       +'<div class="yt-stat"><div class="val" id="yt_up_subs">...</div><div class="lbl">Subscribers</div></div>'
       +'<div class="yt-stat"><div class="val" id="yt_up_chviews">...</div><div class="lbl">Ch Views</div></div>'
       +'<div class="yt-stat"><div class="val" id="yt_up_vidlikes">...</div><div class="lbl">Video Likes</div></div>';
-    listEl.innerHTML='<div class="yt-uploaded-wrap"><table class="yt-uploaded"><thead><tr><th>#</th><th>Title</th><th>Ch</th><th>Views</th><th>Likes</th><th>Comments</th><th>Date</th><th></th></tr></thead><tbody>'
-      +j.items.map(function(u,i){
-      const date=u.uploadedAt?new Date(u.uploadedAt).toLocaleDateString('en-PK',{day:'numeric',month:'short'}):'';
-      const sty=pcs[u.privacy]||'';
-      return '<tr>'
-        +'<td>'+(i+1)+'</td>'
-        +'<td class="url-col"><a href="'+(u.url||'#')+'" target="_blank">'+ytEsc(u.title)+'</a></td>'
-        +'<td class="ch-col">'+(u.channel==='channel1'?'1':'2')+'</td>'
-        +'<td data-stat="views-'+u.videoId+'"><span style="color:#5a6474">-</span></td>'
-        +'<td data-stat="likes-'+u.videoId+'"><span style="color:#5a6474">-</span></td>'
-        +'<td data-stat="comments-'+u.videoId+'"><span style="color:#5a6474">-</span></td>'
-        +'<td>'+date+'</td>'
-        +'<td>'
-          +'<button class="btn-sm" onclick="ytCopySingle(\''+ytEsc(u.url||'')+'\')" title="Copy link">&#128203;</button> '
-          +'<button class="btn-sm gold" onclick="reUpload(\''+ytEsc(u.duaId)+'\',\''+ytEsc(u.channel)+'\')" title="Re-upload">&#8635;</button>'
-        +'</td>'
-      +'</tr>';
-    }).join('')
+    window._ytUpItems=j.items;
+    window._ytUpStats={};
+    listEl.innerHTML='<div class="yt-uploaded-wrap"><table class="yt-uploaded"><thead><tr><th>#</th><th>Title</th><th>Ch</th><th>Views</th><th>Likes</th><th>Comments</th><th>Date</th><th></th></tr></thead><tbody id="yt_up_tbody">'
+      +ytUpRows()
       +'</tbody></table></div>';
     window.ytLastLinks=j.items.filter(function(u){return u.url;}).map(function(u){return {title:u.title,url:u.url};});
     const vidIds=j.items.map(function(u){return u.videoId;}).filter(Boolean);
@@ -1184,6 +1173,8 @@ async function openUploadedList(){
         j.items.forEach(function(u){
           if(!u.videoId||!sj.stats[u.videoId])return;
           const st=sj.stats[u.videoId];
+          window._ytUpStats=window._ytUpStats||{};
+          window._ytUpStats[u.videoId]={views:st.viewCount!=null?st.viewCount:-1,likes:st.likeCount!=null?st.likeCount:-1,comments:st.commentCount!=null?st.commentCount:-1};
           const vEl=document.querySelector('[data-stat="views-'+u.videoId+'"]');
           const lEl=document.querySelector('[data-stat="likes-'+u.videoId+'"]');
           const cEl=document.querySelector('[data-stat="comments-'+u.videoId+'"]');
@@ -1246,6 +1237,8 @@ async function refreshUploadedStatsOnly(){
         j.items.forEach(function(u){
           if(!u.videoId||!sj.stats[u.videoId])return;
           const st=sj.stats[u.videoId];
+          window._ytUpStats=window._ytUpStats||{};
+          window._ytUpStats[u.videoId]={views:st.viewCount!=null?st.viewCount:-1,likes:st.likeCount!=null?st.likeCount:-1,comments:st.commentCount!=null?st.commentCount:-1};
           const vEl=document.querySelector('[data-stat="views-'+u.videoId+'"]');
           const lEl=document.querySelector('[data-stat="likes-'+u.videoId+'"]');
           const cEl=document.querySelector('[data-stat="comments-'+u.videoId+'"]');
@@ -1259,6 +1252,82 @@ async function refreshUploadedStatsOnly(){
       }
     }).catch(function(){});
   }catch(e){}
+}
+// ── Uploaded table: rows + sort + edit metadata ──
+function ytUpRowHTML(u,i,pcs){
+  const date=u.uploadedAt?new Date(u.uploadedAt).toLocaleDateString('en-PK',{day:'numeric',month:'short'}):'';
+  const sty=pcs[u.privacy]||'';
+  const st=(window._ytUpStats&&window._ytUpStats[u.videoId])||{};
+  const fmt=function(v){return v!=null&&v>=0?v.toLocaleString():'-';};
+  return '<tr>'
+    +'<td>'+(i+1)+'</td>'
+    +'<td class="url-col"><a href="'+(u.url||'#')+'" target="_blank">'+ytEsc(u.title)+'</a></td>'
+    +'<td class="ch-col">'+(u.channel==='channel1'?'1':'2')+'</td>'
+    +'<td data-stat="views-'+u.videoId+'">'+fmt(st.views)+'</td>'
+    +'<td data-stat="likes-'+u.videoId+'">'+fmt(st.likes)+'</td>'
+    +'<td data-stat="comments-'+u.videoId+'">'+fmt(st.comments)+'</td>'
+    +'<td>'+date+'</td>'
+    +'<td>'
+      +'<button class="btn-sm" onclick="ytEditOpen(\''+ytEsc(u.duaId)+'\',\''+ytEsc(u.channel)+'\',\''+ytEsc(u.videoId||'')+'\')" title="Edit title/tags">&#9998;</button> '
+      +'<button class="btn-sm" onclick="ytCopySingle(\''+ytEsc(u.url||'')+'\')" title="Copy link">&#128203;</button> '
+      +'<button class="btn-sm gold" onclick="reUpload(\''+ytEsc(u.duaId)+'\',\''+ytEsc(u.channel)+'\')" title="Re-upload">&#8635;</button>'
+    +'</td>'
+  +'</tr>';
+}
+function ytUpRows(){
+  const pcs={public:'rgba(63,185,80,.12);color:#56d364',unlisted:'rgba(212,175,55,.12);color:#e6c46a',private:'rgba(255,99,99,.1);color:#ff8585'};
+  const items=(window._ytUpItems||[]).slice();
+  const mode=(document.getElementById('yt_up_sort')||{}).value;
+  let sorted=items;
+  if(mode==='views-desc'||mode==='views-asc'){
+    sorted=items.map(function(u,i){return {u:u,i:i};}).sort(function(a,b){
+      const va=(window._ytUpStats&&window._ytUpStats[a.u.videoId])?window._ytUpStats[a.u.videoId].views:-1;
+      const vb=(window._ytUpStats&&window._ytUpStats[b.u.videoId])?window._ytUpStats[b.u.videoId].views:-1;
+      return mode==='views-desc'?vb-va:va-vb;
+    }).map(function(x){return x.u;});
+  }
+  return sorted.map(function(u,i){return ytUpRowHTML(u,i,pcs);}).join('');
+}
+function ytSortUploaded(){
+  const tbody=document.getElementById('yt_up_tbody');
+  if(!tbody)return;
+  tbody.innerHTML=ytUpRows();
+}
+function ytEditOpen(duaId,channel,videoId){
+  window._ytEditCtx={duaId:duaId,channel:channel,videoId:videoId};
+  const titleEl=document.getElementById('ytedit_field_title');
+  const tagsEl=document.getElementById('ytedit_field_tags');
+  const infoEl=document.getElementById('ytedit_vidinfo');
+  const item=(window._ytUpItems||[]).find(function(x){return x.videoId===videoId;});
+  const dua=(typeof duas!=='undefined'&&duas)?duas.find(function(x){return x.id===duaId;}):null;
+  if(titleEl)titleEl.value=item&&item.title?item.title:(dua?dua.title:'');
+  if(tagsEl)tagsEl.value='';
+  if(infoEl)infoEl.textContent=(item&&item.title?item.title+'  ·  ':'')+videoId+'  ·  '+channel;
+  const bg=document.getElementById('yteditbg');
+  bg.classList.add('show');
+  bg.style.display='block';
+  _pushModal('yteditbg');
+}
+function ytEditClose(){
+  const bg=document.getElementById('yteditbg');
+  bg.classList.remove('show');
+  bg.style.display='none';
+  _popModal('yteditbg');
+}
+async function ytEditSave(){
+  const titleEl=document.getElementById('ytedit_field_title');
+  const tagsEl=document.getElementById('ytedit_field_tags');
+  const title=(titleEl&&titleEl.value||'').trim();
+  const tags=(tagsEl&&tagsEl.value||'').split(',').map(function(s){return s.trim();}).filter(Boolean);
+  const videoIdEl=document.getElementById('ytedit_vidinfo');
+  if(!window._ytEditCtx){toast('Edit context missing','err');return;}
+  if(!title&&!tags.length){toast('Title ya tags kuch likho','err');return;}
+  try{
+    const r=await fetch('/api/youtube/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({channel:window._ytEditCtx.channel,videoId:window._ytEditCtx.videoId,title:title,tags:tags})});
+    const j=await r.json();
+    if(j.ok){toast('&#9989; Title/Tags update ho gaye','ok');ytEditClose();openUploadedList();}
+    else toast(j.error||'Update fail hua','err');
+  }catch(e){toast('Network error: '+e.message,'err');}
 }
 async function reUpload(duaId,channel){
   if(!await styledConfirm('Re-Upload','⚠️ Re-Upload: "'+duaId+'" ka ledger entry hatayein?\n\nYe video dubara upload ke liye available ho jayegi.\nChannel: '+channel))return;
@@ -1366,6 +1435,7 @@ function _trapFocus(modalId){
     modalId==='settings'?'setbg':modalId==='help'?'helpbg':
     modalId==='history'?'histbg':modalId==='vfx'?'vfxbg':
     modalId==='aiimport'?'aiimportbg':modalId==='player'?'playerbg':
+    modalId==='enreview'?'reviewbg':
     modalId==='confirm'?'confirmbg':null);
   if(!modal)return;
   if(modal._trapHandler)modal.removeEventListener('keydown',modal._trapHandler);
@@ -2274,3 +2344,100 @@ async function batchCancel(){
     batchPollStatus();
   }catch(e){setMsg2('b_msg','Network error','err');}
 }
+
+/* ── EN Subtitle Review (Manual Gate) ── */
+var _rvStatus='pending';
+var _rvLoaded=false;
+
+function openEnReview(){
+  document.getElementById('reviewbg').classList.add('show');
+  _pushModal('enreview');
+  rvRefresh();
+  if(!_rvLoaded){
+    _rvLoaded=true;
+    document.getElementById('enreview_badge').textContent=0;
+  }
+  rvRefreshBadge();
+}
+function closeEnReview(){
+  document.getElementById('reviewbg').classList.remove('show');
+  _popModal('enreview');
+  rvRefreshBadge();
+}
+function rvFilter(status){
+  _rvStatus=status || 'all';
+  var x=_rvStatus;
+  document.getElementById('rvfilter_pending').classList.toggle('gold',x==='pending');
+  document.getElementById('rvfilter_approved').classList.toggle('gold',x==='approved');
+  document.getElementById('rvfilter_rejected').classList.toggle('gold',x==='rejected');
+  document.getElementById('rvfilter_all').classList.toggle('gold',x==='all');
+  rvRefresh();
+}
+async function rvRefresh(){
+  var el=document.getElementById('rv_list');if(!el)return;
+  var listEl=el;
+  try{
+    listEl.innerHTML='<div style="color:#5a6474">Loading...</div>';
+    var q=_rvStatus==='all'?'status=all':(_rvStatus?'status='+encodeURIComponent(_rvStatus):'');
+    var r=await fetch('/api/en-review/list'+(q?'?'+q:''));
+    var j=await r.json();
+    if(!j.ok){listEl.innerHTML='<div style="color:#ef4444">'+escHtml(j.error||'load fail')+'</div>';return;}
+    if(!j.items.length){
+      listEl.innerHTML='<div style="color:#5a6474;padding:8px">Koi '+'('+escHtml(_rvStatus)+')'+' entry nahi. Pehle koi dua render karo taake EN subtitle baney.</div>';
+      return;
+    }
+    listEl.innerHTML=j.items.map(function(it,i){
+      var src=it.source||'-';
+      var srcBadge=src==='quran-sahih'
+        ?'<span style="color:#22c55e;font-size:11px">&#10004; Sahih Int</span>'
+        :(src==='hadith-ai'
+          ?'<span style="color:#f59e0b;font-size:11px">AI (ref)</span>'
+          :'<span style="color:#8b93a3;font-size:11px">'+escHtml(src)+'</span>');
+      var verifiedBadge=it.hasVerified?'<span style="color:#22c55e;font-size:11px" title="Verified cache mein maujood">&#128274; verified</span>':'';
+      var arHtml=escHtml(it.ar||'').replace(/\n/g,'<br>');
+      var enHtml=escHtml(it.en||'').replace(/\n/g,'<br>');
+      var stBadge={'pending':'<span style="color:#f59e0b;font-size:11px">&#9203; pending</span>',
+        'approved':'<span style="color:#22c55e;font-size:11px">&#10004; approved</span>',
+        'rejected':'<span style="color:#ef4444;font-size:11px">&#10005; rejected</span>'}[it.status]||it.status;
+      var btns='';
+      if(it.status==='pending'){
+        btns='<button class="btn-sm gold" onclick="rvSet(\''+escHtml(it.duaId)+'\',\'approve\')" style="margin-right:6px">&#10004; Approve</button>'
+          +'<button class="btn-sm" style="color:#ef4444;border-color:#ef4444" onclick="rvSet(\''+escHtml(it.duaId)+'\',\'reject\')">&#10005; Reject</button>';
+      } else {
+        btns='<button class="btn-sm" onclick="rvSet(\''+escHtml(it.duaId)+'\',\''+(it.status==='approved'?'reject':'approve')+'\')">Undo</button>';
+      }
+      return '<div class="panel-section" style="margin-bottom:10px">'
+        +'<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px">'
+        +'<b style="font-size:13px">'+escHtml(it.title)+'</b><span>'+stBadge+' '+srcBadge+' '+verifiedBadge+'</span></div>'
+        +(it.ref?'<div style="color:#8b93a3;font-size:11px;margin-bottom:6px">Ref: '+escHtml(it.ref)+'</div>':'')
+        +'<div style="color:#5a6474;font-size:11px;margin-bottom:4px">duaId: '+escHtml(it.duaId)+'</div>'
+        +'<div class="ar" dir="rtl" style="font-size:15px;background:var(--surface-1);padding:8px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px">'+arHtml+'</div>'
+        +'<div style="font-size:13px;background:#0a0f18;padding:8px;border-radius:8px;border:1px solid var(--border)">'+enHtml+'</div>'
+        +(it.note?'<div style="color:#f59e0b;font-size:11px;margin-top:4px">Note: '+escHtml(it.note)+'</div>':'')
+        +'<div style="margin-top:8px">'+btns+'</div>'
+        +'</div>';
+    }).join('');
+  }catch(e){
+    listEl.innerHTML='<div style="color:#ef4444">'+escHtml(String(e.message||e))+'</div>';
+  }
+  rvRefreshBadge();
+}
+async function rvSet(duaId,action){
+  var m=document.getElementById('rv_msg');if(m)m.textContent='';
+  try{
+    var r=await fetch('/api/en-review/'+encodeURIComponent(duaId)+'/'+action,{method:'POST'});
+    var j=await r.json();
+    if(m){m.textContent=j.ok?'Saved: '+j.status:(j.error||'fail');m.style.color=j.ok?'#22c55e':'#ef4444';}
+    if(j.ok)rvRefresh();
+  }catch(e){if(m){m.textContent='Network error';m.style.color='#ef4444';}}
+}
+async function rvRefreshBadge(){
+  var b=document.getElementById('enreview_badge');if(!b)return;
+  try{
+    var r=await fetch('/api/en-review/list?status=pending');
+    var j=await r.json();
+    b.textContent=j.count||0;
+  }catch(e){}
+}
+/* AUTO-LOAD badge after page load (fire once) */
+if(document.readyState!=='loading'){rvRefreshBadge();}else{document.addEventListener('DOMContentLoaded',function(){rvRefreshBadge();});}

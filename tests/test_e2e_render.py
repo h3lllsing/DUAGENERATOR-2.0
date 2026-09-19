@@ -5,7 +5,7 @@ Validates the entire generation pipeline end-to-end:
   DuaDatabase lookup -> TTS (edge-tts) -> audio merge -> timeline ->
   frame rendering -> effects -> video assembly -> quality check.
 
-Uses the shortest dua (bathroom_exit) for speed.
+Uses the shortest dua (ilm_mein_izafay_ki_dua) for speed.
 
 Run with: python -m pytest tests/test_e2e_render.py -v
 Skip with: python -m pytest -m "not slow"
@@ -33,7 +33,7 @@ TEMP_DIR = os.path.join(PROJECT_ROOT, 'temp')
 OUTPUT_DIR = os.path.join(PROJECT_ROOT, 'output')
 DUA_DB = os.path.join(DATA_DIR, 'duas.json')
 
-FAST_DUA = 'bathroom_exit'
+FAST_DUA = 'ilm_mein_izafay_ki_dua'
 
 qc = QualityChecker()
 
@@ -79,7 +79,7 @@ class TestDatabaseLookup:
         dua = DB.get_dua_by_id(FAST_DUA)
         out = _output_path_for(dua)
         assert out.endswith('.mp4')
-        assert FAST_DUA.split('_')[0] in out.lower() or 'bathroom' in out.lower()
+        assert FAST_DUA.split('_')[0] in out.lower() or 'toilet' in out.lower()
 
 
 # ──────────────────────────────────────────────────────────────────

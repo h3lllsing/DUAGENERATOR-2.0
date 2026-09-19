@@ -87,6 +87,14 @@
     <div class="yt-stat-bar" id="yt_up_statbar"></div>
     <div class="panel-section">
       <div class="panel-section-title">Uploaded Videos</div>
+      <div class="yt-form-row" style="margin:4px 0 8px;align-items:center">
+        <select id="yt_up_sort" aria-label="Sort videos" style="width:auto" onchange="ytSortUploaded()">
+          <option value="date">Newest first</option>
+          <option value="views-desc">Views: High &rarr; Low</option>
+          <option value="views-asc">Views: Low &rarr; High (kam views pehle)</option>
+        </select>
+        <span style="font-size:10px;color:#5a6474">&#128269; underperforming videos sabse satah par</span>
+      </div>
       <div id="uploaded_list"></div>
     </div>
     <div class="panel-section">
@@ -113,6 +121,7 @@
 <button class="aibtn js-expert" onclick="if(confirm('Sab un-rendered duas ki video banao?'))renderAll()">&#9654;&#65039; RENDER ALL</button>
 <button class="aibtn js-expert" onclick="if(confirm('Sab thumbnails regenerate karo?'))thumbsAll()">&#128247; THUMBS ALL</button>
 <button class="aibtn js-expert" onclick="openBatchManager()" style="background:#0f1a2e;border-color:#f59e0b;color:#f59e0b" title="Python batch pipeline">&#9881;&#65039; BATCH MANAGER</button>
+<button class="aibtn js-expert" onclick="openEnReview()" style="background:#142b1d;border-color:#22c55e;color:#22c55e" title="English subtitle manual review aur gate">&#9998;&#65039; EN REVIEW (<span id="enreview_badge">0</span>)</button>
 
 <div class="modal-bg" id="playerbg" onclick="if(event.target===this)closePlayer()" role="dialog" aria-modal="true">
   <div class="playerbox">
@@ -603,6 +612,45 @@
       <button class="btn-cancel" onclick="closeBatchManager()">Band karo</button>
     </div>
     <div class="formmsg" id="b_msg"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="reviewbg" onclick="if(event.target===this)closeEnReview()" role="dialog" aria-modal="true" aria-labelledby="review_title">
+  <div class="modal" style="width:min(720px,94vw);max-height:88vh;overflow:auto">
+    <h2 id="review_title">&#9998;&#65039; English Subtitle Review <span style="font-size:12px;color:#8b93a3">(Manual Gate)</span></h2>
+    <div class="aihint" style="margin-bottom:12px">&#9734; Har dua ka English subtitle yahan pending hota hai. Quran duaon ka tarjuma Sahih International (alquran.cloud) aur hadith duaon ka AI reference-prompt se. <b>Approve ke bina YouTube caption kabhi attach nahi hoga.</b></div>
+
+    <div class="panel-section" style="margin-bottom:12px">
+      <div class="panel-section-title">Review Filters</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn-sm gold" id="rvfilter_pending" onclick="rvFilter('pending')">Pending</button>
+        <button class="btn-sm" id="rvfilter_approved" onclick="rvFilter('approved')">Approved</button>
+        <button class="btn-sm" id="rvfilter_rejected" onclick="rvFilter('rejected')">Rejected</button>
+        <button class="btn-sm" id="rvfilter_all" onclick="rvFilter('all')">Sab</button>
+        <button class="btn-sm" onclick="rvRefresh()">&#128260; Refresh</button>
+      </div>
+    </div>
+    <div id="rv_list" style="max-height:52vh;overflow:auto;margin-top:6px;font-size:12px">Loading...</div>
+
+    <div class="mbtns" style="margin-top:14px">
+      <button class="btn-cancel" onclick="closeEnReview()">Band karo</button>
+    </div>
+    <div class="formmsg" id="rv_msg"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="yteditbg" role="dialog" aria-modal="true" aria-labelledby="ytedit_title" style="display:none">
+  <div class="modal" style="max-width:440px">
+    <h2 id="ytedit_title" style="font-size:16px;margin-bottom:8px">Video Title / Tags Update</h2>
+    <div id="ytedit_vidinfo" style="color:#5a6474;font-size:11px;margin-bottom:10px"></div>
+    <label style="display:block;font-size:11px;color:#5a6474;margin-bottom:4px">Title</label>
+    <input id="ytedit_field_title" maxlength="100" placeholder="Naya title" style="width:100%;box-sizing:border-box;padding:8px 12px;background:#0a0d12;border:1px solid #232a36;color:#f7f2e6;border-radius:8px;font-size:13px;outline:none;margin-bottom:12px">
+    <label style="display:block;font-size:11px;color:#5a6474;margin-bottom:4px">Tags (comma separated)</label>
+    <input id="ytedit_field_tags" placeholder="tag1, tag2, ..." style="width:100%;box-sizing:border-box;padding:8px 12px;background:#0a0d12;border:1px solid #232a36;color:#f7f2e6;border-radius:8px;font-size:13px;outline:none;margin-bottom:14px">
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn-sm" onclick="ytEditClose()">Cancel</button>
+      <button class="btn-sm gold" onclick="ytEditSave()">&#9989; Save</button>
+    </div>
   </div>
 </div>
 

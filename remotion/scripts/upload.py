@@ -20,6 +20,9 @@ Safety:
 - AUTOPILOT: single-flight lock (.autopilot.lock), append-only
   data/auto_runs.log journal, permanent locks + REF-GUARD honoured,
   oldest-rendered-first picking, hard cap by remaining daily quota.
+- EN SUBTITLES: never auto-attached. English .srt files are prepared in the
+  background for manual review; captions can only ever be attached after an
+  "approved" entry in data/en_review.json (see en_caption_allowed()).
 
 Live mode requires google libs + data/yt_token.json (youtube_auth.py login).
 """
@@ -112,6 +115,32 @@ def manifest_reference(dua_id):
         return norm_ref(m.get("reference"))
     except Exception:
         return ""
+
+
+# ---------------- EN subtitle review gate ----------------
+# English subtitles are generated in the background (make_srt.py ->
+# data/verified_en.json + data/en_review.json) but are NEVER attached to
+# YouTube. This is deliberate: verified translations need a human approval
+# first. do_live_upload() intentionally never calls the youtube captions API.
+# If caption attachment is added later it MUST call en_caption_allowed() and
+# skip/raise unless it returns True.
+EN_REVIEW_PATH = os.path.join(PROJECT, "data", "en_review.json")
+
+
+def en_caption_allowed(dua_id):
+    """True only when the review queue has APPROVED this dua's EN subtitle.
+
+    Returns False when there is no entry, the entry is pending/rejected, or
+    the review file is unreadable. Used as the hard gate for any future
+    caption-attach call.
+    """
+    try:
+        with open(EN_REVIEW_PATH, encoding="utf-8") as f:
+            store = json.load(f)
+        entry = store.get(dua_id) or {}
+        return entry.get("status") == "approved"
+    except (OSError, ValueError):
+        return False
 
 
 # ---------------- ledger ----------------
@@ -442,6 +471,16 @@ def do_live_upload(service, item, payload):
                                  media_body=item["thumb"]).execute()
     except Exception as e:
         print("  WARN thumbnail attach failed (account verified?):", e)
+    # EN subtitle policy: NEVER auto-attach captions. The .en.srt is created
+    # in the background purely for manual review (data/en_review.json). Only
+    # an "approved" entry could ever be attached - and even then nothing here
+    # calls the captions API. This block only reports status for visibility.
+    dua_id = item.get("dua_id")
+    if dua_id:
+        if en_caption_allowed(dua_id):
+            print("  EN caption: approved for review, but attach is DISABLED")
+        else:
+            print("  EN caption: NOT attached (pending manual review)")
     return vid
 
 

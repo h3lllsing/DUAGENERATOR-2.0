@@ -117,6 +117,47 @@ def api_models():
 API_KEYS = api_keys()
 API_URL = api_base_url() + "/chat/completions"
 
+# Keyless free fallback (no signup, no API key): pollinations.ai exposes an
+# OpenAI-compatible endpoint that works WITHOUT any Authorization header. Used
+# automatically when api_keys is empty (or a call is made with key=None).
+# Config overrides (optional, all with code defaults):
+#   "keyless_enabled": true/false  (default: true)
+#   "keyless_base_url": e.g. "https://text.pollinations.ai"
+#   "keyless_model":    e.g. "openai"
+KEYLESS_BASE = "https://text.pollinations.ai"
+KEYLESS_MODEL = "openai"
+
+
+def keyless_enabled():
+    v = _config().get("keyless_enabled")
+    return True if v is None else bool(v)
+
+
+def _call_keyless(messages, model=None):
+    """Call the keyless OpenAI-compatible endpoint with no Authorization."""
+    c = _config()
+    base = (c.get("keyless_base_url") or KEYLESS_BASE).rstrip("/")
+    mdl = model or c.get("keyless_model") or KEYLESS_MODEL
+    payload = json.dumps({
+        "model": mdl,
+        "messages": messages,
+        "temperature": 0.6,
+        "max_tokens": 1600,
+    }).encode("utf-8")
+    url = base + "/openai/chat/completions"
+    try:
+        req = urllib.request.Request(url, data=payload, headers={
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0"})
+        with urllib.request.urlopen(req, timeout=90) as resp:
+            body = resp.read().decode("utf-8", errors="replace")
+        result = json.loads(body)
+        content = result["choices"][0]["message"]["content"]
+        return content, "keyless:" + mdl
+    except Exception as e:
+        print("  [skip] keyless model=" + str(mdl) + ": " + str(e)[:150])
+        return None, None
+
 # Valid aihubmix FREE model IDs (live catalog 2026-08-28). Ye sirf fallback
 # candidate list hai — config ke models pehle try hote hain, phir ye sorted
 # by quality ke order me (vision-capable text models pehle). Invalid
@@ -167,20 +208,29 @@ SYSTEM_PROMPT = """You are an expert Islamic Sunni scholar specializing in authe
 
 RULES (NON-NEGOTIABLE):
 1. ONLY Sunni Islamic duas from authentic sources (Bukhari, Muslim, Tirmidhi, Abu Dawud, Nasai, Ibn Majah, Musnad Ahmad, etc.)
-2. Arabic text MUST be accurate Quranic/Hadith Arabic - not transliteration
+2. Arabic text MUST be accurate Quranic/Hadith Arabic with diacritics (tashkeel) - not transliteration
 3. Urdu translation MUST be accurate and respectful
-4. NEVER include Shia, Sufi innovations, or unauthenticated narrations
-5. Each dua must have a verifiable hadith/reference source
+4. English translation MUST be the complete and faithful meaning of the dua
+5. NEVER include Shia, Sufi innovations, or unauthenticated narrations
+6. Each dua must have a verifiable hadith/reference source
+
+REQUIRED LANGUAGES (non-negotiable): EVERY dua object MUST include ALL THREE languages with NO empty fields:
+- ARABIC: field "arabic" (full Arabic text with diacritics)
+- URDU: field "title" (Urdu/Roman title) AND field "urdu" (Urdu translation)
+- ENGLISH: field "titleEn" (English title) AND field "english" (English translation of the dua)
+If you cannot provide all three (arabic, urdu, english), SKIP that dua entirely - never output a partial dua.
 
 Return ONLY a valid JSON array. No markdown, no explanation, no ``` code blocks.
 
 Each object must have EXACTLY these keys:
 {
   "id": "english_snake_case_unique_id",
-  "title": "Urdu title of the dua",
+  "title": "Urdu/Roman Urdu title of the dua",
   "titleEn": "English title",
   "arabic": "Full Arabic dua text with diacritics",
   "urdu": "Complete Urdu translation",
+  "english": "Complete English translation of the dua",
+  "explanation": "1-2 line Urdu tashreeh - when/how this dua is read",
   "reference": "Authentic hadith/source reference (e.g. Sahih Bukhari 1010)",
   "category": "one of: general, prayer, travel, food, sleep, health, study, safety, parents, ramadan, morning_evening, mosque, work, clothing, weather"
 }"""
@@ -216,10 +266,15 @@ def _block_reason(text):
     return None
 
 
-def _is_empty_block(content):
+def _is_empty_block(content, require_dua=True):
     """Free models with used-up trial return HTTP 200 whose content is just a
     'sorry, try 10 times / recharge' note (no real answer). Detect that so we
-    DON'T treat it as a successful generation."""
+    DON'T treat it as a successful generation.
+
+    require_dua=True: response must look like a dua JSON object (has "id" and
+    "arabic"). Dua-import callers use this.
+    require_dua=False: free-form text (translations etc.) accepted.
+    """
     if not content:
         return True
     c = content.lower()
@@ -228,22 +283,43 @@ def _is_empty_block(content):
                             "balance is insufficient", "recharge")):
         return True
     # A real dua JSON array always has at least one { "id": ... } object.
-    if '"id"' not in content or "arabic" not in content:
+    if require_dua and ('"id"' not in content or "arabic" not in content):
         return True
     return False
 
 
-def call_api(messages, api_key, model=None):
-    """Call aihubmix.com API with AUTO-FALLBACK across all FREE models.
+def _mask_key(key):
+    """Mask an API key for logs: first4...last4 (never the full key)."""
+    if not key:
+        return "keyless"
+    k = str(key)
+    return (k[:4] + "..." + k[-4:]) if len(k) > 10 else "***"
 
-    Strategy:
-      - Config ke `models` pehle, phir valid free catalog — har model try.
-      - Agar model 10-trial/insufficient-quota/invalid ho (HTTP error ya
-        durust HTTP 200 par empty sorry-message) -> is model ko skip kar ke
-        agla valid free model try karo.
-      - Pehli GENUINE dua response (jo JSON object ho) wahi return hota hai.
+
+def call_api(messages, api_key, model=None, require_dua=True):
+    """Call the OpenAI-compatible API with AUTO-FALLBACK across all FREE models.
+
+    - api_key=None aur keyless enabled -> bina kisi key ke pollinations.ai
+      (keyless) endpoint try hota hai. Yani jab api_keys khali hon tab bhi
+      translation/dua call fail nahi hoti.
+    - Config ke `models` pehle, phir valid free catalog — har model try.
+    - Agar model 10-trial/insufficient-quota/invalid ho (HTTP error ya durust
+      HTTP 200 par empty sorry-message) -> is model ko skip kar ke agla valid
+      free model try karo.
+    - Pehli GENUINE response (require_dua=True par dua JSON; warna free text)
+      wahi return hota hai.
     Returns (content, model) or (None, None) agar koi model kaam na kare.
     """
+    if not api_key:
+        # No key configured -> keyless free fallback (pollinations.ai).
+        if not keyless_enabled():
+            print("  [skip] no api_key and keyless disabled")
+            return None, None
+        content, model_used = _call_keyless(messages, model)
+        if content and not _is_empty_block(content, require_dua):
+            return content, model_used
+        return None, None
+
     models_to_try = [model] if model else FREE_MODELS
     for m in models_to_try:
         payload = json.dumps({
@@ -262,10 +338,10 @@ def call_api(messages, api_key, model=None):
             body = resp.read().decode("utf-8", errors="replace")
             result = json.loads(body)
             content = result["choices"][0]["message"]["content"]
-            # Genuine JSON response check — real dua answer hona chahiye.
-            if _is_empty_block(content):
+            # Genuine response check — real answer hona chahiye.
+            if _is_empty_block(content, require_dua):
                 why = _block_reason(content) or "empty/blocked"
-                print("  [skip] model=" + m + " key=" + api_key[-6:]
+                print("  [skip] model=" + m + " key=" + _mask_key(api_key)
                       + " -> " + why)
                 continue
             return content, m
@@ -276,7 +352,7 @@ def call_api(messages, api_key, model=None):
             except Exception:
                 pass
             why = _block_reason(body) or ("HTTP " + str(e.code))
-            print("  [skip] model=" + m + " key=" + api_key[-6:]
+            print("  [skip] model=" + m + " key=" + _mask_key(api_key)
                   + " -> " + why)
             continue
         except Exception as e:
@@ -405,6 +481,8 @@ def save_duas(new_items):
             "titleEn": item.get("titleEn", ""),
             "arabic": item.get("arabic", ""),
             "urdu": item.get("urdu", ""),
+            "english": item.get("english", ""),
+            "explanation": item.get("explanation", ""),
             "reference": item.get("reference", ""),
             "category": item.get("category", "general"),
         }
@@ -458,16 +536,21 @@ def main():
         f"Generate exactly {count} authentic Sunni Islamic duas for category "
         f"'{args.category}'.{topic_line}\n"
         f"IDs must be unique snake_case starting with '{args.category}_' prefix.\n"
+        "IMPORTANT: har dua mein TEENO zabanein laazmi hain — ARABIC (arabic), "
+        "URDU (title + urdu), ENGLISH (titleEn + english). Koi bhi field khali "
+        "nahi honi chahiye. Agar teeno languages ke bina koi dua nahi bana "
+        "sakta to us dua ko chhod do.\n"
         "Return JSON array only."
     )
 
     key_idx = 0
     all_new = []
 
-    for attempt in range(len(API_KEYS) * 2):
-        api_key = API_KEYS[key_idx % len(API_KEYS)]
+    attempts = len(API_KEYS) * 2 if API_KEYS else 1
+    for attempt in range(attempts):
+        api_key = API_KEYS[key_idx % len(API_KEYS)] if API_KEYS else None
         key_idx += 1
-        print(f"[attempt {attempt + 1}/2] key=...{api_key[-8:]} model=auto")
+        print(f"[attempt {attempt + 1}/{attempts}] key={_mask_key(api_key)} model=auto")
 
         messages = [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -478,7 +561,18 @@ def main():
             print("  [ok] model=" + str(model_used))
             duas = parse_duas(content)
             if duas:
-                added = save_duas(duas)
+                complete = []
+                for d in duas:
+                    missing = [k for k in ("id", "title", "titleEn",
+                                           "arabic", "urdu", "english")
+                               if not (d.get(k) or "").strip()]
+                    if missing:
+                        print("  [skip] dua '" + str(d.get("id") or "?")
+                              + "' incomplete - missing: "
+                              + ", ".join(missing))
+                        continue
+                    complete.append(d)
+                added = save_duas(complete)
                 all_new.extend(added)
                 print(f"  [saved] {len(added)} new duas (total now {len(load_existing())})")
                 break

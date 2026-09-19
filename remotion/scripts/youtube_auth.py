@@ -27,7 +27,8 @@ except (AttributeError, ValueError):
 PROJECT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TOKEN_PATH = os.path.join(PROJECT, "data", "yt_token.json")
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload",
-           "https://www.googleapis.com/auth/youtube.readonly"]
+           "https://www.googleapis.com/auth/youtube.readonly",
+           "https://www.googleapis.com/auth/youtube.force-ssl"]
 
 
 def set_token_path(path):

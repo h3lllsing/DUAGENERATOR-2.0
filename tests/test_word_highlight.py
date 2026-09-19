@@ -488,8 +488,8 @@ def test_render_highlight_last_word_stays_until_scene_end():
     p, r = _render_plan(AR3, UR_TEXT, word_events={"arabic": ar_w, "urdu": []})
     timeline = p["timeline"]
     ar_scene = timeline.scenes[0]
-    frames = r.render_scene(ar_scene, timeline.frames_for_scene(0),
-                            "dua_x", 0)
+    frames = list(r.render_scene(ar_scene, timeline.frames_for_scene(0),
+                            "dua_x", 0))
     assert len(frames) > 0
     # After the final word's start, the last word remains highlighted
     # (floor semantics -> no flicker at the tail).

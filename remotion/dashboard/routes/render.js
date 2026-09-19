@@ -420,6 +420,14 @@ module.exports = function renderRoutes(deps) {
     } catch (e) { log('THUMB FAIL: ' + duaId + ' — ' + (e.message || e)); }
   }
 
+  // SRT subtitles (ar/ur/en) — supplementary, never blocks render/upload.
+  async function genSrt(duaId) {
+    try {
+      const code = await runQuiet(PY, ['scripts/make_srt.py', '--dua-id', duaId]);
+      if (code !== 0) log('SRT WARN: make_srt.py exited ' + code + ' for ' + duaId);
+    } catch (e) { log('SRT SKIP: ' + duaId + ' — ' + (e.message || e)); }
+  }
+
   function resetJob(duaId) {
     Object.assign(job, {running: true, duaId, step: 'prepare', percent: 0,
       logs: [], lastVideo: null, error: null, startedAt: Date.now(),
@@ -542,6 +550,8 @@ module.exports = function renderRoutes(deps) {
         job.step = 'thumb';
         await genThumb(duaId, outName);
         if (cancelled()) throw new Error('Cancelled');
+        job.step = 'srt';
+        await genSrt(duaId);
         job.step = 'metadata';
         try { await runQuiet(PY, ['scripts/metadata.py', duaId]); } catch (_) {}
         job.lastVideo = vidPath;
@@ -619,6 +629,9 @@ module.exports = function renderRoutes(deps) {
     job.step = 'thumb';
     await genThumb(duaId, outName, true);
     if (cancelled()) throw new Error('Cancelled');
+
+    job.step = 'srt';
+    await genSrt(duaId);
 
     cacheStore[duaId] = {key: await cacheKey(dua || {id: duaId}), out: outName};
     saveCache();

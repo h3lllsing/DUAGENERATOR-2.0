@@ -12,6 +12,17 @@ from pathlib import Path
 PROJECT = Path(__file__).resolve().parent.parent
 BACKUP_DIR = PROJECT / "backups"
 
+
+def _load_backup_module():
+    """Import backup helpers (BACKUP_FILES, decrypt) from scripts/backup."""
+    sys.path.insert(0, str(PROJECT / "scripts"))
+    try:
+        from backup import BACKUP_FILES, decrypt_backup_file
+        return BACKUP_FILES, decrypt_backup_file
+    except ImportError:
+        return None, None
+
+
 def auto_backup():
     """Create automatic backup before restore."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -19,19 +30,17 @@ def auto_backup():
     backup_path.mkdir(parents=True, exist_ok=True)
 
     # Import backup files list from backup module
-    sys.path.insert(0, str(PROJECT / "scripts"))
-    try:
-        from backup import BACKUP_FILES
-    except ImportError:
+    BACKUP_FILES, _ = _load_backup_module()
+    if BACKUP_FILES is None:
         BACKUP_FILES = [
-            ("security/salt.bin", "Security salt"),
-            ("remotion/dashboard/auth.json", "Dashboard auth token"),
-            ("remotion/dashboard/config.json", "Dashboard config"),
-            ("data/duas.json", "Duas database"),
+            ("security/salt.bin", "Security salt", False),
+            ("remotion/dashboard/auth.json", "Dashboard auth token", True),
+            ("remotion/dashboard/config.json", "Dashboard config", False),
+            ("data/duas.json", "Duas database", False),
         ]
 
     backed_up = 0
-    for rel_path, description in BACKUP_FILES:
+    for rel_path, description, _encrypt in BACKUP_FILES:
         src = PROJECT / rel_path
         if src.exists():
             dst = backup_path / rel_path
@@ -52,8 +61,11 @@ def auto_backup():
     print(f"Auto-backup created: {backup_path.name} ({backed_up} files)")
     return backup_path
 
-def restore_backup(backup_name=None, force=False):
-    """Restore from a backup. If no name given, restore latest."""
+def restore_backup(backup_name=None, force=False, target=None):
+    """Restore from a backup. If no name given, restore latest.
+    If target given, restore into that directory instead of PROJECT
+    (used for safe test-restores; no auto-backup is created in that case).
+    """
     if not BACKUP_DIR.exists():
         print("No backups directory found.")
         return False
@@ -61,8 +73,12 @@ def restore_backup(backup_name=None, force=False):
     if backup_name:
         backup_path = BACKUP_DIR / backup_name
     else:
-        # Find latest backup
-        backups = sorted([d for d in BACKUP_DIR.iterdir() if d.is_dir()])
+        # Find latest backup (by mtime, not name - name sort would pick
+        # v010_/pre_restore_ dirs which are not real timestamped backups)
+        backups = sorted(
+            (d for d in BACKUP_DIR.iterdir() if d.is_dir()),
+            key=lambda d: d.stat().st_mtime,
+        )
         if not backups:
             print("No backups found.")
             return False
@@ -74,39 +90,55 @@ def restore_backup(backup_name=None, force=False):
 
     # Load manifest
     manifest_path = backup_path / "manifest.json"
-    files_to_restore = []
+    encrypted_files = set()
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         print(f"Restoring from: {manifest['timestamp']}")
+        encrypted_files = set(manifest.get("encrypted", []))
         files_to_restore = manifest.get("files", [])
         for item in files_to_restore:
             print(f"  - {item}")
     else:
         print(f"Restoring from: {backup_path.name}")
 
+    _, decrypt_func = _load_backup_module()
+
+    dst_root = Path(target) if target else PROJECT
+
     # Confirmation prompt
-    if not force:
-        file_count = len([f for f in backup_path.rglob("*") if f.is_file() and f.name != "manifest.json"])
+    if not force and target is None:
+        file_count = len([f for f in backup_path.rglob("*")
+                          if f.is_file() and f.name != "manifest.json"])
         print(f"\nThis will overwrite {file_count} files in the project.")
         confirm = input("Are you sure? (y/N): ").strip().lower()
         if confirm != 'y':
             print("Restore cancelled.")
             return False
 
-    # Auto-backup current state before restore
-    print("\nCreating auto-backup of current state...")
-    auto_backup()
+    # Auto-backup current state before restore (real restores only)
+    if target is None:
+        print("\nCreating auto-backup of current state...")
+        auto_backup()
 
     # Restore files
     restored = 0
     for item in backup_path.rglob("*"):
         if item.is_file() and item.name != "manifest.json":
-            rel = item.relative_to(backup_path)
-            dst = PROJECT / rel
+            rel = item.relative_to(backup_path).as_posix()
+            dst = dst_root / rel
             dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(item, dst)
+            if rel in encrypted_files and decrypt_func is not None:
+                data = decrypt_func(item)
+                dst.write_bytes(data)
+                print(f"  Restored: {rel} [decrypted]")
+            elif rel in encrypted_files:
+                print(f"  WARN: {rel} marked encrypted but decrypt "
+                      f"unavailable - copied raw")
+                shutil.copy2(item, dst)
+            else:
+                shutil.copy2(item, dst)
+                print(f"  Restored: {rel}")
             restored += 1
-            print(f"  Restored: {rel}")
 
     print(f"\nRestored {restored} files.")
     return True
@@ -117,7 +149,10 @@ def list_backups():
         print("No backups found.")
         return
 
-    backups = sorted([d for d in BACKUP_DIR.iterdir() if d.is_dir()])
+    backups = sorted(
+        (d for d in BACKUP_DIR.iterdir() if d.is_dir()),
+        key=lambda d: d.stat().st_mtime,
+    )
     if not backups:
         print("No backups found.")
         return
@@ -132,15 +167,32 @@ def list_backups():
             print(f"  {backup.name}")
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] == "list":
+    import argparse
+
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass
+
+    ap = argparse.ArgumentParser(prog="restore.py")
+    ap.add_argument("command", nargs="?", default="list",
+                    help="list | restore")
+    ap.add_argument("backup_name", nargs="?", default=None,
+                    help="backup directory name (optional)")
+    ap.add_argument("--yes", action="store_true",
+                    help="restore without confirmation")
+    ap.add_argument("--to", default=None,
+                    help="restore into this target directory instead of "
+                         "the project (safe test-restore)")
+    args = ap.parse_args()
+
+    if args.command == "list":
         list_backups()
-    elif len(sys.argv) > 2 and sys.argv[1] == "restore":
-        restore_backup(sys.argv[2], force="--yes" in sys.argv)
-    elif len(sys.argv) > 1 and sys.argv[1] == "restore":
-        restore_backup(force="--yes" in sys.argv)
+    elif args.command == "restore":
+        restore_backup(args.backup_name, force=args.yes, target=args.to)
     else:
         print("Usage:")
-        print("  python restore.py list           - List available backups")
-        print("  python restore.py restore [name] - Restore from backup")
-        print("  python restore.py restore        - Restore latest backup")
-        print("  python restore.py restore --yes  - Restore without confirmation")
+        print("  python restore.py list                    - List backups")
+        print("  python restore.py restore [name] [--yes]  - Restore from backup")
+        print("  python restore.py restore [name] --to DIR - Safe test-restore")
+        print("  python restore.py restore --to DIR --yes  - Both")

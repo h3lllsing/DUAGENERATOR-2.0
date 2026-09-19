@@ -806,6 +806,42 @@ module.exports = function ytRoutes(deps) {
       return true;
     }
 
+    // -- POST /api/youtube/update -- update title/tags of an uploaded video
+    if (method === 'POST' && p === '/api/youtube/update') {
+      readBody(req, res).then((body) => {
+        try {
+          const f = JSON.parse(body || '{}');
+          const channel = String(f.channel || 'channel1');
+          const videoId = String(f.videoId || '').trim();
+          if (!/^channel[12]$/.test(channel)) {
+            return send(res, 400, JSON.stringify({ok: false, error: 'channel channel1 ya channel2 hona chahiye'}));
+          }
+          if (!/^[a-zA-Z0-9_-]{6,64}$/.test(videoId)) {
+            return send(res, 400, JSON.stringify({ok: false, error: 'valid videoId chahiye'}));
+          }
+          const args = [path.join('scripts', 'update_metadata.py'),
+            '--channel', channel, '--video-id', videoId];
+          if (String(f.title || '').trim()) args.push('--title', String(f.title).trim());
+          if (Array.isArray(f.tags) && f.tags.length) {
+            args.push('--tags', f.tags.map(String).join(','));
+          }
+          const cap = ytCapture(args);
+          cap.then((result) => {
+            try {
+              const parsed = JSON.parse(result.out.trim().split(/\r?\n/).pop() || '{}');
+              send(res, 200, JSON.stringify(parsed));
+            } catch (e) {
+              send(res, 500, JSON.stringify({ok: false, error: String(e.message || e)}));
+            }
+          });
+        } catch (e) {
+          send(res, 400, JSON.stringify({ok: false, error: 'bad request'}));
+        }
+      });
+      return true;
+    }
+
+
     // ── POST /api/youtube/re-upload ──
     if (method === 'POST' && p === '/api/youtube/re-upload') {
       if (ytJob.running) {

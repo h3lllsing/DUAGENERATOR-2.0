@@ -190,7 +190,7 @@ class DuaVideoPipeline:
         pct = int(step / total * 100) if total else 0
         ts = f" ({elapsed:.0f}s elapsed)" if elapsed else ""
         dua_tag = f" [{dua_id}]" if dua_id else ""
-        logger.info(">>> [%d/%d %2d%%%] %s%s%s", step, total, pct,
+        logger.info(">>> [%d/%d %2d%%] %s%s%s", step, total, pct,
                      label, dua_tag, ts)
 
     def __del__(self):
@@ -884,8 +884,8 @@ class DuaVideoPipeline:
             category=category,
             palette=premium_palette("custom"),
             word_events={"arabic": ar_words, "urdu": ur_words},
-            highlight_style=dua_data.get("highlight_style", ""),
-            gradient_kind=dua_data.get("gradient_kind", ""),
+            highlight_style="",
+            gradient_kind="",
         )
         if not plan["valid"]:
             logger.error(f"TimelineBuilder failed: {plan['reason']}")

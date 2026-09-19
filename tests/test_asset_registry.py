@@ -251,8 +251,10 @@ def test_selection_is_deterministic_for_same_seed():
         _entry("a", "a.jpg", categories=("morning",)),
         _entry("b", "b.jpg", categories=("morning",)),
     ], images={"a.jpg": b"A", "b.jpg": b"B"})
-    first = registry.select_background("dua_123", "morning")
-    second = registry.select_background("dua_123", "morning")
+    first = registry.select_background("dua_123", "morning",
+                                        random_mode=False)
+    second = registry.select_background("dua_123", "morning",
+                                         random_mode=False)
     assert first["kind"] == "asset"
     assert first["asset_id"] == second["asset_id"]
     assert first["path"] == second["path"]
@@ -265,8 +267,10 @@ def test_selection_deterministic_across_instances():
     images = {"a.jpg": b"A", "b.jpg": b"B"}
     r1 = _registry_with(tmp, entries, images=images)
     r2 = _registry_with(tmp, entries, images=images)
-    assert r1.select_background("dua_abc")["asset_id"] == \
-        r2.select_background("dua_abc")["asset_id"]
+    assert r1.select_background("dua_abc",
+                                 random_mode=False)["asset_id"] == \
+        r2.select_background("dua_abc",
+                             random_mode=False)["asset_id"]
 
 
 def test_selection_prefers_category_match():

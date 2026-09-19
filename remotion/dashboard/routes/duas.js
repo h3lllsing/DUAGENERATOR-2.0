@@ -353,6 +353,17 @@ module.exports = function duaRoutes(deps) {
           refShared: !!(normRef(d.reference) && refCount[normRef(d.reference)] > 1),
         }));
         const statuses = themed.map(duaStatus);
+        // EN subtitle status per dua: srt file present + review gate state.
+        let enReview = null;
+        try {
+          enReview = JSON.parse(await F.readFile(path.join(PROJECT, 'data', 'en_review.json'), 'utf8'));
+        } catch (e) { enReview = null; }
+        statuses.forEach((s) => {
+          const en = enReview ? (enReview[s.id] || null) : null;
+          s.enStatus = en && en.status ? en.status : null;
+          s.enSource = en && en.source ? en.source : null;
+          s.enSrt = fs.existsSync(path.join(OUT, safeTitle(s.title) + '.en.srt'));
+        });
         send(res, 200, JSON.stringify({ok: true, duas: statuses}));
       });
       return true;
