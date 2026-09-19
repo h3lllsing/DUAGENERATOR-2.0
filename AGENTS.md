@@ -9,6 +9,26 @@ Master record for AI sessions working in this folder (`H:\DUAGENERATOR 2.0`). Up
 - Owner confirmed stack (2026-09-20): **React + TypeScript + Vite + Tailwind** (mobile-first PWA), **Fastify** + **better-sqlite3**, WebSockets for realtime. Dev port **7870** (production uses 7860 — never collide).
 - Portal is LOCKED for changes (owner directive). New code/features ONLY go in this folder.
 
+## V2 Mandate — quality bar (owner, 2026-09-20)
+
+- **Every V2 feature must be BETTER than the current portal's equivalent in every way** (speed, reliability, UX, security, maintainability). If a piece is not at least as good as prod, do not ship it.
+- Everything is **FREE/open-source only** — no paid services, no paid SDKs, no paid fonts/media. Reuse existing free stack.
+- V2 will replace the current portal eventually; build it so production content can migrate cleanly (see `docs/V2_ARCHITECTURE.md` §2, §8).
+
+## MCP servers (running in this workspace)
+
+Configured in `opencode.json` at this folder's root (works when the session is started here):
+
+| Server | Type | Points to |
+|---|---|---|
+| `filesystem` | local (npx filesystem-server) | `H:\DUAGENERATOR 2.0` |
+| `github` | remote (`https://api.githubcopilot.com/mcp/`) | Bearer `{env:GITHUB_TOKEN}` |
+| `security-tools` | local (python `H:\MCP\server\server.py`) | `WORKSPACE_ROOT=H:\DUAGENERATOR 2.0` |
+
+- **Use the GitHub MCP (`github_*` tools) for everything GitHub**: repo listing, issues/PRs, file contents, secret scanning. Do NOT rely on `gh` CLI assumptions unless the MCP is unavailable.
+- Use the filesystem MCP from this folder root; its allowed paths = V2 workspace only. The global config points filesystem/security-tools at the PROD folder — when starting a session here, project `opencode.json` overrides them to V2.
+- After editing `opencode.json`/AGENTS.md, tell the owner to **quit and restart opencode** for config changes to load.
+
 ## V2 Decisions (owner-approved)
 
 | Area | Choice |
