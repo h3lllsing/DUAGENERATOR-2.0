@@ -4,9 +4,31 @@ import fs from 'fs';
 
 const DB_DIR = path.resolve(process.cwd(), 'data');
 const DB_PATH = path.join(DB_DIR, 'v2.db');
-const SCHEMA_PATH = path.resolve(process.cwd(), 'apps', 'server', 'db', 'migrations', '001_init.sql');
+const MIGRATIONS_DIR = path.resolve(process.cwd(), 'apps', 'server', 'db', 'migrations');
 
 let db: Database.Database | null = null;
+
+function runMigrations(database: Database.Database): void {
+  // Check if schema_migrations table exists
+  const hasMigrations = database.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='schema_migrations'").get();
+  if (!hasMigrations) {
+    database.exec("CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY, applied_at TEXT DEFAULT (datetime('now')))");
+  }
+
+  const applied = database.prepare('SELECT version FROM schema_migrations').all().map((r: any) => r.version);
+  const migrationFiles = fs.readdirSync(MIGRATIONS_DIR).filter(f => f.endsWith('.sql')).sort();
+
+  for (const file of migrationFiles) {
+    const version = file.replace('.sql', '');
+    if (!applied.includes(version)) {
+      console.log(`[DB] Applying migration ${version}...`);
+      const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf-8');
+      database.exec(sql);
+      database.prepare('INSERT INTO schema_migrations (version) VALUES (?)').run(version);
+      console.log(`[DB] Migration ${version} applied`);
+    }
+  }
+}
 
 export function initDb(): Database.Database {
   if (db) return db;
@@ -19,15 +41,8 @@ export function initDb(): Database.Database {
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
 
-  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='duas'").get();
-  if (!tableCheck) {
-    console.log('[DB] Initializing schema...');
-    const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8');
-    db.exec(schema);
-    console.log('[DB] Schema initialized');
-  } else {
-    console.log('[DB] Schema already exists');
-  }
+  runMigrations(db);
+  console.log('[DB] Database ready');
 
   return db;
 }

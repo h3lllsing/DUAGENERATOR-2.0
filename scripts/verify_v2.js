@@ -86,6 +86,23 @@ async function main() {
       test('GET /jobs with token = 200', r.status === 200);
     } catch (e) { test('Authenticated /jobs', false); }
 
+    // Phase 2 endpoints
+    console.log('\n4b. Phase 2 Content Studio:');
+    try {
+      const r = await httpGet('/api/v1/review/queue', { Authorization: 'Bearer ' + TOKEN });
+      test('GET /review/queue = 200', r.status === 200);
+      test('Review queue is array', Array.isArray(r.body.data));
+    } catch (e) { test('Review queue endpoint', false); }
+    try {
+      const r = await httpGet('/api/v1/seo/pillars', { Authorization: 'Bearer ' + TOKEN });
+      test('GET /seo/pillars = 200', r.status === 200);
+      test('Pillars is array (20)', r.body.data && r.body.data.length === 20);
+    } catch (e) { test('SEO pillars endpoint', false); }
+    try {
+      const r = await httpGet('/api/v1/seo/pillars/distribution', { Authorization: 'Bearer ' + TOKEN });
+      test('GET /seo/pillars/distribution = 200', r.status === 200);
+    } catch (e) { test('SEO distribution endpoint', false); }
+
     // 5. Invalid token
     console.log('\n5. Security:');
     try {

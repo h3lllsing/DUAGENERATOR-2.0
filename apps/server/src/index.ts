@@ -6,6 +6,10 @@ import { initDb, closeDb } from './db.js';
 import { authGuard } from './auth.js';
 import duasRoutes from './routes/duas.js';
 import videosRoutes from './routes/videos.js';
+import thumbnailsRoutes from './routes/thumbnails.js';
+import captionsRoutes from './routes/captions.js';
+import seoRoutes from './routes/seo.js';
+import reviewRoutes from './routes/review.js';
 import { startRenderWorker } from './workers/render-worker.js';
 
 const PORT = parseInt(process.env.PORT || '7870');
@@ -35,6 +39,10 @@ async function main() {
 
   await app.register(duasRoutes);
   await app.register(videosRoutes);
+  await app.register(thumbnailsRoutes);
+  await app.register(captionsRoutes);
+  await app.register(seoRoutes);
+  await app.register(reviewRoutes);
 
   app.get('/api/v1/health', async () => ({ ok: true, version: '2.0.0' }));
 

@@ -91,6 +91,25 @@ Configured in `opencode.json` at this folder's root (works when the session is s
 - Verify_v2.js needs server running on port 7870 to pass
 - Import script needs production data files accessible at expected paths
 
+## Phase 2 Status (2026-09-20)
+
+### Completed Tasks
+- [x] **Schema Migration:** 002_phase2_studio.sql — thumbs JSON, caption_en, seo_title/description/tags/hashtags, approved_by/at columns. Videos state CHECK expanded for workflow.
+- [x] **Thumbnail Studio API:** GET/POST/DELETE /videos/:id/thumbs — A/B variant management with swap.
+- [x] **Captions Editor API:** GET/PUT /videos/:id/captions — edit-in-place EN SRT, live preview, SRT import.
+- [x] **SEO Manager API:** GET/PATCH /videos/:id/seo — tags/hashtags/description. /seo/pillars (20 pillars), /seo/pillars/distribution, /seo/suggest.
+- [x] **Approval Workflow API:** /videos/:id/review (CRUD), /approve (with EN review gate), /reject, /review/queue.
+- [x] **Frontend Pages:** Dashboard, DuaList, DuaDetail, ThumbnailStudio, CaptionsEditor, SeoManager, ReviewQueue. React Router, sidebar nav, token setup, mobile-responsive.
+- [x] **Tests:** 9 studio tests (thumbs, captions, SEO, workflow). Total: 30 unit + 19 smoke = 49 tests passing.
+
+### Phase 2 DoD Status
+- [x] Thumbnail Studio: A/B set per video, swap support
+- [x] Captions: edit-in-place EN SRT, live preview
+- [x] SEO: tags/hashtags/description builder, 20 category pillars
+- [x] Approval workflow: draft → QC → review(edit) → approved → queue (hard gate)
+- [x] Frontend: all studio pages accessible from sidebar
+- [x] Tests: 49/49 passing
+
 ## Conventions
 
 - H shell via PowerShell (OS win32). Temp probes → `C:\Users\MASOOD~1\AppData\Local\Temp\opencode\`. Use Read tool; grep tool instead of `rg` (not installed). Non-ASCII output: `python -X utf8` or wrap stdout with `io.TextIOWrapper(..., encoding='utf-8', errors='replace')`.
