@@ -6,6 +6,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [0.13.0] - 2026-09-20
+
+### Added
+- **Thumbnail Pipeline**: `remotion/scripts/make_thumbs.py` (Remotion `still` renders, 87 thumbs in `remotion/out/thumbs/`) + `remotion/scripts/upload_thumbs.py` (YouTube `thumbnails.set`, dry-run / `--only` / state-tracked)
+- **Share Kit**: `remotion/scripts/generate_share_kit.py` — WhatsApp-ready dua texts (title+ref, Arabic, Urdu, watch link, subscribe link, hashtags) → `share_kit/` (87 files + `INDEX.md`)
+- **Playlist Plan**: `remotion/scripts/plan_playlists.py` — 9 thematic playlists covering all 87 videos → `data/playlist_plan_channel1.json`
+- **SEO Batch**: `remotion/scripts/seo_batch.py` — bulk `videos.update` (tags + description refresh) with dry-run / `--only`
+- **Shorts Captions**: `remotion/scripts/make_upload_captions.py` + `remotion/scripts/attach_captions.py` — EN `.vtt` captions per short (15/21 attached, 2 quota-blocked, 4 pending EN review)
+- **Shorts Pipeline**: `remotion/scripts/make_shorts.py`, `make_srt.py`, `upload_shorts.py`, `update_metadata.py`, `verified_en.py` (21 shorts uploaded)
+- **Privacy Rollout Helper**: `remotion/scripts/fix_short_privacy.py` (`--limit N` for gradual public rollout)
+- **AI Import EN/UR/AR Enforcement**: `ai_import.py` + `ai_format_dua.py` prompts now require Arabic + Urdu + English (title/urdu + titleEn/english/explanation) in every dua; incomplete duas are skipped
+
+### Fixed
+- **Thumbnail Props**: Remotion `thumbnail-card` requires `data`-wrapped props — `{"data": {...}}`; unwrapped props silently used composition defaults (identical 1225 KB thumbs, hash `B5206BE1DE8804241CB86AC1F22C18B6`)
+
+### Locked
+- Portal locked on 2026-09-20 (no code changes / no new features). Pending ops (quota-gated, YouTube daily reset = midnight PT = **12:00 noon PKT**): `attach_captions.py --only sakht_musibat_mein_sabr_ki_dua,samundari_sarkash_hawaon_se_panah` → `upload_thumbs.py` (87) → `seo_batch.py` (87) → next day: playlists create/add (~4500 units).
+
+---
+
 ## [0.12.0] - 2026-09-05
 
 ### Added
