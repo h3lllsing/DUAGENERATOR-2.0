@@ -41,11 +41,14 @@ Configured in `opencode.json` at this folder's root (works when the session is s
 | Ports | Dev 7870; production 7860 (untouched) |
 | Tests | vitest (frontend/API), keep pytest for Python CLI tools |
 
-## Roadmap & specs
+## Roadmap & specs (read order for any agent)
 
+- Objectives, KPIs, phase targets + definition-of-done: `docs/V2_GOALS.md`.
+- Owner decisions (never re-ask): `docs/V2_DECISIONS.md`.
 - Full audit + roadmap: `V2_AUDIT_AND_PLAN.md` (root).
+- **Full current production reference (schemas/API/scripts/render contract/bugs)**: `docs/PORTAL_REFERENCE.md`.
 - Architecture + DB schema + API design: `docs/V2_ARCHITECTURE.md`.
-- New-agent onboarding (read order + gotchas): `docs/V2_ONBOARDING.md`.
+- Enhancement catalog + free-only policy: `docs/V2_ENHANCEMENT_CATALOG.md`.
 - First implementation milestone (Foundation): `docs/V2_PHASE1_BRIEF.md`.
 
 ## What to reuse from the production codebase (read from `H:\DuaVideoGenerator`)

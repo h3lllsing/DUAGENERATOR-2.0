@@ -6,11 +6,13 @@ This folder = the V2.0 rebuild of the Dua Video Studio portal. Production still 
 
 1. `AGENTS.md` (this workspace rules + owner decisions)
 2. `docs/PORTAL_REFERENCE.md` — **FULL current production system reference** (schemas, API, 29 CLI scripts, Remotion props contract, SEO engine, configs, bugs, porting checklist). Read this so you NEVER build from zero or lose prod behavior.
-3. `V2_AUDIT_AND_PLAN.md` (full audit findings + roadmap + open questions)
-4. `docs/V2_ARCHITECTURE.md` (chosen stack, DB schema, API, workers)
-5. `docs/V2_ENHANCEMENT_CATALOG.md` (features/tools/security/architecture ideas + free-only policy)
-6. `docs/V2_PHASE1_BRIEF.md` (current milestone tasks)
-7. Reference only (do not edit): prod `H:\DuaVideoGenerator\remotion\src`, `remotion\scripts\metadata.py`, `core\` TTS/audio/QC modules
+3. `docs/V2_GOALS.md` — **targets, KPI, phases outcomes, definition-of-done** (kaam kya achieve karna hai).
+4. `docs/V2_DECISIONS.md` — owner decisions log (never re-ask what's already decided).
+5. `V2_AUDIT_AND_PLAN.md` (full audit findings + roadmap + open questions)
+6. `docs/V2_ARCHITECTURE.md` (chosen stack, DB schema, API, workers)
+7. `docs/V2_ENHANCEMENT_CATALOG.md` (features/tools/security/architecture ideas + free-only policy)
+8. `docs/V2_PHASE1_BRIEF.md` (current milestone tasks)
+9. Reference only (do not edit): prod `H:\DuaVideoGenerator\remotion\src`, `remotion\scripts\metadata.py`, `core\` TTS/audio/QC modules
 
 ## Key gotchas when working here
 
