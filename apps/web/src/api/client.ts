@@ -13,11 +13,14 @@ export function setToken(token: string) {
 }
 
 async function request<T>(method: string, path: string, body?: any): Promise<T> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = {};
   const token = getToken();
   if (token) headers['Authorization'] = 'Bearer ' + token;
   const opts: RequestInit = { method, headers };
-  if (body) opts.body = JSON.stringify(body);
+  if (body !== undefined) {
+    headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
   const res = await fetch(BASE + path, opts);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));

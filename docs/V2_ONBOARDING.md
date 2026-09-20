@@ -102,6 +102,14 @@ Owner challenged "phases complete" claims — audit proved 3 were incomplete. Fi
 
 Detached workers (`src/worker.ts`), monitoring (`/api/v1/monitoring` + dashboard panel + `data/alerts.log`), PM2 (`ecosystem.config.js`), PWA (manifest + `sw.js` offline shell), determinism verified (no `Math.random`; seed = `dua.id`), LAN/HTTPS guide (`V2_LAN_HTTPS.md`). Backups = not delivered (owner opt-out). Details in `V2_PHASE4_BRIEF.md`.
 
+## PM2 coexistence — prod portal is untouchable (owner: "is ko kuch nahi hona chahiye")
+
+- The production portal runs as PM2 app **`dua-studio`** (`H:\DuaVideoGenerator\remotion\dashboard\server.js`, port **7860**), auto-started at logon by `%APPDATA%\...\Startup\dua-studio.vbs` → `pm2 resurrect`.
+- **NEVER** run `pm2 kill`, `pm2 delete all`, `pm2 stop all`, `pm2 save` while `dua-studio` is the saved/only app, and never overwrite `%USERPROFILE%\.pm2\dump.pm2`. A fresh `pm2 resurrect` restores it — back up to `data/dump_pm2_duastudio_backup.json`.
+- **Never** stop the V2 manual processes in a way that takes PM2 apps down with them (tree-kill). V2 server/worker are launched detached with their own PIDs; they are NOT PM2 processes.
+- If `dua-studio` ever dies mid-session (PM2 daemon crash took it down 2026-09-20 02:27; daemon must be alive): run `cmd /c "pm2 resurrect"` and verify `http://127.0.0.1:7860` → 200, `dua-studio` `online` in `pm2 jlist`.
+- V2 (`ecosystem.config.js`) sets `v2-server`/`v2-worker` names — do not `pm2 start` it without the previous rule in mind, and never `pm2 save` unless both app sets are intentionally persisted.
+
 ## Definitions (same names as prod)
 
 - `duas.json` → dua library (Arabic+Urdu; EN now required for every dua)

@@ -30,6 +30,17 @@ async function main() {
 
   const app = Fastify({ logger: { level: 'info' } });
 
+  // Bodyless requests with Content-Type: application/json (render, cancel, run-check) must not 400.
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (_request, body, done) => {
+    try {
+      const text = typeof body === 'string' ? body : String(body || '');
+      done(null, text.length ? JSON.parse(text) : {});
+    } catch (err: any) {
+      err.statusCode = 400;
+      done(err, undefined);
+    }
+  });
+
   await app.register(websocket);
   await app.register(cors, { origin: ['http://localhost:' + PORT, 'http://127.0.0.1:' + PORT] });
   await app.register(rateLimit, { max: 30, timeWindow: 2000 });
