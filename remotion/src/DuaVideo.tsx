@@ -14,6 +14,8 @@ import {measureText} from '@remotion/layout-utils';
 import {Background} from './Background';
 import {GradeLayer} from './GradeLayer';
 import {KaraokeText} from './KaraokeText';
+import {LuminousVideo} from './LuminousVideo';
+import {EditorialVideo} from './EditorialVideo';
 import {ARABIC_FONT, EMOJI_FONT, ensureFonts, UI_FONT, URDU_FONT} from './fonts';
 import type {DuaManifest} from './types';
 import {accentTint, getTheme, type Theme} from './themes';
@@ -304,6 +306,15 @@ export const DuaVideo: React.FC<{
           ornament: flat.ornament as string | undefined,
         }
       : null);
+  // NEXT-LEVEL LOOK: manifest par visualDirection:'luminous' ho to Direction-A
+  // "Luminous Modern" template chalta hai (page-karaoke, crossfade phases,
+  // procedural geometry) - legacy particle/fx stack bilkul load nahi hota.
+  if (data.visualDirection === 'luminous') {
+    return <LuminousVideo data={data} />;
+  }
+  if (data.visualDirection === 'editorial') {
+    return <EditorialVideo data={data} />;
+  }
   const frame = useCurrentFrame();
   const {fps, height, durationInFrames} = useVideoConfig();
 

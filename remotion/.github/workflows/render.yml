@@ -1,0 +1,38 @@
+name: Dua Render
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: remotion/package-lock.json
+      - name: Install
+        working-directory: remotion
+        run: npm ci
+      - name: Type-check
+        working-directory: remotion
+        run: npx tsc --noEmit
+      - name: Render Editorial
+        working-directory: remotion
+        run: npx remotion render src/index.ts sayyidul-istighfar out/editorial.mp4 --props=./editorial-props.json --concurrency=2
+      - name: Render Luminous
+        working-directory: remotion
+        run: npx remotion render src/index.ts rabbi-zidni-probe-lum out/luminous.mp4 --props=./luminous-props.json --concurrency=2
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: dua-videos
+          path: remotion/out/*.mp4
+          retention-days: 90

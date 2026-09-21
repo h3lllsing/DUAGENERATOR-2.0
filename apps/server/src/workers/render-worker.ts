@@ -16,9 +16,9 @@ export function startRenderWorker(): void {
 }
 
 function recoverInterruptedJobs(): void {
-  const stuck = selectAll("SELECT id FROM jobs WHERE state IN ('prep','render','qc','retry')");
+  const stuck = selectAll("SELECT id FROM jobs WHERE type = 'render' AND state IN ('prep','render','qc','retry')");
   if (!stuck.length) return;
-  run("UPDATE jobs SET state = 'queued', progress = 0, finished_at = NULL, error = NULL WHERE state IN ('prep','render','qc','retry')");
+  run("UPDATE jobs SET state = 'queued', progress = 0, finished_at = NULL, error = NULL WHERE type = 'render' AND state IN ('prep','render','qc','retry')");
   console.log('[' + WORKER_ID + '] Recovered ' + stuck.length + ' interrupted job(s) back to queued');
 }
 
@@ -31,7 +31,7 @@ async function loop(): Promise<void> {
 }
 
 function getNext(): any | null {
-  return selectOne("SELECT * FROM jobs WHERE state IN ('queued','failed') ORDER BY created_at ASC LIMIT 1");
+  return selectOne("SELECT * FROM jobs WHERE type = 'render' AND state IN ('queued','failed') ORDER BY created_at ASC LIMIT 1");
 }
 
 function updateState(id: number, state: string, progress: number, error?: string): void {
@@ -48,35 +48,41 @@ async function processJob(job: any): Promise<void> {
     updateState(job.id, 'prep', 0);
     const video = selectOne('SELECT * FROM videos WHERE id=?', [job.video_id]);
     if (!video) throw new Error('Video ' + job.video_id + ' not found');
-    const dua = selectOne('SELECT * FROM duas WHERE id=?', [video.dua_id]);
+const dua = selectOne('SELECT * FROM duas WHERE id=?', [video.dua_id]);
     if (!dua) throw new Error('Dua ' + video.dua_id + ' not found');
+
+    // Render scripts + Remotion key on the duas.json id (slug). V2 slugs are
+    // prefixed "dua-" and hyphenated, while the merged duas.json replica uses
+    // underscore ids — normalize to the replica id.
+    const slug = dua.slug || String(dua.id);
+    const duaKey = slug.replace(/^dua-/, '').replace(/-/g, '_');
 
     const remotionDir = path.resolve(process.cwd(), 'remotion');
     const scriptsDir = path.resolve(remotionDir, 'scripts');
 
     updateState(job.id, 'render', 10);
-    execSync('python -X utf8 "' + path.join(scriptsDir, 'prepare_dua.py') + '" --dua-id ' + dua.id, { cwd: remotionDir, timeout: 300000 });
+    execSync('python -X utf8 "' + path.join(scriptsDir, 'prepare_dua.py') + '" ' + duaKey, { cwd: remotionDir, timeout: 300000 });
 
     updateState(job.id, 'render', 30);
-    execSync('python -X utf8 "' + path.join(scriptsDir, 'make_manifest.py') + '" --dua-id ' + dua.id, { cwd: remotionDir, timeout: 60000 });
+    execSync('python -X utf8 "' + path.join(scriptsDir, 'make_manifest.py') + '" ' + duaKey, { cwd: remotionDir, timeout: 60000 });
 
-updateState(job.id, 'render', 50);
-    const compId = 'dua-' + dua.id;
-    execSync('npx remotion render ' + compId + ' out/' + dua.id + '.mp4', { cwd: remotionDir, timeout: 600000 });
+    updateState(job.id, 'render', 50);
+    const compId = duaKey.replace(/_/g, '-');
+    execSync('npx remotion render ' + compId + ' out/' + duaKey + '.mp4', { cwd: remotionDir, timeout: 600000 });
 
     updateState(job.id, 'render', 65);
-    const mp4In = path.resolve(remotionDir, 'out', dua.id + '.mp4');
-    const mp4Out = path.resolve(remotionDir, 'out', dua.id + '_final.mp4');
+    const mp4In = path.resolve(remotionDir, 'out', duaKey + '.mp4');
+    const mp4Out = path.resolve(remotionDir, 'out', duaKey + '_final.mp4');
     execSync('ffmpeg -y -i "' + mp4In + '" -c:v libx264 -crf 18 -preset fast -movflags +faststart "' + mp4Out + '"', { timeout: 120000 });
 
     updateState(job.id, 'qc', 75);
     execSync('python -X utf8 "' + path.join(scriptsDir, 'qc.py') + '" "' + mp4Out + '"', { timeout: 60000 });
 
     updateState(job.id, 'qc', 85);
-    execSync('python -X utf8 "' + path.join(scriptsDir, 'make_thumbs.py') + '" --dua-id ' + dua.id + ' --dry-run', { cwd: remotionDir, timeout: 120000 });
+    execSync('python -X utf8 "' + path.join(scriptsDir, 'make_thumbs.py') + '" --only ' + duaKey + ' --dry-run', { cwd: remotionDir, timeout: 120000 });
 
     updateState(job.id, 'qc', 95);
-    execSync('python -X utf8 "' + path.join(scriptsDir, 'metadata.py') + '" ' + dua.id, { cwd: remotionDir, timeout: 30000 });
+    execSync('python -X utf8 "' + path.join(scriptsDir, 'metadata.py') + '" ' + duaKey, { cwd: remotionDir, timeout: 30000 });
 
     updateState(job.id, 'done', 100);
     run("UPDATE videos SET state='rendered' WHERE id=?", [video.id]);

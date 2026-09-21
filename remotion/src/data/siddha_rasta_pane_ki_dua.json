@@ -1,0 +1,185 @@
+{
+ "dua_id": "siddha_rasta_pane_ki_dua",
+ "title": "Siddha Rasta Pane Ki Dua",
+ "reference": "Sahih Muslim 2725",
+ "fps": 30,
+ "width": 1080,
+ "height": 1920,
+ "totalDuration": 15.0,
+ "audioFile": "audio/siddha_rasta_pane_ki_dua.mp3",
+ "template": "royal",
+ "arabicWords": [
+  {
+   "t": "بِسْمِ",
+   "start": 0.06,
+   "end": 0.441
+  },
+  {
+   "t": "اللَّهِ",
+   "start": 0.454,
+   "end": 0.78
+  },
+  {
+   "t": "الرَّحْمَٰنِ",
+   "start": 0.794,
+   "end": 1.324
+  },
+  {
+   "t": "الرَّحِيمِ",
+   "start": 1.338,
+   "end": 1.84
+  },
+  {
+   "t": "اللَّهُمَّ",
+   "start": 1.854,
+   "end": 2.384
+  },
+  {
+   "t": "اهْدِنِي",
+   "start": 2.397,
+   "end": 2.859
+  },
+  {
+   "t": "وَسَدِّدْنِي",
+   "start": 2.873,
+   "end": 3.729
+  }
+ ],
+ "urduWords": [
+  {
+   "t": "شروع",
+   "start": 5.325,
+   "end": 5.404
+  },
+  {
+   "t": "اللہ",
+   "start": 5.615,
+   "end": 5.931
+  },
+  {
+   "t": "کے",
+   "start": 5.983,
+   "end": 6.089
+  },
+  {
+   "t": "نام",
+   "start": 6.115,
+   "end": 6.365
+  },
+  {
+   "t": "سے",
+   "start": 6.431,
+   "end": 6.549
+  },
+  {
+   "t": "جو",
+   "start": 6.602,
+   "end": 6.733
+  },
+  {
+   "t": "بڑا",
+   "start": 6.812,
+   "end": 7.049
+  },
+  {
+   "t": "مہربان",
+   "start": 7.075,
+   "end": 7.628
+  },
+  {
+   "t": "نہایت",
+   "start": 7.628,
+   "end": 8.062
+  },
+  {
+   "t": "رحم",
+   "start": 8.075,
+   "end": 8.404
+  },
+  {
+   "t": "والا",
+   "start": 8.418,
+   "end": 8.681
+  },
+  {
+   "t": "ہے",
+   "start": 8.694,
+   "end": 8.957
+  },
+  {
+   "t": "اے",
+   "start": 9.01,
+   "end": 9.115
+  },
+  {
+   "t": "اللہ",
+   "start": 9.168,
+   "end": 9.523
+  },
+  {
+   "t": "مجھے",
+   "start": 10.539,
+   "end": 10.683
+  },
+  {
+   "t": "ہدایت",
+   "start": 10.775,
+   "end": 11.144
+  },
+  {
+   "t": "دے",
+   "start": 11.249,
+   "end": 11.394
+  },
+  {
+   "t": "اور",
+   "start": 11.447,
+   "end": 11.565
+  },
+  {
+   "t": "مجھے",
+   "start": 11.604,
+   "end": 11.868
+  },
+  {
+   "t": "سیدھے",
+   "start": 11.947,
+   "end": 12.262
+  },
+  {
+   "t": "راستے",
+   "start": 12.275,
+   "end": 12.644
+  },
+  {
+   "t": "پر",
+   "start": 12.71,
+   "end": 12.828
+  },
+  {
+   "t": "قائم",
+   "start": 12.933,
+   "end": 13.223
+  },
+  {
+   "t": "رکھ",
+   "start": 13.236,
+   "end": 13.447
+  }
+ ],
+ "sections": {
+  "arabicEnd": 3.729,
+  "urduStart": 5.275
+ },
+ "background": "backgrounds/siddha_rasta_pane_ki_dua.jpg",
+ "backgroundKind": "image",
+ "channel": {
+  "name": "Noor-e-Iman",
+  "handle": "@bushranasir1075"
+ },
+ "sfx": {
+  "whoosh": "sfx/whoosh.mp3",
+  "riser": "sfx/riser.mp3",
+  "tick": "sfx/tick.mp3"
+ }
+}

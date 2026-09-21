@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-09-19T23:39:12.731Z",
+  "duas": {
+    "legacy": 114,
+    "v2": 114,
+    "ratio": "1.0000"
+  },
+  "ledger": {
+    "upload_slugs": 87,
+    "shorts_slugs": 21,
+    "v2_rows": 104,
+    "distinct_duas": 85,
+    "matched_by_slug": 85,
+    "matched_by_title": 0,
+    "unmatched_slug_list": [
+      "ilm_aur_pakiza_rizq_ki_dua",
+      "khiyanat_se_bachne_ki_dua"
+    ]
+  },
+  "en_review": {
+    "legacy_keys": 27,
+    "v2_rows": 2,
+    "attached_from_legacy": 0,
+    "seed_source": "copied from prod"
+  },
+  "channels": [
+    {
+      "name": "channel1",
+      "daily_caps": 10,
+      "quota_used": 0,
+      "quota_date": "2026-09-19"
+    }
+  ],
+  "migrations": [
+    "001_init",
+    "002_phase2_studio",
+    "003_phase3_growth",
+    "004_fix_trash"
+  ]
+}

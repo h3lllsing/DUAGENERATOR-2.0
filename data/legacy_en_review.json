@@ -1,0 +1,246 @@
+{
+  "_comment": "EN subtitle review queue. Har dua jo bhi EN tarjuma generate karti hai (verified ho ya na), yahan pending list me aati hai. Upload se pehle insaan approve kare. status: pending | approved | rejected.",
+  "hasbi_allah_ki_dua": {
+    "status": "approved",
+    "ref": "Al-Quran 9:129",
+    "ar": "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+    "en": "But if they turn away, [O Muhammad], say, \"Sufficient for me is Allah; there is no deity except Him. On Him I have relied, and He is the Lord of the Great Throne.\"",
+    "source": "quran-sahih",
+    "queue_ts": 1789656241,
+    "reviewed_ts": 1789831797
+  },
+  "kaam_aasan_karne_ki_dua": {
+    "status": "approved",
+    "ref": "Al-Quran 20:25-26",
+    "ar": "رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي",
+    "en": "[Moses] said, \"My Lord, expand for me my breast [with assurance] And ease for me my task",
+    "source": "quran-sahih",
+    "queue_ts": 1789656243,
+    "reviewed_ts": 1789831799
+  },
+  "surah_asr": {
+    "status": "approved",
+    "ref": "Quran Surah Al-Asr 103",
+    "ar": "وَالْعَصْرِ ۝ إِنَّ الإِنْسَانَ لَفِي خُسْرٍ ۝ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَتَوَاصَوْا بِالْحَقِّ وَتَوَاصَوْا بِالصَّبْرِ",
+    "en": "By time, Indeed, mankind is in loss, Except for those who have believed and done righteous deeds and advised each other to truth and advised each other to patience.",
+    "source": "quran-sahih",
+    "queue_ts": 1789656244,
+    "reviewed_ts": 1789831801
+  },
+  "hidayat_par_qaim_rehne_ki_dua": {
+    "status": "approved",
+    "ref": "Surah Ali 'Imran 3:8",
+    "ar": "رَبَّنَا لاَ تُزِغْ قُلُوبَنَا بَعْدَ إِذْ هَدَيْتَنَا وَهَبْ لَنَا مِنْ لَدُنْكَ رَحْمَةً إِنَّكَ أَنْتَ الْوَهَّابُ",
+    "en": "[Who say], \"Our Lord, let not our hearts deviate after You have guided us and grant us from Yourself mercy. Indeed, You are the Bestower.",
+    "source": "quran-sahih",
+    "queue_ts": 1789662360,
+    "reviewed_ts": 1789831803
+  },
+  "haq_aur_hidayat_ki_dua": {
+    "status": "approved",
+    "ref": "Surah Al-Kahf 18:10",
+    "ar": "رَبَّنَا آتِنَا مِنْ لَدُنْكَ رَحْمَةً وَهَيِّئْ لَنَا مِنْ أَمْرِنَا رَشَدًا",
+    "en": "[Mention] when the youths retreated to the cave and said, \"Our Lord, grant us from Yourself mercy and prepare for us from our affair right guidance.\"",
+    "source": "quran-sahih",
+    "queue_ts": 1789662374,
+    "reviewed_ts": 1789831805
+  },
+  "nazar_bad_se_hifazat_ki_dua": {
+    "status": "approved",
+    "ref": "Sahih Bukhari 3371",
+    "ar": "أُعِيذُكُمَا بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
+    "en": "In the name of Allah the Merciful the Most Merciful I seek protection for you both with the words of Allah the perfect from every Satan and noxious creature and from every evil eye that afflicts",
+    "source": "local-tokens",
+    "queue_ts": 1789813824,
+    "reviewed_ts": 1789831807
+  },
+  "yaqub_as_ki_sabr_e_jameel_ki_dua": {
+    "status": "approved",
+    "ref": "Surah Yusuf 12:18",
+    "ar": "فَصَبْرٌ جَمِيلٌ وَاللَّهُ الْمُسْتَعَانُ عَلَى مَا تَصِفُونَ",
+    "en": "And they brought upon his shirt false blood. [Jacob] said, \"Rather, your souls have enticed you to something, so patience is most fitting. And Allah is the one sought for help against that which you describe.\"",
+    "source": "quran-sahih",
+    "queue_ts": 1789814030,
+    "reviewed_ts": 1789831809
+  },
+  "murgh_ki_awaz_sunne_ki_dua": {
+    "status": "approved",
+    "ref": "Sahih Bukhari 3303",
+    "ar": "إِذَا سَمِعْتُمْ صِيَاحَ الدِّيكِ فَاسْأَلُوا اللَّهَ مِنْ فَضْلِهِ فَإِنَّهَا رَأَتْ مَلَكًا",
+    "en": "If you hear the crow of a rooster, ask Allah for His bounty, for it is a sign that an angel has seen it.",
+    "source": "hadith-ai",
+    "queue_ts": 1789827852,
+    "reviewed_ts": 1789831812
+  },
+  "bura_khwab_dekhne_ki_dua": {
+    "status": "approved",
+    "ref": "Sunan al-Tirmidhi 3528",
+    "ar": "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ غَضَبِهِ وَعِقَابِهِ وَشَرِّ عِبَادِهِ وَمِنْ هَمَزَاتِ الشَّيَاطِينِ وَأَنْ يَحْضُرُونِ",
+    "en": "I seek refuge in the perfect words of Allah from His wrath and punishment, from the evil of His servants, from the whisperings of the devils, and from their approaching me.",
+    "source": "hadith-ai",
+    "queue_ts": 1789827886,
+    "reviewed_ts": 1789831814
+  },
+  "kutte_ke_bhaunkne_par_ki_dua": {
+    "status": "approved",
+    "ref": "Sunan Abi Dawood 5103",
+    "ar": "وَإِذَا سَمِعْتُمْ نُبَاحَ الْكَلْبِ فَتَعَوَّذُوا بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ فَإِنَّهُ يَرَى مَا لَا تَرَوْنَ",
+    "en": "When you hear the barking of a dog, seek refuge in Allah from the accursed Satan, for he sees what you do not see.",
+    "source": "hadith-ai",
+    "queue_ts": 1789827950,
+    "reviewed_ts": 1789831816
+  },
+  "jism_mein_dard_ki_dua": {
+    "status": "approved",
+    "ref": "Sahih Muslim 2202",
+    "ar": "بِسْمِ اللَّهِ ثَلَاثًا وَقُلْ سَبْعَ مَرَّاتٍ أَعُوذُ بِاللَّهِ وَقُدْرَتِهِ مِنْ شَرِّ مَا أَجِدُ وَأُحَاذِرُ",
+    "en": "In the name of Allah, say it three times, and say it seven times: “I seek refuge with Allah and His power from the evil of what I find and from what I fear.”",
+    "source": "hadith-ai",
+    "queue_ts": 1789827980,
+    "reviewed_ts": 1789831818
+  },
+  "deen_ki_samjh_aur_fahm_ki_dua": {
+    "status": "approved",
+    "ref": "Sahih Bukhari 143 / Musnad Ahmad 2397",
+    "ar": "اللَّهُمَّ فَقِّهْنِي فِي الدِّينِ وَعَلِّمْنِي التَّأْوِيلَ",
+    "en": "O Allah! Grant me understanding in my religion and teach me the interpretation.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830350,
+    "reviewed_ts": 1789831820
+  },
+  "doodh_peene_ki_dua": {
+    "status": "approved",
+    "ref": "Jami Tirmidhi 3455",
+    "ar": "اللَّهُمَّ بَارِكْ لَنَا فِيهِ وَزِدْنَا مِنْهُ",
+    "en": "O Allah, bless it for us and increase us from it.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830378,
+    "reviewed_ts": 1789831822
+  },
+  "dulha_dulhan_ko_mubarakbad_ki_dua": {
+    "status": "approved",
+    "ref": "Sunan Abi Dawud 2130",
+    "ar": "بَارَكَ اللَّهُ لَكَ وَبَارَكَ عَلَيْكَ وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ",
+    "en": "May Allah bless you and bless you and bring you together in good.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830416,
+    "reviewed_ts": 1789831824
+  },
+  "ghurbat_aur_tangdasti_se_panah": {
+    "status": "approved",
+    "ref": "Sunan An-Nasa'i 5475",
+    "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْفَقْرِ وَالْقِلَّةِ وَالذِّلَّةِ وَأَعُوذُ بِكَ مِنْ أَنْ أَظْلِمَ أَوْ أُظْلَمَ",
+    "en": "O Allah! I seek refuge in You from poverty, lack, and humiliation, and I seek refuge in You from the situation that I may be unjust or be wronged.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830437,
+    "reviewed_ts": 1789831826
+  },
+  "halal_kamaai_aur_barkat_ki_dua": {
+    "status": "approved",
+    "ref": "Surah Al-Ma'idah 5:114",
+    "ar": "اللَّهُمَّ رَبَّنَا أَنزِلْ عَلَيْنَا مَائِدَةً مِّنَ السَّمَاءِ تَكُونُ لَنَا عِيدًا لِّأَوَّلِنَا وَآخِرِنَا وَآيَةً مِّنكَ ۖ وَارْزُقْنَا وَأَنتَ خَيْرُ الرَّازِقِينَ",
+    "en": "Said Jesus, the son of Mary, \"O Allah, our Lord, send down to us a table [spread with food] from the heaven to be for us a festival for the first of us and the last of us and a sign from You. And provide for us, and You are the best of providers.\"",
+    "source": "quran-sahih",
+    "queue_ts": 1789830441,
+    "reviewed_ts": 1789833292
+  },
+  "istikhara_ki_dua": {
+    "status": "approved",
+    "ref": "Sahih Bukhari 1166",
+    "ar": "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمِكَ وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ وَتَعْلَمُ وَلَا أَعْلَمُ وَأَنْتَ عَلَّامُ الْغُيُوبِ",
+    "en": "O Allah! I seek Your counsel by Your knowledge and I seek Your power by Your power and I ask from Your great bounty, for You are able while I am not, and You know while I do not, and You are the Knower of the unseen.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830474,
+    "reviewed_ts": 1789831830
+  },
+  "kufur_aur_faqr_se_panah_ki_dua": {
+    "status": "approved",
+    "ref": "Sunan Abi Dawud 5090",
+    "ar": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْكُفْرِ وَالْفَقْرِ وَأَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ",
+    "en": "O Allah! I seek refuge with You from disbelief and poverty, and I seek refuge with You from the punishment of the grave.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830498,
+    "reviewed_ts": 1789831832
+  },
+  "lachari_aur_sakht_be_basi_ki_dua": {
+    "status": "approved",
+    "ref": "Surah Al-Qamar 54:10",
+    "ar": "أَنِّي مَغْلُوبٌ فَانتَصِرْ",
+    "en": "So he invoked his Lord, \"Indeed, I am overpowered, so help.\"",
+    "source": "quran-sahih",
+    "queue_ts": 1789830502,
+    "reviewed_ts": 1789831834
+  },
+  "maal_aur_aulad_mein_barkat_ki_dua": {
+    "status": "approved",
+    "ref": "Sahih Bukhari 6334",
+    "ar": "اللَّهُمَّ أَكْثِرْ مَالِي وَوَلَدِي وَبَارِكْ لِي فِيمَا أَعْطَيْتَنِي",
+    "en": "O Allah, increase my wealth and my children, and bless me in what You have given me.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830528,
+    "reviewed_ts": 1789831836
+  },
+  "manzil_par_bakhair_pahunche_ki_dua": {
+    "status": "approved",
+    "ref": "Surah Al-Mu'minun 23:29",
+    "ar": "رَّبِّ أَنزِلْنِي مُنزَلًا مُّبَارَكًا وَأَنتَ خَيْرُ الْمُنزِلِينَ",
+    "en": "And say, 'My Lord, let me land at a blessed landing place, and You are the best to accommodate [us].' \"",
+    "source": "quran-sahih",
+    "queue_ts": 1789830532,
+    "reviewed_ts": 1789831838
+  },
+  "miya_biwi_mein_muhabbat_aur_sukun": {
+    "status": "approved",
+    "ref": "Sunan Abi Dawud 969",
+    "ar": "اللَّهُمَّ أَلِّفْ بَيْنَ قُلُوبِنَا وَأَصْلِحْ ذَاتَ بَيْنِنَا وَاهْدِنَا سُبُلَ السَّلاَمِ",
+    "en": "O Allah, unite our hearts, reconcile our differences, and guide us to the paths of peace.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830556,
+    "reviewed_ts": 1789831840
+  },
+  "naye_rishte_mein_barkat_ki_dua": {
+    "status": "approved",
+    "ref": "Sunan Abi Dawud 2160",
+    "ar": "اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَهَا وَخَيْرَ مَا جَبَلْتَهَا عَلَيْهِ وَأَعُوذُ بِكَ مِنْ شَرِّهَا وَمِنْ شَرِّ مَا جَبَلْتَهَا عَلَيْهِ",
+    "en": "O Allah, I ask You for the good of her and the good of what You have ordained for her, and I seek refuge in You from the evil of her and from the evil of what You have ordained for her.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830594,
+    "reviewed_ts": 1789831842
+  },
+  "niamat_par_shukr_ada_karne_ki_dua": {
+    "status": "approved",
+    "ref": "Surah An-Naml 27:19",
+    "ar": "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ",
+    "en": "So [Solomon] smiled, amused at her speech, and said, \"My Lord, enable me to be grateful for Your favor which You have bestowed upon me and upon my parents and to do righteousness of which You approve. And admit me by Your mercy into [the ranks of] Your righteous servants.\"",
+    "source": "quran-sahih",
+    "queue_ts": 1789830598,
+    "reviewed_ts": 1789831844
+  },
+  "nusrat_aur_sabr_ki_dua": {
+    "status": "approved",
+    "ref": "Surah Ali 'Imran 3:173 / Sahih Bukhari 4563",
+    "ar": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ",
+    "en": "Those to whom hypocrites said, \"Indeed, the people have gathered against you, so fear them.\" But it [merely] increased them in faith, and they said, \"Sufficient for us is Allah, and [He is] the best Disposer of affairs.\"",
+    "source": "quran-sahih",
+    "queue_ts": 1789830602,
+    "reviewed_ts": 1789831846
+  },
+  "sakht_musibat_mein_sabr_ki_dua": {
+    "status": "approved",
+    "ref": "Sahih Muslim 918",
+    "ar": "إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ اللَّهُمَّ أْجُرْنِي فِي مُصِيبَتِي وَأَخْلِفْ لِي خَيْرًا مِنْهَا",
+    "en": "Verily we belong to Allah, and verily to Him we shall return. O Allah, reward me in my affliction and replace it with something better.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830630,
+    "reviewed_ts": 1789831848
+  },
+  "samundari_sarkash_hawaon_se_panah": {
+    "status": "approved",
+    "ref": "Al-Mu'jam al-Kabir Tabarani 10980",
+    "ar": "اللَّهُمَّ اجْعَلْهَا رِيَاحًا وَلاَ تَجْعَلْهَا رِيحًا",
+    "en": "O Allah, make it a wind and do not make it a breeze.",
+    "source": "hadith-ai",
+    "queue_ts": 1789830648,
+    "reviewed_ts": 1789831850
+  }
+}

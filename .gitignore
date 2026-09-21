@@ -1,103 +1,42 @@
-# --- F5-TTS (separate project + huge venv/models) ---
-F5-TTS-main/
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
 
-# --- Core data (excluded per user: duas.json etc) ---
-data/
-
-# --- YouTube / OAuth credentials ---
-client_secret.json
-client_secret*.json
-tokens.json
-tokens*.json
-yt_token.json
-yt_token_*.json
-data/yt_token.json
-data/yt_token_*.json
-remotion/client_secret*.json
-security/secrets*.json
-
-# --- temp/atomic-write leftovers ---
-*.tmp
-*.tmp.json
-data/*.tmp
-
-# --- Python ---
-__pycache__/
-*.pyc
-*.pyo
-*.egg-info/
+# Build outputs
 dist/
 build/
-*.egg
+out/
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.mov
 
-# --- pytest ---
-.pytest_cache/
-tests/_migration_tmp/
-
-# --- IDE ---
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# --- OS ---
-Thumbs.db
-Desktop.ini
 .DS_Store
+Thumbs.db
 
-# --- Node ---
-node_modules/
-remotion/node_modules/
-remotion/.cache/
-remotion/out/
-out/
-prebuild.tar.gz
+# Environment
+.env
+.env.local
+.env.*.local
 
-# --- Output / logs ---
-output/
-logs/
-temp/
-samples/
-backups/
-fx_proof/
-*.log
-crash.log
-# runtime logs from dashboard server restart
-remotion/dashboard/server.out.log
-remotion/dashboard/server.err.log
-# local pre-dedup backup of duas.json
-data/duas.json.bak_before_dedup
+# Remotion
+.remotion/
+cache/
 
-# --- Secrets / keys ---
-*.pem
-*.key
-data/gemini_api_key.txt
-security/
-
-# --- Runtime secrets (never commit) ---
-remotion/dashboard/auth.json
-data/ai_api_config.json
-remotion/src/data/ai_api_config.json
-
-# --- Downloaded background media (regenerate via download_backgrounds.py) ---
-assets/backgrounds/images/
-assets/backgrounds/videos/
-# Remotion render copies of Pexels media (copied by make_manifest.resolve_bg)
-remotion/public/backgrounds/*.mp4
-remotion/public/backgrounds/*.jpg
-remotion/public/backgrounds/*.webm
-remotion/public/backgrounds/*.png
-
-# --- Tools (NSSM binary) ---
-tools/
-
-# --- Opencode config (local paths) ---
-opencode.json
-
-# --- Dashboard runtime (changes every run, never commit) ---
-.coverage
-remotion/dashboard/cache.json
-remotion/dashboard/crash.log
-remotion/dashboard/history.json
-remotion/dashboard/qc.json
+# OS
+.DS_Store
+.env.local
+.idea
+.vscode

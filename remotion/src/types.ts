@@ -18,6 +18,12 @@ export interface DuaManifest {
   totalDuration: number;
   audioFile: string;
   template?: string;
+  // NEXT-LEVEL LOOK: when 'luminous' the video/thumbnail render through the
+  // Direction-A "Luminous Modern" system (page-karaoke, crossfade phases,
+  // procedural geometry, minimal editorial layout); when 'editorial' through
+  // the Direction-C "Editorial" system (bismillah poster, whole-verse
+  // calligraphy, Urdu meaning block, closing panel). Absent|'classic' = legacy.
+  visualDirection?: 'classic' | 'luminous' | 'editorial';
   masterpiece?: boolean;
   arabicWords: WordTiming[];
   urduWords: WordTiming[];

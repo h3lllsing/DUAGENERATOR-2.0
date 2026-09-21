@@ -1,0 +1,11 @@
+# --- DuaGenerator 2.0 (remotion) ---
+node_modules/
+out/
+out/
+.remotion/
+*.tsbuildinfo
+*.mp4
+!out-probe.mp4
+*.log
+Thumbs.db
+.DS_Store

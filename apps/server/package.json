@@ -17,6 +17,8 @@
     "@fastify/rate-limit": "^9.0.0",
     "@fastify/static": "^7.0.0",
     "@fastify/websocket": "^10.0.0",
+    "@remotion/bundler": "^4.0.520",
+    "@remotion/renderer": "^4.0.520",
     "better-sqlite3": "^13.0.0",
     "fastify": "^4.28.0",
     "zod": "^3.23.0"

@@ -301,6 +301,13 @@ def resolve_item(dua_id):
 
     mp4 = os.path.join(OUT, safe_title(title) + ".mp4")
     if not os.path.exists(mp4):
+        # V2 renders land as <dua_id>.mp4 / <dua_id>_final.mp4 (title-less names).
+        for cand in (dua_id + ".mp4", dua_id + "_final.mp4"):
+            cand_path = os.path.join(OUT, cand)
+            if os.path.exists(cand_path):
+                mp4 = cand_path
+                break
+    if not os.path.exists(mp4):
         reasons.append("no video: " + os.path.basename(mp4))
 
     thumb = os.path.join(THUMB_DIR, dua_id + ".png")

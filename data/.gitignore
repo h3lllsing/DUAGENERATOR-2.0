@@ -1,0 +1,9 @@
+﻿# V2 data directory - gitignored (secrets, DB, backups)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+duav2_token.json
+client_secret*
+auth.json
+*.token
+backups/

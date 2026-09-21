@@ -1,0 +1,40 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "docs/V2_ONBOARDING.md"
+  ],
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "H:\\DUAGENERATOR 2.0"
+      ],
+      "enabled": true
+    },
+    "github": {
+      "type": "remote",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:GITHUB_TOKEN}"
+      }
+    },
+    "security-tools": {
+      "type": "local",
+      "command": [
+        "python",
+        "H:\\MCP\\server\\server.py"
+      ],
+      "env": {
+        "WORKSPACE_ROOT": "H:\\DUAGENERATOR 2.0",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "enabled": true
+    }
+  }
+}
