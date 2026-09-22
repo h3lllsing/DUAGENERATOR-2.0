@@ -27,6 +27,6 @@
     "@eslint/js": "^10.0.1",
     "@types/react": "^18.3.12",
     "eslint": "^10.9.1",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.8"
   }
 }
