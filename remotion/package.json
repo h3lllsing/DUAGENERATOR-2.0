@@ -12,7 +12,7 @@
   "dependencies": {
     "@remotion/captions": "^4.0.520",
     "@remotion/cli": "4.0.520",
-    "@remotion/fonts": "4.0.520",
+    "@remotion/fonts": "4.0.526",
     "@remotion/layout-utils": "4.0.520",
     "@remotion/lottie": "4.0.520",
     "@remotion/noise": "4.0.520",
